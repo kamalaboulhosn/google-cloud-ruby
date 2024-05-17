@@ -1,5 +1,39 @@
 # Changelog
 
+### 0.8.0 (2024-02-28)
+
+#### Features
+
+* support for getting PSC DNS name from the GetConnectionInfo API 
+* Support for instance level network configuration 
+* Support for instance level Private Service Connect configuration 
+* Support for obtaining the public IP address of an instance 
+* Support for the list_databases RPC ([#25264](https://github.com/googleapis/google-cloud-ruby/issues/25264)) 
+
+### 0.7.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24862](https://github.com/googleapis/google-cloud-ruby/issues/24862)) 
+
+### 0.6.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.6.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.6.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23772](https://github.com/googleapis/google-cloud-ruby/issues/23772)) 
+
 ### 0.5.0 (2023-09-25)
 
 #### Features

@@ -1,5 +1,47 @@
 # Release History
 
+### 0.14.1 (2024-04-25)
+
+#### Documentation
+
+* Identify certain fields as required ([#25679](https://github.com/googleapis/google-cloud-ruby/issues/25679)) 
+
+### 0.14.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24864](https://github.com/googleapis/google-cloud-ruby/issues/24864)) 
+
+### 0.13.1 (2024-02-22)
+
+#### Documentation
+
+* update unenrollDataSources API documentation ([#24840](https://github.com/googleapis/google-cloud-ruby/issues/24840)) 
+
+### 0.13.0 (2024-02-16)
+
+#### Features
+
+* Add UnenrollDataSources API which gives users a programmatic way to unenroll data sources ([#24810](https://github.com/googleapis/google-cloud-ruby/issues/24810)) 
+
+### 0.12.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.12.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.12.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23774](https://github.com/googleapis/google-cloud-ruby/issues/23774)) 
+
 ### 0.11.0 (2023-09-12)
 
 #### Features

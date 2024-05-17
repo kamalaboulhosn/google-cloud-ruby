@@ -23,6 +23,7 @@ module Google
       module V3
         # An internal checker allows Uptime checks to run on private/internal GCP
         # resources.
+        # @deprecated This message is deprecated and may be removed in the next major version update.
         # @!attribute [rw] name
         #   @return [::String]
         #     A unique resource name for this InternalChecker. The format is:
@@ -78,11 +79,38 @@ module Google
           end
         end
 
+        # Describes a Synthetic Monitor to be invoked by Uptime.
+        # @!attribute [rw] cloud_function_v2
+        #   @return [::Google::Cloud::Monitoring::V3::SyntheticMonitorTarget::CloudFunctionV2Target]
+        #     Target a Synthetic Monitor GCFv2 instance.
+        class SyntheticMonitorTarget
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # A Synthetic Monitor deployed to a Cloud Functions V2 instance.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. Fully qualified GCFv2 resource name
+          #     i.e. `projects/{project}/locations/{location}/functions/{function}`
+          #     Required.
+          # @!attribute [r] cloud_run_revision
+          #   @return [::Google::Api::MonitoredResource]
+          #     Output only. The `cloud_run_revision` Monitored Resource associated with
+          #     the GCFv2. The Synthetic Monitor execution results (metrics, logs, and
+          #     spans) are reported against this Monitored Resource. This field is output
+          #     only.
+          class CloudFunctionV2Target
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+        end
+
         # This message configures which resources and services to monitor for
         # availability.
         # @!attribute [rw] name
         #   @return [::String]
-        #     A unique resource name for this Uptime check configuration. The format is:
+        #     Identifier. A unique resource name for this Uptime check configuration. The
+        #     format is:
         #
         #          projects/[PROJECT_ID_OR_NUMBER]/uptimeCheckConfigs/[UPTIME_CHECK_ID]
         #
@@ -114,6 +142,9 @@ module Google
         # @!attribute [rw] resource_group
         #   @return [::Google::Cloud::Monitoring::V3::UptimeCheckConfig::ResourceGroup]
         #     The group resource associated with the configuration.
+        # @!attribute [rw] synthetic_monitor
+        #   @return [::Google::Cloud::Monitoring::V3::SyntheticMonitorTarget]
+        #     Specifies a Synthetic Monitor to invoke.
         # @!attribute [rw] http_check
         #   @return [::Google::Cloud::Monitoring::V3::UptimeCheckConfig::HttpCheck]
         #     Contains information needed to make an HTTP or HTTPS check.
@@ -148,12 +179,14 @@ module Google
         #     minimum of 3 locations.  Not specifying this field will result in Uptime
         #     checks running from all available regions.
         # @!attribute [rw] is_internal
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Boolean]
         #     If this is `true`, then checks are made only from the 'internal_checkers'.
         #     If it is `false`, then checks are made only from the 'selected_regions'.
         #     It is an error to provide 'selected_regions' when is_internal is `true`,
         #     or to provide 'internal_checkers' when is_internal is `false`.
         # @!attribute [rw] internal_checkers
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Array<::Google::Cloud::Monitoring::V3::InternalChecker>]
         #     The internal checkers that this check will egress from. If `is_internal` is
         #     `true` and this list is empty, the check will egress from all the
@@ -223,6 +256,7 @@ module Google
           #   @return [::Google::Cloud::Monitoring::V3::UptimeCheckConfig::HttpCheck::BasicAuthentication]
           #     The authentication information. Optional when creating an HTTP check;
           #     defaults to empty.
+          #     Do not set both `auth_method` and `auth_info`.
           # @!attribute [rw] mask_headers
           #   @return [::Boolean]
           #     Boolean specifying whether to encrypt the header information.
@@ -284,6 +318,11 @@ module Google
           # @!attribute [rw] ping_config
           #   @return [::Google::Cloud::Monitoring::V3::UptimeCheckConfig::PingConfig]
           #     Contains information needed to add pings to an HTTP check.
+          # @!attribute [rw] service_agent_authentication
+          #   @return [::Google::Cloud::Monitoring::V3::UptimeCheckConfig::HttpCheck::ServiceAgentAuthentication]
+          #     If specified, Uptime will generate and attach an OIDC JWT token for the
+          #     Monitoring service agent service account as an `Authorization` header
+          #     in the HTTP request when probing.
           class HttpCheck
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -337,6 +376,28 @@ module Google
 
                 # The class of all status codes.
                 STATUS_CLASS_ANY = 1000
+              end
+            end
+
+            # Contains information needed for generating an
+            # [OpenID Connect
+            # token](https://developers.google.com/identity/protocols/OpenIDConnect).
+            # The OIDC token will be generated for the Monitoring service agent service
+            # account.
+            # @!attribute [rw] type
+            #   @return [::Google::Cloud::Monitoring::V3::UptimeCheckConfig::HttpCheck::ServiceAgentAuthentication::ServiceAgentAuthenticationType]
+            #     Type of authentication.
+            class ServiceAgentAuthentication
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Type of authentication.
+              module ServiceAgentAuthenticationType
+                # Default value, will result in OIDC Authentication.
+                SERVICE_AGENT_AUTHENTICATION_TYPE_UNSPECIFIED = 0
+
+                # OIDC Authentication
+                OIDC_TOKEN = 1
               end
             end
 

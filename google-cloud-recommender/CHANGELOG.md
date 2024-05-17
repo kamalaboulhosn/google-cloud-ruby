@@ -1,5 +1,17 @@
 # Release History
 
+### 1.5.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24875](https://github.com/googleapis/google-cloud-ruby/issues/24875)) 
+
+### 1.4.0 (2024-01-15)
+
+#### Features
+
+* Support for universe_domain ([#24265](https://github.com/googleapis/google-cloud-ruby/issues/24265)) 
+
 ### 1.3.0 (2023-03-09)
 
 #### Features

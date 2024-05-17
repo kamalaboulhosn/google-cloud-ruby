@@ -649,31 +649,31 @@ module Google
         #     * `labels.env:*` to find Google Cloud resources that have a label `env`.
         #     * `tagKeys:env` to find Google Cloud resources that have directly
         #       attached tags where the
-        #       [`TagKey`](https://cloud.google.com/resource-manager/reference/rest/v3/tagKeys#resource:-tagkey)
-        #       .`namespacedName` contains `env`.
+        #       [`TagKey.namespacedName`](https://cloud.google.com/resource-manager/reference/rest/v3/tagKeys#resource:-tagkey)
+        #       contains `env`.
         #     * `tagValues:prod*` to find Google Cloud resources that have directly
         #       attached tags where the
-        #       [`TagValue`](https://cloud.google.com/resource-manager/reference/rest/v3/tagValues#resource:-tagvalue)
-        #       .`namespacedName` contains a word prefixed by `prod`.
+        #       [`TagValue.namespacedName`](https://cloud.google.com/resource-manager/reference/rest/v3/tagValues#resource:-tagvalue)
+        #       contains a word prefixed by `prod`.
         #     * `tagValueIds=tagValues/123` to find Google Cloud resources that have
         #       directly attached tags where the
-        #       [`TagValue`](https://cloud.google.com/resource-manager/reference/rest/v3/tagValues#resource:-tagvalue)
-        #       .`name` is exactly `tagValues/123`.
+        #       [`TagValue.name`](https://cloud.google.com/resource-manager/reference/rest/v3/tagValues#resource:-tagvalue)
+        #       is exactly `tagValues/123`.
         #     * `effectiveTagKeys:env` to find Google Cloud resources that have
         #       directly attached or inherited tags where the
-        #       [`TagKey`](https://cloud.google.com/resource-manager/reference/rest/v3/tagKeys#resource:-tagkey)
-        #       .`namespacedName` contains `env`.
+        #       [`TagKey.namespacedName`](https://cloud.google.com/resource-manager/reference/rest/v3/tagKeys#resource:-tagkey)
+        #       contains `env`.
         #     * `effectiveTagValues:prod*` to find Google Cloud resources that have
         #       directly attached or inherited tags where the
-        #       [`TagValue`](https://cloud.google.com/resource-manager/reference/rest/v3/tagValues#resource:-tagvalue)
-        #       .`namespacedName` contains a word prefixed by `prod`.
+        #       [`TagValue.namespacedName`](https://cloud.google.com/resource-manager/reference/rest/v3/tagValues#resource:-tagvalue)
+        #       contains a word prefixed by `prod`.
         #     * `effectiveTagValueIds=tagValues/123` to find Google Cloud resources that
         #        have directly attached or inherited tags where the
-        #       [`TagValue`](https://cloud.google.com/resource-manager/reference/rest/v3/tagValues#resource:-tagvalue)
-        #       .`name` is exactly `tagValues/123`.
+        #       [`TagValue.name`](https://cloud.google.com/resource-manager/reference/rest/v3/tagValues#resource:-tagvalue)
+        #       is exactly `tagValues/123`.
         #     * `kmsKey:key` to find Google Cloud resources encrypted with a
         #       customer-managed encryption key whose name contains `key` as a word. This
-        #       field is deprecated. Please use the `kmsKeys` field to retrieve Cloud KMS
+        #       field is deprecated. Use the `kmsKeys` field to retrieve Cloud KMS
         #       key information.
         #     * `kmsKeys:key` to find Google Cloud resources encrypted with
         #       customer-managed encryption keys whose name contains the word `key`.
@@ -685,6 +685,10 @@ module Google
         #       Compute Engine instances that have relationships with `instance-group-1`
         #       in the Compute Engine instance group resource name, for relationship type
         #       `INSTANCE_TO_INSTANCEGROUP`.
+        #     * `sccSecurityMarks.key=value` to find Cloud resources that are attached
+        #       with security marks whose key is `key` and value is `value`.
+        #     * `sccSecurityMarks.key:*` to find Cloud resources that are attached with
+        #       security marks whose key is `key`.
         #     * `state:ACTIVE` to find Google Cloud resources whose state contains
         #       `ACTIVE` as a word.
         #     * `NOT state:ACTIVE` to find Google Cloud resources whose state doesn't
@@ -706,8 +710,8 @@ module Google
         # @!attribute [rw] asset_types
         #   @return [::Array<::String>]
         #     Optional. A list of asset types that this request searches for. If empty,
-        #     it will search all the [searchable asset
-        #     types](https://cloud.google.com/asset-inventory/docs/supported-asset-types#searchable_asset_types).
+        #     it will search all the asset types [supported by search
+        #     APIs](https://cloud.google.com/asset-inventory/docs/supported-asset-types).
         #
         #     Regular expressions are also supported. For example:
         #
@@ -879,9 +883,9 @@ module Google
         # @!attribute [rw] asset_types
         #   @return [::Array<::String>]
         #     Optional. A list of asset types that the IAM policies are attached to. If
-        #     empty, it will search the IAM policies that are attached to all the
-        #     [searchable asset
-        #     types](https://cloud.google.com/asset-inventory/docs/supported-asset-types#searchable_asset_types).
+        #     empty, it will search the IAM policies that are attached to all the asset
+        #     types [supported by search
+        #     APIs](https://cloud.google.com/asset-inventory/docs/supported-asset-types)
         #
         #     Regular expressions are also supported. For example:
         #
@@ -937,10 +941,10 @@ module Google
         #     folder number (such as "folders/123"), a project ID (such as
         #     "projects/my-project-id"), or a project number (such as "projects/12345").
         #
-        #     To know how to get organization id, visit [here
+        #     To know how to get organization ID, visit [here
         #     ](https://cloud.google.com/resource-manager/docs/creating-managing-organization#retrieving_your_organization_id).
         #
-        #     To know how to get folder or project id, visit [here
+        #     To know how to get folder or project ID, visit [here
         #     ](https://cloud.google.com/resource-manager/docs/creating-managing-folders#viewing_or_listing_folders_and_projects).
         # @!attribute [rw] resource_selector
         #   @return [::Google::Cloud::Asset::V1::IamPolicyAnalysisQuery::ResourceSelector]
@@ -1147,7 +1151,7 @@ module Google
         #     If both `analysis_query` and `saved_analysis_query` are provided, they
         #     will be merged together with the `saved_analysis_query` as base and
         #     the `analysis_query` as overrides. For more details of the merge behavior,
-        #     please refer to the
+        #     refer to the
         #     [MergeFrom](https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.message#Message.MergeFrom.details)
         #     page.
         #
@@ -1316,7 +1320,7 @@ module Google
         #     If both `analysis_query` and `saved_analysis_query` are provided, they
         #     will be merged together with the `saved_analysis_query` as base and
         #     the `analysis_query` as overrides. For more details of the merge behavior,
-        #     please refer to the
+        #     refer to the
         #     [MergeFrom](https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.message#Message.MergeFrom.details)
         #     doc.
         #
@@ -1820,17 +1824,17 @@ module Google
         #     folder number (such as "folders/123"), a project ID (such as
         #     "projects/my-project-id"), or a project number (such as "projects/12345").
         #
-        #     To know how to get organization id, visit [here
+        #     To know how to get organization ID, visit [here
         #     ](https://cloud.google.com/resource-manager/docs/creating-managing-organization#retrieving_your_organization_id).
         #
-        #     To know how to get folder or project id, visit [here
+        #     To know how to get folder or project ID, visit [here
         #     ](https://cloud.google.com/resource-manager/docs/creating-managing-folders#viewing_or_listing_folders_and_projects).
         # @!attribute [rw] names
         #   @return [::Array<::String>]
         #     Required. The names refer to the [full_resource_names]
         #     (https://cloud.google.com/asset-inventory/docs/resource-name-format)
-        #     of [searchable asset
-        #     types](https://cloud.google.com/asset-inventory/docs/supported-asset-types#searchable_asset_types).
+        #     of the asset types [supported by search
+        #     APIs](https://cloud.google.com/asset-inventory/docs/supported-asset-types).
         #     A maximum of 20 resources' effective policies can be retrieved in a batch.
         class BatchGetEffectiveIamPoliciesRequest
           include ::Google::Protobuf::MessageExts
@@ -1953,8 +1957,8 @@ module Google
           # specific circumstances to support analysis results.
           # @!attribute [rw] values
           #   @return [::Google::Cloud::Asset::V1::AnalyzerOrgPolicy::Rule::StringValues]
-          #     List of values to be used for this PolicyRule. This field can be set
-          #     only in Policies for list constraints.
+          #     List of values to be used for this policy rule. This field can be set
+          #     only in policies for list constraints.
           # @!attribute [rw] allow_all
           #   @return [::Boolean]
           #     Setting this to true means that all values are allowed. This field can
@@ -1971,6 +1975,22 @@ module Google
           # @!attribute [rw] condition
           #   @return [::Google::Type::Expr]
           #     The evaluating condition for this rule.
+          # @!attribute [rw] condition_evaluation
+          #   @return [::Google::Cloud::Asset::V1::ConditionEvaluation]
+          #     The condition evaluation result for this rule.
+          #     Only populated if it meets all the following criteria:
+          #
+          #     * There is a
+          #     {::Google::Cloud::Asset::V1::AnalyzerOrgPolicy::Rule#condition condition}
+          #     defined for this rule.
+          #     * This rule is within
+          #       {::Google::Cloud::Asset::V1::AnalyzeOrgPolicyGovernedContainersResponse::GovernedContainer#consolidated_policy AnalyzeOrgPolicyGovernedContainersResponse.GovernedContainer.consolidated_policy},
+          #       or
+          #       {::Google::Cloud::Asset::V1::AnalyzeOrgPolicyGovernedAssetsResponse::GovernedAsset#consolidated_policy AnalyzeOrgPolicyGovernedAssetsResponse.GovernedAsset.consolidated_policy}
+          #       when the
+          #       {::Google::Cloud::Asset::V1::AnalyzeOrgPolicyGovernedAssetsResponse::GovernedAsset AnalyzeOrgPolicyGovernedAssetsResponse.GovernedAsset}
+          #       has
+          #       {::Google::Cloud::Asset::V1::AnalyzeOrgPolicyGovernedAssetsResponse::GovernedAsset#governed_resource AnalyzeOrgPolicyGovernedAssetsResponse.GovernedAsset.governed_resource}.
           class Rule
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -2156,12 +2176,15 @@ module Google
         #   @return [::String]
         #     The expression to filter
         #     {::Google::Cloud::Asset::V1::AnalyzeOrgPoliciesResponse#org_policy_results AnalyzeOrgPoliciesResponse.org_policy_results}.
-        #     The only supported field is `consolidated_policy.attached_resource`, and
-        #     the only supported operator is `=`.
+        #     Filtering is currently available for bare literal values and the following
+        #     fields:
+        #     * consolidated_policy.attached_resource
+        #     * consolidated_policy.rules.enforce
         #
-        #     Example:
+        #     When filtering by a specific field, the only supported operator is `=`.
+        #     For example, filtering by
         #     consolidated_policy.attached_resource="//cloudresourcemanager.googleapis.com/folders/001"
-        #     will return the org policy results of"folders/001".
+        #     will return all the Organization Policy results attached to "folders/001".
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     The maximum number of items to return per page. If unspecified,
@@ -2210,6 +2233,21 @@ module Google
           #
           #     If the constraint is defined with default policy, it will also appear in
           #     the list.
+          # @!attribute [rw] project
+          #   @return [::String]
+          #     The project that this consolidated policy belongs to, in the format of
+          #     projects/\\{PROJECT_NUMBER}. This field is available when the consolidated
+          #     policy belongs to a project.
+          # @!attribute [rw] folders
+          #   @return [::Array<::String>]
+          #     The folder(s) that this consolidated policy belongs to, in the format of
+          #     folders/\\{FOLDER_NUMBER}. This field is available when the consolidated
+          #     policy belongs (directly or cascadingly) to one or more folders.
+          # @!attribute [rw] organization
+          #   @return [::String]
+          #     The organization that this consolidated policy belongs to, in the format
+          #     of organizations/\\{ORGANIZATION_NUMBER}. This field is available when the
+          #     consolidated policy belongs (directly or cascadingly) to an organization.
           class OrgPolicyResult
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -2233,13 +2271,17 @@ module Google
         #     constraint.
         # @!attribute [rw] filter
         #   @return [::String]
-        #     The expression to filter the governed containers in result.
-        #     The only supported field is `parent`, and the only supported operator is
-        #     `=`.
+        #     The expression to filter
+        #     {::Google::Cloud::Asset::V1::AnalyzeOrgPolicyGovernedContainersResponse#governed_containers AnalyzeOrgPolicyGovernedContainersResponse.governed_containers}.
+        #     Filtering is currently available for bare literal values and the following
+        #     fields:
+        #     * parent
+        #     * consolidated_policy.rules.enforce
         #
-        #     Example:
-        #     parent="//cloudresourcemanager.googleapis.com/folders/001" will return all
-        #     containers under "folders/001".
+        #     When filtering by a specific field, the only supported operator is `=`.
+        #     For example, filtering by
+        #     parent="//cloudresourcemanager.googleapis.com/folders/001"
+        #     will return all the containers under "folders/001".
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     The maximum number of items to return per page. If unspecified,
@@ -2298,6 +2340,24 @@ module Google
           #
           #     If the constraint is defined with default policy, it will also appear in
           #     the list.
+          # @!attribute [rw] project
+          #   @return [::String]
+          #     The project that this resource belongs to, in the format of
+          #     projects/\\{PROJECT_NUMBER}. This field is available when the resource
+          #     belongs to a project.
+          # @!attribute [rw] folders
+          #   @return [::Array<::String>]
+          #     The folder(s) that this resource belongs to, in the format of
+          #     folders/\\{FOLDER_NUMBER}. This field is available when the resource
+          #     belongs (directly or cascadingly) to one or more folders.
+          # @!attribute [rw] organization
+          #   @return [::String]
+          #     The organization that this resource belongs to, in the format of
+          #     organizations/\\{ORGANIZATION_NUMBER}. This field is available when the
+          #     resource belongs (directly or cascadingly) to an organization.
+          # @!attribute [rw] effective_tags
+          #   @return [::Array<::Google::Cloud::Asset::V1::EffectiveTagDetails>]
+          #     The effective tags on this resource.
           class GovernedContainer
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -2321,18 +2381,33 @@ module Google
         #     constraint.
         # @!attribute [rw] filter
         #   @return [::String]
-        #     The expression to filter the governed assets in result. The only supported
-        #     fields for governed resources are `governed_resource.project` and
-        #     `governed_resource.folders`. The only supported fields for governed iam
-        #     policies are `governed_iam_policy.project` and
-        #     `governed_iam_policy.folders`. The only supported operator is `=`.
+        #     The expression to filter
+        #     {::Google::Cloud::Asset::V1::AnalyzeOrgPolicyGovernedAssetsResponse#governed_assets AnalyzeOrgPolicyGovernedAssetsResponse.governed_assets}.
         #
-        #     Example 1: governed_resource.project="projects/12345678" filter will return
-        #     all governed resources under projects/12345678 including the project
-        #     ifself, if applicable.
+        #     For governed resources, filtering is currently available for bare literal
+        #     values and the following fields:
+        #     * governed_resource.project
+        #     * governed_resource.folders
+        #     * consolidated_policy.rules.enforce
+        #     When filtering by `governed_resource.project` or
+        #     `consolidated_policy.rules.enforce`, the only supported operator is `=`.
+        #     When filtering by `governed_resource.folders`, the supported operators
+        #     are `=` and `:`.
+        #     For example, filtering by `governed_resource.project="projects/12345678"`
+        #     will return all the governed resources under "projects/12345678",
+        #     including the project itself if applicable.
         #
-        #     Example 2: governed_iam_policy.folders="folders/12345678" filter will
-        #     return all governed iam policies under folders/12345678, if applicable.
+        #     For governed IAM policies, filtering is currently available for bare
+        #     literal values and the following fields:
+        #     * governed_iam_policy.project
+        #     * governed_iam_policy.folders
+        #     * consolidated_policy.rules.enforce
+        #     When filtering by `governed_iam_policy.project` or
+        #     `consolidated_policy.rules.enforce`, the only supported operator is `=`.
+        #     When filtering by `governed_iam_policy.folders`, the supported operators
+        #     are `=` and `:`.
+        #     For example, filtering by `governed_iam_policy.folders:"folders/12345678"`
+        #     will return all the governed IAM policies under "folders/001".
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     The maximum number of items to return per page. If unspecified,
@@ -2390,6 +2465,18 @@ module Google
           #     The organization that this resource belongs to, in the format of
           #     organizations/\\{ORGANIZATION_NUMBER}. This field is available when the
           #     resource belongs (directly or cascadingly) to an organization.
+          # @!attribute [rw] asset_type
+          #   @return [::String]
+          #     The asset type of the
+          #     {::Google::Cloud::Asset::V1::AnalyzeOrgPolicyGovernedAssetsResponse::GovernedResource#full_resource_name AnalyzeOrgPolicyGovernedAssetsResponse.GovernedResource.full_resource_name}
+          #     Example:
+          #     `cloudresourcemanager.googleapis.com/Project`
+          #     See [Cloud Asset Inventory Supported Asset
+          #     Types](https://cloud.google.com/asset-inventory/docs/supported-asset-types)
+          #     for all supported asset types.
+          # @!attribute [rw] effective_tags
+          #   @return [::Array<::Google::Cloud::Asset::V1::EffectiveTagDetails>]
+          #     The effective tags on this resource.
           class GovernedResource
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -2423,6 +2510,15 @@ module Google
           #     The organization that this IAM policy belongs to, in the format of
           #     organizations/\\{ORGANIZATION_NUMBER}. This field is available when the
           #     IAM policy belongs (directly or cascadingly) to an organization.
+          # @!attribute [rw] asset_type
+          #   @return [::String]
+          #     The asset type of the
+          #     {::Google::Cloud::Asset::V1::AnalyzeOrgPolicyGovernedAssetsResponse::GovernedIamPolicy#attached_resource AnalyzeOrgPolicyGovernedAssetsResponse.GovernedIamPolicy.attached_resource}.
+          #     Example:
+          #     `cloudresourcemanager.googleapis.com/Project`
+          #     See [Cloud Asset Inventory Supported Asset
+          #     Types](https://cloud.google.com/asset-inventory/docs/supported-asset-types)
+          #     for all supported asset types.
           class GovernedIamPolicy
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

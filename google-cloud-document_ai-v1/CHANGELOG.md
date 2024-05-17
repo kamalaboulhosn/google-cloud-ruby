@@ -1,5 +1,68 @@
 # Changelog
 
+### 0.21.1 (2024-05-16)
+
+#### Documentation
+
+* Update comment formatting/wrapping ([#25878](https://github.com/googleapis/google-cloud-ruby/issues/25878)) 
+
+### 0.21.0 (2024-04-19)
+
+#### Features
+
+* Support FoundationModelTuningOptions ([#25687](https://github.com/googleapis/google-cloud-ruby/issues/25687)) 
+#### Documentation
+
+* Minor updates 
+
+### 0.20.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24869](https://github.com/googleapis/google-cloud-ruby/issues/24869)) 
+
+### 0.19.0 (2024-02-16)
+
+#### Features
+
+* Add support for schema_override in ProcessOptions ([#24824](https://github.com/googleapis/google-cloud-ruby/issues/24824)) 
+
+### 0.18.0 (2024-02-06)
+
+#### Features
+
+* Expose model_type field in processor version APIs ([#24748](https://github.com/googleapis/google-cloud-ruby/issues/24748)) 
+
+### 0.17.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.17.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.17.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23778](https://github.com/googleapis/google-cloud-ruby/issues/23778)) 
+
+### 0.16.2 (2023-12-13)
+
+#### Documentation
+
+* fix typo in the OccurrenceType documentation 
+
+### 0.16.1 (2023-11-06)
+
+#### Documentation
+
+* Update documentation ([#23498](https://github.com/googleapis/google-cloud-ruby/issues/23498)) 
+
 ### 0.16.0 (2023-09-28)
 
 #### Features

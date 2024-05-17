@@ -38,9 +38,15 @@ module Google
             # scheduling of data scans on Google Cloud Platform based data sets.
             #
             # To learn more about concepts and find how-to guides see
-            # https://cloud.google.com/dlp/docs/.
+            # https://cloud.google.com/sensitive-data-protection/docs/.
             #
             class Client
+              # @private
+              API_VERSION = ""
+
+              # @private
+              DEFAULT_ENDPOINT_TEMPLATE = "dlp.$UNIVERSE_DOMAIN$"
+
               include Paths
 
               # @private
@@ -218,6 +224,36 @@ module Google
                     initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
                   }
 
+                  default_config.rpcs.list_project_data_profiles.timeout = 300.0
+                  default_config.rpcs.list_project_data_profiles.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
+                  default_config.rpcs.list_table_data_profiles.timeout = 300.0
+                  default_config.rpcs.list_table_data_profiles.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
+                  default_config.rpcs.list_column_data_profiles.timeout = 300.0
+                  default_config.rpcs.list_column_data_profiles.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
+                  default_config.rpcs.get_project_data_profile.timeout = 300.0
+                  default_config.rpcs.get_project_data_profile.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
+                  default_config.rpcs.get_table_data_profile.timeout = 300.0
+                  default_config.rpcs.get_table_data_profile.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
+                  default_config.rpcs.get_column_data_profile.timeout = 300.0
+                  default_config.rpcs.get_column_data_profile.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
                   default_config.rpcs.hybrid_inspect_dlp_job.timeout = 300.0
 
                   default_config.rpcs.finish_dlp_job.timeout = 300.0
@@ -249,6 +285,15 @@ module Google
               end
 
               ##
+              # The effective universe domain
+              #
+              # @return [String]
+              #
+              def universe_domain
+                @dlp_service_stub.universe_domain
+              end
+
+              ##
               # Create a new DlpService REST client object.
               #
               # @example
@@ -275,8 +320,9 @@ module Google
                 credentials = @config.credentials
                 # Use self-signed JWT if the endpoint is unchanged from default,
                 # but only if the default endpoint does not have a region prefix.
-                enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                         !@config.endpoint.split(".").first.include?("-")
+                enable_self_signed_jwt = @config.endpoint.nil? ||
+                                         (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                         !@config.endpoint.split(".").first.include?("-"))
                 credentials ||= Credentials.default scope: @config.scope,
                                                     enable_self_signed_jwt: enable_self_signed_jwt
                 if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -286,13 +332,19 @@ module Google
                 @quota_project_id = @config.quota_project
                 @quota_project_id ||= credentials.quota_project_id if credentials.respond_to? :quota_project_id
 
+                @dlp_service_stub = ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.new(
+                  endpoint: @config.endpoint,
+                  endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                  universe_domain: @config.universe_domain,
+                  credentials: credentials
+                )
+
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
-                  config.endpoint = @config.endpoint
+                  config.endpoint = @dlp_service_stub.endpoint
+                  config.universe_domain = @dlp_service_stub.universe_domain
                 end
-
-                @dlp_service_stub = ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.new endpoint: @config.endpoint, credentials: credentials
               end
 
               ##
@@ -312,8 +364,10 @@ module Google
               # system will automatically choose what detectors to run. By default this may
               # be all types, but may change over time as detectors are updated.
               #
-              # For how to guides, see https://cloud.google.com/dlp/docs/inspecting-images
-              # and https://cloud.google.com/dlp/docs/inspecting-text,
+              # For how to guides, see
+              # https://cloud.google.com/sensitive-data-protection/docs/inspecting-images
+              # and
+              # https://cloud.google.com/sensitive-data-protection/docs/inspecting-text,
               #
               # @overload inspect_content(request, options = nil)
               #   Pass arguments to `inspect_content` via a request object, either of type
@@ -335,7 +389,7 @@ module Google
               #
               #     The format of this value varies depending on whether you have [specified a
               #     processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -394,12 +448,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.inspect_content.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.inspect_content.timeout,
@@ -421,8 +476,9 @@ module Google
               ##
               # Redacts potentially sensitive info from an image.
               # This method has limits on input size, processing time, and output size.
-              # See https://cloud.google.com/dlp/docs/redacting-sensitive-data-images to
-              # learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/redacting-sensitive-data-images
+              # to learn more.
               #
               # When no InfoTypes or CustomInfoTypes are specified in this request, the
               # system will automatically choose what detectors to run. By default this may
@@ -448,7 +504,7 @@ module Google
               #
               #     The format of this value varies depending on whether you have [specified a
               #     processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -505,12 +561,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.redact_image.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.redact_image.timeout,
@@ -532,8 +589,9 @@ module Google
               ##
               # De-identifies potentially sensitive info from a ContentItem.
               # This method has limits on input size and output size.
-              # See https://cloud.google.com/dlp/docs/deidentify-sensitive-data to
-              # learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data
+              # to learn more.
               #
               # When no InfoTypes or CustomInfoTypes are specified in this request, the
               # system will automatically choose what detectors to run. By default this may
@@ -559,7 +617,7 @@ module Google
               #
               #     The format of this value varies depending on whether you have [specified a
               #     processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -636,12 +694,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.deidentify_content.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.deidentify_content.timeout,
@@ -663,7 +722,7 @@ module Google
               ##
               # Re-identifies content that has been de-identified.
               # See
-              # https://cloud.google.com/dlp/docs/pseudonymization#re-identification_in_free_text_code_example
+              # https://cloud.google.com/sensitive-data-protection/docs/pseudonymization#re-identification_in_free_text_code_example
               # to learn more.
               #
               # @overload reidentify_content(request, options = nil)
@@ -686,7 +745,7 @@ module Google
               #
               #     The format of this value varies depending on whether you have [specified a
               #     processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -763,12 +822,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.reidentify_content.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.reidentify_content.timeout,
@@ -789,8 +849,9 @@ module Google
 
               ##
               # Returns a list of the sensitive information types that DLP API
-              # supports. See https://cloud.google.com/dlp/docs/infotypes-reference to
-              # learn more.
+              # supports. See
+              # https://cloud.google.com/sensitive-data-protection/docs/infotypes-reference
+              # to learn more.
               #
               # @overload list_info_types(request, options = nil)
               #   Pass arguments to `list_info_types` via a request object, either of type
@@ -856,12 +917,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_info_types.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_info_types.timeout,
@@ -883,7 +945,9 @@ module Google
               ##
               # Creates an InspectTemplate for reusing frequently used configuration
               # for inspecting content, images, and storage.
-              # See https://cloud.google.com/dlp/docs/creating-templates to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates
+              # to learn more.
               #
               # @overload create_inspect_template(request, options = nil)
               #   Pass arguments to `create_inspect_template` via a request object, either of type
@@ -905,7 +969,7 @@ module Google
               #
               #     The format of this value varies depending on the scope of the request
               #     (project or organization) and whether you have [specified a processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -964,12 +1028,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_inspect_template.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_inspect_template.timeout,
@@ -990,7 +1055,9 @@ module Google
 
               ##
               # Updates the InspectTemplate.
-              # See https://cloud.google.com/dlp/docs/creating-templates to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates
+              # to learn more.
               #
               # @overload update_inspect_template(request, options = nil)
               #   Pass arguments to `update_inspect_template` via a request object, either of type
@@ -1049,12 +1116,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_inspect_template.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_inspect_template.timeout,
@@ -1075,7 +1143,9 @@ module Google
 
               ##
               # Gets an InspectTemplate.
-              # See https://cloud.google.com/dlp/docs/creating-templates to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates
+              # to learn more.
               #
               # @overload get_inspect_template(request, options = nil)
               #   Pass arguments to `get_inspect_template` via a request object, either of type
@@ -1130,12 +1200,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_inspect_template.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_inspect_template.timeout,
@@ -1156,7 +1227,9 @@ module Google
 
               ##
               # Lists InspectTemplates.
-              # See https://cloud.google.com/dlp/docs/creating-templates to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates
+              # to learn more.
               #
               # @overload list_inspect_templates(request, options = nil)
               #   Pass arguments to `list_inspect_templates` via a request object, either of type
@@ -1178,7 +1251,7 @@ module Google
               #
               #     The format of this value varies depending on the scope of the request
               #     (project or organization) and whether you have [specified a processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -1254,12 +1327,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_inspect_templates.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_inspect_templates.timeout,
@@ -1281,7 +1355,9 @@ module Google
 
               ##
               # Deletes an InspectTemplate.
-              # See https://cloud.google.com/dlp/docs/creating-templates to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates
+              # to learn more.
               #
               # @overload delete_inspect_template(request, options = nil)
               #   Pass arguments to `delete_inspect_template` via a request object, either of type
@@ -1336,12 +1412,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_inspect_template.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_inspect_template.timeout,
@@ -1363,8 +1440,9 @@ module Google
               ##
               # Creates a DeidentifyTemplate for reusing frequently used configuration
               # for de-identifying content, images, and storage.
-              # See https://cloud.google.com/dlp/docs/creating-templates-deid to learn
-              # more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates-deid
+              # to learn more.
               #
               # @overload create_deidentify_template(request, options = nil)
               #   Pass arguments to `create_deidentify_template` via a request object, either of type
@@ -1386,7 +1464,7 @@ module Google
               #
               #     The format of this value varies depending on the scope of the request
               #     (project or organization) and whether you have [specified a processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -1445,12 +1523,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_deidentify_template.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_deidentify_template.timeout,
@@ -1471,8 +1550,9 @@ module Google
 
               ##
               # Updates the DeidentifyTemplate.
-              # See https://cloud.google.com/dlp/docs/creating-templates-deid to learn
-              # more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates-deid
+              # to learn more.
               #
               # @overload update_deidentify_template(request, options = nil)
               #   Pass arguments to `update_deidentify_template` via a request object, either of type
@@ -1532,12 +1612,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_deidentify_template.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_deidentify_template.timeout,
@@ -1558,8 +1639,9 @@ module Google
 
               ##
               # Gets a DeidentifyTemplate.
-              # See https://cloud.google.com/dlp/docs/creating-templates-deid to learn
-              # more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates-deid
+              # to learn more.
               #
               # @overload get_deidentify_template(request, options = nil)
               #   Pass arguments to `get_deidentify_template` via a request object, either of type
@@ -1614,12 +1696,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_deidentify_template.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_deidentify_template.timeout,
@@ -1640,8 +1723,9 @@ module Google
 
               ##
               # Lists DeidentifyTemplates.
-              # See https://cloud.google.com/dlp/docs/creating-templates-deid to learn
-              # more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates-deid
+              # to learn more.
               #
               # @overload list_deidentify_templates(request, options = nil)
               #   Pass arguments to `list_deidentify_templates` via a request object, either of type
@@ -1663,7 +1747,7 @@ module Google
               #
               #     The format of this value varies depending on the scope of the request
               #     (project or organization) and whether you have [specified a processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -1739,12 +1823,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_deidentify_templates.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_deidentify_templates.timeout,
@@ -1766,8 +1851,9 @@ module Google
 
               ##
               # Deletes a DeidentifyTemplate.
-              # See https://cloud.google.com/dlp/docs/creating-templates-deid to learn
-              # more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-templates-deid
+              # to learn more.
               #
               # @overload delete_deidentify_template(request, options = nil)
               #   Pass arguments to `delete_deidentify_template` via a request object, either of type
@@ -1823,12 +1909,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_deidentify_template.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_deidentify_template.timeout,
@@ -1850,7 +1937,9 @@ module Google
               ##
               # Creates a job trigger to run DLP actions such as scanning storage for
               # sensitive information on a set schedule.
-              # See https://cloud.google.com/dlp/docs/creating-job-triggers to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-job-triggers
+              # to learn more.
               #
               # @overload create_job_trigger(request, options = nil)
               #   Pass arguments to `create_job_trigger` via a request object, either of type
@@ -1872,7 +1961,7 @@ module Google
               #
               #     The format of this value varies depending on whether you have [specified a
               #     processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -1927,12 +2016,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_job_trigger.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_job_trigger.timeout,
@@ -1953,7 +2043,9 @@ module Google
 
               ##
               # Updates a job trigger.
-              # See https://cloud.google.com/dlp/docs/creating-job-triggers to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-job-triggers
+              # to learn more.
               #
               # @overload update_job_trigger(request, options = nil)
               #   Pass arguments to `update_job_trigger` via a request object, either of type
@@ -2011,12 +2103,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_job_trigger.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_job_trigger.timeout,
@@ -2094,12 +2187,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.hybrid_inspect_job_trigger.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.hybrid_inspect_job_trigger.timeout,
@@ -2120,7 +2214,9 @@ module Google
 
               ##
               # Gets a job trigger.
-              # See https://cloud.google.com/dlp/docs/creating-job-triggers to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-job-triggers
+              # to learn more.
               #
               # @overload get_job_trigger(request, options = nil)
               #   Pass arguments to `get_job_trigger` via a request object, either of type
@@ -2174,12 +2270,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_job_trigger.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_job_trigger.timeout,
@@ -2200,7 +2297,9 @@ module Google
 
               ##
               # Lists job triggers.
-              # See https://cloud.google.com/dlp/docs/creating-job-triggers to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-job-triggers
+              # to learn more.
               #
               # @overload list_job_triggers(request, options = nil)
               #   Pass arguments to `list_job_triggers` via a request object, either of type
@@ -2222,7 +2321,7 @@ module Google
               #
               #     The format of this value varies depending on whether you have [specified a
               #     processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -2323,12 +2422,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_job_triggers.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_job_triggers.timeout,
@@ -2350,7 +2450,9 @@ module Google
 
               ##
               # Deletes a job trigger.
-              # See https://cloud.google.com/dlp/docs/creating-job-triggers to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-job-triggers
+              # to learn more.
               #
               # @overload delete_job_trigger(request, options = nil)
               #   Pass arguments to `delete_job_trigger` via a request object, either of type
@@ -2404,12 +2506,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_job_trigger.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_job_trigger.timeout,
@@ -2484,12 +2587,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.activate_job_trigger.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.activate_job_trigger.timeout,
@@ -2578,12 +2682,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_discovery_config.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_discovery_config.timeout,
@@ -2661,12 +2766,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_discovery_config.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_discovery_config.timeout,
@@ -2740,12 +2846,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_discovery_config.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_discovery_config.timeout,
@@ -2850,12 +2957,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_discovery_configs.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_discovery_configs.timeout,
@@ -2930,12 +3038,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_discovery_config.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_discovery_config.timeout,
@@ -2956,8 +3065,11 @@ module Google
 
               ##
               # Creates a new job to inspect storage or calculate risk metrics.
-              # See https://cloud.google.com/dlp/docs/inspecting-storage and
-              # https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/inspecting-storage
+              # and
+              # https://cloud.google.com/sensitive-data-protection/docs/compute-risk-analysis
+              # to learn more.
               #
               # When no InfoTypes or CustomInfoTypes are specified in inspect jobs, the
               # system will automatically choose what detectors to run. By default this may
@@ -2983,7 +3095,7 @@ module Google
               #
               #     The format of this value varies depending on whether you have [specified a
               #     processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -3041,12 +3153,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_dlp_job.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_dlp_job.timeout,
@@ -3067,8 +3180,11 @@ module Google
 
               ##
               # Lists DlpJobs that match the specified filter in the request.
-              # See https://cloud.google.com/dlp/docs/inspecting-storage and
-              # https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/inspecting-storage
+              # and
+              # https://cloud.google.com/sensitive-data-protection/docs/compute-risk-analysis
+              # to learn more.
               #
               # @overload list_dlp_jobs(request, options = nil)
               #   Pass arguments to `list_dlp_jobs` via a request object, either of type
@@ -3090,7 +3206,7 @@ module Google
               #
               #     The format of this value varies depending on whether you have [specified a
               #     processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -3191,12 +3307,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_dlp_jobs.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_dlp_jobs.timeout,
@@ -3218,8 +3335,11 @@ module Google
 
               ##
               # Gets the latest state of a long-running DlpJob.
-              # See https://cloud.google.com/dlp/docs/inspecting-storage and
-              # https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/inspecting-storage
+              # and
+              # https://cloud.google.com/sensitive-data-protection/docs/compute-risk-analysis
+              # to learn more.
               #
               # @overload get_dlp_job(request, options = nil)
               #   Pass arguments to `get_dlp_job` via a request object, either of type
@@ -3272,12 +3392,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_dlp_job.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_dlp_job.timeout,
@@ -3300,8 +3421,11 @@ module Google
               # Deletes a long-running DlpJob. This method indicates that the client is
               # no longer interested in the DlpJob result. The job will be canceled if
               # possible.
-              # See https://cloud.google.com/dlp/docs/inspecting-storage and
-              # https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/inspecting-storage
+              # and
+              # https://cloud.google.com/sensitive-data-protection/docs/compute-risk-analysis
+              # to learn more.
               #
               # @overload delete_dlp_job(request, options = nil)
               #   Pass arguments to `delete_dlp_job` via a request object, either of type
@@ -3354,12 +3478,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_dlp_job.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_dlp_job.timeout,
@@ -3382,8 +3507,11 @@ module Google
               # Starts asynchronous cancellation on a long-running DlpJob. The server
               # makes a best effort to cancel the DlpJob, but success is not
               # guaranteed.
-              # See https://cloud.google.com/dlp/docs/inspecting-storage and
-              # https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/inspecting-storage
+              # and
+              # https://cloud.google.com/sensitive-data-protection/docs/compute-risk-analysis
+              # to learn more.
               #
               # @overload cancel_dlp_job(request, options = nil)
               #   Pass arguments to `cancel_dlp_job` via a request object, either of type
@@ -3436,12 +3564,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.cancel_dlp_job.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.cancel_dlp_job.timeout,
@@ -3462,8 +3591,9 @@ module Google
 
               ##
               # Creates a pre-built stored infoType to be used for inspection.
-              # See https://cloud.google.com/dlp/docs/creating-stored-infotypes to
-              # learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-stored-infotypes
+              # to learn more.
               #
               # @overload create_stored_info_type(request, options = nil)
               #   Pass arguments to `create_stored_info_type` via a request object, either of type
@@ -3485,7 +3615,7 @@ module Google
               #
               #     The format of this value varies depending on the scope of the request
               #     (project or organization) and whether you have [specified a processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -3544,12 +3674,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_stored_info_type.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_stored_info_type.timeout,
@@ -3571,8 +3702,9 @@ module Google
               ##
               # Updates the stored infoType by creating a new version. The existing version
               # will continue to be used until the new version is ready.
-              # See https://cloud.google.com/dlp/docs/creating-stored-infotypes to
-              # learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-stored-infotypes
+              # to learn more.
               #
               # @overload update_stored_info_type(request, options = nil)
               #   Pass arguments to `update_stored_info_type` via a request object, either of type
@@ -3633,12 +3765,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_stored_info_type.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_stored_info_type.timeout,
@@ -3659,8 +3792,9 @@ module Google
 
               ##
               # Gets a stored infoType.
-              # See https://cloud.google.com/dlp/docs/creating-stored-infotypes to
-              # learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-stored-infotypes
+              # to learn more.
               #
               # @overload get_stored_info_type(request, options = nil)
               #   Pass arguments to `get_stored_info_type` via a request object, either of type
@@ -3715,12 +3849,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_stored_info_type.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_stored_info_type.timeout,
@@ -3741,8 +3876,9 @@ module Google
 
               ##
               # Lists stored infoTypes.
-              # See https://cloud.google.com/dlp/docs/creating-stored-infotypes to
-              # learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-stored-infotypes
+              # to learn more.
               #
               # @overload list_stored_info_types(request, options = nil)
               #   Pass arguments to `list_stored_info_types` via a request object, either of type
@@ -3764,7 +3900,7 @@ module Google
               #
               #     The format of this value varies depending on the scope of the request
               #     (project or organization) and whether you have [specified a processing
-              #     location](https://cloud.google.com/dlp/docs/specifying-location):
+              #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
               #     + Projects scope, location specified:<br/>
               #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
@@ -3837,12 +3973,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_stored_info_types.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_stored_info_types.timeout,
@@ -3864,8 +4001,9 @@ module Google
 
               ##
               # Deletes a stored infoType.
-              # See https://cloud.google.com/dlp/docs/creating-stored-infotypes to
-              # learn more.
+              # See
+              # https://cloud.google.com/sensitive-data-protection/docs/creating-stored-infotypes
+              # to learn more.
               #
               # @overload delete_stored_info_type(request, options = nil)
               #   Pass arguments to `delete_stored_info_type` via a request object, either of type
@@ -3920,12 +4058,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_stored_info_type.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_stored_info_type.timeout,
@@ -3937,6 +4076,737 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @dlp_service_stub.delete_stored_info_type request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists project data profiles for an organization.
+              #
+              # @overload list_project_data_profiles(request, options = nil)
+              #   Pass arguments to `list_project_data_profiles` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::ListProjectDataProfilesRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::ListProjectDataProfilesRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_project_data_profiles(parent: nil, page_token: nil, page_size: nil, order_by: nil, filter: nil)
+              #   Pass arguments to `list_project_data_profiles` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. organizations/\\{org_id}/locations/\\{loc_id}
+              #   @param page_token [::String]
+              #     Page token to continue retrieval.
+              #   @param page_size [::Integer]
+              #     Size of the page. This value can be limited by the server. If zero, server
+              #     returns a page of max size 100.
+              #   @param order_by [::String]
+              #     Comma separated list of fields to order by, followed by `asc` or `desc`
+              #     postfix. This list is case insensitive. The default sorting order is
+              #     ascending. Redundant space characters are insignificant. Only one order
+              #     field at a time is allowed.
+              #
+              #     Examples:
+              #     * `project_id`
+              #     * `sensitivity_level desc`
+              #
+              #     Supported fields are:
+              #
+              #     - `project_id`: Google Cloud project ID
+              #     - `sensitivity_level`: How sensitive the data in a project is, at most.
+              #     - `data_risk_level`: How much risk is associated with this data.
+              #     - `profile_last_generated`: When the profile was last updated in epoch
+              #     seconds.
+              #   @param filter [::String]
+              #     Allows filtering.
+              #
+              #     Supported syntax:
+              #
+              #     * Filter expressions are made up of one or more restrictions.
+              #     * Restrictions can be combined by `AND` or `OR` logical operators. A
+              #     sequence of restrictions implicitly uses `AND`.
+              #     * A restriction has the form of `{field} {operator} {value}`.
+              #     * Supported fields/values:
+              #         - `sensitivity_level` - HIGH|MODERATE|LOW
+              #         - `data_risk_level` - HIGH|MODERATE|LOW
+              #         - `status_code` - an RPC status code as defined in
+              #         https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+              #     * The operator must be `=` or `!=`.
+              #
+              #     Examples:
+              #
+              #     * `project_id = 12345 AND status_code = 1`
+              #     * `project_id = 12345 AND sensitivity_level = HIGH`
+              #
+              #     The length of this field should be no more than 500 characters.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::ProjectDataProfile>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::ProjectDataProfile>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::ListProjectDataProfilesRequest.new
+              #
+              #   # Call the list_project_data_profiles method.
+              #   result = client.list_project_data_profiles request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Dlp::V2::ProjectDataProfile.
+              #     p item
+              #   end
+              #
+              def list_project_data_profiles request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::ListProjectDataProfilesRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_project_data_profiles.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_project_data_profiles.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_project_data_profiles.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.list_project_data_profiles request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_project_data_profiles, "project_data_profiles", request, result, options
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists table data profiles for an organization.
+              #
+              # @overload list_table_data_profiles(request, options = nil)
+              #   Pass arguments to `list_table_data_profiles` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::ListTableDataProfilesRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::ListTableDataProfilesRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_table_data_profiles(parent: nil, page_token: nil, page_size: nil, order_by: nil, filter: nil)
+              #   Pass arguments to `list_table_data_profiles` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Resource name of the organization or project, for
+              #     example `organizations/433245324/locations/europe` or
+              #     `projects/project-id/locations/asia`.
+              #   @param page_token [::String]
+              #     Page token to continue retrieval.
+              #   @param page_size [::Integer]
+              #     Size of the page. This value can be limited by the server. If zero, server
+              #     returns a page of max size 100.
+              #   @param order_by [::String]
+              #     Comma separated list of fields to order by, followed by `asc` or `desc`
+              #     postfix. This list is case insensitive. The default sorting order is
+              #     ascending. Redundant space characters are insignificant. Only one order
+              #     field at a time is allowed.
+              #
+              #     Examples:
+              #     * `project_id asc`
+              #     * `table_id`
+              #     * `sensitivity_level desc`
+              #
+              #     Supported fields are:
+              #
+              #     - `project_id`: The Google Cloud project ID.
+              #     - `dataset_id`: The ID of a BigQuery dataset.
+              #     - `table_id`: The ID of a BigQuery table.
+              #     - `sensitivity_level`: How sensitive the data in a table is, at most.
+              #     - `data_risk_level`: How much risk is associated with this data.
+              #     - `profile_last_generated`: When the profile was last updated in epoch
+              #     seconds.
+              #     - `last_modified`: The last time the resource was modified.
+              #     - `resource_visibility`: Visibility restriction for this resource.
+              #     - `row_count`: Number of rows in this resource.
+              #   @param filter [::String]
+              #     Allows filtering.
+              #
+              #     Supported syntax:
+              #
+              #     * Filter expressions are made up of one or more restrictions.
+              #     * Restrictions can be combined by `AND` or `OR` logical operators. A
+              #     sequence of restrictions implicitly uses `AND`.
+              #     * A restriction has the form of `{field} {operator} {value}`.
+              #     * Supported fields/values:
+              #         - `project_id` - The Google Cloud project ID.
+              #         - `dataset_id` - The BigQuery dataset ID.
+              #         - `table_id` - The ID of the BigQuery table.
+              #         - `sensitivity_level` - HIGH|MODERATE|LOW
+              #         - `data_risk_level` - HIGH|MODERATE|LOW
+              #         - `resource_visibility`: PUBLIC|RESTRICTED
+              #         - `status_code` - an RPC status code as defined in
+              #         https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+              #     * The operator must be `=` or `!=`.
+              #
+              #     Examples:
+              #
+              #     * `project_id = 12345 AND status_code = 1`
+              #     * `project_id = 12345 AND sensitivity_level = HIGH`
+              #     * `project_id = 12345 AND resource_visibility = PUBLIC`
+              #
+              #     The length of this field should be no more than 500 characters.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::TableDataProfile>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::TableDataProfile>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::ListTableDataProfilesRequest.new
+              #
+              #   # Call the list_table_data_profiles method.
+              #   result = client.list_table_data_profiles request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Dlp::V2::TableDataProfile.
+              #     p item
+              #   end
+              #
+              def list_table_data_profiles request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::ListTableDataProfilesRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_table_data_profiles.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_table_data_profiles.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_table_data_profiles.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.list_table_data_profiles request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_table_data_profiles, "table_data_profiles", request, result, options
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists column data profiles for an organization.
+              #
+              # @overload list_column_data_profiles(request, options = nil)
+              #   Pass arguments to `list_column_data_profiles` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::ListColumnDataProfilesRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::ListColumnDataProfilesRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_column_data_profiles(parent: nil, page_token: nil, page_size: nil, order_by: nil, filter: nil)
+              #   Pass arguments to `list_column_data_profiles` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Resource name of the organization or project, for
+              #     example `organizations/433245324/locations/europe` or
+              #     `projects/project-id/locations/asia`.
+              #   @param page_token [::String]
+              #     Page token to continue retrieval.
+              #   @param page_size [::Integer]
+              #     Size of the page. This value can be limited by the server. If zero, server
+              #     returns a page of max size 100.
+              #   @param order_by [::String]
+              #     Comma separated list of fields to order by, followed by `asc` or `desc`
+              #     postfix. This list is case insensitive. The default sorting order is
+              #     ascending. Redundant space characters are insignificant. Only one order
+              #     field at a time is allowed.
+              #
+              #     Examples:
+              #     * `project_id asc`
+              #     * `table_id`
+              #     * `sensitivity_level desc`
+              #
+              #     Supported fields are:
+              #
+              #     - `project_id`: The Google Cloud project ID.
+              #     - `dataset_id`: The ID of a BigQuery dataset.
+              #     - `table_id`: The ID of a BigQuery table.
+              #     - `sensitivity_level`: How sensitive the data in a column is, at most.
+              #     - `data_risk_level`: How much risk is associated with this data.
+              #     - `profile_last_generated`: When the profile was last updated in epoch
+              #     seconds.
+              #   @param filter [::String]
+              #     Allows filtering.
+              #
+              #     Supported syntax:
+              #
+              #     * Filter expressions are made up of one or more restrictions.
+              #     * Restrictions can be combined by `AND` or `OR` logical operators. A
+              #     sequence of restrictions implicitly uses `AND`.
+              #     * A restriction has the form of `{field} {operator} {value}`.
+              #     * Supported fields/values:
+              #         - `table_data_profile_name` - The name of the related table data
+              #         profile.
+              #         - `project_id` - The Google Cloud project ID. (REQUIRED)
+              #         - `dataset_id` - The BigQuery dataset ID. (REQUIRED)
+              #         - `table_id` - The BigQuery table ID. (REQUIRED)
+              #         - `field_id` - The ID of the BigQuery field.
+              #         - `info_type` - The infotype detected in the resource.
+              #         - `sensitivity_level` - HIGH|MEDIUM|LOW
+              #         - `data_risk_level`: How much risk is associated with this data.
+              #         - `status_code` - an RPC status code as defined in
+              #         https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+              #     * The operator must be `=` for project_id, dataset_id, and table_id. Other
+              #       filters also support `!=`.
+              #
+              #     Examples:
+              #
+              #     * project_id = 12345 AND status_code = 1
+              #     * project_id = 12345 AND sensitivity_level = HIGH
+              #     * project_id = 12345 AND info_type = STREET_ADDRESS
+              #
+              #     The length of this field should be no more than 500 characters.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::ColumnDataProfile>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::ColumnDataProfile>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::ListColumnDataProfilesRequest.new
+              #
+              #   # Call the list_column_data_profiles method.
+              #   result = client.list_column_data_profiles request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Dlp::V2::ColumnDataProfile.
+              #     p item
+              #   end
+              #
+              def list_column_data_profiles request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::ListColumnDataProfilesRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_column_data_profiles.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_column_data_profiles.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_column_data_profiles.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.list_column_data_profiles request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_column_data_profiles, "column_data_profiles", request, result, options
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets a project data profile.
+              #
+              # @overload get_project_data_profile(request, options = nil)
+              #   Pass arguments to `get_project_data_profile` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::GetProjectDataProfileRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::GetProjectDataProfileRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_project_data_profile(name: nil)
+              #   Pass arguments to `get_project_data_profile` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name, for example
+              #     `organizations/12345/locations/us/projectDataProfiles/53234423`.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dlp::V2::ProjectDataProfile]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dlp::V2::ProjectDataProfile]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::GetProjectDataProfileRequest.new
+              #
+              #   # Call the get_project_data_profile method.
+              #   result = client.get_project_data_profile request
+              #
+              #   # The returned object is of type Google::Cloud::Dlp::V2::ProjectDataProfile.
+              #   p result
+              #
+              def get_project_data_profile request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::GetProjectDataProfileRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_project_data_profile.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_project_data_profile.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_project_data_profile.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.get_project_data_profile request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets a table data profile.
+              #
+              # @overload get_table_data_profile(request, options = nil)
+              #   Pass arguments to `get_table_data_profile` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::GetTableDataProfileRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::GetTableDataProfileRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_table_data_profile(name: nil)
+              #   Pass arguments to `get_table_data_profile` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name, for example
+              #     `organizations/12345/locations/us/tableDataProfiles/53234423`.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dlp::V2::TableDataProfile]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dlp::V2::TableDataProfile]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::GetTableDataProfileRequest.new
+              #
+              #   # Call the get_table_data_profile method.
+              #   result = client.get_table_data_profile request
+              #
+              #   # The returned object is of type Google::Cloud::Dlp::V2::TableDataProfile.
+              #   p result
+              #
+              def get_table_data_profile request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::GetTableDataProfileRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_table_data_profile.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_table_data_profile.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_table_data_profile.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.get_table_data_profile request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets a column data profile.
+              #
+              # @overload get_column_data_profile(request, options = nil)
+              #   Pass arguments to `get_column_data_profile` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::GetColumnDataProfileRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::GetColumnDataProfileRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_column_data_profile(name: nil)
+              #   Pass arguments to `get_column_data_profile` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name, for example
+              #     `organizations/12345/locations/us/columnDataProfiles/53234423`.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dlp::V2::ColumnDataProfile]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dlp::V2::ColumnDataProfile]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::GetColumnDataProfileRequest.new
+              #
+              #   # Call the get_column_data_profile method.
+              #   result = client.get_column_data_profile request
+              #
+              #   # The returned object is of type Google::Cloud::Dlp::V2::ColumnDataProfile.
+              #   p result
+              #
+              def get_column_data_profile request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::GetColumnDataProfileRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_column_data_profile.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_column_data_profile.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_column_data_profile.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.get_column_data_profile request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Delete a TableDataProfile. Will not prevent the profile from being
+              # regenerated if the table is still included in a discovery configuration.
+              #
+              # @overload delete_table_data_profile(request, options = nil)
+              #   Pass arguments to `delete_table_data_profile` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::DeleteTableDataProfileRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::DeleteTableDataProfileRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_table_data_profile(name: nil)
+              #   Pass arguments to `delete_table_data_profile` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name of the table data profile.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Protobuf::Empty]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::DeleteTableDataProfileRequest.new
+              #
+              #   # Call the delete_table_data_profile method.
+              #   result = client.delete_table_data_profile request
+              #
+              #   # The returned object is of type Google::Protobuf::Empty.
+              #   p result
+              #
+              def delete_table_data_profile request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::DeleteTableDataProfileRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_table_data_profile.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_table_data_profile.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_table_data_profile.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.delete_table_data_profile request, options do |result, operation|
                   yield result, operation if block_given?
                   return result
                 end
@@ -4003,12 +4873,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.hybrid_inspect_dlp_job.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.hybrid_inspect_dlp_job.timeout,
@@ -4047,7 +4918,7 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. The name of the DlpJob resource to be cancelled.
+              #     Required. The name of the DlpJob resource to be finished.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Protobuf::Empty]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -4082,12 +4953,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.finish_dlp_job.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.finish_dlp_job.timeout,
@@ -4099,6 +4971,518 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @dlp_service_stub.finish_dlp_job request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Create a Connection to an external data source.
+              #
+              # @overload create_connection(request, options = nil)
+              #   Pass arguments to `create_connection` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::CreateConnectionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::CreateConnectionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload create_connection(parent: nil, connection: nil)
+              #   Pass arguments to `create_connection` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Parent resource name in the format:
+              #     `projects/{project}/locations/{location}`.
+              #   @param connection [::Google::Cloud::Dlp::V2::Connection, ::Hash]
+              #     Required. The connection resource.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dlp::V2::Connection]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dlp::V2::Connection]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::CreateConnectionRequest.new
+              #
+              #   # Call the create_connection method.
+              #   result = client.create_connection request
+              #
+              #   # The returned object is of type Google::Cloud::Dlp::V2::Connection.
+              #   p result
+              #
+              def create_connection request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::CreateConnectionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.create_connection.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.create_connection.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.create_connection.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.create_connection request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Get a Connection by name.
+              #
+              # @overload get_connection(request, options = nil)
+              #   Pass arguments to `get_connection` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::GetConnectionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::GetConnectionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_connection(name: nil)
+              #   Pass arguments to `get_connection` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name in the format:
+              #     `projects/{project}/locations/{location}/connections/{connection}`.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dlp::V2::Connection]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dlp::V2::Connection]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::GetConnectionRequest.new
+              #
+              #   # Call the get_connection method.
+              #   result = client.get_connection request
+              #
+              #   # The returned object is of type Google::Cloud::Dlp::V2::Connection.
+              #   p result
+              #
+              def get_connection request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::GetConnectionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_connection.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_connection.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_connection.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.get_connection request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists Connections in a parent.
+              #
+              # @overload list_connections(request, options = nil)
+              #   Pass arguments to `list_connections` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::ListConnectionsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::ListConnectionsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_connections(parent: nil, page_size: nil, page_token: nil, filter: nil)
+              #   Pass arguments to `list_connections` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Parent name, for example:
+              #     `projects/project-id/locations/global`.
+              #   @param page_size [::Integer]
+              #     Optional. Number of results per page, max 1000.
+              #   @param page_token [::String]
+              #     Optional. Page token from a previous page to return the next set of
+              #     results. If set, all other request fields must match the original request.
+              #   @param filter [::String]
+              #     Optional. * Supported fields/values
+              #         - `state` - MISSING|AVAILABLE|ERROR
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::Connection>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::Connection>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::ListConnectionsRequest.new
+              #
+              #   # Call the list_connections method.
+              #   result = client.list_connections request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Dlp::V2::Connection.
+              #     p item
+              #   end
+              #
+              def list_connections request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::ListConnectionsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_connections.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_connections.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_connections.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.list_connections request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_connections, "connections", request, result, options
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Searches for Connections in a parent.
+              #
+              # @overload search_connections(request, options = nil)
+              #   Pass arguments to `search_connections` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::SearchConnectionsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::SearchConnectionsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload search_connections(parent: nil, page_size: nil, page_token: nil, filter: nil)
+              #   Pass arguments to `search_connections` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Parent name, typically an organization, without location.
+              #     For example: `organizations/12345678`.
+              #   @param page_size [::Integer]
+              #     Optional. Number of results per page, max 1000.
+              #   @param page_token [::String]
+              #     Optional. Page token from a previous page to return the next set of
+              #     results. If set, all other request fields must match the original request.
+              #   @param filter [::String]
+              #     Optional. * Supported fields/values
+              #         - `state` - MISSING|AVAILABLE|ERROR
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::Connection>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::Connection>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::SearchConnectionsRequest.new
+              #
+              #   # Call the search_connections method.
+              #   result = client.search_connections request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Dlp::V2::Connection.
+              #     p item
+              #   end
+              #
+              def search_connections request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::SearchConnectionsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.search_connections.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.search_connections.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.search_connections.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.search_connections request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :search_connections, "connections", request, result, options
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Delete a Connection.
+              #
+              # @overload delete_connection(request, options = nil)
+              #   Pass arguments to `delete_connection` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::DeleteConnectionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::DeleteConnectionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_connection(name: nil)
+              #   Pass arguments to `delete_connection` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name of the Connection to be deleted, in the format:
+              #     `projects/{project}/locations/{location}/connections/{connection}`.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Protobuf::Empty]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::DeleteConnectionRequest.new
+              #
+              #   # Call the delete_connection method.
+              #   result = client.delete_connection request
+              #
+              #   # The returned object is of type Google::Protobuf::Empty.
+              #   p result
+              #
+              def delete_connection request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::DeleteConnectionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_connection.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_connection.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_connection.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.delete_connection request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Update a Connection.
+              #
+              # @overload update_connection(request, options = nil)
+              #   Pass arguments to `update_connection` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::UpdateConnectionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::UpdateConnectionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_connection(name: nil, connection: nil, update_mask: nil)
+              #   Pass arguments to `update_connection` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name in the format:
+              #     `projects/{project}/locations/{location}/connections/{connection}`.
+              #   @param connection [::Google::Cloud::Dlp::V2::Connection, ::Hash]
+              #     Required. The connection with new values for the relevant fields.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Optional. Mask to control which fields get updated.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dlp::V2::Connection]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dlp::V2::Connection]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::UpdateConnectionRequest.new
+              #
+              #   # Call the update_connection method.
+              #   result = client.update_connection request
+              #
+              #   # The returned object is of type Google::Cloud::Dlp::V2::Connection.
+              #   p result
+              #
+              def update_connection request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::UpdateConnectionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_connection.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_connection.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_connection.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.update_connection request, options do |result, operation|
                   yield result, operation if block_given?
                   return result
                 end
@@ -4136,9 +5520,9 @@ module Google
               #   end
               #
               # @!attribute [rw] endpoint
-              #   The hostname or hostname:port of the service endpoint.
-              #   Defaults to `"dlp.googleapis.com"`.
-              #   @return [::String]
+              #   A custom service endpoint, as a hostname or hostname:port. The default is
+              #   nil, indicating to use the default endpoint in the current universe domain.
+              #   @return [::String,nil]
               # @!attribute [rw] credentials
               #   Credentials to send with calls. You may provide any of the following types:
               #    *  (`String`) The path to a service account key file in JSON format
@@ -4175,13 +5559,20 @@ module Google
               # @!attribute [rw] quota_project
               #   A separate project against which to charge quota.
               #   @return [::String]
+              # @!attribute [rw] universe_domain
+              #   The universe domain within which to make requests. This determines the
+              #   default endpoint URL. The default value of nil uses the environment
+              #   universe (usually the default "googleapis.com" universe).
+              #   @return [::String,nil]
               #
               class Configuration
                 extend ::Gapic::Config
 
+                # @private
+                # The endpoint specific to the default "googleapis.com" universe. Deprecated.
                 DEFAULT_ENDPOINT = "dlp.googleapis.com"
 
-                config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+                config_attr :endpoint,      nil, ::String, nil
                 config_attr :credentials,   nil do |value|
                   allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                   allowed.any? { |klass| klass === value }
@@ -4193,6 +5584,7 @@ module Google
                 config_attr :metadata,      nil, ::Hash, nil
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
+                config_attr :universe_domain, nil, ::String, nil
 
                 # @private
                 def initialize parent_config = nil
@@ -4417,6 +5809,41 @@ module Google
                   #
                   attr_reader :delete_stored_info_type
                   ##
+                  # RPC-specific configuration for `list_project_data_profiles`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_project_data_profiles
+                  ##
+                  # RPC-specific configuration for `list_table_data_profiles`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_table_data_profiles
+                  ##
+                  # RPC-specific configuration for `list_column_data_profiles`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_column_data_profiles
+                  ##
+                  # RPC-specific configuration for `get_project_data_profile`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_project_data_profile
+                  ##
+                  # RPC-specific configuration for `get_table_data_profile`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_table_data_profile
+                  ##
+                  # RPC-specific configuration for `get_column_data_profile`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_column_data_profile
+                  ##
+                  # RPC-specific configuration for `delete_table_data_profile`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_table_data_profile
+                  ##
                   # RPC-specific configuration for `hybrid_inspect_dlp_job`
                   # @return [::Gapic::Config::Method]
                   #
@@ -4426,6 +5853,36 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :finish_dlp_job
+                  ##
+                  # RPC-specific configuration for `create_connection`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :create_connection
+                  ##
+                  # RPC-specific configuration for `get_connection`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_connection
+                  ##
+                  # RPC-specific configuration for `list_connections`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_connections
+                  ##
+                  # RPC-specific configuration for `search_connections`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :search_connections
+                  ##
+                  # RPC-specific configuration for `delete_connection`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_connection
+                  ##
+                  # RPC-specific configuration for `update_connection`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_connection
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -4503,10 +5960,36 @@ module Google
                     @list_stored_info_types = ::Gapic::Config::Method.new list_stored_info_types_config
                     delete_stored_info_type_config = parent_rpcs.delete_stored_info_type if parent_rpcs.respond_to? :delete_stored_info_type
                     @delete_stored_info_type = ::Gapic::Config::Method.new delete_stored_info_type_config
+                    list_project_data_profiles_config = parent_rpcs.list_project_data_profiles if parent_rpcs.respond_to? :list_project_data_profiles
+                    @list_project_data_profiles = ::Gapic::Config::Method.new list_project_data_profiles_config
+                    list_table_data_profiles_config = parent_rpcs.list_table_data_profiles if parent_rpcs.respond_to? :list_table_data_profiles
+                    @list_table_data_profiles = ::Gapic::Config::Method.new list_table_data_profiles_config
+                    list_column_data_profiles_config = parent_rpcs.list_column_data_profiles if parent_rpcs.respond_to? :list_column_data_profiles
+                    @list_column_data_profiles = ::Gapic::Config::Method.new list_column_data_profiles_config
+                    get_project_data_profile_config = parent_rpcs.get_project_data_profile if parent_rpcs.respond_to? :get_project_data_profile
+                    @get_project_data_profile = ::Gapic::Config::Method.new get_project_data_profile_config
+                    get_table_data_profile_config = parent_rpcs.get_table_data_profile if parent_rpcs.respond_to? :get_table_data_profile
+                    @get_table_data_profile = ::Gapic::Config::Method.new get_table_data_profile_config
+                    get_column_data_profile_config = parent_rpcs.get_column_data_profile if parent_rpcs.respond_to? :get_column_data_profile
+                    @get_column_data_profile = ::Gapic::Config::Method.new get_column_data_profile_config
+                    delete_table_data_profile_config = parent_rpcs.delete_table_data_profile if parent_rpcs.respond_to? :delete_table_data_profile
+                    @delete_table_data_profile = ::Gapic::Config::Method.new delete_table_data_profile_config
                     hybrid_inspect_dlp_job_config = parent_rpcs.hybrid_inspect_dlp_job if parent_rpcs.respond_to? :hybrid_inspect_dlp_job
                     @hybrid_inspect_dlp_job = ::Gapic::Config::Method.new hybrid_inspect_dlp_job_config
                     finish_dlp_job_config = parent_rpcs.finish_dlp_job if parent_rpcs.respond_to? :finish_dlp_job
                     @finish_dlp_job = ::Gapic::Config::Method.new finish_dlp_job_config
+                    create_connection_config = parent_rpcs.create_connection if parent_rpcs.respond_to? :create_connection
+                    @create_connection = ::Gapic::Config::Method.new create_connection_config
+                    get_connection_config = parent_rpcs.get_connection if parent_rpcs.respond_to? :get_connection
+                    @get_connection = ::Gapic::Config::Method.new get_connection_config
+                    list_connections_config = parent_rpcs.list_connections if parent_rpcs.respond_to? :list_connections
+                    @list_connections = ::Gapic::Config::Method.new list_connections_config
+                    search_connections_config = parent_rpcs.search_connections if parent_rpcs.respond_to? :search_connections
+                    @search_connections = ::Gapic::Config::Method.new search_connections_config
+                    delete_connection_config = parent_rpcs.delete_connection if parent_rpcs.respond_to? :delete_connection
+                    @delete_connection = ::Gapic::Config::Method.new delete_connection_config
+                    update_connection_config = parent_rpcs.update_connection if parent_rpcs.respond_to? :update_connection
+                    @update_connection = ::Gapic::Config::Method.new update_connection_config
 
                     yield self if block_given?
                   end

@@ -1,5 +1,30 @@
 # Release History
 
+### 2.10.2 (2024-04-30)
+
+#### Bug Fixes
+
+* Fixes for leaving predicate unset in check_and_mutate_row 
+* Fixes for using a preconfigured GRPC channel as credentials 
+
+### 2.10.1 (2024-03-19)
+
+#### Bug Fixes
+
+* fix read rows retry so it doesn't trigger a full table scan in t… ([#25391](https://github.com/googleapis/google-cloud-ruby/issues/25391)) 
+
+### 2.10.0 (2024-03-07)
+
+#### Features
+
+* Update minimum supported Ruby version to 2.7 ([#25298](https://github.com/googleapis/google-cloud-ruby/issues/25298)) 
+
+### 2.9.1 (2024-02-09)
+
+#### Documentation
+
+* update EMULATOR.md ([#24787](https://github.com/googleapis/google-cloud-ruby/issues/24787)) 
+
 ### 2.9.0 (2023-09-14)
 
 #### Features

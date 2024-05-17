@@ -50,6 +50,42 @@ module Google
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
 
+          # Configuration of the barge-in behavior. Barge-in instructs the API to return
+          # a detected utterance at a proper time while the client is playing back the
+          # response audio from a previous request. When the client sees the
+          # utterance, it should stop the playback and immediately get ready for
+          # receiving the responses for the current request.
+          #
+          # The barge-in handling requires the client to start streaming audio input
+          # as soon as it starts playing back the audio from the previous response. The
+          # playback is modeled into two phases:
+          #
+          # * No barge-in phase: which goes first and during which speech detection
+          #   should not be carried out.
+          #
+          # * Barge-in phase: which follows the no barge-in phase and during which
+          #   the API starts speech detection and may inform the client that an utterance
+          #   has been detected. Note that no-speech event is not expected in this
+          #   phase.
+          #
+          # The client provides this configuration in terms of the durations of those
+          # two phases. The durations are measured in terms of the audio length from the
+          # the start of the input audio.
+          #
+          # No-speech event is a response with END_OF_UTTERANCE without any transcript
+          # following up.
+          # @!attribute [rw] no_barge_in_duration
+          #   @return [::Google::Protobuf::Duration]
+          #     Duration that is not eligible for barge-in at the beginning of the input
+          #     audio.
+          # @!attribute [rw] total_duration
+          #   @return [::Google::Protobuf::Duration]
+          #     Total duration for the playback at the beginning of the input audio.
+          class BargeInConfig
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
           # Instructs the speech recognizer on how to process the audio content.
           # @!attribute [rw] audio_encoding
           #   @return [::Google::Cloud::Dialogflow::CX::V3::AudioEncoding]
@@ -79,23 +115,10 @@ module Google
           #     for more details.
           # @!attribute [rw] model
           #   @return [::String]
-          #     Optional. Which Speech model to select for the given request. Select the
-          #     model best suited to your domain to get best results. If a model is not
-          #     explicitly specified, then we auto-select a model based on the parameters
-          #     in the InputAudioConfig.
-          #     If enhanced speech model is enabled for the agent and an enhanced
-          #     version of the specified model for the language does not exist, then the
-          #     speech is recognized using the standard version of the specified model.
-          #     Refer to
-          #     [Cloud Speech API
-          #     documentation](https://cloud.google.com/speech-to-text/docs/basics#select-model)
-          #     for more details.
-          #     If you specify a model, the following models typically have the best
-          #     performance:
-          #
-          #     - phone_call (best for Agent Assist and telephony)
-          #     - latest_short (best for Dialogflow non-telephony)
-          #     - command_and_search (best for very short utterances and commands)
+          #     Optional. Which Speech model to select for the given request.
+          #     For more information, see
+          #     [Speech
+          #     models](https://cloud.google.com/dialogflow/cx/docs/concept/speech-models).
           # @!attribute [rw] model_variant
           #   @return [::Google::Cloud::Dialogflow::CX::V3::SpeechModelVariant]
           #     Optional. Which variant of the [Speech
@@ -110,6 +133,15 @@ module Google
           #     client should close the stream and start a new request with a new stream as
           #     needed.
           #     Note: This setting is relevant only for streaming methods.
+          # @!attribute [rw] barge_in_config
+          #   @return [::Google::Cloud::Dialogflow::CX::V3::BargeInConfig]
+          #     Configuration of barge-in behavior during the streaming of input audio.
+          # @!attribute [rw] opt_out_conformer_model_migration
+          #   @return [::Boolean]
+          #     If `true`, the request will opt out for STT conformer model migration.
+          #     This field will be deprecated once force migration takes place in June
+          #     2024. Please refer to [Dialogflow CX Speech model
+          #     migration](https://cloud.google.com/dialogflow/cx/docs/concept/speech-model-migration).
           class InputAudioConfig
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -292,10 +324,6 @@ module Google
 
             # Use the best available variant of the [Speech
             # model][InputAudioConfig.model] that the caller is eligible for.
-            #
-            # Please see the [Dialogflow
-            # docs](https://cloud.google.com/dialogflow/docs/data-logging) for
-            # how to make your project eligible for enhanced models.
             USE_BEST_AVAILABLE = 1
 
             # Use standard model variant even if an enhanced model is available.  See the
@@ -313,11 +341,6 @@ module Google
             #   The [Cloud Speech
             #   documentation](https://cloud.google.com/speech-to-text/docs/enhanced-models)
             #   describes which models have enhanced variants.
-            #
-            # * If the API caller isn't eligible for enhanced models, Dialogflow returns
-            #   an error.  Please see the [Dialogflow
-            #   docs](https://cloud.google.com/dialogflow/docs/data-logging)
-            #   for how to make your project eligible.
             USE_ENHANCED = 3
           end
 

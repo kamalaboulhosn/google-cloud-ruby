@@ -1,5 +1,44 @@
 # Changelog
 
+### 0.10.0 (2024-05-15)
+
+#### Features
+
+* Support ignore_errors option to delete_azure_cluster and delete_azure_node_pool ([#25880](https://github.com/googleapis/google-cloud-ruby/issues/25880)) 
+
+### 0.9.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24871](https://github.com/googleapis/google-cloud-ruby/issues/24871)) 
+
+### 0.8.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.8.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.8.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23780](https://github.com/googleapis/google-cloud-ruby/issues/23780)) 
+
+### 0.7.0 (2024-01-03)
+
+#### Features
+
+* add proxy support for Attached Clusters ([#23670](https://github.com/googleapis/google-cloud-ruby/issues/23670)) 
+* add support for a new admin-groups flag in the create and update APIs 
+* add support for per-node-pool subnet security group rules for AWS Node Pools 
+* add Surge Update and Rollback support for AWS Node Pools 
+
 ### 0.6.0 (2023-09-12)
 
 #### Features

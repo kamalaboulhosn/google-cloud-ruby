@@ -1,5 +1,68 @@
 # Changelog
 
+### 0.17.2 (2024-04-17)
+
+#### Documentation
+
+* Update comments on ServiceAccount email and scopes fields ([#25472](https://github.com/googleapis/google-cloud-ruby/issues/25472)) 
+
+### 0.17.1 (2024-02-28)
+
+#### Documentation
+
+* Updated description of the Job uid field ([#25265](https://github.com/googleapis/google-cloud-ruby/issues/25265)) 
+
+### 0.17.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24864](https://github.com/googleapis/google-cloud-ruby/issues/24864)) 
+
+### 0.16.2 (2024-02-22)
+
+#### Documentation
+
+* refine proto comment for run_as_non_root ([#24837](https://github.com/googleapis/google-cloud-ruby/issues/24837)) 
+
+### 0.16.1 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.16.0 (2024-01-25)
+
+#### Features
+
+* Container runnables support using image streaming 
+* Support running a task group as non-root 
+* Support tags in the allocation policy 
+* Support the use_generic_task_monitored_resource cloud logging option 
+
+### 0.15.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.15.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23773](https://github.com/googleapis/google-cloud-ruby/issues/23773)) 
+
+### 0.14.0 (2023-12-04)
+
+#### Features
+
+* Added cloud_logging_option field to LogsPolicy ([#23565](https://github.com/googleapis/google-cloud-ruby/issues/23565)) 
+
+### 0.13.1 (2023-11-02)
+
+#### Documentation
+
+* Update docs for default max parallel tasks per job ([#23490](https://github.com/googleapis/google-cloud-ruby/issues/23490)) 
+
 ### 0.13.0 (2023-10-23)
 
 #### Features

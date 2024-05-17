@@ -19,6 +19,7 @@
 require "google/cloud/errors"
 require "google/cloud/secretmanager/v1/service_pb"
 require "google/cloud/secret_manager/v1/secret_manager_service/rest/service_stub"
+require "google/cloud/location/rest"
 
 module Google
   module Cloud
@@ -38,6 +39,12 @@ module Google
             # * {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}
             #
             class Client
+              # @private
+              API_VERSION = ""
+
+              # @private
+              DEFAULT_ENDPOINT_TEMPLATE = "secretmanager.$UNIVERSE_DOMAIN$"
+
               include Paths
 
               # @private
@@ -132,6 +139,15 @@ module Google
               end
 
               ##
+              # The effective universe domain
+              #
+              # @return [String]
+              #
+              def universe_domain
+                @secret_manager_service_stub.universe_domain
+              end
+
+              ##
               # Create a new SecretManagerService REST client object.
               #
               # @example
@@ -158,8 +174,9 @@ module Google
                 credentials = @config.credentials
                 # Use self-signed JWT if the endpoint is unchanged from default,
                 # but only if the default endpoint does not have a region prefix.
-                enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                         !@config.endpoint.split(".").first.include?("-")
+                enable_self_signed_jwt = @config.endpoint.nil? ||
+                                         (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                         !@config.endpoint.split(".").first.include?("-"))
                 credentials ||= Credentials.default scope: @config.scope,
                                                     enable_self_signed_jwt: enable_self_signed_jwt
                 if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -169,8 +186,28 @@ module Google
                 @quota_project_id = @config.quota_project
                 @quota_project_id ||= credentials.quota_project_id if credentials.respond_to? :quota_project_id
 
-                @secret_manager_service_stub = ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ServiceStub.new endpoint: @config.endpoint, credentials: credentials
+                @secret_manager_service_stub = ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ServiceStub.new(
+                  endpoint: @config.endpoint,
+                  endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                  universe_domain: @config.universe_domain,
+                  credentials: credentials
+                )
+
+                @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
+                  config.credentials = credentials
+                  config.quota_project = @quota_project_id
+                  config.endpoint = @secret_manager_service_stub.endpoint
+                  config.universe_domain = @secret_manager_service_stub.universe_domain
+                  config.bindings_override = @config.bindings_override
+                end
               end
+
+              ##
+              # Get the associated client for mix-in of the Locations.
+              #
+              # @return [Google::Cloud::Location::Locations::Rest::Client]
+              #
+              attr_reader :location_client
 
               # Service calls
 
@@ -194,7 +231,8 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The resource name of the project associated with the
-              #     {::Google::Cloud::SecretManager::V1::Secret Secrets}, in the format `projects/*`.
+              #     {::Google::Cloud::SecretManager::V1::Secret Secrets}, in the format `projects/*`
+              #     or `projects/*/locations/*`
               #   @param page_size [::Integer]
               #     Optional. The maximum number of results to be returned in a single page. If
               #     set to 0, the server decides the number of results to return. If the
@@ -246,12 +284,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_secrets.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_secrets.timeout,
@@ -272,7 +311,8 @@ module Google
               end
 
               ##
-              # Creates a new {::Google::Cloud::SecretManager::V1::Secret Secret} containing no {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersions}.
+              # Creates a new {::Google::Cloud::SecretManager::V1::Secret Secret} containing no
+              # {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersions}.
               #
               # @overload create_secret(request, options = nil)
               #   Pass arguments to `create_secret` via a request object, either of type
@@ -291,7 +331,8 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The resource name of the project to associate with the
-              #     {::Google::Cloud::SecretManager::V1::Secret Secret}, in the format `projects/*`.
+              #     {::Google::Cloud::SecretManager::V1::Secret Secret}, in the format `projects/*`
+              #     or `projects/*/locations/*`.
               #   @param secret_id [::String]
               #     Required. This must be unique within the project.
               #
@@ -299,7 +340,8 @@ module Google
               #     contain uppercase and lowercase letters, numerals, and the hyphen (`-`) and
               #     underscore (`_`) characters.
               #   @param secret [::Google::Cloud::SecretManager::V1::Secret, ::Hash]
-              #     Required. A {::Google::Cloud::SecretManager::V1::Secret Secret} with initial field values.
+              #     Required. A {::Google::Cloud::SecretManager::V1::Secret Secret} with initial
+              #     field values.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::SecretManager::V1::Secret]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -334,12 +376,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_secret.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_secret.timeout,
@@ -359,8 +402,9 @@ module Google
               end
 
               ##
-              # Creates a new {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} containing secret data and attaches
-              # it to an existing {::Google::Cloud::SecretManager::V1::Secret Secret}.
+              # Creates a new {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}
+              # containing secret data and attaches it to an existing
+              # {::Google::Cloud::SecretManager::V1::Secret Secret}.
               #
               # @overload add_secret_version(request, options = nil)
               #   Pass arguments to `add_secret_version` via a request object, either of type
@@ -378,10 +422,13 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param parent [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::Secret Secret} to associate with the
-              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} in the format `projects/*/secrets/*`.
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::Secret Secret} to associate with the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} in the format
+              #     `projects/*/secrets/*` or `projects/*/locations/*/secrets/*`.
               #   @param payload [::Google::Cloud::SecretManager::V1::SecretPayload, ::Hash]
-              #     Required. The secret payload of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
+              #     Required. The secret payload of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::SecretManager::V1::SecretVersion]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -416,12 +463,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.add_secret_version.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.add_secret_version.timeout,
@@ -459,7 +507,9 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::Secret Secret}, in the format `projects/*/secrets/*`.
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::Secret Secret}, in the format
+              #     `projects/*/secrets/*` or `projects/*/locations/*/secrets/*`.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::SecretManager::V1::Secret]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -494,12 +544,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_secret.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_secret.timeout,
@@ -519,7 +570,8 @@ module Google
               end
 
               ##
-              # Updates metadata of an existing {::Google::Cloud::SecretManager::V1::Secret Secret}.
+              # Updates metadata of an existing
+              # {::Google::Cloud::SecretManager::V1::Secret Secret}.
               #
               # @overload update_secret(request, options = nil)
               #   Pass arguments to `update_secret` via a request object, either of type
@@ -537,7 +589,8 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param secret [::Google::Cloud::SecretManager::V1::Secret, ::Hash]
-              #     Required. {::Google::Cloud::SecretManager::V1::Secret Secret} with updated field values.
+              #     Required. {::Google::Cloud::SecretManager::V1::Secret Secret} with updated field
+              #     values.
               #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
               #     Required. Specifies the fields to be updated.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -574,12 +627,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_secret.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_secret.timeout,
@@ -617,12 +671,13 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::Secret Secret} to delete in the format
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::Secret Secret} to delete in the format
               #     `projects/*/secrets/*`.
               #   @param etag [::String]
-              #     Optional. Etag of the {::Google::Cloud::SecretManager::V1::Secret Secret}. The request succeeds if it matches
-              #     the etag of the currently stored secret object. If the etag is omitted,
-              #     the request succeeds.
+              #     Optional. Etag of the {::Google::Cloud::SecretManager::V1::Secret Secret}. The
+              #     request succeeds if it matches the etag of the currently stored secret
+              #     object. If the etag is omitted, the request succeeds.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Protobuf::Empty]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -657,12 +712,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_secret.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_secret.timeout,
@@ -682,8 +738,8 @@ module Google
               end
 
               ##
-              # Lists {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersions}. This call does not return secret
-              # data.
+              # Lists {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersions}. This
+              # call does not return secret data.
               #
               # @overload list_secret_versions(request, options = nil)
               #   Pass arguments to `list_secret_versions` via a request object, either of type
@@ -701,9 +757,10 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param parent [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::Secret Secret} associated with the
-              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersions} to list, in the format
-              #     `projects/*/secrets/*`.
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::Secret Secret} associated with the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersions} to list, in
+              #     the format `projects/*/secrets/*` or `projects/*/locations/*/secrets/*`.
               #   @param page_size [::Integer]
               #     Optional. The maximum number of results to be returned in a single page. If
               #     set to 0, the server decides the number of results to return. If the
@@ -755,12 +812,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_secret_versions.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_secret_versions.timeout,
@@ -781,7 +839,8 @@ module Google
               end
 
               ##
-              # Gets metadata for a {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
+              # Gets metadata for a
+              # {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
               #
               # `projects/*/secrets/*/versions/latest` is an alias to the most recently
               # created {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
@@ -802,11 +861,15 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} in the format
-              #     `projects/*/secrets/*/versions/*`.
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} in the format
+              #     `projects/*/secrets/*/versions/*` or
+              #     `projects/*/locations/*/secrets/*/versions/*`.
               #
-              #     `projects/*/secrets/*/versions/latest` is an alias to the most recently
-              #     created {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
+              #     `projects/*/secrets/*/versions/latest` or
+              #     `projects/*/locations/*/secrets/*/versions/latest` is an alias to the most
+              #     recently created
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::SecretManager::V1::SecretVersion]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -841,12 +904,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_secret_version.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_secret_version.timeout,
@@ -866,7 +930,8 @@ module Google
               end
 
               ##
-              # Accesses a {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}. This call returns the secret data.
+              # Accesses a {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
+              # This call returns the secret data.
               #
               # `projects/*/secrets/*/versions/latest` is an alias to the most recently
               # created {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
@@ -887,11 +952,15 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} in the format
-              #     `projects/*/secrets/*/versions/*`.
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} in the format
+              #     `projects/*/secrets/*/versions/*` or
+              #     `projects/*/locations/*/secrets/*/versions/*`.
               #
-              #     `projects/*/secrets/*/versions/latest` is an alias to the most recently
-              #     created {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
+              #     `projects/*/secrets/*/versions/latest` or
+              #     `projects/*/locations/*/secrets/*/versions/latest` is an alias to the most
+              #     recently created
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::SecretManager::V1::AccessSecretVersionResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -926,12 +995,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.access_secret_version.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.access_secret_version.timeout,
@@ -953,7 +1023,8 @@ module Google
               ##
               # Disables a {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
               #
-              # Sets the {::Google::Cloud::SecretManager::V1::SecretVersion#state state} of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to
+              # Sets the {::Google::Cloud::SecretManager::V1::SecretVersion#state state} of the
+              # {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to
               # {::Google::Cloud::SecretManager::V1::SecretVersion::State::DISABLED DISABLED}.
               #
               # @overload disable_secret_version(request, options = nil)
@@ -972,12 +1043,15 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to disable in the format
-              #     `projects/*/secrets/*/versions/*`.
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to disable in
+              #     the format `projects/*/secrets/*/versions/*` or
+              #     `projects/*/locations/*/secrets/*/versions/*`.
               #   @param etag [::String]
-              #     Optional. Etag of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}. The request succeeds if it matches
-              #     the etag of the currently stored secret version object. If the etag is
-              #     omitted, the request succeeds.
+              #     Optional. Etag of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}. The request
+              #     succeeds if it matches the etag of the currently stored secret version
+              #     object. If the etag is omitted, the request succeeds.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::SecretManager::V1::SecretVersion]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1012,12 +1086,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.disable_secret_version.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.disable_secret_version.timeout,
@@ -1039,7 +1114,8 @@ module Google
               ##
               # Enables a {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
               #
-              # Sets the {::Google::Cloud::SecretManager::V1::SecretVersion#state state} of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to
+              # Sets the {::Google::Cloud::SecretManager::V1::SecretVersion#state state} of the
+              # {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to
               # {::Google::Cloud::SecretManager::V1::SecretVersion::State::ENABLED ENABLED}.
               #
               # @overload enable_secret_version(request, options = nil)
@@ -1058,12 +1134,15 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to enable in the format
-              #     `projects/*/secrets/*/versions/*`.
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to enable in
+              #     the format `projects/*/secrets/*/versions/*` or
+              #     `projects/*/locations/*/secrets/*/versions/*`.
               #   @param etag [::String]
-              #     Optional. Etag of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}. The request succeeds if it matches
-              #     the etag of the currently stored secret version object. If the etag is
-              #     omitted, the request succeeds.
+              #     Optional. Etag of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}. The request
+              #     succeeds if it matches the etag of the currently stored secret version
+              #     object. If the etag is omitted, the request succeeds.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::SecretManager::V1::SecretVersion]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1098,12 +1177,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.enable_secret_version.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.enable_secret_version.timeout,
@@ -1125,9 +1205,10 @@ module Google
               ##
               # Destroys a {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}.
               #
-              # Sets the {::Google::Cloud::SecretManager::V1::SecretVersion#state state} of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to
-              # {::Google::Cloud::SecretManager::V1::SecretVersion::State::DESTROYED DESTROYED} and irrevocably destroys the
-              # secret data.
+              # Sets the {::Google::Cloud::SecretManager::V1::SecretVersion#state state} of the
+              # {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to
+              # {::Google::Cloud::SecretManager::V1::SecretVersion::State::DESTROYED DESTROYED}
+              # and irrevocably destroys the secret data.
               #
               # @overload destroy_secret_version(request, options = nil)
               #   Pass arguments to `destroy_secret_version` via a request object, either of type
@@ -1145,12 +1226,15 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. The resource name of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to destroy in the format
-              #     `projects/*/secrets/*/versions/*`.
+              #     Required. The resource name of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion} to destroy in
+              #     the format `projects/*/secrets/*/versions/*` or
+              #     `projects/*/locations/*/secrets/*/versions/*`.
               #   @param etag [::String]
-              #     Optional. Etag of the {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}. The request succeeds if it matches
-              #     the etag of the currently stored secret version object. If the etag is
-              #     omitted, the request succeeds.
+              #     Optional. Etag of the
+              #     {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersion}. The request
+              #     succeeds if it matches the etag of the currently stored secret version
+              #     object. If the etag is omitted, the request succeeds.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::SecretManager::V1::SecretVersion]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1185,12 +1269,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.destroy_secret_version.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.destroy_secret_version.timeout,
@@ -1213,8 +1298,10 @@ module Google
               # Sets the access control policy on the specified secret. Replaces any
               # existing policy.
               #
-              # Permissions on {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersions} are enforced according
-              # to the policy set on the associated {::Google::Cloud::SecretManager::V1::Secret Secret}.
+              # Permissions on
+              # {::Google::Cloud::SecretManager::V1::SecretVersion SecretVersions} are enforced
+              # according to the policy set on the associated
+              # {::Google::Cloud::SecretManager::V1::Secret Secret}.
               #
               # @overload set_iam_policy(request, options = nil)
               #   Pass arguments to `set_iam_policy` via a request object, either of type
@@ -1279,12 +1366,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.set_iam_policy.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.set_iam_policy.timeout,
@@ -1362,12 +1450,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_iam_policy.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_iam_policy.timeout,
@@ -1452,12 +1541,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.test_iam_permissions.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::SecretManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.test_iam_permissions.timeout,
@@ -1506,9 +1596,9 @@ module Google
               #   end
               #
               # @!attribute [rw] endpoint
-              #   The hostname or hostname:port of the service endpoint.
-              #   Defaults to `"secretmanager.googleapis.com"`.
-              #   @return [::String]
+              #   A custom service endpoint, as a hostname or hostname:port. The default is
+              #   nil, indicating to use the default endpoint in the current universe domain.
+              #   @return [::String,nil]
               # @!attribute [rw] credentials
               #   Credentials to send with calls. You may provide any of the following types:
               #    *  (`String`) The path to a service account key file in JSON format
@@ -1545,13 +1635,20 @@ module Google
               # @!attribute [rw] quota_project
               #   A separate project against which to charge quota.
               #   @return [::String]
+              # @!attribute [rw] universe_domain
+              #   The universe domain within which to make requests. This determines the
+              #   default endpoint URL. The default value of nil uses the environment
+              #   universe (usually the default "googleapis.com" universe).
+              #   @return [::String,nil]
               #
               class Configuration
                 extend ::Gapic::Config
 
+                # @private
+                # The endpoint specific to the default "googleapis.com" universe. Deprecated.
                 DEFAULT_ENDPOINT = "secretmanager.googleapis.com"
 
-                config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+                config_attr :endpoint,      nil, ::String, nil
                 config_attr :credentials,   nil do |value|
                   allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                   allowed.any? { |klass| klass === value }
@@ -1563,6 +1660,14 @@ module Google
                 config_attr :metadata,      nil, ::Hash, nil
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
+                config_attr :universe_domain, nil, ::String, nil
+
+                # @private
+                # Overrides for http bindings for the RPCs of this service
+                # are only used when this service is used as mixin, and only
+                # by the host service.
+                # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
+                config_attr :bindings_override, {}, ::Hash, nil
 
                 # @private
                 def initialize parent_config = nil

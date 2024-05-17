@@ -46,6 +46,11 @@ module Google
         #     The steps are ordered by the processing sequence within the simulated
         #     network state machine. It is critical to preserve the order of the steps
         #     and avoid reordering or sorting them.
+        # @!attribute [rw] forward_trace_id
+        #   @return [::Integer]
+        #     ID of trace. For forward traces, this ID is unique for each trace. For
+        #     return traces, it matches ID of associated forward trace. A single forward
+        #     trace can be associated with none, one or more than one return trace.
         class Trace
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -108,8 +113,10 @@ module Google
         #   @return [::Google::Cloud::NetworkManagement::V1::DropInfo]
         #     Display information of the final state "drop" and reason.
         # @!attribute [rw] load_balancer
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Google::Cloud::NetworkManagement::V1::LoadBalancerInfo]
-        #     Display information of the load balancers.
+        #     Display information of the load balancers. Deprecated in favor of the
+        #     `load_balancer_backend_info` field, not used in new tests.
         # @!attribute [rw] network
         #   @return [::Google::Cloud::NetworkManagement::V1::NetworkInfo]
         #     Display information of a Google Cloud network.
@@ -128,6 +135,18 @@ module Google
         # @!attribute [rw] cloud_run_revision
         #   @return [::Google::Cloud::NetworkManagement::V1::CloudRunRevisionInfo]
         #     Display information of a Cloud Run revision.
+        # @!attribute [rw] nat
+        #   @return [::Google::Cloud::NetworkManagement::V1::NatInfo]
+        #     Display information of a NAT.
+        # @!attribute [rw] proxy_connection
+        #   @return [::Google::Cloud::NetworkManagement::V1::ProxyConnectionInfo]
+        #     Display information of a ProxyConnection.
+        # @!attribute [rw] load_balancer_backend_info
+        #   @return [::Google::Cloud::NetworkManagement::V1::LoadBalancerBackendInfo]
+        #     Display information of a specific load balancer backend.
+        # @!attribute [rw] storage_bucket
+        #   @return [::Google::Cloud::NetworkManagement::V1::StorageBucketInfo]
+        #     Display information of a Storage Bucket. Used only for return traces.
         class Step
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -146,10 +165,8 @@ module Google
             # The endpoint information is populated.
             START_FROM_INTERNET = 2
 
-            # Initial state: packet originating from a Google service. Some Google
-            # services, such as health check probers or Identity Aware Proxy use
-            # special routes, outside VPC routing configuration to reach Compute Engine
-            # Instances.
+            # Initial state: packet originating from a Google service.
+            # The google_service information is populated.
             START_FROM_GOOGLE_SERVICE = 27
 
             # Initial state: packet originating from a VPC or on-premises network
@@ -178,6 +195,15 @@ module Google
             # A CloudRunRevisionInfo is populated with starting revision information.
             START_FROM_CLOUD_RUN_REVISION = 26
 
+            # Initial state: packet originating from a Storage Bucket. Used only for
+            # return traces.
+            # The storage_bucket information is populated.
+            START_FROM_STORAGE_BUCKET = 29
+
+            # Initial state: packet originating from a published service that uses
+            # Private Service Connect. Used only for return traces.
+            START_FROM_PSC_PUBLISHED_SERVICE = 30
+
             # Config checking state: verify ingress firewall rule.
             APPLY_INGRESS_FIREWALL_RULE = 4
 
@@ -189,6 +215,9 @@ module Google
 
             # Config checking state: match forwarding rule.
             APPLY_FORWARDING_RULE = 7
+
+            # Config checking state: verify load balancer backend configuration.
+            ANALYZE_LOAD_BALANCER_BACKEND = 28
 
             # Config checking state: packet sent or received under foreign IP
             # address and allowed.
@@ -261,6 +290,7 @@ module Google
         #   @return [::Array<::String>]
         #     Network tags configured on the instance.
         # @!attribute [rw] service_account
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::String]
         #     Service account authorized for the instance.
         class InstanceInfo
@@ -298,7 +328,7 @@ module Google
         #     Possible values: INGRESS, EGRESS
         # @!attribute [rw] action
         #   @return [::String]
-        #     Possible values: ALLOW, DENY
+        #     Possible values: ALLOW, DENY, APPLY_SECURITY_PROFILE_GROUP
         # @!attribute [rw] priority
         #   @return [::Integer]
         #     The priority of the firewall rule.
@@ -359,6 +389,18 @@ module Google
             # For details, see [Regional network firewall
             # policies](https://cloud.google.com/firewall/docs/regional-firewall-policies).
             NETWORK_REGIONAL_FIREWALL_POLICY_RULE = 6
+
+            # Firewall policy rule containing attributes not yet supported in
+            # Connectivity tests. Firewall analysis is skipped if such a rule can
+            # potentially be matched. Please see the [list of unsupported
+            # configurations](https://cloud.google.com/network-intelligence-center/docs/connectivity-tests/concepts/overview#unsupported-configs).
+            UNSUPPORTED_FIREWALL_POLICY_RULE = 100
+
+            # Tracking state for response traffic created when request traffic goes
+            # through allow firewall rule.
+            # For details, see [firewall rules
+            # specifications](https://cloud.google.com/firewall/docs/firewalls#specifications)
+            TRACKING_STATE = 101
           end
         end
 
@@ -524,7 +566,7 @@ module Google
 
           # Recognized type of a Google Service.
           module GoogleServiceType
-            # Unspecified Google Service. Includes most of Google APIs and services.
+            # Unspecified Google Service.
             GOOGLE_SERVICE_TYPE_UNSPECIFIED = 0
 
             # Identity aware proxy.
@@ -542,6 +584,17 @@ module Google
             # https://cloud.google.com/dns/docs/zones/forwarding-zones#firewall-rules
             # https://cloud.google.com/dns/docs/policies#firewall-rules
             CLOUD_DNS = 3
+
+            # private.googleapis.com and restricted.googleapis.com
+            GOOGLE_API = 4
+
+            # Google API via Private Service Connect.
+            # https://cloud.google.com/vpc/docs/configure-private-service-connect-apis
+            GOOGLE_API_PSC = 5
+
+            # Google API via VPC Service Controls.
+            # https://cloud.google.com/vpc/docs/configure-private-service-connect-apis
+            GOOGLE_API_VPC_SC = 6
           end
         end
 
@@ -577,8 +630,11 @@ module Google
         #   @return [::Google::Cloud::NetworkManagement::V1::LoadBalancerInfo::LoadBalancerType]
         #     Type of the load balancer.
         # @!attribute [rw] health_check_uri
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::String]
-        #     URI of the health check for the load balancer.
+        #     URI of the health check for the load balancer. Deprecated and no longer
+        #     populated as different load balancer backends might have different health
+        #     checks.
         # @!attribute [rw] backends
         #   @return [::Array<::Google::Cloud::NetworkManagement::V1::LoadBalancerBackend>]
         #     Information for the loadbalancer backends.
@@ -781,6 +837,9 @@ module Google
         # @!attribute [rw] resource_uri
         #   @return [::String]
         #     URI of the resource that the packet is delivered to.
+        # @!attribute [rw] ip_address
+        #   @return [::String]
+        #     IP address of the target (if applicable).
         class DeliverInfo
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -819,6 +878,21 @@ module Google
 
             # Target is a serverless network endpoint group.
             SERVERLESS_NEG = 9
+
+            # Target is a Cloud Storage bucket.
+            STORAGE_BUCKET = 10
+
+            # Target is a private network. Used only for return traces.
+            PRIVATE_NETWORK = 11
+
+            # Target is a Cloud Function. Used only for return traces.
+            CLOUD_FUNCTION = 12
+
+            # Target is a App Engine service version. Used only for return traces.
+            APP_ENGINE_VERSION = 13
+
+            # Target is a Cloud Run revision. Used only for return traces.
+            CLOUD_RUN_REVISION = 14
           end
         end
 
@@ -829,6 +903,9 @@ module Google
         # @!attribute [rw] resource_uri
         #   @return [::String]
         #     URI of the resource that the packet is forwarded to.
+        # @!attribute [rw] ip_address
+        #   @return [::String]
+        #     IP address of the target (if applicable).
         class ForwardInfo
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -861,6 +938,9 @@ module Google
 
             # Forwarded to an NCC Hub.
             NCC_HUB = 8
+
+            # Forwarded to a router appliance.
+            ROUTER_APPLIANCE = 9
           end
         end
 
@@ -871,11 +951,13 @@ module Google
         # @!attribute [rw] resource_uri
         #   @return [::String]
         #     URI of the resource that caused the abort.
+        # @!attribute [rw] ip_address
+        #   @return [::String]
+        #     IP address that caused the abort.
         # @!attribute [rw] projects_missing_permission
         #   @return [::Array<::String>]
-        #     List of project IDs that the user has specified in the request but does
-        #     not have permission to access network configs. Analysis is aborted in this
-        #     case with the PERMISSION_DENIED cause.
+        #     List of project IDs the user specified in the request but lacks access to.
+        #     In this case, analysis is aborted with the PERMISSION_DENIED cause.
         class AbortInfo
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -885,62 +967,77 @@ module Google
             # Cause is unspecified.
             CAUSE_UNSPECIFIED = 0
 
-            # Aborted due to unknown network.
-            # The reachability analysis cannot proceed because the user does not have
-            # access to the host project's network configurations, including firewall
-            # rules and routes. This happens when the project is a service project and
-            # the endpoints being traced are in the host project's network.
+            # Aborted due to unknown network. Deprecated, not used in the new tests.
             UNKNOWN_NETWORK = 1
 
-            # Aborted because the IP address(es) are unknown.
-            UNKNOWN_IP = 2
-
             # Aborted because no project information can be derived from the test
-            # input.
+            # input. Deprecated, not used in the new tests.
             UNKNOWN_PROJECT = 3
 
-            # Aborted because the user lacks the permission to access all or part of
-            # the network configurations required to run the test.
-            PERMISSION_DENIED = 4
-
-            # Aborted because no valid source endpoint is derived from the input test
-            # request.
-            NO_SOURCE_LOCATION = 5
-
-            # Aborted because the source and/or destination endpoint specified in
-            # the test are invalid. The possible reasons that an endpoint is
-            # invalid include: malformed IP address; nonexistent instance or
-            # network URI; IP address not in the range of specified network URI; and
-            # instance not owning the network interface in the specified network.
-            INVALID_ARGUMENT = 6
-
             # Aborted because traffic is sent from a public IP to an instance without
-            # an external IP.
+            # an external IP. Deprecated, not used in the new tests.
             NO_EXTERNAL_IP = 7
 
             # Aborted because none of the traces matches destination information
-            # specified in the input test request.
+            # specified in the input test request. Deprecated, not used in the new
+            # tests.
             UNINTENDED_DESTINATION = 8
 
-            # Aborted because the number of steps in the trace exceeding a certain
-            # limit which may be caused by routing loop.
+            # Aborted because the source endpoint could not be found. Deprecated, not
+            # used in the new tests.
+            SOURCE_ENDPOINT_NOT_FOUND = 11
+
+            # Aborted because the source network does not match the source endpoint.
+            # Deprecated, not used in the new tests.
+            MISMATCHED_SOURCE_NETWORK = 12
+
+            # Aborted because the destination endpoint could not be found. Deprecated,
+            # not used in the new tests.
+            DESTINATION_ENDPOINT_NOT_FOUND = 13
+
+            # Aborted because the destination network does not match the destination
+            # endpoint. Deprecated, not used in the new tests.
+            MISMATCHED_DESTINATION_NETWORK = 14
+
+            # Aborted because no endpoint with the packet's destination IP address is
+            # found.
+            UNKNOWN_IP = 2
+
+            # Aborted because the source IP address doesn't belong to any of the
+            # subnets of the source VPC network.
+            SOURCE_IP_ADDRESS_NOT_IN_SOURCE_NETWORK = 23
+
+            # Aborted because user lacks permission to access all or part of the
+            # network configurations required to run the test.
+            PERMISSION_DENIED = 4
+
+            # Aborted because user lacks permission to access Cloud NAT configs
+            # required to run the test.
+            PERMISSION_DENIED_NO_CLOUD_NAT_CONFIGS = 28
+
+            # Aborted because user lacks permission to access Network endpoint group
+            # endpoint configs required to run the test.
+            PERMISSION_DENIED_NO_NEG_ENDPOINT_CONFIGS = 29
+
+            # Aborted because no valid source or destination endpoint is derived from
+            # the input test request.
+            NO_SOURCE_LOCATION = 5
+
+            # Aborted because the source or destination endpoint specified in
+            # the request is invalid. Some examples:
+            # - The request might contain malformed resource URI, project ID, or IP
+            # address.
+            # - The request might contain inconsistent information (for example, the
+            # request might include both the instance and the network, but the instance
+            # might not have a NIC in that network).
+            INVALID_ARGUMENT = 6
+
+            # Aborted because the number of steps in the trace exceeds a certain
+            # limit. It might be caused by a routing loop.
             TRACE_TOO_LONG = 9
 
             # Aborted due to internal server error.
             INTERNAL_ERROR = 10
-
-            # Aborted because the source endpoint could not be found.
-            SOURCE_ENDPOINT_NOT_FOUND = 11
-
-            # Aborted because the source network does not match the source endpoint.
-            MISMATCHED_SOURCE_NETWORK = 12
-
-            # Aborted because the destination endpoint could not be found.
-            DESTINATION_ENDPOINT_NOT_FOUND = 13
-
-            # Aborted because the destination network does not match the destination
-            # endpoint.
-            MISMATCHED_DESTINATION_NETWORK = 14
 
             # Aborted because the test scenario is not supported.
             UNSUPPORTED = 15
@@ -957,6 +1054,18 @@ module Google
             # Aborted because expected resource configuration was missing.
             RESOURCE_CONFIG_NOT_FOUND = 18
 
+            # Aborted because expected VM instance configuration was missing.
+            VM_INSTANCE_CONFIG_NOT_FOUND = 24
+
+            # Aborted because expected network configuration was missing.
+            NETWORK_CONFIG_NOT_FOUND = 25
+
+            # Aborted because expected firewall configuration was missing.
+            FIREWALL_CONFIG_NOT_FOUND = 26
+
+            # Aborted because expected route configuration was missing.
+            ROUTE_CONFIG_NOT_FOUND = 27
+
             # Aborted because a PSC endpoint selection for the Google-managed service
             # is ambiguous (several PSC endpoints satisfy test input).
             GOOGLE_MANAGED_SERVICE_AMBIGUOUS_PSC_ENDPOINT = 19
@@ -968,6 +1077,17 @@ module Google
             # Aborted because tests with a forwarding rule as a source are not
             # supported.
             SOURCE_FORWARDING_RULE_UNSUPPORTED = 21
+
+            # Aborted because one of the endpoints is a non-routable IP address
+            # (loopback, link-local, etc).
+            NON_ROUTABLE_IP_ADDRESS = 22
+
+            # Aborted due to an unknown issue in the Google-managed project.
+            UNKNOWN_ISSUE_IN_GOOGLE_MANAGED_PROJECT = 30
+
+            # Aborted due to an unsupported configuration of the Google-managed
+            # project.
+            UNSUPPORTED_GOOGLE_MANAGED_PROJECT_CONFIG = 31
           end
         end
 
@@ -978,6 +1098,15 @@ module Google
         # @!attribute [rw] resource_uri
         #   @return [::String]
         #     URI of the resource that caused the drop.
+        # @!attribute [rw] source_ip
+        #   @return [::String]
+        #     Source IP address of the dropped packet (if relevant).
+        # @!attribute [rw] destination_ip
+        #   @return [::String]
+        #     Destination IP address of the dropped packet (if relevant).
+        # @!attribute [rw] region
+        #   @return [::String]
+        #     Region of the dropped packet (if relevant).
         class DropInfo
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1000,7 +1129,7 @@ module Google
             # tracking.
             FIREWALL_RULE = 3
 
-            # Dropped due to no routes.
+            # Dropped due to no matching routes.
             NO_ROUTE = 4
 
             # Dropped due to invalid route. Route's next hop is a blackhole.
@@ -1008,15 +1137,52 @@ module Google
 
             # Packet is sent to a wrong (unintended) network. Example: you trace a
             # packet from VM1:Network1 to VM2:Network2, however, the route configured
-            # in Network1 sends the packet destined for VM2's IP addresss to Network3.
+            # in Network1 sends the packet destined for VM2's IP address to Network3.
             ROUTE_WRONG_NETWORK = 6
+
+            # Route's next hop IP address cannot be resolved to a GCP resource.
+            ROUTE_NEXT_HOP_IP_ADDRESS_NOT_RESOLVED = 42
+
+            # Route's next hop resource is not found.
+            ROUTE_NEXT_HOP_RESOURCE_NOT_FOUND = 43
+
+            # Route's next hop instance doesn't have a NIC in the route's network.
+            ROUTE_NEXT_HOP_INSTANCE_WRONG_NETWORK = 49
+
+            # Route's next hop IP address is not a primary IP address of the next hop
+            # instance.
+            ROUTE_NEXT_HOP_INSTANCE_NON_PRIMARY_IP = 50
+
+            # Route's next hop forwarding rule doesn't match next hop IP address.
+            ROUTE_NEXT_HOP_FORWARDING_RULE_IP_MISMATCH = 51
+
+            # Route's next hop VPN tunnel is down (does not have valid IKE SAs).
+            ROUTE_NEXT_HOP_VPN_TUNNEL_NOT_ESTABLISHED = 52
+
+            # Route's next hop forwarding rule type is invalid (it's not a forwarding
+            # rule of the internal passthrough load balancer).
+            ROUTE_NEXT_HOP_FORWARDING_RULE_TYPE_INVALID = 53
+
+            # Packet is sent from the Internet to the private IPv6 address.
+            NO_ROUTE_FROM_INTERNET_TO_PRIVATE_IPV6_ADDRESS = 44
+
+            # The packet does not match a policy-based VPN tunnel local selector.
+            VPN_TUNNEL_LOCAL_SELECTOR_MISMATCH = 45
+
+            # The packet does not match a policy-based VPN tunnel remote selector.
+            VPN_TUNNEL_REMOTE_SELECTOR_MISMATCH = 46
 
             # Packet with internal destination address sent to the internet gateway.
             PRIVATE_TRAFFIC_TO_INTERNET = 7
 
             # Instance with only an internal IP address tries to access Google API and
-            # services, but private Google access is not enabled.
+            # services, but private Google access is not enabled in the subnet.
             PRIVATE_GOOGLE_ACCESS_DISALLOWED = 8
+
+            # Source endpoint tries to access Google API and services through the VPN
+            # tunnel to another network, but Private Google Access needs to be enabled
+            # in the source endpoint network.
+            PRIVATE_GOOGLE_ACCESS_VIA_VPN_TUNNEL_UNSUPPORTED = 47
 
             # Instance with only an internal IP address tries to access external hosts,
             # but Cloud NAT is not enabled in the subnet, unless special configurations
@@ -1031,10 +1197,6 @@ module Google
 
             # Forwarding rule's protocol and ports do not match the packet header.
             FORWARDING_RULE_MISMATCH = 11
-
-            # Packet could be dropped because it was sent from a different region
-            # to a regional forwarding without global access.
-            FORWARDING_RULE_REGION_MISMATCH = 25
 
             # Forwarding rule does not have backends configured.
             FORWARDING_RULE_NO_INSTANCES = 12
@@ -1131,9 +1293,45 @@ module Google
             # state.
             VPC_CONNECTOR_NOT_RUNNING = 24
 
+            # Packet could be dropped because it was sent from a different region
+            # to a regional forwarding without global access.
+            FORWARDING_RULE_REGION_MISMATCH = 25
+
             # The Private Service Connect endpoint is in a project that is not approved
             # to connect to the service.
             PSC_CONNECTION_NOT_ACCEPTED = 26
+
+            # The packet is sent to the Private Service Connect endpoint over the
+            # peering, but [it's not
+            # supported](https://cloud.google.com/vpc/docs/configure-private-service-connect-services#on-premises).
+            PSC_ENDPOINT_ACCESSED_FROM_PEERED_NETWORK = 41
+
+            # The packet is sent to the Private Service Connect backend (network
+            # endpoint group), but the producer PSC forwarding rule does not have
+            # global access enabled.
+            PSC_NEG_PRODUCER_ENDPOINT_NO_GLOBAL_ACCESS = 48
+
+            # The packet is sent to the Private Service Connect backend (network
+            # endpoint group), but the producer PSC forwarding rule has multiple ports
+            # specified.
+            PSC_NEG_PRODUCER_FORWARDING_RULE_MULTIPLE_PORTS = 54
+
+            # The packet is sent to the Private Service Connect backend (network
+            # endpoint group) targeting a Cloud SQL service attachment, but this
+            # configuration is not supported.
+            CLOUD_SQL_PSC_NEG_UNSUPPORTED = 58
+
+            # No NAT subnets are defined for the PSC service attachment.
+            NO_NAT_SUBNETS_FOR_PSC_SERVICE_ATTACHMENT = 57
+
+            # The packet sent from the hybrid NEG proxy matches a non-dynamic route,
+            # but such a configuration is not supported.
+            HYBRID_NEG_NON_DYNAMIC_ROUTE_MATCHED = 55
+
+            # The packet sent from the hybrid NEG proxy matches a dynamic route with a
+            # next hop in a different region, but such a configuration is not
+            # supported.
+            HYBRID_NEG_NON_LOCAL_DYNAMIC_ROUTE_MATCHED = 56
 
             # Packet sent from a Cloud Run revision that is not ready.
             CLOUD_RUN_REVISION_NOT_READY = 29
@@ -1144,6 +1342,12 @@ module Google
             # Packet sent to a load balancer, which requires a proxy-only subnet and
             # the subnet is not found.
             LOAD_BALANCER_HAS_NO_PROXY_SUBNET = 39
+
+            # Packet sent to Cloud Nat without active NAT IPs.
+            CLOUD_NAT_NO_ADDRESSES = 40
+
+            # Packet is stuck in a routing loop.
+            ROUTING_LOOP = 59
           end
         end
 
@@ -1256,6 +1460,193 @@ module Google
         #   @return [::String]
         #     Location in which the VPC connector is deployed.
         class VpcConnectorInfo
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # For display only. Metadata associated with NAT.
+        # @!attribute [rw] type
+        #   @return [::Google::Cloud::NetworkManagement::V1::NatInfo::Type]
+        #     Type of NAT.
+        # @!attribute [rw] protocol
+        #   @return [::String]
+        #     IP protocol in string format, for example: "TCP", "UDP", "ICMP".
+        # @!attribute [rw] network_uri
+        #   @return [::String]
+        #     URI of the network where NAT translation takes place.
+        # @!attribute [rw] old_source_ip
+        #   @return [::String]
+        #     Source IP address before NAT translation.
+        # @!attribute [rw] new_source_ip
+        #   @return [::String]
+        #     Source IP address after NAT translation.
+        # @!attribute [rw] old_destination_ip
+        #   @return [::String]
+        #     Destination IP address before NAT translation.
+        # @!attribute [rw] new_destination_ip
+        #   @return [::String]
+        #     Destination IP address after NAT translation.
+        # @!attribute [rw] old_source_port
+        #   @return [::Integer]
+        #     Source port before NAT translation. Only valid when protocol is TCP or UDP.
+        # @!attribute [rw] new_source_port
+        #   @return [::Integer]
+        #     Source port after NAT translation. Only valid when protocol is TCP or UDP.
+        # @!attribute [rw] old_destination_port
+        #   @return [::Integer]
+        #     Destination port before NAT translation. Only valid when protocol is TCP or
+        #     UDP.
+        # @!attribute [rw] new_destination_port
+        #   @return [::Integer]
+        #     Destination port after NAT translation. Only valid when protocol is TCP or
+        #     UDP.
+        # @!attribute [rw] router_uri
+        #   @return [::String]
+        #     Uri of the Cloud Router. Only valid when type is CLOUD_NAT.
+        # @!attribute [rw] nat_gateway_name
+        #   @return [::String]
+        #     The name of Cloud NAT Gateway. Only valid when type is CLOUD_NAT.
+        class NatInfo
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Types of NAT.
+          module Type
+            # Type is unspecified.
+            TYPE_UNSPECIFIED = 0
+
+            # From Compute Engine instance's internal address to external address.
+            INTERNAL_TO_EXTERNAL = 1
+
+            # From Compute Engine instance's external address to internal address.
+            EXTERNAL_TO_INTERNAL = 2
+
+            # Cloud NAT Gateway.
+            CLOUD_NAT = 3
+
+            # Private service connect NAT.
+            PRIVATE_SERVICE_CONNECT = 4
+          end
+        end
+
+        # For display only. Metadata associated with ProxyConnection.
+        # @!attribute [rw] protocol
+        #   @return [::String]
+        #     IP protocol in string format, for example: "TCP", "UDP", "ICMP".
+        # @!attribute [rw] old_source_ip
+        #   @return [::String]
+        #     Source IP address of an original connection.
+        # @!attribute [rw] new_source_ip
+        #   @return [::String]
+        #     Source IP address of a new connection.
+        # @!attribute [rw] old_destination_ip
+        #   @return [::String]
+        #     Destination IP address of an original connection
+        # @!attribute [rw] new_destination_ip
+        #   @return [::String]
+        #     Destination IP address of a new connection.
+        # @!attribute [rw] old_source_port
+        #   @return [::Integer]
+        #     Source port of an original connection. Only valid when protocol is TCP or
+        #     UDP.
+        # @!attribute [rw] new_source_port
+        #   @return [::Integer]
+        #     Source port of a new connection. Only valid when protocol is TCP or UDP.
+        # @!attribute [rw] old_destination_port
+        #   @return [::Integer]
+        #     Destination port of an original connection. Only valid when protocol is TCP
+        #     or UDP.
+        # @!attribute [rw] new_destination_port
+        #   @return [::Integer]
+        #     Destination port of a new connection. Only valid when protocol is TCP or
+        #     UDP.
+        # @!attribute [rw] subnet_uri
+        #   @return [::String]
+        #     Uri of proxy subnet.
+        # @!attribute [rw] network_uri
+        #   @return [::String]
+        #     URI of the network where connection is proxied.
+        class ProxyConnectionInfo
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # For display only. Metadata associated with the load balancer backend.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Display name of the backend. For example, it might be an instance name for
+        #     the instance group backends, or an IP address and port for zonal network
+        #     endpoint group backends.
+        # @!attribute [rw] instance_uri
+        #   @return [::String]
+        #     URI of the backend instance (if applicable). Populated for instance group
+        #     backends, and zonal NEG backends.
+        # @!attribute [rw] backend_service_uri
+        #   @return [::String]
+        #     URI of the backend service this backend belongs to (if applicable).
+        # @!attribute [rw] instance_group_uri
+        #   @return [::String]
+        #     URI of the instance group this backend belongs to (if applicable).
+        # @!attribute [rw] network_endpoint_group_uri
+        #   @return [::String]
+        #     URI of the network endpoint group this backend belongs to (if applicable).
+        # @!attribute [rw] backend_bucket_uri
+        #   @return [::String]
+        #     URI of the backend bucket this backend targets (if applicable).
+        # @!attribute [rw] psc_service_attachment_uri
+        #   @return [::String]
+        #     URI of the PSC service attachment this PSC NEG backend targets (if
+        #     applicable).
+        # @!attribute [rw] psc_google_api_target
+        #   @return [::String]
+        #     PSC Google API target this PSC NEG backend targets (if applicable).
+        # @!attribute [rw] health_check_uri
+        #   @return [::String]
+        #     URI of the health check attached to this backend (if applicable).
+        # @!attribute [r] health_check_firewalls_config_state
+        #   @return [::Google::Cloud::NetworkManagement::V1::LoadBalancerBackendInfo::HealthCheckFirewallsConfigState]
+        #     Output only. Health check firewalls configuration state for the backend.
+        #     This is a result of the static firewall analysis (verifying that health
+        #     check traffic from required IP ranges to the backend is allowed or not).
+        #     The backend might still be unhealthy even if these firewalls are
+        #     configured. Please refer to the documentation for more information:
+        #     https://cloud.google.com/load-balancing/docs/firewall-rules
+        class LoadBalancerBackendInfo
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Health check firewalls configuration state enum.
+          module HealthCheckFirewallsConfigState
+            # Configuration state unspecified. It usually means that the backend has
+            # no health check attached, or there was an unexpected configuration error
+            # preventing Connectivity tests from verifying health check configuration.
+            HEALTH_CHECK_FIREWALLS_CONFIG_STATE_UNSPECIFIED = 0
+
+            # Firewall rules (policies) allowing health check traffic from all required
+            # IP ranges to the backend are configured.
+            FIREWALLS_CONFIGURED = 1
+
+            # Firewall rules (policies) allow health check traffic only from a part of
+            # required IP ranges.
+            FIREWALLS_PARTIALLY_CONFIGURED = 2
+
+            # Firewall rules (policies) deny health check traffic from all required
+            # IP ranges to the backend.
+            FIREWALLS_NOT_CONFIGURED = 3
+
+            # The network contains firewall rules of unsupported types, so Connectivity
+            # tests were not able to verify health check configuration status. Please
+            # refer to the documentation for the list of unsupported configurations:
+            # https://cloud.google.com/network-intelligence-center/docs/connectivity-tests/concepts/overview#unsupported-configs
+            FIREWALLS_UNSUPPORTED = 4
+          end
+        end
+
+        # For display only. Metadata associated with Storage Bucket.
+        # @!attribute [rw] bucket
+        #   @return [::String]
+        #     Cloud Storage Bucket name.
+        class StorageBucketInfo
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end

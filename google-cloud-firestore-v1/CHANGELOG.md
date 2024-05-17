@@ -1,5 +1,44 @@
 # Release History
 
+### 0.14.0 (2024-04-29)
+
+#### Features
+
+* add VectorSearch API ([#25424](https://github.com/googleapis/google-cloud-ruby/issues/25424)) 
+
+### 0.13.0 (2024-03-22)
+
+#### Features
+
+* Add new types ExplainOptions, ExplainMetrics, PlanSummary, ExecutionStats ([#25373](https://github.com/googleapis/google-cloud-ruby/issues/25373)) 
+
+### 0.12.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24870](https://github.com/googleapis/google-cloud-ruby/issues/24870)) 
+
+### 0.11.1 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.11.0 (2024-01-29)
+
+#### Features
+
+* Added a bloom filter of unchanged document names (#21547)
+* Uses binary protobuf definitions for better forward compatibility (#21675)
+* Support SUM/AVG aggregations in Firestore (#22673)
+* Support for universe_domain (#23779)
+* Support for channel pool configuration (#22920)
+
+#### Bug Fixes
+
+* Set request params header using resource prefix
+* Don't use self-signed JWT credentials if the global configuration endpoint has been modified
+
 ### 0.10.0 (2023-02-17)
 
 #### Features

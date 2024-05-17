@@ -102,11 +102,11 @@ module Google
         #     deploying this Model. The specification is ingested upon
         #     {::Google::Cloud::AIPlatform::V1::ModelService::Client#upload_model ModelService.UploadModel},
         #     and all binaries it contains are copied and stored internally by Vertex AI.
-        #     Not present for AutoML Models or Large Models.
+        #     Not required for AutoML Models.
         # @!attribute [rw] artifact_uri
         #   @return [::String]
         #     Immutable. The path to the directory containing the Model artifact and any
-        #     of its supporting files. Not present for AutoML Models or Large Models.
+        #     of its supporting files. Not required for AutoML Models.
         # @!attribute [r] supported_deployment_resources_types
         #   @return [::Array<::Google::Cloud::AIPlatform::V1::Model::DeploymentResourcesType>]
         #     Output only. When this Model is deployed, its prediction resources are
@@ -270,6 +270,12 @@ module Google
         #     characters, underscores and dashes. International characters are allowed.
         #
         #     See https://goo.gl/xmQnxf for more information and examples of labels.
+        # @!attribute [rw] data_stats
+        #   @return [::Google::Cloud::AIPlatform::V1::Model::DataStats]
+        #     Stats of data used for training or evaluating the Model.
+        #
+        #     Only populated when the Model is trained by a TrainingPipeline with
+        #     [data_input_config][TrainingPipeline.data_input_config].
         # @!attribute [rw] encryption_spec
         #   @return [::Google::Cloud::AIPlatform::V1::EncryptionSpec]
         #     Customer-managed encryption key spec for a Model. If set, this
@@ -277,7 +283,8 @@ module Google
         # @!attribute [r] model_source_info
         #   @return [::Google::Cloud::AIPlatform::V1::ModelSourceInfo]
         #     Output only. Source of a model. It can either be automl training pipeline,
-        #     custom training pipeline, BigQuery ML, or existing Vertex AI Model.
+        #     custom training pipeline, BigQuery ML, or saved and tuned from Genie or
+        #     Model Garden.
         # @!attribute [r] original_model_info
         #   @return [::Google::Cloud::AIPlatform::V1::Model::OriginalModelInfo]
         #     Output only. If this Model is a copy of another Model, this contains info
@@ -288,6 +295,10 @@ module Google
         #     MetadataStore when creating the Model. The Artifact resource name pattern
         #     is
         #     `projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}`.
+        # @!attribute [rw] base_model_source
+        #   @return [::Google::Cloud::AIPlatform::V1::Model::BaseModelSource]
+        #     Optional. User input field to specify the base model source. Currently it
+        #     only supports specifing the Model Garden models and Genie models.
         class Model
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -344,6 +355,38 @@ module Google
             end
           end
 
+          # Stats of data used for train or evaluate the Model.
+          # @!attribute [rw] training_data_items_count
+          #   @return [::Integer]
+          #     Number of DataItems that were used for training this Model.
+          # @!attribute [rw] validation_data_items_count
+          #   @return [::Integer]
+          #     Number of DataItems that were used for validating this Model during
+          #     training.
+          # @!attribute [rw] test_data_items_count
+          #   @return [::Integer]
+          #     Number of DataItems that were used for evaluating this Model. If the
+          #     Model is evaluated multiple times, this will be the number of test
+          #     DataItems used by the first evaluation. If the Model is not evaluated,
+          #     the number is 0.
+          # @!attribute [rw] training_annotations_count
+          #   @return [::Integer]
+          #     Number of Annotations that are used for training this Model.
+          # @!attribute [rw] validation_annotations_count
+          #   @return [::Integer]
+          #     Number of Annotations that are used for validating this Model during
+          #     training.
+          # @!attribute [rw] test_annotations_count
+          #   @return [::Integer]
+          #     Number of Annotations that are used for evaluating this Model. If the
+          #     Model is evaluated multiple times, this will be the number of test
+          #     Annotations used by the first evaluation. If the Model is not evaluated,
+          #     the number is 0.
+          class DataStats
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
           # Contains information about the original Model if this Model is a copy.
           # @!attribute [r] model
           #   @return [::String]
@@ -351,6 +394,19 @@ module Google
           #     including the revision. Format:
           #     `projects/{project}/locations/{location}/models/{model_id}@{version_id}`
           class OriginalModelInfo
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # User input field to specify the base model source. Currently it only
+          # supports specifing the Model Garden models and Genie models.
+          # @!attribute [rw] model_garden_source
+          #   @return [::Google::Cloud::AIPlatform::V1::ModelGardenSource]
+          #     Source information of Model Garden models.
+          # @!attribute [rw] genie_source
+          #   @return [::Google::Cloud::AIPlatform::V1::GenieSource]
+          #     Information about the base model of Genie models.
+          class BaseModelSource
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
@@ -380,7 +436,9 @@ module Google
 
             # Resources that can be shared by multiple
             # {::Google::Cloud::AIPlatform::V1::DeployedModel DeployedModels}. A
-            # pre-configured [DeploymentResourcePool][] is required.
+            # pre-configured
+            # {::Google::Cloud::AIPlatform::V1::DeploymentResourcePool DeploymentResourcePool}
+            # is required.
             SHARED_RESOURCES = 3
           end
         end
@@ -392,6 +450,26 @@ module Google
         #     "chat-bison", "text-bison". Or model name with version ID, like
         #     "chat-bison@001", "text-bison@005", etc.
         class LargeModelReference
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Contains information about the source of the models generated from Model
+        # Garden.
+        # @!attribute [rw] public_model_name
+        #   @return [::String]
+        #     Required. The model garden source model resource name.
+        class ModelGardenSource
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Contains information about the source of the models generated from Generative
+        # AI Studio.
+        # @!attribute [rw] base_model_uri
+        #   @return [::String]
+        #     Required. The public base model URI.
+        class GenieSource
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
@@ -663,6 +741,31 @@ module Google
         #       (Vertex AI makes this value available to your container code as the
         #       [`AIP_DEPLOYED_MODEL_ID` environment
         #       variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)
+        # @!attribute [rw] grpc_ports
+        #   @return [::Array<::Google::Cloud::AIPlatform::V1::Port>]
+        #     Immutable. List of ports to expose from the container. Vertex AI sends gRPC
+        #     prediction requests that it receives to the first port on this list. Vertex
+        #     AI also sends liveness and health checks to this port.
+        #
+        #     If you do not specify this field, gRPC requests to the container will be
+        #     disabled.
+        #
+        #     Vertex AI does not use ports other than the first one listed. This field
+        #     corresponds to the `ports` field of the Kubernetes Containers v1 core API.
+        # @!attribute [rw] deployment_timeout
+        #   @return [::Google::Protobuf::Duration]
+        #     Immutable. Deployment timeout.
+        #     Limit for deployment timeout is 2 hours.
+        # @!attribute [rw] shared_memory_size_mb
+        #   @return [::Integer]
+        #     Immutable. The amount of the VM memory to reserve as the shared memory for
+        #     the model in megabytes.
+        # @!attribute [rw] startup_probe
+        #   @return [::Google::Cloud::AIPlatform::V1::Probe]
+        #     Immutable. Specification for Kubernetes startup probe.
+        # @!attribute [rw] health_probe
+        #   @return [::Google::Cloud::AIPlatform::V1::Probe]
+        #     Immutable. Specification for Kubernetes readiness probe.
         class ModelContainerSpec
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -692,6 +795,10 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
 
           # Source of the model.
+          # Different from `objective` field, this `ModelSourceType` enum
+          # indicates the source from which the model was accessed or obtained,
+          # whereas the `objective` indicates the overall aim or function of this
+          # model.
           module ModelSourceType
             # Should not be used.
             MODEL_SOURCE_TYPE_UNSPECIFIED = 0
@@ -710,6 +817,48 @@ module Google
 
             # The Model is saved or tuned from Genie.
             GENIE = 5
+
+            # The Model is uploaded by text embedding finetuning pipeline.
+            CUSTOM_TEXT_EMBEDDING = 6
+
+            # The Model is saved or tuned from Marketplace.
+            MARKETPLACE = 7
+          end
+        end
+
+        # Probe describes a health check to be performed against a container to
+        # determine whether it is alive or ready to receive traffic.
+        # @!attribute [rw] exec
+        #   @return [::Google::Cloud::AIPlatform::V1::Probe::ExecAction]
+        #     Exec specifies the action to take.
+        # @!attribute [rw] period_seconds
+        #   @return [::Integer]
+        #     How often (in seconds) to perform the probe. Default to 10 seconds.
+        #     Minimum value is 1. Must be less than timeout_seconds.
+        #
+        #     Maps to Kubernetes probe argument 'periodSeconds'.
+        # @!attribute [rw] timeout_seconds
+        #   @return [::Integer]
+        #     Number of seconds after which the probe times out. Defaults to 1 second.
+        #     Minimum value is 1. Must be greater or equal to period_seconds.
+        #
+        #     Maps to Kubernetes probe argument 'timeoutSeconds'.
+        class Probe
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # ExecAction specifies a command to execute.
+          # @!attribute [rw] command
+          #   @return [::Array<::String>]
+          #     Command is the command line to execute inside the container, the working
+          #     directory for the command is root ('/') in the container's filesystem.
+          #     The command is simply exec'd, it is not run inside a shell, so
+          #     traditional shell instructions ('|', etc) won't work. To use a shell, you
+          #     need to explicitly call out to that shell. Exit status of 0 is treated as
+          #     live/healthy and non-zero is unhealthy.
+          class ExecAction
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
           end
         end
       end

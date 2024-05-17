@@ -1,5 +1,53 @@
 # Release History
 
+### 0.21.0 (2024-04-19)
+
+#### Features
+
+* Support client side metrics feature flag ([#25448](https://github.com/googleapis/google-cloud-ruby/issues/25448)) 
+
+### 0.20.0 (2024-03-10)
+
+#### Features
+
+* Support for Bigtable Aggregates ([#25338](https://github.com/googleapis/google-cloud-ruby/issues/25338)) 
+
+### 0.19.0 (2024-03-06)
+
+#### Features
+
+* support authorized_view_name for apis 
+
+### 0.18.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24865](https://github.com/googleapis/google-cloud-ruby/issues/24865)) 
+
+### 0.17.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.17.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.17.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23775](https://github.com/googleapis/google-cloud-ruby/issues/23775)) 
+
+### 0.16.0 (2024-01-03)
+
+#### Features
+
+* Add fields routing cookie and retry info ([#23681](https://github.com/googleapis/google-cloud-ruby/issues/23681)) 
+
 ### 0.15.0 (2023-09-14)
 
 #### Features

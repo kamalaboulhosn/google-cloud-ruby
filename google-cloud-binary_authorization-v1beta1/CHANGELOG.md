@@ -1,5 +1,35 @@
 # Release History
 
+### 0.13.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24865](https://github.com/googleapis/google-cloud-ruby/issues/24865)) 
+
+### 0.12.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.12.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.12.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23775](https://github.com/googleapis/google-cloud-ruby/issues/23775)) 
+
+### 0.11.0 (2023-12-04)
+
+#### Features
+
+* Added container_name and container_type fields to ImageDetails ([#23568](https://github.com/googleapis/google-cloud-ruby/issues/23568)) 
+
 ### 0.10.0 (2023-09-12)
 
 #### Features

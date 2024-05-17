@@ -111,6 +111,7 @@ module Google
         #   @return [::Google::Cloud::Speech::V2::UndeletePhraseSetRequest]
         #     The UndeletePhraseSetRequest that spawned the Operation.
         # @!attribute [rw] update_config_request
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Google::Cloud::Speech::V2::UpdateConfigRequest]
         #     The UpdateConfigRequest that spawned the Operation.
         # @!attribute [rw] progress_percent
@@ -249,7 +250,7 @@ module Google
         # A Recognizer message. Stores recognition configuration and metadata.
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The resource name of the Recognizer.
+        #     Output only. Identifier. The resource name of the Recognizer.
         #     Format: `projects/{project}/locations/{location}/recognizers/{recognizer}`.
         # @!attribute [r] uid
         #   @return [::String]
@@ -259,6 +260,7 @@ module Google
         #     User-settable, human-readable name for the Recognizer. Must be 63
         #     characters or less.
         # @!attribute [rw] model
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::String]
         #     Optional. This field is now deprecated. Prefer the
         #     {::Google::Cloud::Speech::V2::RecognitionConfig#model `model`} field in the
@@ -274,6 +276,7 @@ module Google
         #     Supported
         #     Models](https://cloud.google.com/speech-to-text/v2/docs/speech-to-text-supported-languages).
         # @!attribute [rw] language_codes
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Array<::String>]
         #     Optional. This field is now deprecated. Prefer the
         #     {::Google::Cloud::Speech::V2::RecognitionConfig#language_codes `language_codes`}
@@ -563,6 +566,16 @@ module Google
           end
         end
 
+        # Translation configuration. Use to translate the given audio into text for the
+        # desired language.
+        # @!attribute [rw] target_language
+        #   @return [::String]
+        #     Required. The language code to translate to.
+        class TranslationConfig
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # Provides "hints" to the speech recognizer to favor specific words and phrases
         # in the results. PhraseSets can be specified as an inline resource, or a
         # reference to an existing PhraseSet resource.
@@ -639,6 +652,10 @@ module Google
         #     the transcript with phrases of your choosing. For StreamingRecognize, this
         #     normalization only applies to stable partial transcripts (stability > 0.8)
         #     and final transcripts.
+        # @!attribute [rw] translation_config
+        #   @return [::Google::Cloud::Speech::V2::TranslationConfig]
+        #     Optional. Optional configuration used to automatically run translation on
+        #     the given audio to the desired language for supported models.
         class RecognitionConfig
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -998,6 +1015,46 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Output configurations for serialized `BatchRecognizeResults` protos.
+        class NativeOutputFileFormatConfig
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Output configurations for [WebVTT](https://www.w3.org/TR/webvtt1/) formatted
+        # subtitle file.
+        class VttOutputFileFormatConfig
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Output configurations [SubRip
+        # Text](https://www.matroska.org/technical/subtitles.html#srt-subtitles)
+        # formatted subtitle file.
+        class SrtOutputFileFormatConfig
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Configuration for the format of the results stored to `output`.
+        # @!attribute [rw] native
+        #   @return [::Google::Cloud::Speech::V2::NativeOutputFileFormatConfig]
+        #     Configuration for the native output format. If this field is set or if no
+        #     other output format field is set then transcripts will be written to the
+        #     sink in the native format.
+        # @!attribute [rw] vtt
+        #   @return [::Google::Cloud::Speech::V2::VttOutputFileFormatConfig]
+        #     Configuration for the vtt output format. If this field is set then
+        #     transcripts will be written to the sink in the vtt format.
+        # @!attribute [rw] srt
+        #   @return [::Google::Cloud::Speech::V2::SrtOutputFileFormatConfig]
+        #     Configuration for the srt output format. If this field is set then
+        #     transcripts will be written to the sink in the srt format.
+        class OutputFormatConfig
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # Configuration options for the output(s) of recognition.
         # @!attribute [rw] gcs_output_config
         #   @return [::Google::Cloud::Speech::V2::GcsOutputConfig]
@@ -1010,6 +1067,10 @@ module Google
         #     message of the Operation when completed. This is only supported when
         #     calling {::Google::Cloud::Speech::V2::Speech::Client#batch_recognize BatchRecognize}
         #     with just one audio file.
+        # @!attribute [rw] output_format_config
+        #   @return [::Google::Cloud::Speech::V2::OutputFormatConfig]
+        #     Optional. Configuration for the format of the results stored to `output`.
+        #     If unspecified transcripts will be written in the `NATIVE` format only.
         class RecognitionOutputConfig
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1057,6 +1118,14 @@ module Google
         # @!attribute [rw] uri
         #   @return [::String]
         #     The Cloud Storage URI to which recognition results were written.
+        # @!attribute [rw] vtt_format_uri
+        #   @return [::String]
+        #     The Cloud Storage URI to which recognition results were written as VTT
+        #     formatted captions. This is populated only when `VTT` output is requested.
+        # @!attribute [rw] srt_format_uri
+        #   @return [::String]
+        #     The Cloud Storage URI to which recognition results were written as SRT
+        #     formatted captions. This is populated only when `SRT` output is requested.
         class CloudStorageResult
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1066,6 +1135,14 @@ module Google
         # @!attribute [rw] transcript
         #   @return [::Google::Cloud::Speech::V2::BatchRecognizeResults]
         #     The transcript for the audio file.
+        # @!attribute [rw] vtt_captions
+        #   @return [::String]
+        #     The transcript for the audio file as VTT formatted captions. This is
+        #     populated only when `VTT` output is requested.
+        # @!attribute [rw] srt_captions
+        #   @return [::String]
+        #     The transcript for the audio file as SRT formatted captions. This is
+        #     populated only when `SRT` output is requested.
         class InlineResult
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1091,9 +1168,11 @@ module Google
         #     the
         #     [RecognitionOutputConfig][[google.cloud.speech.v2.RecognitionOutputConfig].
         # @!attribute [rw] uri
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::String]
         #     Deprecated. Use `cloud_storage_result.native_format_uri` instead.
         # @!attribute [rw] transcript
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Google::Cloud::Speech::V2::BatchRecognizeResults]
         #     Deprecated. Use `inline_result.transcript` instead.
         class BatchRecognizeFileResult
@@ -1315,8 +1394,8 @@ module Google
         # with which incoming data will be encrypted.
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The name of the config resource. There is exactly one config
-        #     resource per project per location. The expected format is
+        #     Output only. Identifier. The name of the config resource. There is exactly
+        #     one config resource per project per location. The expected format is
         #     `projects/{project}/locations/{location}/config`.
         # @!attribute [rw] kms_key_name
         #   @return [::String]
@@ -1367,7 +1446,7 @@ module Google
         # audio, for example a list of passenger ship names.
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The resource name of the CustomClass.
+        #     Output only. Identifier. The resource name of the CustomClass.
         #     Format:
         #     `projects/{project}/locations/{location}/customClasses/{custom_class}`.
         # @!attribute [r] uid
@@ -1375,8 +1454,8 @@ module Google
         #     Output only. System-assigned unique identifier for the CustomClass.
         # @!attribute [rw] display_name
         #   @return [::String]
-        #     User-settable, human-readable name for the CustomClass. Must be 63
-        #     characters or less.
+        #     Optional. User-settable, human-readable name for the CustomClass. Must be
+        #     63 characters or less.
         # @!attribute [rw] items
         #   @return [::Array<::Google::Cloud::Speech::V2::CustomClass::ClassItem>]
         #     A collection of class items.
@@ -1397,7 +1476,7 @@ module Google
         #     Output only. The time at which this resource will be purged.
         # @!attribute [rw] annotations
         #   @return [::Google::Protobuf::Map{::String => ::String}]
-        #     Allows users to store small amounts of arbitrary data.
+        #     Optional. Allows users to store small amounts of arbitrary data.
         #     Both the key and the value must be 63 characters or less each.
         #     At most 100 annotations.
         # @!attribute [r] etag
@@ -1462,7 +1541,7 @@ module Google
         # results.
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The resource name of the PhraseSet.
+        #     Output only. Identifier. The resource name of the PhraseSet.
         #     Format: `projects/{project}/locations/{location}/phraseSets/{phrase_set}`.
         # @!attribute [r] uid
         #   @return [::String]

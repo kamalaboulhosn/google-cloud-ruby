@@ -60,6 +60,14 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
 
       @response
     end
+
+    def endpoint
+      "endpoint.example.com"
+    end
+
+    def universe_domain
+      "example.com"
+    end
   end
 
   def test_inspect_content
@@ -2139,6 +2147,396 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     end
   end
 
+  def test_list_project_data_profiles
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::ListProjectDataProfilesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_token = "hello world"
+    page_size = 42
+    order_by = "hello world"
+    filter = "hello world"
+
+    list_project_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_list_project_data_profiles_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_project_data_profiles_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_project_data_profiles({ parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_project_data_profiles parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_project_data_profiles ::Google::Cloud::Dlp::V2::ListProjectDataProfilesRequest.new(parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_project_data_profiles({ parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_project_data_profiles(::Google::Cloud::Dlp::V2::ListProjectDataProfilesRequest.new(parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_project_data_profiles_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_table_data_profiles
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::ListTableDataProfilesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_token = "hello world"
+    page_size = 42
+    order_by = "hello world"
+    filter = "hello world"
+
+    list_table_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_list_table_data_profiles_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_table_data_profiles_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_table_data_profiles({ parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_table_data_profiles parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_table_data_profiles ::Google::Cloud::Dlp::V2::ListTableDataProfilesRequest.new(parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_table_data_profiles({ parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_table_data_profiles(::Google::Cloud::Dlp::V2::ListTableDataProfilesRequest.new(parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_table_data_profiles_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_column_data_profiles
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::ListColumnDataProfilesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_token = "hello world"
+    page_size = 42
+    order_by = "hello world"
+    filter = "hello world"
+
+    list_column_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_list_column_data_profiles_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_column_data_profiles_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_column_data_profiles({ parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_column_data_profiles parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_column_data_profiles ::Google::Cloud::Dlp::V2::ListColumnDataProfilesRequest.new(parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_column_data_profiles({ parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_column_data_profiles(::Google::Cloud::Dlp::V2::ListColumnDataProfilesRequest.new(parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_column_data_profiles_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_project_data_profile
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::ProjectDataProfile.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_project_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_get_project_data_profile_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_project_data_profile_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_project_data_profile({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_project_data_profile name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_project_data_profile ::Google::Cloud::Dlp::V2::GetProjectDataProfileRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_project_data_profile({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_project_data_profile(::Google::Cloud::Dlp::V2::GetProjectDataProfileRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_project_data_profile_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_table_data_profile
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::TableDataProfile.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_table_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_get_table_data_profile_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_table_data_profile_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_table_data_profile({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_table_data_profile name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_table_data_profile ::Google::Cloud::Dlp::V2::GetTableDataProfileRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_table_data_profile({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_table_data_profile(::Google::Cloud::Dlp::V2::GetTableDataProfileRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_table_data_profile_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_column_data_profile
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::ColumnDataProfile.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_column_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_get_column_data_profile_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_column_data_profile_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_column_data_profile({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_column_data_profile name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_column_data_profile ::Google::Cloud::Dlp::V2::GetColumnDataProfileRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_column_data_profile({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_column_data_profile(::Google::Cloud::Dlp::V2::GetColumnDataProfileRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_column_data_profile_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_table_data_profile
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_table_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_delete_table_data_profile_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_table_data_profile_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_table_data_profile({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_table_data_profile name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_table_data_profile ::Google::Cloud::Dlp::V2::DeleteTableDataProfileRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_table_data_profile({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_table_data_profile(::Google::Cloud::Dlp::V2::DeleteTableDataProfileRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_table_data_profile_client_stub.call_count
+      end
+    end
+  end
+
   def test_hybrid_inspect_dlp_job
     # Create test objects.
     client_result = ::Google::Cloud::Dlp::V2::HybridInspectResponse.new
@@ -2248,11 +2646,345 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     end
   end
 
+  def test_create_connection
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::Connection.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    connection = {}
+
+    create_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_create_connection_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, create_connection_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.create_connection({ parent: parent, connection: connection }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.create_connection parent: parent, connection: connection do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.create_connection ::Google::Cloud::Dlp::V2::CreateConnectionRequest.new(parent: parent, connection: connection) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.create_connection({ parent: parent, connection: connection }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.create_connection(::Google::Cloud::Dlp::V2::CreateConnectionRequest.new(parent: parent, connection: connection), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, create_connection_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_connection
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::Connection.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_get_connection_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_connection_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_connection({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_connection name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_connection ::Google::Cloud::Dlp::V2::GetConnectionRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_connection({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_connection(::Google::Cloud::Dlp::V2::GetConnectionRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_connection_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_connections
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::ListConnectionsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_size = 42
+    page_token = "hello world"
+    filter = "hello world"
+
+    list_connections_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_list_connections_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_connections_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_connections({ parent: parent, page_size: page_size, page_token: page_token, filter: filter }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_connections parent: parent, page_size: page_size, page_token: page_token, filter: filter do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_connections ::Google::Cloud::Dlp::V2::ListConnectionsRequest.new(parent: parent, page_size: page_size, page_token: page_token, filter: filter) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_connections({ parent: parent, page_size: page_size, page_token: page_token, filter: filter }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_connections(::Google::Cloud::Dlp::V2::ListConnectionsRequest.new(parent: parent, page_size: page_size, page_token: page_token, filter: filter), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_connections_client_stub.call_count
+      end
+    end
+  end
+
+  def test_search_connections
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::SearchConnectionsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_size = 42
+    page_token = "hello world"
+    filter = "hello world"
+
+    search_connections_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_search_connections_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, search_connections_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.search_connections({ parent: parent, page_size: page_size, page_token: page_token, filter: filter }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.search_connections parent: parent, page_size: page_size, page_token: page_token, filter: filter do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.search_connections ::Google::Cloud::Dlp::V2::SearchConnectionsRequest.new(parent: parent, page_size: page_size, page_token: page_token, filter: filter) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.search_connections({ parent: parent, page_size: page_size, page_token: page_token, filter: filter }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.search_connections(::Google::Cloud::Dlp::V2::SearchConnectionsRequest.new(parent: parent, page_size: page_size, page_token: page_token, filter: filter), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, search_connections_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_connection
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_delete_connection_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_connection_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_connection({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_connection name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_connection ::Google::Cloud::Dlp::V2::DeleteConnectionRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_connection({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_connection(::Google::Cloud::Dlp::V2::DeleteConnectionRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_connection_client_stub.call_count
+      end
+    end
+  end
+
+  def test_update_connection
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::Connection.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    connection = {}
+    update_mask = {}
+
+    update_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_update_connection_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_connection_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_connection({ name: name, connection: connection, update_mask: update_mask }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_connection name: name, connection: connection, update_mask: update_mask do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_connection ::Google::Cloud::Dlp::V2::UpdateConnectionRequest.new(name: name, connection: connection, update_mask: update_mask) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_connection({ name: name, connection: connection, update_mask: update_mask }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_connection(::Google::Cloud::Dlp::V2::UpdateConnectionRequest.new(name: name, connection: connection, update_mask: update_mask), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_connection_client_stub.call_count
+      end
+    end
+  end
+
   def test_configure
     credentials_token = :dummy_value
 
     client = block_config = config = nil
-    Gapic::Rest::ClientStub.stub :new, nil do
+    dummy_stub = ClientStub.new nil
+    Gapic::Rest::ClientStub.stub :new, dummy_stub do
       client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
         config.credentials = credentials_token
       end

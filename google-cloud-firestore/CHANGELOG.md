@@ -1,5 +1,17 @@
 # Release History
 
+### 2.15.0 (2024-03-07)
+
+#### Features
+
+* Update minimum supported Ruby version to 2.7 ([#25298](https://github.com/googleapis/google-cloud-ruby/issues/25298)) 
+
+### 2.14.0 (2024-01-31)
+
+#### Features
+
+* Support sum & avg aggregate functions ([#23446](https://github.com/googleapis/google-cloud-ruby/issues/23446)) 
+
 ### 2.13.1 (2023-06-16)
 
 #### Documentation

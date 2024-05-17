@@ -34,6 +34,12 @@ module Google
           # `PipelineJob` resources (used for Vertex AI Pipelines).
           #
           class Client
+            # @private
+            API_VERSION = ""
+
+            # @private
+            DEFAULT_ENDPOINT_TEMPLATE = "aiplatform.$UNIVERSE_DOMAIN$"
+
             include Paths
 
             # @private
@@ -95,6 +101,15 @@ module Google
             end
 
             ##
+            # The effective universe domain
+            #
+            # @return [String]
+            #
+            def universe_domain
+              @pipeline_service_stub.universe_domain
+            end
+
+            ##
             # Create a new PipelineService client object.
             #
             # @example
@@ -127,8 +142,9 @@ module Google
               credentials = @config.credentials
               # Use self-signed JWT if the endpoint is unchanged from default,
               # but only if the default endpoint does not have a region prefix.
-              enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                       !@config.endpoint.split(".").first.include?("-")
+              enable_self_signed_jwt = @config.endpoint.nil? ||
+                                       (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                       !@config.endpoint.split(".").first.include?("-"))
               credentials ||= Credentials.default scope: @config.scope,
                                                   enable_self_signed_jwt: enable_self_signed_jwt
               if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -141,28 +157,33 @@ module Google
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @config.endpoint
+                config.universe_domain = @config.universe_domain
               end
+
+              @pipeline_service_stub = ::Gapic::ServiceStub.new(
+                ::Google::Cloud::AIPlatform::V1::PipelineService::Stub,
+                credentials: credentials,
+                endpoint: @config.endpoint,
+                endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                universe_domain: @config.universe_domain,
+                channel_args: @config.channel_args,
+                interceptors: @config.interceptors,
+                channel_pool_config: @config.channel_pool
+              )
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
-                config.endpoint = @config.endpoint
+                config.endpoint = @pipeline_service_stub.endpoint
+                config.universe_domain = @pipeline_service_stub.universe_domain
               end
 
               @iam_policy_client = Google::Iam::V1::IAMPolicy::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
-                config.endpoint = @config.endpoint
+                config.endpoint = @pipeline_service_stub.endpoint
+                config.universe_domain = @pipeline_service_stub.universe_domain
               end
-
-              @pipeline_service_stub = ::Gapic::ServiceStub.new(
-                ::Google::Cloud::AIPlatform::V1::PipelineService::Stub,
-                credentials:  credentials,
-                endpoint:     @config.endpoint,
-                channel_args: @config.channel_args,
-                interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
-              )
             end
 
             ##
@@ -247,10 +268,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.create_training_pipeline.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -334,10 +356,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.get_training_pipeline.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -456,10 +479,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_training_pipelines.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -551,10 +575,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.delete_training_pipeline.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -652,10 +677,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.cancel_training_pipeline.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -747,10 +773,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.create_pipeline_job.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -834,10 +861,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.get_pipeline_job.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -984,10 +1012,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_pipeline_jobs.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1079,10 +1108,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.delete_pipeline_job.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1102,6 +1132,108 @@ module Google
                                      retry_policy: @config.retry_policy
 
               @pipeline_service_stub.call_rpc :delete_pipeline_job, request, options: options do |response, operation|
+                response = ::Gapic::Operation.new response, @operations_client, options: options
+                yield response, operation if block_given?
+                return response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Batch deletes PipelineJobs
+            # The Operation is atomic. If it fails, none of the PipelineJobs are deleted.
+            # If it succeeds, all of the PipelineJobs are deleted.
+            #
+            # @overload batch_delete_pipeline_jobs(request, options = nil)
+            #   Pass arguments to `batch_delete_pipeline_jobs` via a request object, either of type
+            #   {::Google::Cloud::AIPlatform::V1::BatchDeletePipelineJobsRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Cloud::AIPlatform::V1::BatchDeletePipelineJobsRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload batch_delete_pipeline_jobs(parent: nil, names: nil)
+            #   Pass arguments to `batch_delete_pipeline_jobs` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param parent [::String]
+            #     Required. The name of the PipelineJobs' parent resource.
+            #     Format: `projects/{project}/locations/{location}`
+            #   @param names [::Array<::String>]
+            #     Required. The names of the PipelineJobs to delete.
+            #     A maximum of 32 PipelineJobs can be deleted in a batch.
+            #     Format:
+            #     `projects/{project}/locations/{location}/pipelineJobs/{pipelineJob}`
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Gapic::Operation]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Gapic::Operation]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/cloud/ai_platform/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Cloud::AIPlatform::V1::PipelineService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Cloud::AIPlatform::V1::BatchDeletePipelineJobsRequest.new
+            #
+            #   # Call the batch_delete_pipeline_jobs method.
+            #   result = client.batch_delete_pipeline_jobs request
+            #
+            #   # The returned object is of type Gapic::Operation. You can use it to
+            #   # check the status of an operation, cancel it, or wait for results.
+            #   # Here is how to wait for a response.
+            #   result.wait_until_done! timeout: 60
+            #   if result.response?
+            #     p result.response
+            #   else
+            #     puts "No response received."
+            #   end
+            #
+            def batch_delete_pipeline_jobs request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::BatchDeletePipelineJobsRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.batch_delete_pipeline_jobs.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.parent
+                header_params["parent"] = request.parent
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.batch_delete_pipeline_jobs.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.batch_delete_pipeline_jobs.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @pipeline_service_stub.call_rpc :batch_delete_pipeline_jobs, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
                 return response
@@ -1179,10 +1311,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.cancel_pipeline_job.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1202,6 +1335,112 @@ module Google
                                      retry_policy: @config.retry_policy
 
               @pipeline_service_stub.call_rpc :cancel_pipeline_job, request, options: options do |response, operation|
+                yield response, operation if block_given?
+                return response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Batch cancel PipelineJobs.
+            # Firstly the server will check if all the jobs are in non-terminal states,
+            # and skip the jobs that are already terminated.
+            # If the operation failed, none of the pipeline jobs are cancelled.
+            # The server will poll the states of all the pipeline jobs periodically
+            # to check the cancellation status.
+            # This operation will return an LRO.
+            #
+            # @overload batch_cancel_pipeline_jobs(request, options = nil)
+            #   Pass arguments to `batch_cancel_pipeline_jobs` via a request object, either of type
+            #   {::Google::Cloud::AIPlatform::V1::BatchCancelPipelineJobsRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Cloud::AIPlatform::V1::BatchCancelPipelineJobsRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload batch_cancel_pipeline_jobs(parent: nil, names: nil)
+            #   Pass arguments to `batch_cancel_pipeline_jobs` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param parent [::String]
+            #     Required. The name of the PipelineJobs' parent resource.
+            #     Format: `projects/{project}/locations/{location}`
+            #   @param names [::Array<::String>]
+            #     Required. The names of the PipelineJobs to cancel.
+            #     A maximum of 32 PipelineJobs can be cancelled in a batch.
+            #     Format:
+            #     `projects/{project}/locations/{location}/pipelineJobs/{pipelineJob}`
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Gapic::Operation]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Gapic::Operation]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/cloud/ai_platform/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Cloud::AIPlatform::V1::PipelineService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Cloud::AIPlatform::V1::BatchCancelPipelineJobsRequest.new
+            #
+            #   # Call the batch_cancel_pipeline_jobs method.
+            #   result = client.batch_cancel_pipeline_jobs request
+            #
+            #   # The returned object is of type Gapic::Operation. You can use it to
+            #   # check the status of an operation, cancel it, or wait for results.
+            #   # Here is how to wait for a response.
+            #   result.wait_until_done! timeout: 60
+            #   if result.response?
+            #     p result.response
+            #   else
+            #     puts "No response received."
+            #   end
+            #
+            def batch_cancel_pipeline_jobs request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::BatchCancelPipelineJobsRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.batch_cancel_pipeline_jobs.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.parent
+                header_params["parent"] = request.parent
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.batch_cancel_pipeline_jobs.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.batch_cancel_pipeline_jobs.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @pipeline_service_stub.call_rpc :batch_cancel_pipeline_jobs, request, options: options do |response, operation|
+                response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
                 return response
               end
@@ -1239,9 +1478,9 @@ module Google
             #   end
             #
             # @!attribute [rw] endpoint
-            #   The hostname or hostname:port of the service endpoint.
-            #   Defaults to `"aiplatform.googleapis.com"`.
-            #   @return [::String]
+            #   A custom service endpoint, as a hostname or hostname:port. The default is
+            #   nil, indicating to use the default endpoint in the current universe domain.
+            #   @return [::String,nil]
             # @!attribute [rw] credentials
             #   Credentials to send with calls. You may provide any of the following types:
             #    *  (`String`) The path to a service account key file in JSON format
@@ -1287,13 +1526,20 @@ module Google
             # @!attribute [rw] quota_project
             #   A separate project against which to charge quota.
             #   @return [::String]
+            # @!attribute [rw] universe_domain
+            #   The universe domain within which to make requests. This determines the
+            #   default endpoint URL. The default value of nil uses the environment
+            #   universe (usually the default "googleapis.com" universe).
+            #   @return [::String,nil]
             #
             class Configuration
               extend ::Gapic::Config
 
+              # @private
+              # The endpoint specific to the default "googleapis.com" universe. Deprecated.
               DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
 
-              config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+              config_attr :endpoint,      nil, ::String, nil
               config_attr :credentials,   nil do |value|
                 allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                 allowed += [::GRPC::Core::Channel, ::GRPC::Core::ChannelCredentials] if defined? ::GRPC
@@ -1308,6 +1554,7 @@ module Google
               config_attr :metadata,      nil, ::Hash, nil
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
+              config_attr :universe_domain, nil, ::String, nil
 
               # @private
               def initialize parent_config = nil
@@ -1400,10 +1647,20 @@ module Google
                 #
                 attr_reader :delete_pipeline_job
                 ##
+                # RPC-specific configuration for `batch_delete_pipeline_jobs`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :batch_delete_pipeline_jobs
+                ##
                 # RPC-specific configuration for `cancel_pipeline_job`
                 # @return [::Gapic::Config::Method]
                 #
                 attr_reader :cancel_pipeline_job
+                ##
+                # RPC-specific configuration for `batch_cancel_pipeline_jobs`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :batch_cancel_pipeline_jobs
 
                 # @private
                 def initialize parent_rpcs = nil
@@ -1425,8 +1682,12 @@ module Google
                   @list_pipeline_jobs = ::Gapic::Config::Method.new list_pipeline_jobs_config
                   delete_pipeline_job_config = parent_rpcs.delete_pipeline_job if parent_rpcs.respond_to? :delete_pipeline_job
                   @delete_pipeline_job = ::Gapic::Config::Method.new delete_pipeline_job_config
+                  batch_delete_pipeline_jobs_config = parent_rpcs.batch_delete_pipeline_jobs if parent_rpcs.respond_to? :batch_delete_pipeline_jobs
+                  @batch_delete_pipeline_jobs = ::Gapic::Config::Method.new batch_delete_pipeline_jobs_config
                   cancel_pipeline_job_config = parent_rpcs.cancel_pipeline_job if parent_rpcs.respond_to? :cancel_pipeline_job
                   @cancel_pipeline_job = ::Gapic::Config::Method.new cancel_pipeline_job_config
+                  batch_cancel_pipeline_jobs_config = parent_rpcs.batch_cancel_pipeline_jobs if parent_rpcs.respond_to? :batch_cancel_pipeline_jobs
+                  @batch_cancel_pipeline_jobs = ::Gapic::Config::Method.new batch_cancel_pipeline_jobs_config
 
                   yield self if block_given?
                 end

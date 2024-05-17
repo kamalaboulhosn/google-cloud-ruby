@@ -1,5 +1,47 @@
 # Release History
 
+### 0.26.0 (2024-05-15)
+
+#### Features
+
+* Support new Autokey ad AutokeyAdmin services ([#25856](https://github.com/googleapis/google-cloud-ruby/issues/25856)) 
+
+### 0.25.1 (2024-04-19)
+
+#### Documentation
+
+* Clarify PEM format field in google.cloud.kms.v1.PublicKey is always populated ([#25685](https://github.com/googleapis/google-cloud-ruby/issues/25685)) 
+
+### 0.25.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24871](https://github.com/googleapis/google-cloud-ruby/issues/24871)) 
+
+### 0.24.3 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.24.2 (2024-02-01)
+
+#### Documentation
+
+* update comments ([#24495](https://github.com/googleapis/google-cloud-ruby/issues/24495)) 
+
+### 0.24.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.24.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23780](https://github.com/googleapis/google-cloud-ruby/issues/23780)) 
+
 ### 0.23.0 (2023-09-12)
 
 #### Features

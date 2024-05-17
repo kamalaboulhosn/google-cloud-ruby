@@ -46,7 +46,11 @@ module Google
           #     Required. The ID to use for the database, which will become the final
           #     component of the database's resource name.
           #
-          #     The value must be set to "(default)".
+          #     This value should be 4-63 characters. Valid characters are /[a-z][0-9]-/
+          #     with first character a letter and the last a letter or a number. Must not
+          #     be UUID-like /[0-9a-f]\\{8}(-[0-9a-f]\\{4})\\{3}-[0-9a-f]\\{12}/.
+          #
+          #     "(default)" database id is also valid.
           class CreateDatabaseRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -62,6 +66,17 @@ module Google
           # @!attribute [rw] databases
           #   @return [::Array<::Google::Cloud::Firestore::Admin::V1::Database>]
           #     The databases in the project.
+          # @!attribute [rw] unreachable
+          #   @return [::Array<::String>]
+          #     In the event that data about individual databases cannot be listed they
+          #     will be recorded here.
+          #
+          #     An example entry might be: projects/some_project/locations/some_location
+          #     This can happen if the Cloud Region that the Database resides in is
+          #     currently unavailable.  In this case we can't fetch all the details about
+          #     the database. You may be able to get a more detailed error message
+          #     (or possibly fetch the resource) by sending a 'Get' request for the
+          #     resource or a 'List' request for the specific location.
           class ListDatabasesResponse
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -93,6 +108,103 @@ module Google
 
           # Metadata related to the update database operation.
           class UpdateDatabaseMetadata
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#delete_database FirestoreAdmin.DeleteDatabase}.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. A name of the form
+          #     `projects/{project_id}/databases/{database_id}`
+          # @!attribute [rw] etag
+          #   @return [::String]
+          #     The current etag of the Database.
+          #     If an etag is provided and does not match the current etag of the database,
+          #     deletion will be blocked and a FAILED_PRECONDITION error will be returned.
+          class DeleteDatabaseRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Metadata related to the delete database operation.
+          class DeleteDatabaseMetadata
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#create_backup_schedule FirestoreAdmin.CreateBackupSchedule}.
+          # @!attribute [rw] parent
+          #   @return [::String]
+          #     Required. The parent database.
+          #
+          #      Format `projects/{project}/databases/{database}`
+          # @!attribute [rw] backup_schedule
+          #   @return [::Google::Cloud::Firestore::Admin::V1::BackupSchedule]
+          #     Required. The backup schedule to create.
+          class CreateBackupScheduleRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#get_backup_schedule FirestoreAdmin.GetBackupSchedule}.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. The name of the backup schedule.
+          #
+          #     Format
+          #     `projects/{project}/databases/{database}/backupSchedules/{backup_schedule}`
+          class GetBackupScheduleRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#update_backup_schedule FirestoreAdmin.UpdateBackupSchedule}.
+          # @!attribute [rw] backup_schedule
+          #   @return [::Google::Cloud::Firestore::Admin::V1::BackupSchedule]
+          #     Required. The backup schedule to update.
+          # @!attribute [rw] update_mask
+          #   @return [::Google::Protobuf::FieldMask]
+          #     The list of fields to be updated.
+          class UpdateBackupScheduleRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#list_backup_schedules FirestoreAdmin.ListBackupSchedules}.
+          # @!attribute [rw] parent
+          #   @return [::String]
+          #     Required. The parent database.
+          #
+          #     Format is `projects/{project}/databases/{database}`.
+          class ListBackupSchedulesRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The response for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#list_backup_schedules FirestoreAdmin.ListBackupSchedules}.
+          # @!attribute [rw] backup_schedules
+          #   @return [::Array<::Google::Cloud::Firestore::Admin::V1::BackupSchedule>]
+          #     List of all backup schedules.
+          class ListBackupSchedulesResponse
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for [FirestoreAdmin.DeleteBackupSchedules][].
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. The name of the backup schedule.
+          #
+          #     Format
+          #     `projects/{project}/databases/{database}/backupSchedules/{backup_schedule}`
+          class DeleteBackupScheduleRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
@@ -254,6 +366,23 @@ module Google
           #     guidelines: https://cloud.google.com/storage/docs/naming.
           #     If the URI is a bucket (without a namespace path), a prefix will be
           #     generated based on the start time.
+          # @!attribute [rw] namespace_ids
+          #   @return [::Array<::String>]
+          #     An empty list represents all namespaces. This is the preferred
+          #     usage for databases that don't use namespaces.
+          #
+          #     An empty string element represents the default namespace. This should be
+          #     used if the database has data in non-default namespaces, but doesn't want
+          #     to include them. Each namespace in this list must be unique.
+          # @!attribute [rw] snapshot_time
+          #   @return [::Google::Protobuf::Timestamp]
+          #     The timestamp that corresponds to the version of the database to be
+          #     exported. The timestamp must be in the past, rounded to the minute and not
+          #     older than
+          #     {::Google::Cloud::Firestore::Admin::V1::Database#earliest_version_time earliestVersionTime}.
+          #     If specified, then the exported documents will represent a consistent view
+          #     of the database at the provided time. Otherwise, there are no guarantees
+          #     about the consistency of the exported documents.
           class ExportDocumentsRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -276,7 +405,100 @@ module Google
           #     an export that has completed successfully.
           #     See:
           #     {::Google::Cloud::Firestore::Admin::V1::ExportDocumentsResponse#output_uri_prefix google.firestore.admin.v1.ExportDocumentsResponse.output_uri_prefix}.
+          # @!attribute [rw] namespace_ids
+          #   @return [::Array<::String>]
+          #     An empty list represents all namespaces. This is the preferred
+          #     usage for databases that don't use namespaces.
+          #
+          #     An empty string element represents the default namespace. This should be
+          #     used if the database has data in non-default namespaces, but doesn't want
+          #     to include them. Each namespace in this list must be unique.
           class ImportDocumentsRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#get_backup FirestoreAdmin.GetBackup}.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. Name of the backup to fetch.
+          #
+          #     Format is `projects/{project}/locations/{location}/backups/{backup}`.
+          class GetBackupRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#list_backups FirestoreAdmin.ListBackups}.
+          # @!attribute [rw] parent
+          #   @return [::String]
+          #     Required. The location to list backups from.
+          #
+          #     Format is `projects/{project}/locations/{location}`.
+          #     Use `{location} = '-'` to list backups from all locations for the given
+          #     project. This allows listing backups from a single location or from all
+          #     locations.
+          class ListBackupsRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The response for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#list_backups FirestoreAdmin.ListBackups}.
+          # @!attribute [rw] backups
+          #   @return [::Array<::Google::Cloud::Firestore::Admin::V1::Backup>]
+          #     List of all backups for the project.
+          # @!attribute [rw] unreachable
+          #   @return [::Array<::String>]
+          #     List of locations that existing backups were not able to be fetched from.
+          #
+          #     Instead of failing the entire requests when a single location is
+          #     unreachable, this response returns a partial result set and list of
+          #     locations unable to be reached here. The request can be retried against a
+          #     single location to get a concrete error.
+          class ListBackupsResponse
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#delete_backup FirestoreAdmin.DeleteBackup}.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. Name of the backup to delete.
+          #
+          #     format is `projects/{project}/locations/{location}/backups/{backup}`.
+          class DeleteBackupRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request message for
+          # [FirestoreAdmin.RestoreDatabase][google.firestore.admin.v1.RestoreDatabase].
+          # @!attribute [rw] parent
+          #   @return [::String]
+          #     Required. The project to restore the database in. Format is
+          #     `projects/{project_id}`.
+          # @!attribute [rw] database_id
+          #   @return [::String]
+          #     Required. The ID to use for the database, which will become the final
+          #     component of the database's resource name. This database id must not be
+          #     associated with an existing database.
+          #
+          #     This value should be 4-63 characters. Valid characters are /[a-z][0-9]-/
+          #     with first character a letter and the last a letter or a number. Must not
+          #     be UUID-like /[0-9a-f]\\{8}(-[0-9a-f]\\{4})\\{3}-[0-9a-f]\\{12}/.
+          #
+          #     "(default)" database id is also valid.
+          # @!attribute [rw] backup
+          #   @return [::String]
+          #     Required. Backup to restore from. Must be from the same project as the
+          #     parent.
+          #
+          #     Format is: `projects/{project_id}/locations/{location}/backups/{backup}`
+          class RestoreDatabaseRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end

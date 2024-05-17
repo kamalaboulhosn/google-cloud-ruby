@@ -109,6 +109,15 @@ module Google
         end
 
         # Represents the spec of a CustomJob.
+        # @!attribute [rw] persistent_resource_id
+        #   @return [::String]
+        #     Optional. The ID of the PersistentResource in the same Project and Location
+        #     which to run
+        #
+        #     If this is specified, the job will be run on existing machines held by the
+        #     PersistentResource instead of on-demand short-live machines.
+        #     The network and CMEK configs on the job should be consistent with those on
+        #     the PersistentResource, otherwise, the job will be rejected.
         # @!attribute [rw] worker_pool_specs
         #   @return [::Array<::Google::Cloud::AIPlatform::V1::WorkerPoolSpec>]
         #     Required. The spec of the worker pools including machine type and Docker
@@ -172,6 +181,12 @@ module Google
         #       * AIP_MODEL_DIR = `<base_output_directory>/<trial_id>/model/`
         #       * AIP_CHECKPOINT_DIR = `<base_output_directory>/<trial_id>/checkpoints/`
         #       * AIP_TENSORBOARD_LOG_DIR = `<base_output_directory>/<trial_id>/logs/`
+        # @!attribute [rw] protected_artifact_location_id
+        #   @return [::String]
+        #     The ID of the location to store protected artifacts. e.g. us-central1.
+        #     Populate only when the location is different than CustomJob location.
+        #     List of supported locations:
+        #     https://cloud.google.com/vertex-ai/docs/general/locations
         # @!attribute [rw] tensorboard
         #   @return [::String]
         #     Optional. The name of a Vertex AI
@@ -213,6 +228,21 @@ module Google
         #     Optional. The Experiment Run associated with this job.
         #     Format:
         #     `projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}-{experiment-run-name}`
+        # @!attribute [rw] models
+        #   @return [::Array<::String>]
+        #     Optional. The name of the Model resources for which to generate a mapping
+        #     to artifact URIs. Applicable only to some of the Google-provided custom
+        #     jobs. Format: `projects/{project}/locations/{location}/models/{model}`
+        #
+        #     In order to retrieve a specific version of the model, also provide
+        #     the version ID or version alias.
+        #       Example: `projects/{project}/locations/{location}/models/{model}@2`
+        #                  or
+        #                `projects/{project}/locations/{location}/models/{model}@golden`
+        #     If no version ID or alias is specified, the "default" version will be
+        #     returned. The "default" version alias is created for the first version of
+        #     the model, and can be moved to other versions later on. There will be
+        #     exactly one default version.
         class CustomJobSpec
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

@@ -1,5 +1,23 @@
 # Changelog
 
+### 0.8.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24872](https://github.com/googleapis/google-cloud-ruby/issues/24872)) 
+
+### 0.7.1 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.7.0 (2024-01-08)
+
+#### Features
+
+* Support for universe domain in mixin clients ([#23746](https://github.com/googleapis/google-cloud-ruby/issues/23746)) 
+
 ### 0.6.0 (2023-09-12)
 
 #### Features

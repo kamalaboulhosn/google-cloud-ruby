@@ -1,5 +1,74 @@
 # Release History
 
+### 0.17.1 (2024-04-19)
+
+#### Documentation
+
+* Allow 14 week backup retention for Firestore daily backups ([#25468](https://github.com/googleapis/google-cloud-ruby/issues/25468)) 
+
+### 0.17.0 (2024-04-15)
+
+#### Features
+
+* add Vector Index API ([#25436](https://github.com/googleapis/google-cloud-ruby/issues/25436)) 
+#### Documentation
+
+* minor fixes 
+
+### 0.16.0 (2024-03-18)
+
+#### Features
+
+* Support backup APIs ([#24393](https://github.com/googleapis/google-cloud-ruby/issues/24393)) 
+* Support scheduling APIs for backups ([#24393](https://github.com/googleapis/google-cloud-ruby/issues/24393)) 
+
+### 0.15.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24870](https://github.com/googleapis/google-cloud-ruby/issues/24870)) 
+
+### 0.14.3 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.14.2 (2024-01-15)
+
+#### Documentation
+
+* Minor formatting fix ([#24411](https://github.com/googleapis/google-cloud-ruby/issues/24411)) 
+
+### 0.14.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.14.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23779](https://github.com/googleapis/google-cloud-ruby/issues/23779)) 
+
+### 0.13.0 (2024-01-03)
+
+#### Features
+
+* add DeleteDatabase API and delete protection ([#23683](https://github.com/googleapis/google-cloud-ruby/issues/23683)) 
+#### Documentation
+
+* update Database API description 
+
+### 0.12.0 (2023-12-08)
+
+#### Features
+
+* Support database version retention and point-in-time-recovery 
+* Support namespace_ids and snapshot_time parameters to export_documents RPC 
+* Support namespace_ids parameter to import_documents RPC 
+
 ### 0.11.0 (2023-09-12)
 
 #### Features

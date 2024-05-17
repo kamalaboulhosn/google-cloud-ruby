@@ -610,6 +610,31 @@
                 "get_data_redaction_settings"
               ]
             },
+            "GetCalculatedMetric": {
+              "methods": [
+                "get_calculated_metric"
+              ]
+            },
+            "CreateCalculatedMetric": {
+              "methods": [
+                "create_calculated_metric"
+              ]
+            },
+            "ListCalculatedMetrics": {
+              "methods": [
+                "list_calculated_metrics"
+              ]
+            },
+            "UpdateCalculatedMetric": {
+              "methods": [
+                "update_calculated_metric"
+              ]
+            },
+            "DeleteCalculatedMetric": {
+              "methods": [
+                "delete_calculated_metric"
+              ]
+            },
             "CreateRollupProperty": {
               "methods": [
                 "create_rollup_property"
@@ -640,14 +665,29 @@
                 "create_subproperty"
               ]
             },
-            "DeleteSubpropertyEventFilter": {
-              "methods": [
-                "delete_subproperty_event_filter"
-              ]
-            },
             "CreateSubpropertyEventFilter": {
               "methods": [
                 "create_subproperty_event_filter"
+              ]
+            },
+            "GetSubpropertyEventFilter": {
+              "methods": [
+                "get_subproperty_event_filter"
+              ]
+            },
+            "ListSubpropertyEventFilters": {
+              "methods": [
+                "list_subproperty_event_filters"
+              ]
+            },
+            "UpdateSubpropertyEventFilter": {
+              "methods": [
+                "update_subproperty_event_filter"
+              ]
+            },
+            "DeleteSubpropertyEventFilter": {
+              "methods": [
+                "delete_subproperty_event_filter"
               ]
             }
           }

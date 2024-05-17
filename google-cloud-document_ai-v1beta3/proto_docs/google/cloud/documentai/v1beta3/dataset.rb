@@ -30,8 +30,10 @@ module Google
         #     configuration if the dataset documents are stored under a user-managed
         #     Cloud Storage location.
         # @!attribute [rw] document_warehouse_config
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Google::Cloud::DocumentAI::V1beta3::Dataset::DocumentWarehouseConfig]
-        #     Optional. Document AI Warehouse-based dataset configuration.
+        #     Optional. Deprecated. Warehouse-based dataset configuration is not
+        #     supported.
         # @!attribute [rw] unmanaged_dataset_config
         #   @return [::Google::Cloud::DocumentAI::V1beta3::Dataset::UnmanagedDatasetConfig]
         #     Optional. Unmanaged dataset configuration. Use this configuration if the
@@ -126,6 +128,7 @@ module Google
           #   @return [::String]
           #     Required. The Cloud Storage URI where the actual document is stored.
           # @!attribute [rw] cw_doc_id
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::String]
           #     Id of the document (indexed) managed by Content Warehouse.
           class GCSManagedDocumentId

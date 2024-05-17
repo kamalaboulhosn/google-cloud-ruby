@@ -1,5 +1,48 @@
 # Changelog
 
+### 0.12.0 (2024-04-05)
+
+#### Features
+
+* Enable specifying target language to perform automatic translation to via TranslationConfig. ([#25667](https://github.com/googleapis/google-cloud-ruby/issues/25667)) 
+
+### 0.11.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24877](https://github.com/googleapis/google-cloud-ruby/issues/24877)) 
+
+### 0.10.0 (2024-02-22)
+
+#### Features
+
+* Support for VTT and SRT formatted output ([#24841](https://github.com/googleapis/google-cloud-ruby/issues/24841)) 
+
+### 0.9.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.9.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.9.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23786](https://github.com/googleapis/google-cloud-ruby/issues/23786)) 
+
+### 0.8.0 (2023-11-02)
+
+#### Features
+
+* Support m4a audio format ([#23487](https://github.com/googleapis/google-cloud-ruby/issues/23487)) 
+* Support transcript normalization ([#23487](https://github.com/googleapis/google-cloud-ruby/issues/23487)) 
+
 ### 0.7.0 (2023-09-12)
 
 #### Features

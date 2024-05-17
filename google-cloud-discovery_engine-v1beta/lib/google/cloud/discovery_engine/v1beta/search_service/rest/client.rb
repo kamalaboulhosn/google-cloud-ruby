@@ -33,6 +33,12 @@ module Google
             # Service for search.
             #
             class Client
+              # @private
+              API_VERSION = ""
+
+              # @private
+              DEFAULT_ENDPOINT_TEMPLATE = "discoveryengine.$UNIVERSE_DOMAIN$"
+
               include Paths
 
               # @private
@@ -67,9 +73,9 @@ module Google
                                   end
                   default_config = Client::Configuration.new parent_config
 
-                  default_config.timeout = 5.0
+                  default_config.timeout = 30.0
                   default_config.retry_policy = {
-                    initial_delay: 0.1, max_delay: 5.0, multiplier: 1.3, retry_codes: [14]
+                    initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
                   }
 
                   default_config
@@ -99,6 +105,15 @@ module Google
               end
 
               ##
+              # The effective universe domain
+              #
+              # @return [String]
+              #
+              def universe_domain
+                @search_service_stub.universe_domain
+              end
+
+              ##
               # Create a new SearchService REST client object.
               #
               # @example
@@ -125,8 +140,9 @@ module Google
                 credentials = @config.credentials
                 # Use self-signed JWT if the endpoint is unchanged from default,
                 # but only if the default endpoint does not have a region prefix.
-                enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                         !@config.endpoint.split(".").first.include?("-")
+                enable_self_signed_jwt = @config.endpoint.nil? ||
+                                         (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                         !@config.endpoint.split(".").first.include?("-"))
                 credentials ||= Credentials.default scope: @config.scope,
                                                     enable_self_signed_jwt: enable_self_signed_jwt
                 if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -136,13 +152,19 @@ module Google
                 @quota_project_id = @config.quota_project
                 @quota_project_id ||= credentials.quota_project_id if credentials.respond_to? :quota_project_id
 
+                @search_service_stub = ::Google::Cloud::DiscoveryEngine::V1beta::SearchService::Rest::ServiceStub.new(
+                  endpoint: @config.endpoint,
+                  endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                  universe_domain: @config.universe_domain,
+                  credentials: credentials
+                )
+
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
-                  config.endpoint = @config.endpoint
+                  config.endpoint = @search_service_stub.endpoint
+                  config.universe_domain = @search_service_stub.universe_domain
                 end
-
-                @search_service_stub = ::Google::Cloud::DiscoveryEngine::V1beta::SearchService::Rest::ServiceStub.new endpoint: @config.endpoint, credentials: credentials
               end
 
               ##
@@ -167,13 +189,15 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload search(serving_config: nil, branch: nil, query: nil, image_query: nil, page_size: nil, page_token: nil, offset: nil, filter: nil, order_by: nil, user_info: nil, facet_specs: nil, boost_spec: nil, params: nil, query_expansion_spec: nil, spell_correction_spec: nil, user_pseudo_id: nil, content_search_spec: nil, embedding_spec: nil, ranking_expression: nil, safe_search: nil, user_labels: nil)
+              # @overload search(serving_config: nil, branch: nil, query: nil, image_query: nil, page_size: nil, page_token: nil, offset: nil, data_store_specs: nil, filter: nil, canonical_filter: nil, order_by: nil, user_info: nil, facet_specs: nil, boost_spec: nil, params: nil, query_expansion_spec: nil, spell_correction_spec: nil, user_pseudo_id: nil, content_search_spec: nil, embedding_spec: nil, ranking_expression: nil, safe_search: nil, user_labels: nil)
               #   Pass arguments to `search` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param serving_config [::String]
               #     Required. The resource name of the Search serving config, such as
+              #     `projects/*/locations/global/collections/default_collection/engines/*/servingConfigs/default_serving_config`,
+              #     or
               #     `projects/*/locations/global/collections/default_collection/dataStores/default_data_store/servingConfigs/default_serving_config`.
               #     This field is used to identify the serving configuration name, set
               #     of models used to make the search.
@@ -189,10 +213,14 @@ module Google
               #     Raw image query.
               #   @param page_size [::Integer]
               #     Maximum number of {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}s
-              #     to return. If unspecified, defaults to a reasonable value. The maximum
-              #     allowed value is 100. Values above 100 are coerced to 100.
+              #     to return. The maximum allowed value depends on the data type. Values above
+              #     the maximum value are coerced to the maximum value.
               #
-              #     If this field is negative, an  `INVALID_ARGUMENT`  is returned.
+              #     * Websites with basic indexing: Default `10`, Maximum `25`.
+              #     * Websites with advanced indexing: Default `25`, Maximum `50`.
+              #     * Other: Default `50`, Maximum `100`.
+              #
+              #     If this field is negative, an  `INVALID_ARGUMENT` is returned.
               #   @param page_token [::String]
               #     A page token received from a previous
               #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchService::Rest::Client#search SearchService.Search}
@@ -211,17 +239,43 @@ module Google
               #     is unset.
               #
               #     If this field is negative, an  `INVALID_ARGUMENT`  is returned.
+              #   @param data_store_specs [::Array<::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::DataStoreSpec, ::Hash>]
+              #     A list of data store specs to apply on a search call.
               #   @param filter [::String]
               #     The filter syntax consists of an expression language for constructing a
               #     predicate from one or more fields of the documents being filtered. Filter
               #     expression is case-sensitive.
               #
               #     If this field is unrecognizable, an  `INVALID_ARGUMENT`  is returned.
+              #
+              #     Filtering in Vertex AI Search is done by mapping the LHS filter key to a
+              #     key property defined in the Vertex AI Search backend -- this mapping is
+              #     defined by the customer in their schema. For example a media customer might
+              #     have a field 'name' in their schema. In this case the filter would look
+              #     like this: filter --> name:'ANY("king kong")'
+              #
+              #     For more information about filtering including syntax and filter
+              #     operators, see
+              #     [Filter](https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata)
+              #   @param canonical_filter [::String]
+              #     The default filter that is applied when a user performs a search without
+              #     checking any filters on the search page.
+              #
+              #     The filter applied to every search request when quality improvement such as
+              #     query expansion is needed. In the case a query does not have a sufficient
+              #     amount of results this filter will be used to determine whether or not to
+              #     enable the query expansion flow. The original filter will still be used for
+              #     the query expanded search.
+              #     This field is strongly recommended to achieve high search quality.
+              #
+              #     For more information about filter syntax, see
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest#filter SearchRequest.filter}.
               #   @param order_by [::String]
               #     The order in which documents are returned. Documents can be ordered by
               #     a field in an {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}
               #     object. Leave it unset if ordered by relevance. `order_by` expression is
-              #     case-sensitive.
+              #     case-sensitive. For more information on ordering, see
+              #     [Ordering](https://cloud.google.com/retail/docs/filter-and-order#order)
               #
               #     If this field is unrecognizable, an `INVALID_ARGUMENT` is returned.
               #   @param user_info [::Google::Cloud::DiscoveryEngine::V1beta::UserInfo, ::Hash]
@@ -236,6 +290,8 @@ module Google
               #     error is returned.
               #   @param boost_spec [::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::BoostSpec, ::Hash]
               #     Boost specification to boost certain documents.
+              #     For more information on boosting, see
+              #     [Boosting](https://cloud.google.com/retail/docs/boosting#boost)
               #   @param params [::Hash{::String => ::Google::Protobuf::Value, ::Hash}]
               #     Additional search parameters.
               #
@@ -243,9 +299,17 @@ module Google
               #
               #     * `user_country_code`: string. Default empty. If set to non-empty, results
               #        are restricted or boosted based on the location provided.
+              #        Example:
+              #        user_country_code: "au"
+              #
+              #        For available codes see [Country
+              #        Codes](https://developers.google.com/custom-search/docs/json_api_reference#countryCodes)
+              #
               #     * `search_type`: double. Default empty. Enables non-webpage searching
-              #       depending on the value. The only valid non-default value is 1,
-              #       which enables image searching.
+              #        depending on the value. The only valid non-default value is 1,
+              #        which enables image searching.
+              #        Example:
+              #        search_type: 1
               #   @param query_expansion_spec [::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::QueryExpansionSpec, ::Hash]
               #     The query expansion specification that specifies the conditions under which
               #     query expansion occurs.
@@ -272,15 +336,18 @@ module Google
               #   @param embedding_spec [::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::EmbeddingSpec, ::Hash]
               #     Uses the provided embedding to do additional semantic document retrieval.
               #     The retrieval is based on the dot product of
-              #     [SearchRequest.embedding_spec.embedding_vectors.vector][] and the document
-              #     embedding that is provided in
-              #     [SearchRequest.embedding_spec.embedding_vectors.field_path][].
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::EmbeddingSpec::EmbeddingVector#vector SearchRequest.EmbeddingSpec.EmbeddingVector.vector}
+              #     and the document embedding that is provided in
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::EmbeddingSpec::EmbeddingVector#field_path SearchRequest.EmbeddingSpec.EmbeddingVector.field_path}.
               #
-              #     If [SearchRequest.embedding_spec.embedding_vectors.field_path][] is not
-              #     provided, it will use [ServingConfig.embedding_config.field_paths][].
+              #     If
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::EmbeddingSpec::EmbeddingVector#field_path SearchRequest.EmbeddingSpec.EmbeddingVector.field_path}
+              #     is not provided, it will use
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::ServingConfig#embedding_config ServingConfig.EmbeddingConfig.field_path}.
               #   @param ranking_expression [::String]
               #     The ranking expression controls the customized ranking on retrieval
-              #     documents. This overrides [ServingConfig.ranking_expression][].
+              #     documents. This overrides
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::ServingConfig#ranking_expression ServingConfig.ranking_expression}.
               #     The ranking expression is a single function or multiple functions that are
               #     joint by "+".
               #       * ranking_expression = function, { " + ", function };
@@ -357,12 +424,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.search.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.search.timeout,
@@ -411,9 +479,9 @@ module Google
               #   end
               #
               # @!attribute [rw] endpoint
-              #   The hostname or hostname:port of the service endpoint.
-              #   Defaults to `"discoveryengine.googleapis.com"`.
-              #   @return [::String]
+              #   A custom service endpoint, as a hostname or hostname:port. The default is
+              #   nil, indicating to use the default endpoint in the current universe domain.
+              #   @return [::String,nil]
               # @!attribute [rw] credentials
               #   Credentials to send with calls. You may provide any of the following types:
               #    *  (`String`) The path to a service account key file in JSON format
@@ -450,13 +518,20 @@ module Google
               # @!attribute [rw] quota_project
               #   A separate project against which to charge quota.
               #   @return [::String]
+              # @!attribute [rw] universe_domain
+              #   The universe domain within which to make requests. This determines the
+              #   default endpoint URL. The default value of nil uses the environment
+              #   universe (usually the default "googleapis.com" universe).
+              #   @return [::String,nil]
               #
               class Configuration
                 extend ::Gapic::Config
 
+                # @private
+                # The endpoint specific to the default "googleapis.com" universe. Deprecated.
                 DEFAULT_ENDPOINT = "discoveryengine.googleapis.com"
 
-                config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+                config_attr :endpoint,      nil, ::String, nil
                 config_attr :credentials,   nil do |value|
                   allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                   allowed.any? { |klass| klass === value }
@@ -468,6 +543,7 @@ module Google
                 config_attr :metadata,      nil, ::Hash, nil
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
+                config_attr :universe_domain, nil, ::String, nil
 
                 # @private
                 def initialize parent_config = nil

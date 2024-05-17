@@ -34,8 +34,12 @@ module Google
         #     Only process certain pages from the end, same as above.
         # @!attribute [rw] ocr_config
         #   @return [::Google::Cloud::DocumentAI::V1beta3::OcrConfig]
-        #     Only applicable to `OCR_PROCESSOR`. Returns error if set on other
-        #     processor types.
+        #     Only applicable to `OCR_PROCESSOR` and `FORM_PARSER_PROCESSOR`.
+        #     Returns error if set on other processor types.
+        # @!attribute [rw] layout_config
+        #   @return [::Google::Cloud::DocumentAI::V1beta3::ProcessOptions::LayoutConfig]
+        #     Optional. Only applicable to `LAYOUT_PARSER_PROCESSOR`.
+        #     Returns error if set on other processor types.
         # @!attribute [rw] schema_override
         #   @return [::Google::Cloud::DocumentAI::V1beta3::DocumentSchema]
         #     Optional. Override the schema of the
@@ -46,6 +50,37 @@ module Google
         class ProcessOptions
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Serving config for layout parser processor.
+          # @!attribute [rw] chunking_config
+          #   @return [::Google::Cloud::DocumentAI::V1beta3::ProcessOptions::LayoutConfig::ChunkingConfig]
+          #     Optional. Config for chunking in layout parser processor.
+          class LayoutConfig
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Serving config for chunking.
+            # @!attribute [rw] chunk_size
+            #   @return [::Integer]
+            #     Optional. The chunk sizes to use when splitting documents, in order of
+            #     level.
+            # @!attribute [rw] include_ancestor_headings
+            #   @return [::Boolean]
+            #     Optional. Whether or not to include ancestor headings when splitting.
+            # @!attribute [rw] semantic_chunking_group_size
+            #   @return [::Boolean]
+            #     Optional. The number of tokens to group together when evaluating
+            #     semantic similarity.
+            # @!attribute [rw] breakpoint_percentile_threshold
+            #   @return [::Integer]
+            #     Optional. The percentile of cosine dissimilarity that must be exceeded
+            #     between a group of tokens and the next. The smaller this number is, the
+            #     more chunks will be generated.
+            class ChunkingConfig
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+          end
 
           # A list of individual page numbers.
           # @!attribute [rw] pages
@@ -82,6 +117,7 @@ module Google
         #     or
         #     `projects/{project}/locations/{location}/processors/{processor}/processorVersions/{processorVersion}`
         # @!attribute [rw] document
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Google::Cloud::DocumentAI::V1beta3::Document]
         #     The document payload, the
         #     {::Google::Cloud::DocumentAI::V1beta3::Document#content content} and
@@ -100,9 +136,26 @@ module Google
         # @!attribute [rw] process_options
         #   @return [::Google::Cloud::DocumentAI::V1beta3::ProcessOptions]
         #     Inference-time options for the process API
+        # @!attribute [rw] labels
+        #   @return [::Google::Protobuf::Map{::String => ::String}]
+        #     Optional. The labels with user-defined metadata for the request.
+        #
+        #     Label keys and values can be no longer than 63 characters
+        #     (Unicode codepoints) and can only contain lowercase letters, numeric
+        #     characters, underscores, and dashes. International characters are allowed.
+        #     Label values are optional. Label keys must start with a letter.
         class ProcessRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # @!attribute [rw] key
+          #   @return [::String]
+          # @!attribute [rw] value
+          #   @return [::String]
+          class LabelsEntry
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
         end
 
         # The status of human review on a processed document.
@@ -155,6 +208,7 @@ module Google
         #     The document payload, will populate fields based on the processor's
         #     behavior.
         # @!attribute [rw] human_review_operation
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::String]
         #     The name of the operation triggered by the processed document. If the human
         #     review process isn't triggered, this field is empty. It has the same
@@ -179,9 +233,11 @@ module Google
         #     or
         #     `projects/{project}/locations/{location}/processors/{processor}/processorVersions/{processorVersion}`
         # @!attribute [rw] input_configs
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::BatchProcessRequest::BatchInputConfig>]
         #     The input config for each single document in the batch process.
         # @!attribute [rw] output_config
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Google::Cloud::DocumentAI::V1beta3::BatchProcessRequest::BatchOutputConfig]
         #     The overall output config for batch process.
         # @!attribute [rw] input_documents
@@ -201,11 +257,20 @@ module Google
         # @!attribute [rw] process_options
         #   @return [::Google::Cloud::DocumentAI::V1beta3::ProcessOptions]
         #     Inference-time options for the process API
+        # @!attribute [rw] labels
+        #   @return [::Google::Protobuf::Map{::String => ::String}]
+        #     Optional. The labels with user-defined metadata for the request.
+        #
+        #     Label keys and values can be no longer than 63 characters
+        #     (Unicode codepoints) and can only contain lowercase letters, numeric
+        #     characters, underscores, and dashes. International characters are allowed.
+        #     Label values are optional. Label keys must start with a letter.
         class BatchProcessRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
 
           # The message for input config in batch process.
+          # @deprecated This message is deprecated and may be removed in the next major version update.
           # @!attribute [rw] gcs_source
           #   @return [::String]
           #     The Cloud Storage location as the source of the document.
@@ -226,10 +291,20 @@ module Google
           # The output configuration in the
           # {::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::Client#batch_process_documents BatchProcessDocuments}
           # method.
+          # @deprecated This message is deprecated and may be removed in the next major version update.
           # @!attribute [rw] gcs_destination
           #   @return [::String]
           #     The output Cloud Storage directory to put the processed documents.
           class BatchOutputConfig
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # @!attribute [rw] key
+          #   @return [::String]
+          # @!attribute [rw] value
+          #   @return [::String]
+          class LabelsEntry
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
@@ -279,6 +354,7 @@ module Google
           #     {::Google::Cloud::DocumentAI::V1beta3::DocumentOutputConfig::GcsOutputConfig#gcs_uri DocumentOutputConfig.GcsOutputConfig.gcs_uri})
           #     of the processed document if it was successful, otherwise empty.
           # @!attribute [rw] human_review_operation
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::String]
           #     The name of the operation triggered by the processed document. If the
           #     human review process isn't triggered, this field will be empty. It has
@@ -573,7 +649,8 @@ module Google
         #   @return [::Google::Cloud::DocumentAI::V1beta3::Processor]
         #     Required. The processor to be created, requires
         #     {::Google::Cloud::DocumentAI::V1beta3::Processor#type Processor.type} and
-        #     [Processor.display_name]][] to be set. Also, the
+        #     {::Google::Cloud::DocumentAI::V1beta3::Processor#display_name Processor.display_name}
+        #     to be set. Also, the
         #     {::Google::Cloud::DocumentAI::V1beta3::Processor#kms_key_name Processor.kms_key_name}
         #     field must be set if the processor is under CMEK.
         class CreateProcessorRequest
@@ -707,6 +784,9 @@ module Google
         # @!attribute [rw] custom_document_extraction_options
         #   @return [::Google::Cloud::DocumentAI::V1beta3::TrainProcessorVersionRequest::CustomDocumentExtractionOptions]
         #     Options to control Custom Document Extraction (CDE) Processor.
+        # @!attribute [rw] foundation_model_tuning_options
+        #   @return [::Google::Cloud::DocumentAI::V1beta3::TrainProcessorVersionRequest::FoundationModelTuningOptions]
+        #     Options to control foundation model tuning of a processor.
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The parent (project, location and processor) to create the new
@@ -762,6 +842,21 @@ module Google
 
               TEMPLATE_BASED = 2
             end
+          end
+
+          # Options to control foundation model tuning of the processor.
+          # @!attribute [rw] train_steps
+          #   @return [::Integer]
+          #     Optional. The number of steps to run for model tuning. Valid values are
+          #     between 1 and 400. If not provided, recommended steps will be used.
+          # @!attribute [rw] learning_rate_multiplier
+          #   @return [::Float]
+          #     Optional. The multiplier to apply to the recommended learning rate. Valid
+          #     values are between 0.1 and 10. If not provided, recommended learning rate
+          #     will be used.
+          class FoundationModelTuningOptions
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
           end
         end
 
@@ -825,6 +920,7 @@ module Google
         #     [HumanReviewConfig][google.cloud.documentai.v1beta3.HumanReviewConfig] that
         #     the document will be reviewed with.
         # @!attribute [rw] document
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Google::Cloud::DocumentAI::V1beta3::Document]
         #     The document that needs human review.
         # @!attribute [rw] enable_schema_validation
@@ -1036,6 +1132,8 @@ module Google
         #   @return [::String]
         #     The source processor version to import from. The source processor version
         #     and destination processor need to be in the same environment and region.
+        #     Note that ProcessorVersions with `model_type` `MODEL_TYPE_LLM` are not
+        #     supported.
         # @!attribute [rw] external_processor_version_source
         #   @return [::Google::Cloud::DocumentAI::V1beta3::ImportProcessorVersionRequest::ExternalProcessorVersionSource]
         #     The source processor version to import from. It can be from a different

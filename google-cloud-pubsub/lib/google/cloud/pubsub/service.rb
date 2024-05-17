@@ -37,14 +37,17 @@ module Google
         # value to be replaced for unit testing.
         attr_accessor :client_id
 
+        attr_reader :universe_domain
+
         ##
         # Creates a new Service instance.
-        def initialize project, credentials, host: nil, timeout: nil
+        def initialize project, credentials, host: nil, timeout: nil, universe_domain: nil
           @project = project
           @credentials = credentials
           @host = host
           @timeout = timeout
           @client_id = SecureRandom.uuid.freeze
+          @universe_domain = universe_domain || ENV["GOOGLE_CLOUD_UNIVERSE_DOMAIN"] || "googleapis.com"
         end
 
         def subscriber
@@ -53,6 +56,7 @@ module Google
             config.credentials = credentials if credentials
             override_client_config_timeouts config if timeout
             config.endpoint = host if host
+            config.universe_domain = universe_domain
             config.lib_name = "gccl"
             config.lib_version = Google::Cloud::PubSub::VERSION
             config.metadata = { "google-cloud-resource-prefix": "projects/#{@project}" }
@@ -66,6 +70,7 @@ module Google
             config.credentials = credentials if credentials
             override_client_config_timeouts config if timeout
             config.endpoint = host if host
+            config.universe_domain = universe_domain
             config.lib_name = "gccl"
             config.lib_version = Google::Cloud::PubSub::VERSION
             config.metadata = { "google-cloud-resource-prefix": "projects/#{@project}" }
@@ -75,13 +80,15 @@ module Google
 
         def iam
           return mocked_iam if mocked_iam
-          @iam ||= V1::IAMPolicy::Client.new do |config|
-            config.credentials = credentials if credentials
-            override_client_config_timeouts config if timeout
-            config.endpoint = host if host
-            config.lib_name = "gccl"
-            config.lib_version = Google::Cloud::PubSub::VERSION
-            config.metadata = { "google-cloud-resource-prefix": "projects/#{@project}" }
+          @iam ||= begin
+            iam = (@publisher || @subscriber || @schemas || subscriber).iam_policy_client
+            iam.configure do |config|
+              override_client_config_timeouts config if timeout
+              config.lib_name = "gccl"
+              config.lib_version = Google::Cloud::PubSub::VERSION
+              config.metadata = { "google-cloud-resource-prefix": "projects/#{@project}" }
+            end
+            iam
           end
         end
         attr_accessor :mocked_iam
@@ -92,6 +99,7 @@ module Google
             config.credentials = credentials if credentials
             override_client_config_timeouts config if timeout
             config.endpoint = host if host
+            config.universe_domain = universe_domain
             config.lib_name = "gccl"
             config.lib_version = Google::Cloud::PubSub::VERSION
             config.metadata = { "google-cloud-resource-prefix": "projects/#{@project}" }
@@ -128,6 +136,7 @@ module Google
                          schema_name: nil,
                          message_encoding: nil,
                          retention: nil,
+                         ingestion_data_source_settings: nil,
                          options: {}
           if persistence_regions
             message_storage_policy = Google::Cloud::PubSub::V1::MessageStoragePolicy.new(
@@ -146,12 +155,13 @@ module Google
           end
 
           publisher.create_topic \
-            name:                       topic_path(topic_name, options),
-            labels:                     labels,
-            kms_key_name:               kms_key_name,
-            message_storage_policy:     message_storage_policy,
-            schema_settings:            schema_settings,
-            message_retention_duration: Convert.number_to_duration(retention)
+            name: topic_path(topic_name, options),
+            labels: labels,
+            kms_key_name: kms_key_name,
+            message_storage_policy: message_storage_policy,
+            schema_settings: schema_settings,
+            message_retention_duration: Convert.number_to_duration(retention),
+            ingestion_data_source_settings: ingestion_data_source_settings
         end
 
         def update_topic topic_obj, *fields
@@ -254,7 +264,7 @@ module Google
         # Modifies the PushConfig for a specified subscription.
         def modify_push_config subscription, endpoint, attributes
           # Convert attributes to strings to match the protobuf definition
-          attributes = Hash[attributes.map { |k, v| [String(k), String(v)] }]
+          attributes = attributes.to_h { |k, v| [String(k), String(v)] }
           push_config = Google::Cloud::PubSub::V1::PushConfig.new(
             push_endpoint: endpoint,
             attributes:    attributes

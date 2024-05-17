@@ -30,6 +30,12 @@ module Google
           # Service to determine the likelihood an event is legitimate.
           #
           class Client
+            # @private
+            API_VERSION = ""
+
+            # @private
+            DEFAULT_ENDPOINT_TEMPLATE = "recaptchaenterprise.$UNIVERSE_DOMAIN$"
+
             include Paths
 
             # @private
@@ -105,6 +111,15 @@ module Google
             end
 
             ##
+            # The effective universe domain
+            #
+            # @return [String]
+            #
+            def universe_domain
+              @recaptcha_enterprise_service_stub.universe_domain
+            end
+
+            ##
             # Create a new RecaptchaEnterpriseService client object.
             #
             # @example
@@ -137,8 +152,9 @@ module Google
               credentials = @config.credentials
               # Use self-signed JWT if the endpoint is unchanged from default,
               # but only if the default endpoint does not have a region prefix.
-              enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                       !@config.endpoint.split(".").first.include?("-")
+              enable_self_signed_jwt = @config.endpoint.nil? ||
+                                       (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                       !@config.endpoint.split(".").first.include?("-"))
               credentials ||= Credentials.default scope: @config.scope,
                                                   enable_self_signed_jwt: enable_self_signed_jwt
               if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -149,8 +165,10 @@ module Google
 
               @recaptcha_enterprise_service_stub = ::Gapic::ServiceStub.new(
                 ::Google::Cloud::RecaptchaEnterprise::V1::RecaptchaEnterpriseService::Stub,
-                credentials:  credentials,
-                endpoint:     @config.endpoint,
+                credentials: credentials,
+                endpoint: @config.endpoint,
+                endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
                 channel_pool_config: @config.channel_pool
@@ -217,10 +235,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.create_assessment.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -261,7 +280,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload annotate_assessment(name: nil, annotation: nil, reasons: nil, hashed_account_id: nil, transaction_event: nil)
+            # @overload annotate_assessment(name: nil, annotation: nil, reasons: nil, account_id: nil, hashed_account_id: nil, transaction_event: nil)
             #   Pass arguments to `annotate_assessment` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -274,14 +293,16 @@ module Google
             #     be left empty to provide reasons that apply to an event without concluding
             #     whether the event is legitimate or fraudulent.
             #   @param reasons [::Array<::Google::Cloud::RecaptchaEnterprise::V1::AnnotateAssessmentRequest::Reason>]
-            #     Optional. Optional reasons for the annotation that will be assigned to the
-            #     Event.
+            #     Optional. Reasons for the annotation that are assigned to the event.
+            #   @param account_id [::String]
+            #     Optional. A stable account identifier to apply to the assessment. This is
+            #     an alternative to setting `account_id` in `CreateAssessment`, for example
+            #     when a stable account identifier is not yet known in the initial request.
             #   @param hashed_account_id [::String]
-            #     Optional. Unique stable hashed user identifier to apply to the assessment.
-            #     This is an alternative to setting the hashed_account_id in
-            #     CreateAssessment, for example when the account identifier is not yet known
-            #     in the initial request. It is recommended that the identifier is hashed
-            #     using hmac-sha256 with stable secret.
+            #     Optional. A stable hashed account identifier to apply to the assessment.
+            #     This is an alternative to setting `hashed_account_id` in
+            #     `CreateAssessment`, for example when a stable account identifier is not yet
+            #     known in the initial request.
             #   @param transaction_event [::Google::Cloud::RecaptchaEnterprise::V1::TransactionEvent, ::Hash]
             #     Optional. If the assessment is part of a payment transaction, provide
             #     details on payment lifecycle events that occur in the transaction.
@@ -320,10 +341,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.annotate_assessment.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -408,10 +430,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.create_key.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -504,10 +527,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_keys.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -593,10 +617,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.retrieve_legacy_secret_key.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -679,10 +704,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.get_key.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -767,10 +793,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.update_key.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -853,10 +880,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.delete_key.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -953,10 +981,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.migrate_key.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1040,10 +1069,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.get_metrics.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1130,10 +1160,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.create_firewall_policy.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1226,10 +1257,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_firewall_policies.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1313,10 +1345,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.get_firewall_policy.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1401,10 +1434,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.update_firewall_policy.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1487,10 +1521,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.delete_firewall_policy.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1510,6 +1545,96 @@ module Google
                                      retry_policy: @config.retry_policy
 
               @recaptcha_enterprise_service_stub.call_rpc :delete_firewall_policy, request, options: options do |response, operation|
+                yield response, operation if block_given?
+                return response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Reorders all firewall policies.
+            #
+            # @overload reorder_firewall_policies(request, options = nil)
+            #   Pass arguments to `reorder_firewall_policies` via a request object, either of type
+            #   {::Google::Cloud::RecaptchaEnterprise::V1::ReorderFirewallPoliciesRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Cloud::RecaptchaEnterprise::V1::ReorderFirewallPoliciesRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload reorder_firewall_policies(parent: nil, names: nil)
+            #   Pass arguments to `reorder_firewall_policies` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param parent [::String]
+            #     Required. The name of the project to list the policies for, in the format
+            #     `projects/{project}`.
+            #   @param names [::Array<::String>]
+            #     Required. A list containing all policy names, in the new order. Each name
+            #     is in the format `projects/{project}/firewallpolicies/{firewallpolicy}`.
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Google::Cloud::RecaptchaEnterprise::V1::ReorderFirewallPoliciesResponse]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Google::Cloud::RecaptchaEnterprise::V1::ReorderFirewallPoliciesResponse]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/cloud/recaptcha_enterprise/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Cloud::RecaptchaEnterprise::V1::RecaptchaEnterpriseService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Cloud::RecaptchaEnterprise::V1::ReorderFirewallPoliciesRequest.new
+            #
+            #   # Call the reorder_firewall_policies method.
+            #   result = client.reorder_firewall_policies request
+            #
+            #   # The returned object is of type Google::Cloud::RecaptchaEnterprise::V1::ReorderFirewallPoliciesResponse.
+            #   p result
+            #
+            def reorder_firewall_policies request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::RecaptchaEnterprise::V1::ReorderFirewallPoliciesRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.reorder_firewall_policies.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.parent
+                header_params["parent"] = request.parent
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.reorder_firewall_policies.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.reorder_firewall_policies.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @recaptcha_enterprise_service_stub.call_rpc :reorder_firewall_policies, request, options: options do |response, operation|
                 yield response, operation if block_given?
                 return response
               end
@@ -1588,10 +1713,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_related_account_groups.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1690,10 +1816,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_related_account_group_memberships.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1734,7 +1861,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload search_related_account_group_memberships(project: nil, hashed_account_id: nil, page_size: nil, page_token: nil)
+            # @overload search_related_account_group_memberships(project: nil, account_id: nil, hashed_account_id: nil, page_size: nil, page_token: nil)
             #   Pass arguments to `search_related_account_group_memberships` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1743,10 +1870,17 @@ module Google
             #     Required. The name of the project to search related account group
             #     memberships from. Specify the project name in the following format:
             #     `projects/{project}`.
+            #   @param account_id [::String]
+            #     Optional. The unique stable account identifier used to search connections.
+            #     The identifier should correspond to an `account_id` provided in a previous
+            #     `CreateAssessment` or `AnnotateAssessment` call. Either hashed_account_id
+            #     or account_id must be set, but not both.
             #   @param hashed_account_id [::String]
-            #     Optional. The unique stable hashed user identifier used to search
-            #     connections. The identifier should correspond to a `hashed_account_id`
-            #     provided in a previous `CreateAssessment` or `AnnotateAssessment` call.
+            #     Optional. Deprecated: use `account_id` instead.
+            #     The unique stable hashed account identifier used to search connections. The
+            #     identifier should correspond to a `hashed_account_id` provided in a
+            #     previous `CreateAssessment` or `AnnotateAssessment` call. Either
+            #     hashed_account_id or account_id must be set, but not both.
             #   @param page_size [::Integer]
             #     Optional. The maximum number of groups to return. The service might return
             #     fewer than this value. If unspecified, at most 50 groups are returned. The
@@ -1798,10 +1932,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.search_related_account_group_memberships.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::RecaptchaEnterprise::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1859,9 +1994,9 @@ module Google
             #   end
             #
             # @!attribute [rw] endpoint
-            #   The hostname or hostname:port of the service endpoint.
-            #   Defaults to `"recaptchaenterprise.googleapis.com"`.
-            #   @return [::String]
+            #   A custom service endpoint, as a hostname or hostname:port. The default is
+            #   nil, indicating to use the default endpoint in the current universe domain.
+            #   @return [::String,nil]
             # @!attribute [rw] credentials
             #   Credentials to send with calls. You may provide any of the following types:
             #    *  (`String`) The path to a service account key file in JSON format
@@ -1907,13 +2042,20 @@ module Google
             # @!attribute [rw] quota_project
             #   A separate project against which to charge quota.
             #   @return [::String]
+            # @!attribute [rw] universe_domain
+            #   The universe domain within which to make requests. This determines the
+            #   default endpoint URL. The default value of nil uses the environment
+            #   universe (usually the default "googleapis.com" universe).
+            #   @return [::String,nil]
             #
             class Configuration
               extend ::Gapic::Config
 
+              # @private
+              # The endpoint specific to the default "googleapis.com" universe. Deprecated.
               DEFAULT_ENDPOINT = "recaptchaenterprise.googleapis.com"
 
-              config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+              config_attr :endpoint,      nil, ::String, nil
               config_attr :credentials,   nil do |value|
                 allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                 allowed += [::GRPC::Core::Channel, ::GRPC::Core::ChannelCredentials] if defined? ::GRPC
@@ -1928,6 +2070,7 @@ module Google
               config_attr :metadata,      nil, ::Hash, nil
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
+              config_attr :universe_domain, nil, ::String, nil
 
               # @private
               def initialize parent_config = nil
@@ -2050,6 +2193,11 @@ module Google
                 #
                 attr_reader :delete_firewall_policy
                 ##
+                # RPC-specific configuration for `reorder_firewall_policies`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :reorder_firewall_policies
+                ##
                 # RPC-specific configuration for `list_related_account_groups`
                 # @return [::Gapic::Config::Method]
                 #
@@ -2097,6 +2245,8 @@ module Google
                   @update_firewall_policy = ::Gapic::Config::Method.new update_firewall_policy_config
                   delete_firewall_policy_config = parent_rpcs.delete_firewall_policy if parent_rpcs.respond_to? :delete_firewall_policy
                   @delete_firewall_policy = ::Gapic::Config::Method.new delete_firewall_policy_config
+                  reorder_firewall_policies_config = parent_rpcs.reorder_firewall_policies if parent_rpcs.respond_to? :reorder_firewall_policies
+                  @reorder_firewall_policies = ::Gapic::Config::Method.new reorder_firewall_policies_config
                   list_related_account_groups_config = parent_rpcs.list_related_account_groups if parent_rpcs.respond_to? :list_related_account_groups
                   @list_related_account_groups = ::Gapic::Config::Method.new list_related_account_groups_config
                   list_related_account_group_memberships_config = parent_rpcs.list_related_account_group_memberships if parent_rpcs.respond_to? :list_related_account_group_memberships

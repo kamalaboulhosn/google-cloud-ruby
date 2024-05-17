@@ -23,15 +23,37 @@ require "gapic/grpc/service_stub"
 require "google/shopping/merchant/inventories/v1beta/local_inventory_service"
 
 class ::Google::Shopping::Merchant::Inventories::V1beta::LocalInventoryService::ClientPathsTest < Minitest::Test
+  class DummyStub
+    def endpoint
+      "endpoint.example.com"
+    end
+  
+    def universe_domain
+      "example.com"
+    end
+  end
+
   def test_local_inventory_path
     grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
-    ::Gapic::ServiceStub.stub :new, nil do
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
       client = ::Google::Shopping::Merchant::Inventories::V1beta::LocalInventoryService::Client.new do |config|
         config.credentials = grpc_channel
       end
 
       path = client.local_inventory_path account: "value0", product: "value1", store_code: "value2"
       assert_equal "accounts/value0/products/value1/localInventories/value2", path
+    end
+  end
+
+  def test_product_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Shopping::Merchant::Inventories::V1beta::LocalInventoryService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.product_path account: "value0", product: "value1"
+      assert_equal "accounts/value0/products/value1", path
     end
   end
 end

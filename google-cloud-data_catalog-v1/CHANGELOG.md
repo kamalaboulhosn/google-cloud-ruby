@@ -1,5 +1,41 @@
 # Release History
 
+### 0.23.0 (2024-03-18)
+
+#### Features
+
+* Add range_element_type field to ColumnSchema ([#25383](https://github.com/googleapis/google-cloud-ruby/issues/25383)) 
+
+### 0.22.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24868](https://github.com/googleapis/google-cloud-ruby/issues/24868)) 
+
+### 0.21.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.21.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.21.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23777](https://github.com/googleapis/google-cloud-ruby/issues/23777)) 
+
+### 0.20.1 (2024-01-09)
+
+#### Documentation
+
+* Correct documentation of identifier fields ([#23747](https://github.com/googleapis/google-cloud-ruby/issues/23747)) 
+
 ### 0.20.0 (2023-09-29)
 
 #### Features

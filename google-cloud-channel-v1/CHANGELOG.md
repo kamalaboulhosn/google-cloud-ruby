@@ -1,5 +1,37 @@
 # Release History
 
+### 0.24.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24867](https://github.com/googleapis/google-cloud-ruby/issues/24867)) 
+
+### 0.23.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.23.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.23.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23775](https://github.com/googleapis/google-cloud-ruby/issues/23775)) 
+
+### 0.22.1 (2024-01-03)
+
+#### Documentation
+
+* Deprecation note for `RunReportJob` in service `CloudChannelReportsService` ([#23698](https://github.com/googleapis/google-cloud-ruby/issues/23698)) 
+* Deprecation note for method `FetchReportResults` in service `CloudChannelReportsService` 
+* Deprecation note for method `ListReports` in service `CloudChannelReportsService` 
+
 ### 0.22.0 (2023-09-12)
 
 #### Features

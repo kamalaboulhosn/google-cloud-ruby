@@ -60,6 +60,14 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::Rest::Clie
 
       @response
     end
+
+    def endpoint
+      "endpoint.example.com"
+    end
+
+    def universe_domain
+      "example.com"
+    end
   end
 
   def test_process_document
@@ -76,6 +84,7 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::Rest::Clie
     skip_human_review = true
     field_mask = {}
     process_options = {}
+    labels = {}
 
     process_document_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
       assert options.metadata.key? :"x-goog-api-client"
@@ -91,27 +100,27 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::Rest::Clie
         end
 
         # Use hash object
-        client.process_document({ inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options }) do |_result, response|
+        client.process_document({ inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.process_document inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options do |_result, response|
+        client.process_document inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.process_document ::Google::Cloud::DocumentAI::V1beta3::ProcessRequest.new(inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options) do |_result, response|
+        client.process_document ::Google::Cloud::DocumentAI::V1beta3::ProcessRequest.new(inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.process_document({ inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options }, call_options) do |_result, response|
+        client.process_document({ inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.process_document(::Google::Cloud::DocumentAI::V1beta3::ProcessRequest.new(inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options), call_options) do |_result, response|
+        client.process_document(::Google::Cloud::DocumentAI::V1beta3::ProcessRequest.new(inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -136,6 +145,7 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::Rest::Clie
     document_output_config = {}
     skip_human_review = true
     process_options = {}
+    labels = {}
 
     batch_process_documents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
       assert options.metadata.key? :"x-goog-api-client"
@@ -151,27 +161,27 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::Rest::Clie
         end
 
         # Use hash object
-        client.batch_process_documents({ name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options }) do |_result, response|
+        client.batch_process_documents({ name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options, labels: labels }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.batch_process_documents name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options do |_result, response|
+        client.batch_process_documents name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options, labels: labels do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.batch_process_documents ::Google::Cloud::DocumentAI::V1beta3::BatchProcessRequest.new(name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options) do |_result, response|
+        client.batch_process_documents ::Google::Cloud::DocumentAI::V1beta3::BatchProcessRequest.new(name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options, labels: labels) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.batch_process_documents({ name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options }, call_options) do |_result, response|
+        client.batch_process_documents({ name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options, labels: labels }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.batch_process_documents(::Google::Cloud::DocumentAI::V1beta3::BatchProcessRequest.new(name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options), call_options) do |_result, response|
+        client.batch_process_documents(::Google::Cloud::DocumentAI::V1beta3::BatchProcessRequest.new(name: name, input_configs: input_configs, output_config: output_config, input_documents: input_documents, document_output_config: document_output_config, skip_human_review: skip_human_review, process_options: process_options, labels: labels), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -1341,7 +1351,8 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::Rest::Clie
     credentials_token = :dummy_value
 
     client = block_config = config = nil
-    Gapic::Rest::ClientStub.stub :new, nil do
+    dummy_stub = ClientStub.new nil
+    Gapic::Rest::ClientStub.stub :new, dummy_stub do
       client = ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::Rest::Client.new do |config|
         config.credentials = credentials_token
       end

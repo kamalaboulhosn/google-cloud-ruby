@@ -516,6 +516,9 @@ module Google
             # https://cloud.google.com/kms/docs/create-validate-signatures#ecdsa_support_for_other_hash_algorithms
             EC_SIGN_SECP256K1_SHA256 = 31
 
+            # EdDSA on the Curve25519 in pure mode (taking data as input).
+            EC_SIGN_ED25519 = 40
+
             # HMAC-SHA256 signing with a 256 bit key.
             HMAC_SHA256 = 32
 
@@ -625,7 +628,7 @@ module Google
           end
         end
 
-        # The public key for a given
+        # The public keys for a given
         # {::Google::Cloud::Kms::V1::CryptoKeyVersion CryptoKeyVersion}. Obtained via
         # [GetPublicKey][google.cloud.kms.v1.KeyManagementService.GetPublicKey].
         # @!attribute [rw] pem

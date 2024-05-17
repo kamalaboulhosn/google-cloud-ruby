@@ -1,5 +1,35 @@
 # Release History
 
+### 0.15.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24874](https://github.com/googleapis/google-cloud-ruby/issues/24874)) 
+
+### 0.14.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.14.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.14.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23783](https://github.com/googleapis/google-cloud-ruby/issues/23783)) 
+
+### 0.13.0 (2024-01-09)
+
+#### Features
+
+* added field `ImportSshPublicKeyRequest.regions` ([#23767](https://github.com/googleapis/google-cloud-ruby/issues/23767)) 
+
 ### 0.12.0 (2023-10-23)
 
 #### Features

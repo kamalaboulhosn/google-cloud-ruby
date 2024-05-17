@@ -1,5 +1,46 @@
 # Release History
 
+### 0.16.1 (2024-04-19)
+
+#### Bug Fixes
+
+* Set the transport of grafeas back to grpc only ([#25439](https://github.com/googleapis/google-cloud-ruby/issues/25439)) 
+
+### 0.16.0 (2024-03-18)
+
+#### Features
+
+* Support InTotoSlsaProvenanceV1 ([#25380](https://github.com/googleapis/google-cloud-ruby/issues/25380)) 
+* Support new field "extra_details" in VulnerabilityOccurrence ([#25380](https://github.com/googleapis/google-cloud-ruby/issues/25380)) 
+* Support new field "impact" in Impact ([#25380](https://github.com/googleapis/google-cloud-ruby/issues/25380)) 
+* Support new field "in_toto_slsa_provenance_v1" in BuildOccurrence ([#25380](https://github.com/googleapis/google-cloud-ruby/issues/25380)) 
+* Support new field "sbom_status" in DiscoveryOccurence, Occurence and Note ([#25380](https://github.com/googleapis/google-cloud-ruby/issues/25380)) 
+* Support new field "vulnerability_id" in Assessment ([#25380](https://github.com/googleapis/google-cloud-ruby/issues/25380)) 
+
+### 0.15.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24881](https://github.com/googleapis/google-cloud-ruby/issues/24881)) 
+
+### 0.14.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files ([#24517](https://github.com/googleapis/google-cloud-ruby/issues/24517)) 
+
+### 0.14.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.14.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23790](https://github.com/googleapis/google-cloud-ruby/issues/23790)) 
+
 ### 0.13.0 (2023-09-12)
 
 #### Features

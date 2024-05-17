@@ -1,5 +1,41 @@
 # Release History
 
+### 1.49.0 (2024-03-10)
+
+#### Features
+
+* Update minimum supported Ruby version to 2.7 ([#25298](https://github.com/googleapis/google-cloud-ruby/issues/25298)) 
+
+### 1.48.1 (2024-02-10)
+
+#### Documentation
+
+* Correct an example snippet related to storage_billing_model ([#24796](https://github.com/googleapis/google-cloud-ruby/issues/24796)) 
+
+### 1.48.0 (2024-02-08)
+
+#### Features
+
+* Support accessing storage_ billing_model field in a dataset ([#24755](https://github.com/googleapis/google-cloud-ruby/issues/24755)) 
+
+### 1.47.0 (2024-02-05)
+
+#### Features
+
+* add json type support ([#24491](https://github.com/googleapis/google-cloud-ruby/issues/24491)) 
+
+### 1.46.1 (2024-01-26)
+
+#### Bug Fixes
+
+* Raise an error on mismatching universe domain ([#24485](https://github.com/googleapis/google-cloud-ruby/issues/24485)) 
+
+### 1.46.0 (2024-01-25)
+
+#### Features
+
+* Support for universe_domain ([#24448](https://github.com/googleapis/google-cloud-ruby/issues/24448)) 
+
 ### 1.45.0 (2023-09-25)
 
 #### Features

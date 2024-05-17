@@ -33,6 +33,12 @@ module Google
             # Service for conversational search.
             #
             class Client
+              # @private
+              API_VERSION = ""
+
+              # @private
+              DEFAULT_ENDPOINT_TEMPLATE = "discoveryengine.$UNIVERSE_DOMAIN$"
+
               include Paths
 
               # @private
@@ -99,6 +105,15 @@ module Google
               end
 
               ##
+              # The effective universe domain
+              #
+              # @return [String]
+              #
+              def universe_domain
+                @conversational_search_service_stub.universe_domain
+              end
+
+              ##
               # Create a new ConversationalSearchService REST client object.
               #
               # @example
@@ -125,8 +140,9 @@ module Google
                 credentials = @config.credentials
                 # Use self-signed JWT if the endpoint is unchanged from default,
                 # but only if the default endpoint does not have a region prefix.
-                enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                         !@config.endpoint.split(".").first.include?("-")
+                enable_self_signed_jwt = @config.endpoint.nil? ||
+                                         (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                         !@config.endpoint.split(".").first.include?("-"))
                 credentials ||= Credentials.default scope: @config.scope,
                                                     enable_self_signed_jwt: enable_self_signed_jwt
                 if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -136,13 +152,19 @@ module Google
                 @quota_project_id = @config.quota_project
                 @quota_project_id ||= credentials.quota_project_id if credentials.respond_to? :quota_project_id
 
+                @conversational_search_service_stub = ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::ServiceStub.new(
+                  endpoint: @config.endpoint,
+                  endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                  universe_domain: @config.universe_domain,
+                  credentials: credentials
+                )
+
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
-                  config.endpoint = @config.endpoint
+                  config.endpoint = @conversational_search_service_stub.endpoint
+                  config.universe_domain = @conversational_search_service_stub.universe_domain
                 end
-
-                @conversational_search_service_stub = ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::ServiceStub.new endpoint: @config.endpoint, credentials: credentials
               end
 
               ##
@@ -167,7 +189,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload converse_conversation(name: nil, query: nil, serving_config: nil, conversation: nil, safe_search: nil, user_labels: nil, summary_spec: nil)
+              # @overload converse_conversation(name: nil, query: nil, serving_config: nil, conversation: nil, safe_search: nil, user_labels: nil, summary_spec: nil, filter: nil, boost_spec: nil)
               #   Pass arguments to `converse_conversation` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -211,6 +233,27 @@ module Google
               #     for more details.
               #   @param summary_spec [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SummarySpec, ::Hash]
               #     A specification for configuring the summary returned in the response.
+              #   @param filter [::String]
+              #     The filter syntax consists of an expression language for constructing a
+              #     predicate from one or more fields of the documents being filtered. Filter
+              #     expression is case-sensitive. This will be used to filter search results
+              #     which may affect the summary response.
+              #
+              #     If this field is unrecognizable, an  `INVALID_ARGUMENT`  is returned.
+              #
+              #     Filtering in Vertex AI Search is done by mapping the LHS filter key to a
+              #     key property defined in the Vertex AI Search backend -- this mapping is
+              #     defined by the customer in their schema. For example a media customer might
+              #     have a field 'name' in their schema. In this case the filter would look
+              #     like this: filter --> name:'ANY("king kong")'
+              #
+              #     For more information about filtering including syntax and filter
+              #     operators, see
+              #     [Filter](https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata)
+              #   @param boost_spec [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::BoostSpec, ::Hash]
+              #     Boost specification to boost certain documents in search results which may
+              #     affect the converse response. For more information on boosting, see
+              #     [Boosting](https://cloud.google.com/retail/docs/boosting#boost)
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1::ConverseConversationResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -245,12 +288,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.converse_conversation.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.converse_conversation.timeout,
@@ -329,12 +373,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_conversation.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_conversation.timeout,
@@ -411,12 +456,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_conversation.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_conversation.timeout,
@@ -465,7 +511,7 @@ module Google
               #     {::Google::Cloud::DiscoveryEngine::V1::Conversation Conversation} to update. The
               #     following are NOT supported:
               #
-              #     * [conversation.name][]
+              #     * {::Google::Cloud::DiscoveryEngine::V1::Conversation#name Conversation.name}
               #
               #     If not set or empty, all supported fields are updated.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -502,12 +548,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_conversation.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_conversation.timeout,
@@ -581,12 +628,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_conversation.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_conversation.timeout,
@@ -607,7 +655,7 @@ module Google
 
               ##
               # Lists all Conversations by their parent
-              # [DataStore][google.cloud.discoveryengine.v1.DataStore].
+              # {::Google::Cloud::DiscoveryEngine::V1::DataStore DataStore}.
               #
               # @overload list_conversations(request, options = nil)
               #   Pass arguments to `list_conversations` via a request object, either of type
@@ -688,12 +736,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_conversations.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_conversations.timeout,
@@ -743,9 +792,9 @@ module Google
               #   end
               #
               # @!attribute [rw] endpoint
-              #   The hostname or hostname:port of the service endpoint.
-              #   Defaults to `"discoveryengine.googleapis.com"`.
-              #   @return [::String]
+              #   A custom service endpoint, as a hostname or hostname:port. The default is
+              #   nil, indicating to use the default endpoint in the current universe domain.
+              #   @return [::String,nil]
               # @!attribute [rw] credentials
               #   Credentials to send with calls. You may provide any of the following types:
               #    *  (`String`) The path to a service account key file in JSON format
@@ -782,13 +831,20 @@ module Google
               # @!attribute [rw] quota_project
               #   A separate project against which to charge quota.
               #   @return [::String]
+              # @!attribute [rw] universe_domain
+              #   The universe domain within which to make requests. This determines the
+              #   default endpoint URL. The default value of nil uses the environment
+              #   universe (usually the default "googleapis.com" universe).
+              #   @return [::String,nil]
               #
               class Configuration
                 extend ::Gapic::Config
 
+                # @private
+                # The endpoint specific to the default "googleapis.com" universe. Deprecated.
                 DEFAULT_ENDPOINT = "discoveryengine.googleapis.com"
 
-                config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+                config_attr :endpoint,      nil, ::String, nil
                 config_attr :credentials,   nil do |value|
                   allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                   allowed.any? { |klass| klass === value }
@@ -800,6 +856,7 @@ module Google
                 config_attr :metadata,      nil, ::Hash, nil
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
+                config_attr :universe_domain, nil, ::String, nil
 
                 # @private
                 def initialize parent_config = nil

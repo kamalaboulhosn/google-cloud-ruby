@@ -77,6 +77,7 @@ module Google
         #     Where \\{project} is a project number, as in '12345', and \\{network} is
         #     network name.
         # @!attribute [rw] enable_private_service_connect
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Boolean]
         #     Optional. Deprecated: If true, expose the IndexEndpoint via private service
         #     connect.
@@ -173,10 +174,11 @@ module Google
         # @!attribute [rw] dedicated_resources
         #   @return [::Google::Cloud::AIPlatform::V1::DedicatedResources]
         #     Optional. A description of resources that are dedicated to the
-        #     DeployedIndex, and that need a higher degree of manual configuration. If
-        #     min_replica_count is not set, the default value is 2 (we don't provide SLA
-        #     when min_replica_count=1). If max_replica_count is not set, the default
-        #     value is min_replica_count. The max allowed replica count is 1000.
+        #     DeployedIndex, and that need a higher degree of manual configuration. The
+        #     field min_replica_count must be set to a value strictly greater than 0, or
+        #     else validation will fail. We don't provide SLA when min_replica_count=1.
+        #     If max_replica_count is not set, the default value is min_replica_count.
+        #     The max allowed replica count is 1000.
         #
         #     Available machine types for SMALL shard:
         #     e2-standard-2 and all machine types available for MEDIUM and LARGE shard.
@@ -278,6 +280,10 @@ module Google
         #   @return [::String]
         #     Output only. The name of the service attachment resource. Populated if
         #     private service connect is enabled.
+        # @!attribute [r] psc_automated_endpoints
+        #   @return [::Array<::Google::Cloud::AIPlatform::V1::PscAutomatedEndpoints>]
+        #     Output only. PscAutomatedEndpoints is populated if private service connect
+        #     is enabled if PscAutomatedConfig is set.
         class IndexPrivateEndpoints
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

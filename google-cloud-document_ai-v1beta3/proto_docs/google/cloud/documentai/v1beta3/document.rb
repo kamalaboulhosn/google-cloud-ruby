@@ -44,6 +44,7 @@ module Google
         #   @return [::String]
         #     Optional. UTF-8 encoded text in reading order from the document.
         # @!attribute [rw] text_styles
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::Style>]
         #     Styles for the
         #     {::Google::Cloud::DocumentAI::V1beta3::Document#text Document.text}.
@@ -76,6 +77,12 @@ module Google
         # @!attribute [rw] revisions
         #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::Revision>]
         #     Placeholder. Revision history of this document.
+        # @!attribute [rw] document_layout
+        #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout]
+        #     Parsed layout of the document.
+        # @!attribute [rw] chunked_document
+        #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::ChunkedDocument]
+        #     Document chunked based on chunking config.
         class Document
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -214,6 +221,7 @@ module Google
           #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::Page::ImageQualityScores]
           #     Image quality scores.
           # @!attribute [rw] provenance
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::Provenance]
           #     The history of this page.
           class Page
@@ -333,6 +341,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::Provenance]
             #     The history of this annotation.
             class Block
@@ -349,6 +358,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::Provenance]
             #     The  history of this annotation.
             class Paragraph
@@ -366,6 +376,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::Provenance]
             #     The  history of this annotation.
             class Line
@@ -386,6 +397,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::Provenance]
             #     The history of this annotation.
             # @!attribute [rw] style_info
@@ -448,16 +460,16 @@ module Google
               #     Whether the text is underlined.
               # @!attribute [rw] strikeout
               #   @return [::Boolean]
-              #     Whether the text is strikethrough.
+              #     Whether the text is strikethrough. This feature is not supported yet.
               # @!attribute [rw] subscript
               #   @return [::Boolean]
-              #     Whether the text is a subscript.
+              #     Whether the text is a subscript. This feature is not supported yet.
               # @!attribute [rw] superscript
               #   @return [::Boolean]
-              #     Whether the text is a superscript.
+              #     Whether the text is a superscript. This feature is not supported yet.
               # @!attribute [rw] smallcaps
               #   @return [::Boolean]
-              #     Whether the text is in small caps.
+              #     Whether the text is in small caps. This feature is not supported yet.
               # @!attribute [rw] font_weight
               #   @return [::Integer]
               #     TrueType weight on a scale `100` (thin) to `1000` (ultra-heavy).
@@ -523,6 +535,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::Provenance]
             #     The history of this table.
             class Table
@@ -836,6 +849,7 @@ module Google
             #     Optional. The type of the layout element that is being referenced if
             #     any.
             # @!attribute [rw] layout_id
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::String]
             #     Optional. Deprecated.  Use
             #     {::Google::Cloud::DocumentAI::V1beta3::Document::PageAnchor::PageRef#bounding_poly PageRef.bounding_poly}
@@ -843,7 +857,8 @@ module Google
             # @!attribute [rw] bounding_poly
             #   @return [::Google::Cloud::DocumentAI::V1beta3::BoundingPoly]
             #     Optional. Identifies the bounding polygon of a layout element on the
-            #     page.
+            #     page. If `layout_type` is set, the bounding polygon must be exactly the
+            #     same to the layout element it's referring to.
             # @!attribute [rw] confidence
             #   @return [::Float]
             #     Optional. Confidence of detected page element, if applicable. Range
@@ -898,9 +913,11 @@ module Google
           # Structure to identify provenance relationships between annotations in
           # different revisions.
           # @!attribute [rw] revision
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Integer]
           #     The index of the revision that produced this element.
           # @!attribute [rw] id
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Integer]
           #     The Id of this operation.  Needs to be unique within the scope of the
           #     revision.
@@ -924,6 +941,7 @@ module Google
             #     The index of the parent item in the corresponding item list (eg. list
             #     of entities, properties within entities, etc.) in the parent revision.
             # @!attribute [rw] id
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Integer]
             #     The id of the parent provenance.
             class Parent
@@ -979,6 +997,7 @@ module Google
           #     Id of the revision, internally generated by doc proto storage.
           #     Unique within the context of the document.
           # @!attribute [rw] parent
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Array<::Integer>]
           #     The revisions that this revision is based on.  This can include one or
           #     more parent (when documents are merged.)  This field represents the
@@ -1026,11 +1045,208 @@ module Google
           #   @return [::String]
           #     The text that replaces the text identified in the `text_anchor`.
           # @!attribute [rw] provenance
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::Provenance>]
           #     The history of this annotation.
           class TextChange
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Represents the parsed layout of a document as a collection of blocks that
+          # the document is divided into.
+          # @!attribute [rw] blocks
+          #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock>]
+          #     List of blocks in the document.
+          class DocumentLayout
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Represents a block. A block could be one of the various types (text,
+            # table, list) supported.
+            # @!attribute [rw] text_block
+            #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock::LayoutTextBlock]
+            #     Block consisting of text content.
+            # @!attribute [rw] table_block
+            #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock::LayoutTableBlock]
+            #     Block consisting of table content/structure.
+            # @!attribute [rw] list_block
+            #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock::LayoutListBlock]
+            #     Block consisting of list content/structure.
+            # @!attribute [rw] block_id
+            #   @return [::String]
+            #     ID of the block.
+            # @!attribute [rw] page_span
+            #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock::LayoutPageSpan]
+            #     Page span of the block.
+            class DocumentLayoutBlock
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Represents where the block starts and ends in the document.
+              # @!attribute [rw] page_start
+              #   @return [::Integer]
+              #     Page where block starts in the document.
+              # @!attribute [rw] page_end
+              #   @return [::Integer]
+              #     Page where block ends in the document.
+              class LayoutPageSpan
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a text type block.
+              # @!attribute [rw] text
+              #   @return [::String]
+              #     Text content stored in the block.
+              # @!attribute [rw] type
+              #   @return [::String]
+              #     Type of the text in the block. Available options are: `paragraph`,
+              #     `subtitle`, `heading-1`, `heading-2`, `heading-3`, `heading-4`,
+              #     `heading-5`, `header`, `footer`.
+              # @!attribute [rw] blocks
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock>]
+              #     A text block could further have child blocks.
+              #     Repeated blocks support further hierarchies and nested blocks.
+              class LayoutTextBlock
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a table type block.
+              # @!attribute [rw] header_rows
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock::LayoutTableRow>]
+              #     Header rows at the top of the table.
+              # @!attribute [rw] body_rows
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock::LayoutTableRow>]
+              #     Body rows containing main table content.
+              # @!attribute [rw] caption
+              #   @return [::String]
+              #     Table caption/title.
+              class LayoutTableBlock
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a row in a table.
+              # @!attribute [rw] cells
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock::LayoutTableCell>]
+              #     A table row is a list of table cells.
+              class LayoutTableRow
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a cell in a table row.
+              # @!attribute [rw] blocks
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock>]
+              #     A table cell is a list of blocks.
+              #     Repeated blocks support further hierarchies and nested blocks.
+              # @!attribute [rw] row_span
+              #   @return [::Integer]
+              #     How many rows this cell spans.
+              # @!attribute [rw] col_span
+              #   @return [::Integer]
+              #     How many columns this cell spans.
+              class LayoutTableCell
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a list type block.
+              # @!attribute [rw] list_entries
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock::LayoutListEntry>]
+              #     List entries that constitute a list block.
+              # @!attribute [rw] type
+              #   @return [::String]
+              #     Type of the list_entries (if exist). Available options are `ordered`
+              #     and `unordered`.
+              class LayoutListBlock
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents an entry in the list.
+              # @!attribute [rw] blocks
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::DocumentLayout::DocumentLayoutBlock>]
+              #     A list entry is a list of blocks.
+              #     Repeated blocks support further hierarchies and nested blocks.
+              class LayoutListEntry
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+            end
+          end
+
+          # Represents the chunks that the document is divided into.
+          # @!attribute [rw] chunks
+          #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::ChunkedDocument::Chunk>]
+          #     List of chunks.
+          class ChunkedDocument
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Represents a chunk.
+            # @!attribute [rw] chunk_id
+            #   @return [::String]
+            #     ID of the chunk.
+            # @!attribute [rw] source_block_ids
+            #   @return [::Array<::String>]
+            #     DO NOT USE.
+            #     List of all parsed documents layout source blocks used to generate the
+            #     chunk.
+            # @!attribute [rw] content
+            #   @return [::String]
+            #     Text content of the chunk.
+            # @!attribute [rw] page_span
+            #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::ChunkedDocument::Chunk::ChunkPageSpan]
+            #     Page span of the chunk.
+            # @!attribute [rw] page_headers
+            #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::ChunkedDocument::Chunk::ChunkPageHeader>]
+            #     Page headers associated with the chunk.
+            # @!attribute [rw] page_footers
+            #   @return [::Array<::Google::Cloud::DocumentAI::V1beta3::Document::ChunkedDocument::Chunk::ChunkPageFooter>]
+            #     Page footers associated with the chunk.
+            class Chunk
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Represents where the chunk starts and ends in the document.
+              # @!attribute [rw] page_start
+              #   @return [::Integer]
+              #     Page where chunk starts in the document.
+              # @!attribute [rw] page_end
+              #   @return [::Integer]
+              #     Page where chunk ends in the document.
+              class ChunkPageSpan
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents the page header associated with the chunk.
+              # @!attribute [rw] text
+              #   @return [::String]
+              #     Header in text format.
+              # @!attribute [rw] page_span
+              #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::ChunkedDocument::Chunk::ChunkPageSpan]
+              #     Page span of the header.
+              class ChunkPageHeader
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents the page footer associated with the chunk.
+              # @!attribute [rw] text
+              #   @return [::String]
+              #     Footer in text format.
+              # @!attribute [rw] page_span
+              #   @return [::Google::Cloud::DocumentAI::V1beta3::Document::ChunkedDocument::Chunk::ChunkPageSpan]
+              #     Page span of the footer.
+              class ChunkPageFooter
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+            end
           end
         end
 

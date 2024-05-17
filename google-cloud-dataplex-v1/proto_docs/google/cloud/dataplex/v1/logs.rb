@@ -419,6 +419,18 @@ module Google
 
             # Access policy update event.
             ACCESS_POLICY_UPDATE = 14
+
+            # Number of resources matched with particular Query.
+            GOVERNANCE_RULE_MATCHED_RESOURCES = 15
+
+            # Rule processing exceeds the allowed limit.
+            GOVERNANCE_RULE_SEARCH_LIMIT_EXCEEDS = 16
+
+            # Rule processing errors.
+            GOVERNANCE_RULE_ERRORS = 17
+
+            # Governance rule processing Event.
+            GOVERNANCE_RULE_PROCESSING = 18
           end
         end
 
@@ -499,6 +511,28 @@ module Google
           #     The key of the map is the name of the dimension.
           #     The value is the bool value depicting whether the dimension result was
           #     `pass` or not.
+          # @!attribute [rw] score
+          #   @return [::Float]
+          #     The table-level data quality score for the data scan job.
+          #
+          #     The data quality score ranges between [0, 100] (up to two decimal
+          #     points).
+          # @!attribute [rw] dimension_score
+          #   @return [::Google::Protobuf::Map{::String => ::Float}]
+          #     The score of each dimension for data quality result.
+          #     The key of the map is the name of the dimension.
+          #     The value is the data quality score for the dimension.
+          #
+          #     The score ranges between [0, 100] (up to two decimal
+          #     points).
+          # @!attribute [rw] column_score
+          #   @return [::Google::Protobuf::Map{::String => ::Float}]
+          #     The score of each column scanned in the data scan job.
+          #     The key of the map is the name of the column.
+          #     The value is the data quality score for the column.
+          #
+          #     The score ranges between [0, 100] (up to two decimal
+          #     points).
           class DataQualityResult
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -508,6 +542,24 @@ module Google
             # @!attribute [rw] value
             #   @return [::Boolean]
             class DimensionPassedEntry
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # @!attribute [rw] key
+            #   @return [::String]
+            # @!attribute [rw] value
+            #   @return [::Float]
+            class DimensionScoreEntry
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # @!attribute [rw] key
+            #   @return [::String]
+            # @!attribute [rw] value
+            #   @return [::Float]
+            class ColumnScoreEntry
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end
@@ -682,6 +734,10 @@ module Google
         # @!attribute [rw] null_row_count
         #   @return [::Integer]
         #     The number of rows with null values in the specified column.
+        # @!attribute [rw] assertion_row_count
+        #   @return [::Integer]
+        #     The number of rows returned by the sql statement in the SqlAssertion rule.
+        #     This field is only valid for SqlAssertion rules.
         class DataQualityScanRuleResult
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -722,6 +778,10 @@ module Google
             # Please see
             # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#uniquenessexpectation.
             UNIQUENESS_EXPECTATION = 8
+
+            # Please see
+            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#sqlAssertion.
+            SQL_ASSERTION = 9
           end
 
           # The evaluation type of the data quality rule.

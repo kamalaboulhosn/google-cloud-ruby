@@ -45,6 +45,14 @@ class ::Google::Cloud::Bigquery::DataTransfer::V1::DataTransferService::ClientTe
 
       @response
     end
+
+    def endpoint
+      "endpoint.example.com"
+    end
+
+    def universe_domain
+      "example.com"
+    end
   end
 
   def test_get_data_source
@@ -986,11 +994,72 @@ class ::Google::Cloud::Bigquery::DataTransfer::V1::DataTransferService::ClientTe
     end
   end
 
+  def test_unenroll_data_sources
+    # Create GRPC objects.
+    grpc_response = ::Google::Protobuf::Empty.new
+    grpc_operation = GRPC::ActiveCall::Operation.new nil
+    grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    grpc_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    data_source_ids = ["hello world"]
+
+    unenroll_data_sources_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
+      assert_equal :unenroll_data_sources, name
+      assert_kind_of ::Google::Cloud::Bigquery::DataTransfer::V1::UnenrollDataSourcesRequest, request
+      assert_equal "hello world", request["name"]
+      assert_equal ["hello world"], request["data_source_ids"]
+      refute_nil options
+    end
+
+    Gapic::ServiceStub.stub :new, unenroll_data_sources_client_stub do
+      # Create client
+      client = ::Google::Cloud::Bigquery::DataTransfer::V1::DataTransferService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      # Use hash object
+      client.unenroll_data_sources({ name: name, data_source_ids: data_source_ids }) do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use named arguments
+      client.unenroll_data_sources name: name, data_source_ids: data_source_ids do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object
+      client.unenroll_data_sources ::Google::Cloud::Bigquery::DataTransfer::V1::UnenrollDataSourcesRequest.new(name: name, data_source_ids: data_source_ids) do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use hash object with options
+      client.unenroll_data_sources({ name: name, data_source_ids: data_source_ids }, grpc_options) do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object with options
+      client.unenroll_data_sources(::Google::Cloud::Bigquery::DataTransfer::V1::UnenrollDataSourcesRequest.new(name: name, data_source_ids: data_source_ids), grpc_options) do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Verify method calls
+      assert_equal 5, unenroll_data_sources_client_stub.call_rpc_count
+    end
+  end
+
   def test_configure
     grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
 
     client = block_config = config = nil
-    Gapic::ServiceStub.stub :new, nil do
+    dummy_stub = ClientStub.new nil, nil
+    Gapic::ServiceStub.stub :new, dummy_stub do
       client = ::Google::Cloud::Bigquery::DataTransfer::V1::DataTransferService::Client.new do |config|
         config.credentials = grpc_channel
       end

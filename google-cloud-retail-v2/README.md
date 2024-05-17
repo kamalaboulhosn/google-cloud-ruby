@@ -32,9 +32,9 @@ In order to use this library, you first need to go through the following steps:
 ```ruby
 require "google/cloud/retail/v2"
 
-client = ::Google::Cloud::Retail::V2::CatalogService::Client.new
-request = ::Google::Cloud::Retail::V2::ListCatalogsRequest.new # (request fields as keyword arguments...)
-response = client.list_catalogs request
+client = ::Google::Cloud::Retail::V2::AnalyticsService::Client.new
+request = ::Google::Cloud::Retail::V2::ExportAnalyticsMetricsRequest.new # (request fields as keyword arguments...)
+response = client.export_analytics_metrics request
 ```
 
 View the [Client Library Documentation](https://cloud.google.com/ruby/docs/reference/google-cloud-retail-v2/latest)
@@ -76,7 +76,7 @@ To browse ready to use code samples check [Google Cloud Samples](https://cloud.g
 
 ## Supported Ruby Versions
 
-This library is supported on Ruby 2.6+.
+This library is supported on Ruby 2.7+.
 
 Google provides official support for Ruby versions that are actively supported
 by Ruby Core—that is, Ruby versions that are either in normal maintenance or

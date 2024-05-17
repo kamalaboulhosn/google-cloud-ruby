@@ -1,5 +1,67 @@
 # Release History
 
+### 0.35.0 (2024-04-25)
+
+#### Features
+
+* Support chunk header and footer ([#25749](https://github.com/googleapis/google-cloud-ruby/issues/25749)) 
+
+### 0.34.0 (2024-04-19)
+
+#### Features
+
+* Support a new Layout Processor in Document AI ([#25466](https://github.com/googleapis/google-cloud-ruby/issues/25466)) 
+
+### 0.33.1 (2024-03-18)
+
+#### Documentation
+
+* Update parameter description in ImportProcessorVersionRequest ([#25382](https://github.com/googleapis/google-cloud-ruby/issues/25382)) 
+
+### 0.33.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24869](https://github.com/googleapis/google-cloud-ruby/issues/24869)) 
+
+### 0.32.0 (2024-02-21)
+
+#### Features
+
+* adds display_name to DocumentSchema 
+* adds foundation_model_tuning_options to TrainProcessorVersionRequest ([#24825](https://github.com/googleapis/google-cloud-ruby/issues/24825)) 
+* adds labels to ProcessRequest and BatchProcessRequest 
+#### Bug Fixes
+
+* deprecates Dataset.document_warehouse_config 
+#### Documentation
+
+* updates to comments 
+
+### 0.31.0 (2024-02-06)
+
+#### Features
+
+* Expose model_type field in processor version APIs ([#24746](https://github.com/googleapis/google-cloud-ruby/issues/24746)) 
+
+### 0.30.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.30.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.30.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23778](https://github.com/googleapis/google-cloud-ruby/issues/23778)) 
+
 ### 0.29.0 (2023-09-28)
 
 #### Features

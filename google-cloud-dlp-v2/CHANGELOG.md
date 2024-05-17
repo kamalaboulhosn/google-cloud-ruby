@@ -1,5 +1,44 @@
 # Release History
 
+### 0.23.0 (2024-05-15)
+
+#### Features
+
+* Add field to InspectJobs num_rows_processed for BigQuery inspect jobs 
+* Add new countries for supported detectors 
+* Support for connection management ([#25859](https://github.com/googleapis/google-cloud-ruby/issues/25859)) 
+* Support for deleting TableDataProfiles 
+
+### 0.22.0 (2024-03-07)
+
+#### Features
+
+* support getting and listing project, table, and column data profiles 
+
+### 0.21.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24869](https://github.com/googleapis/google-cloud-ruby/issues/24869)) 
+
+### 0.20.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.20.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.20.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23778](https://github.com/googleapis/google-cloud-ruby/issues/23778)) 
+
 ### 0.19.0 (2023-10-27)
 
 #### Features

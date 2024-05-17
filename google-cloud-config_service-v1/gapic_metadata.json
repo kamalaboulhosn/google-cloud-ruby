@@ -89,6 +89,41 @@
               "methods": [
                 "export_lock_info"
               ]
+            },
+            "CreatePreview": {
+              "methods": [
+                "create_preview"
+              ]
+            },
+            "GetPreview": {
+              "methods": [
+                "get_preview"
+              ]
+            },
+            "ListPreviews": {
+              "methods": [
+                "list_previews"
+              ]
+            },
+            "DeletePreview": {
+              "methods": [
+                "delete_preview"
+              ]
+            },
+            "ExportPreviewResult": {
+              "methods": [
+                "export_preview_result"
+              ]
+            },
+            "ListTerraformVersions": {
+              "methods": [
+                "list_terraform_versions"
+              ]
+            },
+            "GetTerraformVersion": {
+              "methods": [
+                "get_terraform_version"
+              ]
             }
           }
         }

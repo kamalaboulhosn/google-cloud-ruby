@@ -32,6 +32,12 @@ module Google
           # The service that handles CRUD and List for resources for Featurestore.
           #
           class Client
+            # @private
+            API_VERSION = ""
+
+            # @private
+            DEFAULT_ENDPOINT_TEMPLATE = "aiplatform.$UNIVERSE_DOMAIN$"
+
             include Paths
 
             # @private
@@ -93,6 +99,15 @@ module Google
             end
 
             ##
+            # The effective universe domain
+            #
+            # @return [String]
+            #
+            def universe_domain
+              @featurestore_service_stub.universe_domain
+            end
+
+            ##
             # Create a new FeaturestoreService client object.
             #
             # @example
@@ -125,8 +140,9 @@ module Google
               credentials = @config.credentials
               # Use self-signed JWT if the endpoint is unchanged from default,
               # but only if the default endpoint does not have a region prefix.
-              enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                       !@config.endpoint.split(".").first.include?("-")
+              enable_self_signed_jwt = @config.endpoint.nil? ||
+                                       (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                       !@config.endpoint.split(".").first.include?("-"))
               credentials ||= Credentials.default scope: @config.scope,
                                                   enable_self_signed_jwt: enable_self_signed_jwt
               if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -139,28 +155,33 @@ module Google
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @config.endpoint
+                config.universe_domain = @config.universe_domain
               end
+
+              @featurestore_service_stub = ::Gapic::ServiceStub.new(
+                ::Google::Cloud::AIPlatform::V1::FeaturestoreService::Stub,
+                credentials: credentials,
+                endpoint: @config.endpoint,
+                endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                universe_domain: @config.universe_domain,
+                channel_args: @config.channel_args,
+                interceptors: @config.interceptors,
+                channel_pool_config: @config.channel_pool
+              )
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
-                config.endpoint = @config.endpoint
+                config.endpoint = @featurestore_service_stub.endpoint
+                config.universe_domain = @featurestore_service_stub.universe_domain
               end
 
               @iam_policy_client = Google::Iam::V1::IAMPolicy::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
-                config.endpoint = @config.endpoint
+                config.endpoint = @featurestore_service_stub.endpoint
+                config.universe_domain = @featurestore_service_stub.universe_domain
               end
-
-              @featurestore_service_stub = ::Gapic::ServiceStub.new(
-                ::Google::Cloud::AIPlatform::V1::FeaturestoreService::Stub,
-                credentials:  credentials,
-                endpoint:     @config.endpoint,
-                channel_args: @config.channel_args,
-                interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
-              )
             end
 
             ##
@@ -260,10 +281,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.create_featurestore.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -346,10 +368,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.get_featurestore.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -480,10 +503,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_featurestores.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -590,10 +614,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.update_featurestore.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -690,10 +715,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.delete_featurestore.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -795,10 +821,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.create_entity_type.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -883,10 +910,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.get_entity_type.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1017,10 +1045,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_entity_types.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1126,10 +1155,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.update_entity_type.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1224,10 +1254,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.delete_entity_type.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1274,9 +1305,11 @@ module Google
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param parent [::String]
-            #     Required. The resource name of the EntityType to create a Feature.
-            #     Format:
+            #     Required. The resource name of the EntityType or FeatureGroup to create a
+            #     Feature. Format for entity_type as parent:
             #     `projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}`
+            #     Format for feature_group as parent:
+            #     `projects/{project}/locations/{location}/featureGroups/{feature_group}`
             #   @param feature [::Google::Cloud::AIPlatform::V1::Feature, ::Hash]
             #     Required. The Feature to create.
             #   @param feature_id [::String]
@@ -1286,7 +1319,7 @@ module Google
             #     This value may be up to 128 characters, and valid characters are
             #     `[a-z0-9_]`. The first character cannot be a number.
             #
-            #     The value must be unique within an EntityType.
+            #     The value must be unique within an EntityType/FeatureGroup.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::Operation]
@@ -1329,10 +1362,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.create_feature.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1430,10 +1464,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.batch_create_features.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1481,8 +1516,10 @@ module Google
             #
             #   @param name [::String]
             #     Required. The name of the Feature resource.
-            #     Format:
+            #     Format for entity_type as parent:
             #     `projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}`
+            #     Format for feature_group as parent:
+            #     `projects/{project}/locations/{location}/featureGroups/{feature_group}`
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::AIPlatform::V1::Feature]
@@ -1518,10 +1555,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.get_feature.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1568,8 +1606,10 @@ module Google
             #
             #   @param parent [::String]
             #     Required. The resource name of the Location to list Features.
-            #     Format:
+            #     Format for entity_type as parent:
             #     `projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}`
+            #     Format for feature_group as parent:
+            #     `projects/{project}/locations/{location}/featureGroups/{feature_group}`
             #   @param filter [::String]
             #     Lists the Features that match the filter expression. The following
             #     filters are supported:
@@ -1599,10 +1639,14 @@ module Google
             #   @param page_token [::String]
             #     A page token, received from a previous
             #     {::Google::Cloud::AIPlatform::V1::FeaturestoreService::Client#list_features FeaturestoreService.ListFeatures}
+            #     call or
+            #     {::Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client#list_features FeatureRegistryService.ListFeatures}
             #     call. Provide this to retrieve the subsequent page.
             #
             #     When paginating, all other parameters provided to
             #     {::Google::Cloud::AIPlatform::V1::FeaturestoreService::Client#list_features FeaturestoreService.ListFeatures}
+            #     or
+            #     {::Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client#list_features FeatureRegistryService.ListFeatures}
             #     must match the call that provided the page token.
             #   @param order_by [::String]
             #     A comma-separated list of fields to order by, sorted in ascending order.
@@ -1610,12 +1654,13 @@ module Google
             #     Supported fields:
             #
             #       * `feature_id`
-            #       * `value_type`
+            #       * `value_type` (Not supported for FeatureRegistry Feature)
             #       * `create_time`
             #       * `update_time`
             #   @param read_mask [::Google::Protobuf::FieldMask, ::Hash]
             #     Mask specifying which fields to read.
             #   @param latest_stats_count [::Integer]
+            #     Only applicable for Vertex AI Feature Store (Legacy).
             #     If set, return the most recent
             #     {::Google::Cloud::AIPlatform::V1::ListFeaturesRequest#latest_stats_count ListFeaturesRequest.latest_stats_count}
             #     of stats for each Feature in response. Valid value is [0, 10]. If number of
@@ -1661,10 +1706,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.list_features.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1715,6 +1761,7 @@ module Google
             #     updated.
             #     Format:
             #     `projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}`
+            #     `projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}`
             #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
             #     Field mask is used to specify the fields to be overwritten in the
             #     Features resource by the update.
@@ -1728,7 +1775,7 @@ module Google
             #
             #       * `description`
             #       * `labels`
-            #       * `disable_monitoring`
+            #       * `disable_monitoring` (Not supported for FeatureRegistry Feature)
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::AIPlatform::V1::Feature]
@@ -1764,10 +1811,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.update_feature.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -1816,6 +1864,7 @@ module Google
             #     Required. The name of the Features to be deleted.
             #     Format:
             #     `projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}`
+            #     `projects/{project}/locations/{location}/featureGroups/{feature_group}/features/{feature}`
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::Operation]
@@ -1858,10 +1907,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.delete_feature.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -2001,10 +2051,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.import_feature_values.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -2145,10 +2196,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.batch_read_feature_values.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -2252,10 +2304,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.export_feature_values.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -2361,10 +2414,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.delete_feature_values.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -2527,10 +2581,11 @@ module Google
               # Customize the options with defaults
               metadata = @config.rpcs.search_features.metadata.to_h
 
-              # Set x-goog-api-client and x-goog-user-project headers
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
               metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                 lib_name: @config.lib_name, lib_version: @config.lib_version,
                 gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
               metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
               header_params = {}
@@ -2588,9 +2643,9 @@ module Google
             #   end
             #
             # @!attribute [rw] endpoint
-            #   The hostname or hostname:port of the service endpoint.
-            #   Defaults to `"aiplatform.googleapis.com"`.
-            #   @return [::String]
+            #   A custom service endpoint, as a hostname or hostname:port. The default is
+            #   nil, indicating to use the default endpoint in the current universe domain.
+            #   @return [::String,nil]
             # @!attribute [rw] credentials
             #   Credentials to send with calls. You may provide any of the following types:
             #    *  (`String`) The path to a service account key file in JSON format
@@ -2636,13 +2691,20 @@ module Google
             # @!attribute [rw] quota_project
             #   A separate project against which to charge quota.
             #   @return [::String]
+            # @!attribute [rw] universe_domain
+            #   The universe domain within which to make requests. This determines the
+            #   default endpoint URL. The default value of nil uses the environment
+            #   universe (usually the default "googleapis.com" universe).
+            #   @return [::String,nil]
             #
             class Configuration
               extend ::Gapic::Config
 
+              # @private
+              # The endpoint specific to the default "googleapis.com" universe. Deprecated.
               DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
 
-              config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+              config_attr :endpoint,      nil, ::String, nil
               config_attr :credentials,   nil do |value|
                 allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                 allowed += [::GRPC::Core::Channel, ::GRPC::Core::ChannelCredentials] if defined? ::GRPC
@@ -2657,6 +2719,7 @@ module Google
               config_attr :metadata,      nil, ::Hash, nil
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
+              config_attr :universe_domain, nil, ::String, nil
 
               # @private
               def initialize parent_config = nil

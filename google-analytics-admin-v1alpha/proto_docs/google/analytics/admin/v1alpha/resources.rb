@@ -647,6 +647,9 @@ module Google
           # @!attribute [rw] event_create_rule
           #   @return [::Google::Analytics::Admin::V1alpha::EventCreateRule]
           #     A snapshot of an EventCreateRule resource in change history.
+          # @!attribute [rw] calculated_metric
+          #   @return [::Google::Analytics::Admin::V1alpha::CalculatedMetric]
+          #     A snapshot of a CalculatedMetric resource in change history.
           class ChangeHistoryResource
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -823,9 +826,29 @@ module Google
         #     Optional. The method by which conversions will be counted across multiple
         #     events within a session. If this value is not provided, it will be set to
         #     `ONCE_PER_EVENT`.
+        # @!attribute [rw] default_conversion_value
+        #   @return [::Google::Analytics::Admin::V1alpha::ConversionEvent::DefaultConversionValue]
+        #     Optional. Defines a default value/currency for a conversion event.
         class ConversionEvent
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Defines a default value/currency for a conversion event. Both value and
+          # currency must be provided.
+          # @!attribute [rw] value
+          #   @return [::Float]
+          #     This value will be used to populate the value for all conversions
+          #     of the specified event_name where the event "value" parameter is unset.
+          # @!attribute [rw] currency_code
+          #   @return [::String]
+          #     When a conversion event for this event_name has no set currency,
+          #     this currency will be applied as the default. Must be in ISO 4217
+          #     currency code format. See https://en.wikipedia.org/wiki/ISO_4217 for
+          #     more information.
+          class DefaultConversionValue
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
 
           # The method by which conversions will be counted across multiple events
           # within a session.
@@ -1020,6 +1043,100 @@ module Google
           end
         end
 
+        # A definition for a calculated metric.
+        # @!attribute [r] name
+        #   @return [::String]
+        #     Output only. Resource name for this CalculatedMetric.
+        #     Format: 'properties/\\{property_id}/calculatedMetrics/\\{calculated_metric_id}'
+        # @!attribute [rw] description
+        #   @return [::String]
+        #     Optional. Description for this calculated metric.
+        #     Max length of 4096 characters.
+        # @!attribute [rw] display_name
+        #   @return [::String]
+        #     Required. Display name for this calculated metric as shown in the
+        #     Google Analytics UI. Max length 82 characters.
+        # @!attribute [r] calculated_metric_id
+        #   @return [::String]
+        #     Output only. The ID to use for the calculated metric. In the UI, this is
+        #     referred to as the "API name."
+        #
+        #     The calculated_metric_id is used when referencing this calculated metric
+        #     from external APIs. For example, "calcMetric:\\{calculated_metric_id}".
+        # @!attribute [rw] metric_unit
+        #   @return [::Google::Analytics::Admin::V1alpha::CalculatedMetric::MetricUnit]
+        #     Required. The type for the calculated metric's value.
+        # @!attribute [r] restricted_metric_type
+        #   @return [::Array<::Google::Analytics::Admin::V1alpha::CalculatedMetric::RestrictedMetricType>]
+        #     Output only. Types of restricted data that this metric contains.
+        # @!attribute [rw] formula
+        #   @return [::String]
+        #     Required. The calculated metric's definition. Maximum number of unique
+        #     referenced custom metrics is 5. Formulas supports the following operations:
+        #     + (addition),  - (subtraction), - (negative),  * (multiplication), /
+        #     (division), () (parenthesis). Any valid real numbers are acceptable that
+        #     fit in a Long (64bit integer) or a Double (64 bit floating point number).
+        #     Example formula:
+        #       "( customEvent:parameter_name + cartPurchaseQuantity ) / 2.0"
+        # @!attribute [r] invalid_metric_reference
+        #   @return [::Boolean]
+        #     Output only. If true, this calculated metric has a invalid metric
+        #     reference. Anything using a calculated metric with invalid_metric_reference
+        #     set to true may fail, produce warnings, or produce unexpected results.
+        class CalculatedMetric
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Possible types of representing the calculated metric's value.
+          module MetricUnit
+            # MetricUnit unspecified or missing.
+            METRIC_UNIT_UNSPECIFIED = 0
+
+            # This metric uses default units.
+            STANDARD = 1
+
+            # This metric measures a currency.
+            CURRENCY = 2
+
+            # This metric measures feet.
+            FEET = 3
+
+            # This metric measures miles.
+            MILES = 4
+
+            # This metric measures meters.
+            METERS = 5
+
+            # This metric measures kilometers.
+            KILOMETERS = 6
+
+            # This metric measures milliseconds.
+            MILLISECONDS = 7
+
+            # This metric measures seconds.
+            SECONDS = 8
+
+            # This metric measures minutes.
+            MINUTES = 9
+
+            # This metric measures hours.
+            HOURS = 10
+          end
+
+          # Labels that mark the data in calculated metric used in conjunction with
+          # user roles that restrict access to cost and/or revenue metrics.
+          module RestrictedMetricType
+            # Type unknown or unspecified.
+            RESTRICTED_METRIC_TYPE_UNSPECIFIED = 0
+
+            # Metric reports cost data.
+            COST_DATA = 1
+
+            # Metric reports revenue data.
+            REVENUE_DATA = 2
+          end
+        end
+
         # Settings values for data retention. This is a singleton resource.
         # @!attribute [r] name
         #   @return [::String]
@@ -1140,55 +1257,6 @@ module Google
             # for YouTube) before converting.
             # Previously CROSS_CHANNEL_LAST_CLICK
             PAID_AND_ORGANIC_CHANNELS_LAST_CLICK = 2
-
-            # Starting in June 2023, new properties can no longer use this model.
-            # See
-            # [Analytics
-            # Help](https://support.google.com/analytics/answer/9164320#040623)
-            # for more details.
-            # Starting in September 2023, we will sunset this model for all properties.
-            #
-            # Gives all credit for the conversion to the first channel that a customer
-            # clicked (or engaged view through for YouTube) before converting.
-            # Previously CROSS_CHANNEL_FIRST_CLICK
-            PAID_AND_ORGANIC_CHANNELS_FIRST_CLICK = 3
-
-            # Starting in June 2023, new properties can no longer use this model.
-            # See
-            # [Analytics
-            # Help](https://support.google.com/analytics/answer/9164320#040623)
-            # for more details.
-            # Starting in September 2023, we will sunset this model for all properties.
-            #
-            # Distributes the credit for the conversion equally across all the channels
-            # a customer clicked (or engaged view through for YouTube) before
-            # converting.
-            # Previously CROSS_CHANNEL_LINEAR
-            PAID_AND_ORGANIC_CHANNELS_LINEAR = 4
-
-            # Starting in June 2023, new properties can no longer use this model.
-            # See
-            # [Analytics
-            # Help](https://support.google.com/analytics/answer/9164320#040623)
-            # for more details.
-            # Starting in September 2023, we will sunset this model for all properties.
-            #
-            # Attributes 40% credit to the first and last interaction, and the
-            # remaining 20% credit is distributed evenly to the middle interactions.
-            # Previously CROSS_CHANNEL_POSITION_BASED
-            PAID_AND_ORGANIC_CHANNELS_POSITION_BASED = 5
-
-            # Starting in June 2023, new properties can no longer use this model.
-            # See
-            # [Analytics
-            # Help](https://support.google.com/analytics/answer/9164320#040623)
-            # for more details.
-            # Starting in September 2023, we will sunset this model for all properties.
-            #
-            # Gives more credit to the touchpoints that happened closer in time to
-            # the conversion.
-            # Previously CROSS_CHANNEL_TIME_DECAY
-            PAID_AND_ORGANIC_CHANNELS_TIME_DECAY = 6
 
             # Attributes 100% of the conversion value to the last Google Paid channel
             # that the customer clicked through before converting.
@@ -1629,6 +1697,9 @@ module Google
 
           # EventCreateRule resource
           EVENT_CREATE_RULE = 29
+
+          # CalculatedMetric resource
+          CALCULATED_METRIC = 31
         end
 
         # Status of the Google Signals settings.

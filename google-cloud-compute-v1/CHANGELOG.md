@@ -1,5 +1,65 @@
 # Release History
 
+### 2.12.0 (2024-05-16)
+
+#### Features
+
+* Minor updates ([#25864](https://github.com/googleapis/google-cloud-ruby/issues/25864)) 
+
+### 2.11.0 (2024-05-03)
+
+#### Features
+
+* Support for the InstanceGroupManagerResizeRequests API 
+* Support for the InstanceSettingsService API 
+* Support for the perform_maintenance RPC in the NodeGroups API 
+* Support for the StoragePools API 
+* Support for the StoragePoolTypes API 
+
+### 2.10.0 (2024-03-04)
+
+#### Features
+
+* support instant_snapshots and region_instant_snapshot services, add set_cloud_armor_tier 
+
+### 2.9.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24867](https://github.com/googleapis/google-cloud-ruby/issues/24867)) 
+
+### 2.8.0 (2024-02-08)
+
+#### Features
+
+* Add PerformMaintenance API ([#24781](https://github.com/googleapis/google-cloud-ruby/issues/24781)) 
+* Support config for SecurityPolicyRuleMatcherExprOptions ([#24781](https://github.com/googleapis/google-cloud-ruby/issues/24781)) 
+* Support Region Zones API ([#24781](https://github.com/googleapis/google-cloud-ruby/issues/24781)) 
+
+### 2.7.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 2.7.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 2.7.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23776](https://github.com/googleapis/google-cloud-ruby/issues/23776)) 
+
+### 2.6.0 (2023-12-12)
+
+#### Features
+
+* Update Compute Engine API to revision 20231110 ([#23639](https://github.com/googleapis/google-cloud-ruby/issues/23639)) 
+
 ### 2.5.0 (2023-09-12)
 
 #### Features

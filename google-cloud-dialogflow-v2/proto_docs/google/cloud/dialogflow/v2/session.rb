@@ -382,6 +382,7 @@ module Google
         #
         #     3. an event that specifies which intent to trigger.
         # @!attribute [rw] single_utterance
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Boolean]
         #     Please use
         #     {::Google::Cloud::Dialogflow::V2::InputAudioConfig#single_utterance InputAudioConfig.single_utterance}
@@ -626,8 +627,8 @@ module Google
             # Message contains a (possibly partial) transcript.
             TRANSCRIPT = 1
 
-            # Event indicates that the server has detected the end of the user's speech
-            # utterance and expects no additional inputs.
+            # This event indicates that the server has detected the end of the user's
+            # speech utterance and expects no additional inputs.
             # Therefore, the server will not process additional audio (although it may
             # subsequently return additional results). The client should stop sending
             # additional audio data, half-close the gRPC connection, and wait for any

@@ -1,5 +1,66 @@
 # Release History
 
+### 0.26.0 (2024-04-19)
+
+#### Features
+
+* Support automated backup policy ([#25460](https://github.com/googleapis/google-cloud-ruby/issues/25460)) 
+
+### 0.25.0 (2024-04-15)
+
+#### Features
+
+* add Data Boost configurations to admin API ([#25421](https://github.com/googleapis/google-cloud-ruby/issues/25421)) 
+
+### 0.24.0 (2024-03-10)
+
+#### Features
+
+* Support for ColumnFamily#value_type 
+* Support for Modification#update_mask 
+
+### 0.23.0 (2024-03-06)
+
+#### Features
+
+* support authorized views services 
+
+### 0.22.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24865](https://github.com/googleapis/google-cloud-ruby/issues/24865)) 
+
+### 0.21.3 (2024-02-10)
+
+#### Bug Fixes
+
+* extend timeouts for deleting snapshots, backups and tables [#24791](https://github.com/googleapis/google-cloud-ruby/issues/24791) 
+
+### 0.21.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.21.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.21.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23775](https://github.com/googleapis/google-cloud-ruby/issues/23775)) 
+
+### 0.20.0 (2024-01-03)
+
+#### Features
+
+* Modify ModifyColumnFamiliesRequest proto to expose ignore_warnings field ([#23665](https://github.com/googleapis/google-cloud-ruby/issues/23665)) 
+
 ### 0.19.0 (2023-10-16)
 
 #### Features

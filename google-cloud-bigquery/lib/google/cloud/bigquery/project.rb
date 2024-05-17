@@ -68,6 +68,15 @@ module Google
         end
 
         ##
+        # The universe domain the client is connected to
+        #
+        # @return [String]
+        #
+        def universe_domain
+          service.universe_domain
+        end
+
+        ##
         # The BigQuery project connected to.
         #
         # @example
@@ -304,6 +313,7 @@ module Google
         #   | `DATETIME`   | `DateTime`                           | `DATETIME` does not support time zone.             |
         #   | `DATE`       | `Date`                               |                                                    |
         #   | `GEOGRAPHY`  | `String` (WKT or GeoJSON)            | NOT AUTOMATIC: Must be mapped using `types`, below.|
+        #   | `JSON`       | `String` (Stringified JSON)          | String, as JSON does not have a schema to verify.  |
         #   | `TIMESTAMP`  | `Time`                               |                                                    |
         #   | `TIME`       | `Google::Cloud::BigQuery::Time`      |                                                    |
         #   | `BYTES`      | `File`, `IO`, `StringIO`, or similar |                                                    |
@@ -330,6 +340,7 @@ module Google
         #   * `:DATETIME`
         #   * `:DATE`
         #   * `:GEOGRAPHY`
+        #   * `:JSON`
         #   * `:TIMESTAMP`
         #   * `:TIME`
         #   * `:BYTES`
@@ -622,6 +633,7 @@ module Google
                       create_session: nil,
                       session_id: nil
           ensure_service!
+          project ||= self.project
           options = {
             params: params,
             types: types,
@@ -633,7 +645,7 @@ module Google
             write: write,
             dryrun: dryrun,
             dataset: dataset,
-            project: (project || self.project),
+            project: project,
             standard_sql: standard_sql,
             legacy_sql: legacy_sql,
             large_results: large_results,
@@ -691,6 +703,7 @@ module Google
         #   | `DATETIME`   | `DateTime`                           | `DATETIME` does not support time zone.             |
         #   | `DATE`       | `Date`                               |                                                    |
         #   | `GEOGRAPHY`  | `String` (WKT or GeoJSON)            | NOT AUTOMATIC: Must be mapped using `types`, below.|
+        #   | `JSON`       | `String` (Stringified JSON)          | String, as JSON does not have a schema to verify.  |
         #   | `TIMESTAMP`  | `Time`                               |                                                    |
         #   | `TIME`       | `Google::Cloud::BigQuery::Time`      |                                                    |
         #   | `BYTES`      | `File`, `IO`, `StringIO`, or similar |                                                    |
@@ -717,6 +730,7 @@ module Google
         #   * `:DATETIME`
         #   * `:DATE`
         #   * `:GEOGRAPHY`
+        #   * `:JSON`
         #   * `:TIMESTAMP`
         #   * `:TIME`
         #   * `:BYTES`

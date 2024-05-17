@@ -17,7 +17,8 @@ constructing client objects. Reference documentation for the client objects
 themselves can be found in the client library documentation for the versioned
 client gems:
 [google-cloud-security_center-v1](https://cloud.google.com/ruby/docs/reference/google-cloud-security_center-v1/latest),
-[google-cloud-security_center-v1p1beta1](https://cloud.google.com/ruby/docs/reference/google-cloud-security_center-v1p1beta1/latest).
+[google-cloud-security_center-v1p1beta1](https://cloud.google.com/ruby/docs/reference/google-cloud-security_center-v1p1beta1/latest),
+[google-cloud-security_center-v2](https://cloud.google.com/ruby/docs/reference/google-cloud-security_center-v2/latest).
 
 See also the [Product Documentation](https://cloud.google.com/security-command-center)
 for more usage information.
@@ -45,7 +46,7 @@ See the {file:MIGRATING.md MIGRATING.md} document for more information.
 
 ## Supported Ruby Versions
 
-This library is supported on Ruby 2.6+.
+This library is supported on Ruby 2.7+.
 
 Google provides official support for Ruby versions that are actively supported
 by Ruby Core—that is, Ruby versions that are either in normal maintenance or

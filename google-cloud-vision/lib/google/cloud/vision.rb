@@ -29,7 +29,7 @@ require "google/cloud/config"
 
 # Set the default configuration
 ::Google::Cloud.configure.add_config! :vision do |config|
-  config.add_field! :endpoint,      "vision.googleapis.com", match: ::String
+  config.add_field! :endpoint,      nil, match: ::String
   config.add_field! :credentials,   nil, match: [::String, ::Hash, ::Google::Auth::Credentials]
   config.add_field! :scope,         nil, match: [::Array, ::String]
   config.add_field! :lib_name,      nil, match: ::String
@@ -39,6 +39,7 @@ require "google/cloud/config"
   config.add_field! :metadata,      nil, match: ::Hash
   config.add_field! :retry_policy,  nil, match: [::Hash, ::Proc]
   config.add_field! :quota_project, nil, match: ::String
+  config.add_field! :universe_domain, nil, match: ::String
 end
 
 module Google
@@ -62,16 +63,18 @@ module Google
       # Manages Products and ProductSets of reference images for use in product
       # search. It uses the following resource model:
       #
-      # - The API has a collection of ProductSet resources, named
-      # `projects/*/locations/*/productSets/*`, which acts as a way to put different
-      # products into groups to limit identification.
+      # - The API has a collection of ProductSet
+      # resources, named `projects/*/locations/*/productSets/*`, which acts as a way
+      # to put different products into groups to limit identification.
       #
       # In parallel,
       #
-      # - The API has a collection of Product resources, named
+      # - The API has a collection of Product
+      # resources, named
       #   `projects/*/locations/*/products/*`
       #
-      # - Each Product has a collection of ReferenceImage resources, named
+      # - Each Product has a collection of
+      # ReferenceImage resources, named
       #   `projects/*/locations/*/products/*/referenceImages/*`
       #
       # @param version [::String, ::Symbol] The API version to connect to. Optional.

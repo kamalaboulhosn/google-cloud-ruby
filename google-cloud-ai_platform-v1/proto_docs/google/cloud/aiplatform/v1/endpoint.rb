@@ -95,6 +95,7 @@ module Google
         #     Where `{project}` is a project number, as in `12345`, and `{network}` is
         #     network name.
         # @!attribute [rw] enable_private_service_connect
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Boolean]
         #     Deprecated: If true, expose the Endpoint via private service connect.
         #
@@ -102,6 +103,13 @@ module Google
         #     {::Google::Cloud::AIPlatform::V1::Endpoint#network network} or
         #     {::Google::Cloud::AIPlatform::V1::Endpoint#enable_private_service_connect enable_private_service_connect},
         #     can be set.
+        # @!attribute [rw] private_service_connect_config
+        #   @return [::Google::Cloud::AIPlatform::V1::PrivateServiceConnectConfig]
+        #     Optional. Configuration for private service connect.
+        #
+        #     {::Google::Cloud::AIPlatform::V1::Endpoint#network network} and
+        #     {::Google::Cloud::AIPlatform::V1::Endpoint#private_service_connect_config private_service_connect_config}
+        #     are mutually exclusive.
         # @!attribute [r] model_deployment_monitoring_job
         #   @return [::String]
         #     Output only. Resource name of the Model Monitoring job associated with this
@@ -144,6 +152,11 @@ module Google
         #   @return [::Google::Cloud::AIPlatform::V1::AutomaticResources]
         #     A description of resources that to large degree are decided by Vertex
         #     AI, and require only a modest additional configuration.
+        # @!attribute [rw] shared_resources
+        #   @return [::String]
+        #     The resource name of the shared DeploymentResourcePool to deploy on.
+        #     Format:
+        #     `projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}`
         # @!attribute [rw] id
         #   @return [::String]
         #     Immutable. The ID of the DeployedModel. If not provided upon deployment,
@@ -191,6 +204,13 @@ module Google
         #     is not populated, all fields of the
         #     {::Google::Cloud::AIPlatform::V1::DeployedModel#explanation_spec explanation_spec}
         #     will be used for the explanation configuration.
+        # @!attribute [rw] disable_explanations
+        #   @return [::Boolean]
+        #     If true, deploy the model without explainable feature, regardless the
+        #     existence of
+        #     {::Google::Cloud::AIPlatform::V1::Model#explanation_spec Model.explanation_spec}
+        #     or
+        #     {::Google::Cloud::AIPlatform::V1::DeployedModel#explanation_spec explanation_spec}.
         # @!attribute [rw] service_account
         #   @return [::String]
         #     The service account that the DeployedModel's container runs as. Specify the

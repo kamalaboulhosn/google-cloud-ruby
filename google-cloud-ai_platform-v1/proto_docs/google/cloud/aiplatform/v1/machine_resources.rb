@@ -45,6 +45,10 @@ module Google
         # @!attribute [rw] accelerator_count
         #   @return [::Integer]
         #     The number of accelerators to attach to the machine.
+        # @!attribute [rw] tpu_topology
+        #   @return [::String]
+        #     Immutable. The topology of the TPUs. Corresponds to the TPU topologies
+        #     available from GKE. (Example: tpu_topology: "2x2x1").
         class MachineSpec
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -235,6 +239,23 @@ module Google
         #     percentage, the machine replicas change. The default value is 60
         #     (representing 60%) if not provided.
         class AutoscalingMetricSpec
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # A set of Shielded Instance options.
+        # See [Images using supported Shielded VM
+        # features](https://cloud.google.com/compute/docs/instances/modifying-shielded-vm).
+        # @!attribute [rw] enable_secure_boot
+        #   @return [::Boolean]
+        #     Defines whether the instance has [Secure
+        #     Boot](https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#secure-boot)
+        #     enabled.
+        #
+        #     Secure Boot helps ensure that the system only runs authentic software by
+        #     verifying the digital signature of all boot components, and halting the
+        #     boot process if signature verification fails.
+        class ShieldedVmConfig
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end

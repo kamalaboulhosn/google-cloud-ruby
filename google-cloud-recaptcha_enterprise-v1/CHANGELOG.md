@@ -1,5 +1,76 @@
 # Release History
 
+### 0.21.0 (2024-04-25)
+
+#### Features
+
+* Support for fraud prevention settings 
+
+### 0.20.1 (2024-04-17)
+
+#### Documentation
+
+* Fixes the description of ListFirewallPoliciesResponse ([#25683](https://github.com/googleapis/google-cloud-ruby/issues/25683)) 
+
+### 0.20.0 (2024-04-15)
+
+#### Features
+
+* add Cloudflare key creation support ([#25430](https://github.com/googleapis/google-cloud-ruby/issues/25430)) 
+* add IPV4/V6 field_info format to user_ip_address in Event 
+
+### 0.19.0 (2024-03-22)
+
+#### Features
+
+* Support for the include_recaptcha_script firewall action ([#25297](https://github.com/googleapis/google-cloud-ruby/issues/25297)) 
+
+### 0.18.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24875](https://github.com/googleapis/google-cloud-ruby/issues/24875)) 
+* Support for the reorder_firewall_policies RPC ([#24819](https://github.com/googleapis/google-cloud-ruby/issues/24819)) 
+
+### 0.17.3 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.17.2 (2024-01-18)
+
+#### Documentation
+
+* Minor clarification to AccountVerificationInfo#username description ([#24432](https://github.com/googleapis/google-cloud-ruby/issues/24432)) 
+
+### 0.17.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.17.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23784](https://github.com/googleapis/google-cloud-ruby/issues/23784)) 
+
+### 0.16.0 (2024-01-09)
+
+#### Features
+
+* Added account_id parameter to annotate_assessment 
+* Added Apple developer ID and non-Google app store flag to mobile key settings 
+* Added behavioral trust verdict to FraudPreventionAssessment 
+* Added extended verdict reasons to RiskAnalysis 
+* added stable account identifier to related group membership resources, and deprecated hashed identifier field ([#23640](https://github.com/googleapis/google-cloud-ruby/issues/23640)) 
+* Added user_info field to Event 
+* Additional information about events being assessed, including request UI, headers, and flags for express requests, WAF token assessments, and policy evaluations 
+* Support firewall policy assessments 
+* Support FirewallPolicy management calls ([#23424](https://github.com/googleapis/google-cloud-ruby/issues/23424)) 
+* Support fraud signals in assessments 
+
 ### 0.15.0 (2023-09-12)
 
 #### Features

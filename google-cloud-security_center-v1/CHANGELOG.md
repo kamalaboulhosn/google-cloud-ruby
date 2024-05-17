@@ -1,5 +1,67 @@
 # Release History
 
+### 0.40.0 (2024-04-19)
+
+#### Features
+
+* Support Cloud Armor in findings ([#25449](https://github.com/googleapis/google-cloud-ruby/issues/25449)) 
+
+### 0.39.0 (2024-03-18)
+
+#### Features
+
+* Add several new fields for ExternalSystem ([#25353](https://github.com/googleapis/google-cloud-ruby/issues/25353)) 
+* Add support for security center ([#25353](https://github.com/googleapis/google-cloud-ruby/issues/25353)) 
+
+### 0.38.0 (2024-03-04)
+
+#### Features
+
+* support create_time for container 
+* support impact, exploitation_activity, observed_in_the_wild, zero_day for CVE 
+* support offending_package, fixed_package, security_bulletin for vulnerability 
+
+### 0.37.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24876](https://github.com/googleapis/google-cloud-ruby/issues/24876)) 
+* Exfiltrations report the total number of exfiltrated bytes processed 
+* Files report their path in terms of underlying disk/partition identifiers 
+* Findings include associated org policies, log entries, load balancers, and kubernetes objects 
+* Support for Database version 
+* Support for ProcessSignature type 
+
+### 0.36.0 (2024-02-22)
+
+#### Features
+
+* Include Finding information related to Google Cloud Backup and DR Service ([#24842](https://github.com/googleapis/google-cloud-ruby/issues/24842)) 
+
+### 0.35.0 (2024-02-16)
+
+#### Features
+
+* Add application field to finding's list of attributes ([#24815](https://github.com/googleapis/google-cloud-ruby/issues/24815)) 
+
+### 0.34.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.34.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.34.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23785](https://github.com/googleapis/google-cloud-ruby/issues/23785)) 
+
 ### 0.33.0 (2023-10-25)
 
 #### Features

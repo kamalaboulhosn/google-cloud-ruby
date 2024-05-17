@@ -1,5 +1,63 @@
 # Changelog
 
+### 0.39.0 (2024-04-18)
+
+#### Features
+
+* GenAiTuningService aiplatform v1 initial release ([#25431](https://github.com/googleapis/google-cloud-ruby/issues/25431)) 
+
+### 0.38.0 (2024-03-18)
+
+#### Features
+
+* Add APIs for cancelling & deleting pipeline jobs ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support "NOT_EQUAL" operator ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support new enum option "NVIDIA_H100_80GB" in AcceleratorType ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support new enum options "BLOCKLIST", "PROHIBITED_CONTENT" & "SPII" in Candidate ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support new field "grounding_metadata" in Candidate ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support new field "project_number" in FeatureRegistrySource ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support new field "sync_summary" in FeatureViewSync ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support new fields "display_name" & "metadata" in DatasetVersion ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support new fields "probability_score", "severity" and "severity_score" in SafetyRating ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+* Support new fields "retrieval" & "google_search_retrieval" in Tool ([#25370](https://github.com/googleapis/google-cloud-ruby/issues/25370)) 
+
+### 0.37.0 (2024-02-26)
+
+#### Features
+
+* Support for FeatureViewDataKey#composite_key ([#24859](https://github.com/googleapis/google-cloud-ruby/issues/24859)) 
+* Updated minimum Ruby version to 2.7 ([#24862](https://github.com/googleapis/google-cloud-ruby/issues/24862)) 
+
+### 0.36.0 (2024-02-22)
+
+#### Features
+
+* Support CRUD operations on deployment resource pools 
+* Support for universe_domain 
+* Support for various additional fields on existing RPCs 
+* Support the generate_content and stream_generate_content RPCs in the PredictionService 
+* Support the query_deployed_models RPC 
+* Support the search_nearest_entities RPC in the FeatureOnlineStoreService 
+* Support the stream_raw_predict, stream_direct_predict, and stream_direct_raw_predict RPCs in the PredictionService 
+
+### 0.35.0 (2023-12-04)
+
+#### Features
+
+* add direct_predict, direct_raw_predict, streaming_predict, streaming_raw_predict to prediction_service 
+* add llm_utility_service  
+
+### 0.34.0 (2023-11-20)
+
+#### Features
+
+* add CountTokensRequest to Prediction 
+* add FeatureGroup, FeatureOnlineStore, FeatureOnlineStoreAdminService, FeatureOnlineStoreService, FeatureRegistryService, FeatureView, FeatureViewSync 
+* add numeric_restriction to Index 
+* add protected_artifact_location_id to CustomJob ([#23538](https://github.com/googleapis/google-cloud-ruby/issues/23538)) 
+* add tpu_topology to MachineSpec 
+* add value_type, version_column_name to Feature 
+
 ### 0.33.0 (2023-10-06)
 
 #### Features

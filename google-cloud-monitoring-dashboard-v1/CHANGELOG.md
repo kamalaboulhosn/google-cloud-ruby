@@ -1,5 +1,37 @@
 # Release History
 
+### 0.16.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24873](https://github.com/googleapis/google-cloud-ruby/issues/24873)) 
+
+### 0.15.0 (2024-02-10)
+
+#### Features
+
+* Add support for error reporting panels ([#24795](https://github.com/googleapis/google-cloud-ruby/issues/24795)) 
+* Add support for pie charts, incident lists, dropdown groups ([#24795](https://github.com/googleapis/google-cloud-ruby/issues/24795)) 
+* Add support for section headers, and styling options on text widgets ([#24795](https://github.com/googleapis/google-cloud-ruby/issues/24795)) 
+
+### 0.14.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.14.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.14.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23781](https://github.com/googleapis/google-cloud-ruby/issues/23781)) 
+
 ### 0.13.0 (2023-09-12)
 
 #### Features

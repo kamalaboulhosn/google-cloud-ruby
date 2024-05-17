@@ -26,6 +26,8 @@ module Google
         #   @return [::String]
         #     Immutable. Fully qualified name
         #     `project/*/locations/global/collections/{collection}/dataStore/*/conversations/*`
+        #     or
+        #     `project/*/locations/global/collections/{collection}/engines/*/conversations/*`.
         # @!attribute [rw] state
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Conversation::State]
         #     The state of the Conversation.
@@ -60,10 +62,12 @@ module Google
 
         # Defines a reply message to user.
         # @!attribute [rw] reply
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::String]
         #     DEPRECATED: use `summary` instead.
         #     Text reply.
         # @!attribute [rw] references
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1beta::Reply::Reference>]
         #     References in the reply.
         # @!attribute [rw] summary
@@ -74,6 +78,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
 
           # Defines reference in reply.
+          # @deprecated This message is deprecated and may be removed in the next major version update.
           # @!attribute [rw] uri
           #   @return [::String]
           #     URI link reference.

@@ -1,5 +1,88 @@
 # Release History
 
+### 0.39.0 (2024-04-15)
+
+#### Features
+
+* add several fields to manage state of database encryption update ([#25441](https://github.com/googleapis/google-cloud-ruby/issues/25441)) 
+* support optional secondary boot disk update strategy ([#25423](https://github.com/googleapis/google-cloud-ruby/issues/25423)) 
+
+### 0.38.0 (2024-03-10)
+
+#### Features
+
+* support secret_manager_config for clusters 
+
+### 0.37.0 (2024-03-04)
+
+#### Features
+
+* add secondary boot disks field to NodePool API ([#25269](https://github.com/googleapis/google-cloud-ruby/issues/25269)) 
+
+### 0.36.0 (2024-02-26)
+
+#### Features
+
+* Enable queued provisioning on existing nodepools ([#24882](https://github.com/googleapis/google-cloud-ruby/issues/24882)) 
+* Update minimum Ruby version to 2.7 
+* Updated minimum Ruby version to 2.7 ([#24867](https://github.com/googleapis/google-cloud-ruby/issues/24867)) 
+
+### 0.35.0 (2024-02-05)
+
+#### Features
+
+* support field stateful_ha_config for AddonsConfig 
+
+### 0.34.3 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.34.2 (2024-01-25)
+
+#### Documentation
+
+* Remove Not GA comments for GetOpenIDConfig and GetJSONWebKeys ([#24457](https://github.com/googleapis/google-cloud-ruby/issues/24457)) 
+
+### 0.34.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.34.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23776](https://github.com/googleapis/google-cloud-ruby/issues/23776)) 
+
+### 0.33.0 (2024-01-03)
+
+#### Features
+
+* Add field `autoscaled_rollout_policy` ([#23682](https://github.com/googleapis/google-cloud-ruby/issues/23682)) 
+
+### 0.32.0 (2023-12-04)
+
+#### Features
+
+* Added enable_relay field to AdvancedDatapathObservabilityConfig ([#23567](https://github.com/googleapis/google-cloud-ruby/issues/23567)) 
+* support conversion_status for AutoPilot 
+* support queued_provisioning for NodePool 
+
+### 0.31.0 (2023-11-06)
+
+#### Features
+
+* Support cluster enterprise config ([#23502](https://github.com/googleapis/google-cloud-ruby/issues/23502)) 
+
+### 0.30.0 (2023-11-02)
+
+#### Features
+
+* Support ResourceManagerTags API ([#23486](https://github.com/googleapis/google-cloud-ruby/issues/23486)) 
+
 ### 0.29.0 (2023-09-19)
 
 #### Features

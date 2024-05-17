@@ -1,5 +1,47 @@
 # Changelog
 
+### 0.10.0 (2024-05-15)
+
+#### Features
+
+* support the ED25519 asymmetric signing algorithm ([#25857](https://github.com/googleapis/google-cloud-ruby/issues/25857)) 
+
+### 0.9.1 (2024-04-19)
+
+#### Documentation
+
+* Clarify PEM format field in google.cloud.kms.v1.PublicKey is always populated ([#25686](https://github.com/googleapis/google-cloud-ruby/issues/25686)) 
+
+### 0.9.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24871](https://github.com/googleapis/google-cloud-ruby/issues/24871)) 
+
+### 0.8.3 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.8.2 (2024-01-31)
+
+#### Documentation
+
+* update comments ([#24496](https://github.com/googleapis/google-cloud-ruby/issues/24496)) 
+
+### 0.8.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.8.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23780](https://github.com/googleapis/google-cloud-ruby/issues/23780)) 
+
 ### 0.7.0 (2023-09-12)
 
 #### Features

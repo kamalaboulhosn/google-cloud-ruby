@@ -1,5 +1,48 @@
 # Release History
 
+### 0.34.0 (2024-03-14)
+
+#### Features
+
+* Support opt_out_conformer_model_migration field to InputAudioConfig ([#25371](https://github.com/googleapis/google-cloud-ruby/issues/25371)) 
+* Support text_sections field to SummarizationFeedback ([#25371](https://github.com/googleapis/google-cloud-ruby/issues/25371)) 
+
+### 0.33.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24869](https://github.com/googleapis/google-cloud-ruby/issues/24869)) 
+
+### 0.32.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.32.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.32.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23778](https://github.com/googleapis/google-cloud-ruby/issues/23778)) 
+
+### 0.31.0 (2024-01-03)
+
+#### Features
+
+* add enable_conversation_augmented_query field to HumanAgentAssistantConfig.SuggestionFeatureConfig message 
+* add INTENT field in enum SearchKnowledgeAnswer.AnswerType message 
+* add rewritten_query in field in SearchKnowledgeResponse message 
+* add sections field to HumanAgentAssistantConfig.SuggestionQueryConfig ([#23669](https://github.com/googleapis/google-cloud-ruby/issues/23669)) 
+#### Documentation
+
+* improved comments on audio_config proto 
+
 ### 0.30.0 (2023-10-03)
 
 #### Features

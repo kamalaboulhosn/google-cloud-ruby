@@ -1,5 +1,78 @@
 # Release History
 
+### 0.26.0 (2024-04-29)
+
+#### Features
+
+* Support RESOURCE_EXHAUSTED as a retryable error code ([#25794](https://github.com/googleapis/google-cloud-ruby/issues/25794)) 
+
+### 0.25.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24877](https://github.com/googleapis/google-cloud-ruby/issues/24877)) 
+
+### 0.24.0 (2024-02-22)
+
+#### Features
+
+* Update TransactionOptions to include new option exclude_txn_from_change_streams ([#24834](https://github.com/googleapis/google-cloud-ruby/issues/24834)) 
+
+### 0.23.0 (2024-02-16)
+
+#### Features
+
+* Support exclude_txn_from_change_streams for multiplexed session in spanner.proto ([#24820](https://github.com/googleapis/google-cloud-ruby/issues/24820)) 
+
+### 0.22.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.22.1 (2024-02-01)
+
+#### Documentation
+
+* update the comment regarding eligible SQL shapes for PartitionQuery ([#24497](https://github.com/googleapis/google-cloud-ruby/issues/24497)) 
+
+### 0.22.0 (2024-01-25)
+
+#### Features
+
+* Support for the FLOAT32 type ([#24469](https://github.com/googleapis/google-cloud-ruby/issues/24469)) 
+
+### 0.21.0 (2024-01-18)
+
+#### Features
+
+* Added support for proto and enum types, including fully-qualified names ([#24434](https://github.com/googleapis/google-cloud-ruby/issues/24434)) 
+* Support for max_commit_delay ([#24439](https://github.com/googleapis/google-cloud-ruby/issues/24439)) 
+
+### 0.20.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.20.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23786](https://github.com/googleapis/google-cloud-ruby/issues/23786)) 
+
+### 0.19.0 (2023-11-06)
+
+#### Features
+
+* Support DirectedReadOptions ([#23500](https://github.com/googleapis/google-cloud-ruby/issues/23500)) 
+
+### 0.18.0 (2023-11-02)
+
+#### Features
+
+* Add PG_OID annotation for postgresql compatibility ([#23482](https://github.com/googleapis/google-cloud-ruby/issues/23482)) 
+
 ### 0.17.0 (2023-09-28)
 
 #### Features

@@ -1,5 +1,55 @@
 # Changelog
 
+### 0.26.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24869](https://github.com/googleapis/google-cloud-ruby/issues/24869)) 
+
+### 0.25.0 (2024-02-10)
+
+#### Features
+
+* Support `ExportEntityTypes` and `ImportEntityTypes` APIs for `EntityTypes` ([#24792](https://github.com/googleapis/google-cloud-ruby/issues/24792)) 
+* Support `ServerStreamingDetectIntent` API for `Sessions` ([#24792](https://github.com/googleapis/google-cloud-ruby/issues/24792)) 
+* Support new field `current_flow` for `QueryResult`  ([#24792](https://github.com/googleapis/google-cloud-ruby/issues/24792)) 
+* Support new field `description` for `Page`  ([#24792](https://github.com/googleapis/google-cloud-ruby/issues/24792)) 
+* Support new field `disable_data_store_fallback` for `KnowledgeConnectorSettings`  ([#24792](https://github.com/googleapis/google-cloud-ruby/issues/24792)) 
+* Support new field `language_code` for `Changelog`  ([#24792](https://github.com/googleapis/google-cloud-ruby/issues/24792)) 
+* Support several new webhook related fields for `QueryResult`  ([#24792](https://github.com/googleapis/google-cloud-ruby/issues/24792)) 
+#### Documentation
+
+* Update documentation for several APIs ([#24792](https://github.com/googleapis/google-cloud-ruby/issues/24792)) 
+
+### 0.24.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.24.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.24.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23778](https://github.com/googleapis/google-cloud-ruby/issues/23778)) 
+
+### 0.23.0 (2024-01-10)
+
+#### Features
+
+* Query results include whether answer feedback is allowed 
+* Support answer feedback collection settings in the Agent resource 
+* Support barge-in behavior configuration during input audio streaming 
+* Support end-user metadata and UCS search query configuration in query parameters 
+* Support Generators service including CRUD operations on generator resources ([#23555](https://github.com/googleapis/google-cloud-ruby/issues/23555)) 
+* Support submit_answer_feedback RPC 
+
 ### 0.22.0 (2023-09-29)
 
 #### Features

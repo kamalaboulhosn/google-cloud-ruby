@@ -92,7 +92,8 @@ module Google
           #     Immutable. Name of the start flow in this agent. A start flow will be
           #     automatically created when the agent is created, and can only be deleted by
           #     deleting the agent. Format: `projects/<Project ID>/locations/<Location
-          #     ID>/agents/<Agent ID>/flows/<Flow ID>`.
+          #     ID>/agents/<Agent ID>/flows/<Flow ID>`. Currently only the default start
+          #     flow with id "00000000-0000-0000-0000-000000000000" is allowed.
           # @!attribute [rw] security_settings
           #   @return [::String]
           #     Name of the
@@ -100,6 +101,7 @@ module Google
           #     reference for the agent. Format: `projects/<Project ID>/locations/<Location
           #     ID>/securitySettings/<Security Settings ID>`.
           # @!attribute [rw] enable_stackdriver_logging
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Boolean]
           #     Indicates if stackdriver logging is enabled for the agent.
           #     Please use
@@ -127,6 +129,9 @@ module Google
           # @!attribute [rw] gen_app_builder_settings
           #   @return [::Google::Cloud::Dialogflow::CX::V3::Agent::GenAppBuilderSettings]
           #     Gen App Builder-related agent-level settings.
+          # @!attribute [rw] answer_feedback_settings
+          #   @return [::Google::Cloud::Dialogflow::CX::V3::Agent::AnswerFeedbackSettings]
+          #     Optional. Answer feedback collection settings.
           class Agent
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -169,6 +174,18 @@ module Google
             #     agent if there is one. Format: `projects/{Project ID}/locations/{Location
             #     ID}/collections/\\{Collection ID}/engines/\\{Engine ID}`
             class GenAppBuilderSettings
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Settings for answer feedback collection.
+            # @!attribute [rw] enable_answer_feedback
+            #   @return [::Boolean]
+            #     Optional. If enabled, end users will be able to provide
+            #     {::Google::Cloud::Dialogflow::CX::V3::AnswerFeedback answer feedback} to
+            #     Dialogflow responses. Feature works only if interaction logging is
+            #     enabled in the Dialogflow agent.
+            class AnswerFeedbackSettings
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end

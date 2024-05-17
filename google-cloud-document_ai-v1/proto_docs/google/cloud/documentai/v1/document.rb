@@ -44,6 +44,7 @@ module Google
         #   @return [::String]
         #     Optional. UTF-8 encoded text in reading order from the document.
         # @!attribute [rw] text_styles
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::Style>]
         #     Styles for the {::Google::Cloud::DocumentAI::V1::Document#text Document.text}.
         # @!attribute [rw] pages
@@ -210,6 +211,7 @@ module Google
           #   @return [::Google::Cloud::DocumentAI::V1::Document::Page::ImageQualityScores]
           #     Image quality scores.
           # @!attribute [rw] provenance
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Google::Cloud::DocumentAI::V1::Document::Provenance]
           #     The history of this page.
           class Page
@@ -329,6 +331,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1::Document::Provenance]
             #     The history of this annotation.
             class Block
@@ -345,6 +348,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1::Document::Provenance]
             #     The  history of this annotation.
             class Paragraph
@@ -362,6 +366,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1::Document::Provenance]
             #     The  history of this annotation.
             class Line
@@ -382,6 +387,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1::Document::Provenance]
             #     The history of this annotation.
             # @!attribute [rw] style_info
@@ -444,16 +450,16 @@ module Google
               #     Whether the text is underlined.
               # @!attribute [rw] strikeout
               #   @return [::Boolean]
-              #     Whether the text is strikethrough.
+              #     Whether the text is strikethrough. This feature is not supported yet.
               # @!attribute [rw] subscript
               #   @return [::Boolean]
-              #     Whether the text is a subscript.
+              #     Whether the text is a subscript. This feature is not supported yet.
               # @!attribute [rw] superscript
               #   @return [::Boolean]
-              #     Whether the text is a superscript.
+              #     Whether the text is a superscript. This feature is not supported yet.
               # @!attribute [rw] smallcaps
               #   @return [::Boolean]
-              #     Whether the text is in small caps.
+              #     Whether the text is in small caps. This feature is not supported yet.
               # @!attribute [rw] font_weight
               #   @return [::Integer]
               #     TrueType weight on a scale `100` (thin) to `1000` (ultra-heavy).
@@ -519,6 +525,7 @@ module Google
             #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::Page::DetectedLanguage>]
             #     A list of detected languages together with confidence.
             # @!attribute [rw] provenance
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Google::Cloud::DocumentAI::V1::Document::Provenance]
             #     The history of this table.
             class Table
@@ -831,6 +838,7 @@ module Google
             #     Optional. The type of the layout element that is being referenced if
             #     any.
             # @!attribute [rw] layout_id
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::String]
             #     Optional. Deprecated.  Use
             #     {::Google::Cloud::DocumentAI::V1::Document::PageAnchor::PageRef#bounding_poly PageRef.bounding_poly}
@@ -838,7 +846,8 @@ module Google
             # @!attribute [rw] bounding_poly
             #   @return [::Google::Cloud::DocumentAI::V1::BoundingPoly]
             #     Optional. Identifies the bounding polygon of a layout element on the
-            #     page.
+            #     page. If `layout_type` is set, the bounding polygon must be exactly the
+            #     same to the layout element it's referring to.
             # @!attribute [rw] confidence
             #   @return [::Float]
             #     Optional. Confidence of detected page element, if applicable. Range
@@ -892,9 +901,11 @@ module Google
           # Structure to identify provenance relationships between annotations in
           # different revisions.
           # @!attribute [rw] revision
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Integer]
           #     The index of the revision that produced this element.
           # @!attribute [rw] id
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Integer]
           #     The Id of this operation.  Needs to be unique within the scope of the
           #     revision.
@@ -918,6 +929,7 @@ module Google
             #     The index of the parent item in the corresponding item list (eg. list
             #     of entities, properties within entities, etc.) in the parent revision.
             # @!attribute [rw] id
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Integer]
             #     The id of the parent provenance.
             class Parent
@@ -973,6 +985,7 @@ module Google
           #     Id of the revision, internally generated by doc proto storage.
           #     Unique within the context of the document.
           # @!attribute [rw] parent
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Array<::Integer>]
           #     The revisions that this revision is based on.  This can include one or
           #     more parent (when documents are merged.)  This field represents the
@@ -1020,6 +1033,7 @@ module Google
           #   @return [::String]
           #     The text that replaces the text identified in the `text_anchor`.
           # @!attribute [rw] provenance
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::Provenance>]
           #     The history of this annotation.
           class TextChange

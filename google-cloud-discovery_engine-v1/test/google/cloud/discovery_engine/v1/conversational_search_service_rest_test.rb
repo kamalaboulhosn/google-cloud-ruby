@@ -60,6 +60,14 @@ class ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::C
 
       @response
     end
+
+    def endpoint
+      "endpoint.example.com"
+    end
+
+    def universe_domain
+      "example.com"
+    end
   end
 
   def test_converse_conversation
@@ -77,6 +85,8 @@ class ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::C
     safe_search = true
     user_labels = {}
     summary_spec = {}
+    filter = "hello world"
+    boost_spec = {}
 
     converse_conversation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
       assert options.metadata.key? :"x-goog-api-client"
@@ -92,27 +102,27 @@ class ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::C
         end
 
         # Use hash object
-        client.converse_conversation({ name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec }) do |_result, response|
+        client.converse_conversation({ name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec, filter: filter, boost_spec: boost_spec }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.converse_conversation name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec do |_result, response|
+        client.converse_conversation name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec, filter: filter, boost_spec: boost_spec do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.converse_conversation ::Google::Cloud::DiscoveryEngine::V1::ConverseConversationRequest.new(name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec) do |_result, response|
+        client.converse_conversation ::Google::Cloud::DiscoveryEngine::V1::ConverseConversationRequest.new(name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec, filter: filter, boost_spec: boost_spec) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.converse_conversation({ name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec }, call_options) do |_result, response|
+        client.converse_conversation({ name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec, filter: filter, boost_spec: boost_spec }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.converse_conversation(::Google::Cloud::DiscoveryEngine::V1::ConverseConversationRequest.new(name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec), call_options) do |_result, response|
+        client.converse_conversation(::Google::Cloud::DiscoveryEngine::V1::ConverseConversationRequest.new(name: name, query: query, serving_config: serving_config, conversation: conversation, safe_search: safe_search, user_labels: user_labels, summary_spec: summary_spec, filter: filter, boost_spec: boost_spec), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -402,7 +412,8 @@ class ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::C
     credentials_token = :dummy_value
 
     client = block_config = config = nil
-    Gapic::Rest::ClientStub.stub :new, nil do
+    dummy_stub = ClientStub.new nil
+    Gapic::Rest::ClientStub.stub :new, dummy_stub do
       client = ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client.new do |config|
         config.credentials = credentials_token
       end

@@ -53,6 +53,10 @@ module Google
           #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec::PostScanActions::BigQueryExport]
           #     Optional. If set, results will be exported to the provided BigQuery
           #     table.
+          # @!attribute [rw] notification_report
+          #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec::PostScanActions::NotificationReport]
+          #     Optional. If set, results will be sent to the provided notification
+          #     receipts upon triggers.
           class PostScanActions
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -67,6 +71,59 @@ module Google
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end
+
+            # The individuals or groups who are designated to receive notifications
+            # upon triggers.
+            # @!attribute [rw] emails
+            #   @return [::Array<::String>]
+            #     Optional. The email recipients who will receive the DataQualityScan
+            #     results report.
+            class Recipients
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # This trigger is triggered when the DQ score in the job result is less
+            # than a specified input score.
+            # @!attribute [rw] score_threshold
+            #   @return [::Float]
+            #     Optional. The score range is in [0,100].
+            class ScoreThresholdTrigger
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # This trigger is triggered when the scan job itself fails, regardless of
+            # the result.
+            class JobFailureTrigger
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # This trigger is triggered whenever a scan job run ends, regardless
+            # of the result.
+            class JobEndTrigger
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # The configuration of notification report post scan action.
+            # @!attribute [rw] recipients
+            #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec::PostScanActions::Recipients]
+            #     Required. The recipients who will receive the notification report.
+            # @!attribute [rw] score_threshold_trigger
+            #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec::PostScanActions::ScoreThresholdTrigger]
+            #     Optional. If set, report will be sent when score threshold is met.
+            # @!attribute [rw] job_failure_trigger
+            #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec::PostScanActions::JobFailureTrigger]
+            #     Optional. If set, report will be sent when a scan job fails.
+            # @!attribute [rw] job_end_trigger
+            #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec::PostScanActions::JobEndTrigger]
+            #     Optional. If set, report will be sent when a scan job ends.
+            class NotificationReport
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
           end
         end
 
@@ -74,9 +131,23 @@ module Google
         # @!attribute [rw] passed
         #   @return [::Boolean]
         #     Overall data quality result -- `true` if all rules passed.
+        # @!attribute [r] score
+        #   @return [::Float]
+        #     Output only. The overall data quality score.
+        #
+        #     The score ranges between [0, 100] (up to two decimal points).
         # @!attribute [rw] dimensions
         #   @return [::Array<::Google::Cloud::Dataplex::V1::DataQualityDimensionResult>]
         #     A list of results at the dimension level.
+        #
+        #     A dimension will have a corresponding `DataQualityDimensionResult` if and
+        #     only if there is at least one rule with the 'dimension' field set to it.
+        # @!attribute [r] columns
+        #   @return [::Array<::Google::Cloud::Dataplex::V1::DataQualityColumnResult>]
+        #     Output only. A list of results at the column level.
+        #
+        #     A column will have a corresponding `DataQualityColumnResult` if and only if
+        #     there is at least one rule with the 'column' field set to it.
         # @!attribute [rw] rules
         #   @return [::Array<::Google::Cloud::Dataplex::V1::DataQualityRuleResult>]
         #     A list of all the rules in a job, and their results.
@@ -168,6 +239,12 @@ module Google
         #     The query to find rows that did not pass this rule.
         #
         #     This field is only valid for row-level type rules.
+        # @!attribute [r] assertion_row_count
+        #   @return [::Integer]
+        #     Output only. The number of rows returned by the sql statement in the
+        #     SqlAssertion rule.
+        #
+        #     This field is only valid for SqlAssertion rules.
         class DataQualityRuleResult
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -181,6 +258,13 @@ module Google
         # @!attribute [rw] passed
         #   @return [::Boolean]
         #     Whether the dimension passed or failed.
+        # @!attribute [r] score
+        #   @return [::Float]
+        #     Output only. The dimension-level data quality score for this data scan job
+        #     if and only if the 'dimension' field is set.
+        #
+        #     The score ranges between [0, 100] (up to two decimal
+        #     points).
         class DataQualityDimensionResult
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -229,6 +313,10 @@ module Google
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::TableConditionExpectation]
         #     Aggregate rule which evaluates whether the provided expression is true
         #     for a table.
+        # @!attribute [rw] sql_assertion
+        #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::SqlAssertion]
+        #     Aggregate rule which evaluates the number of rows returned for the
+        #     provided statement.
         # @!attribute [rw] column
         #   @return [::String]
         #     Optional. The unnested column which this rule is evaluated against.
@@ -238,7 +326,12 @@ module Google
         #     `ignore_null` is `true`. In that case, such `null` rows are trivially
         #     considered passing.
         #
-        #     This field is only valid for row-level type rules.
+        #     This field is only valid for the following type of rules:
+        #
+        #     * RangeExpectation
+        #     * RegexExpectation
+        #     * SetExpectation
+        #     * UniquenessExpectation
         # @!attribute [rw] dimension
         #   @return [::String]
         #     Required. The dimension a rule belongs to. Results are also aggregated at
@@ -404,6 +497,42 @@ module Google
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
+
+          # Queries for rows returned by the provided SQL statement. If any rows are
+          # are returned, this rule fails.
+          #
+          # The SQL statement needs to use BigQuery standard SQL syntax, and must not
+          # contain any semicolons.
+          #
+          # $\\{data()} can be used to reference the rows being evaluated, i.e. the table
+          # after all additional filters (row filters, incremental data filters,
+          # sampling) are applied.
+          #
+          # Example: SELECT * FROM $\\{data()} WHERE price < 0
+          # @!attribute [rw] sql_statement
+          #   @return [::String]
+          #     Optional. The SQL statement.
+          class SqlAssertion
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+        end
+
+        # DataQualityColumnResult provides a more detailed, per-column view of
+        # the results.
+        # @!attribute [r] column
+        #   @return [::String]
+        #     Output only. The column specified in the DataQualityRule.
+        # @!attribute [r] score
+        #   @return [::Float]
+        #     Output only. The column-level data quality score for this data scan job if
+        #     and only if the 'column' field is set.
+        #
+        #     The score ranges between between [0, 100] (up to two decimal
+        #     points).
+        class DataQualityColumnResult
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
         end
       end
     end

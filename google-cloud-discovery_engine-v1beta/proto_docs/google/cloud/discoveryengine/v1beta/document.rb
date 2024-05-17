@@ -66,6 +66,13 @@ module Google
         #   @return [::Google::Protobuf::Struct]
         #     Output only. This field is OUTPUT_ONLY.
         #     It contains derived data that are not in the original input document.
+        # @!attribute [r] index_time
+        #   @return [::Google::Protobuf::Timestamp]
+        #     Output only. The last time the document was indexed. If this field is set,
+        #     the document could be returned in search results.
+        #
+        #     This field is OUTPUT_ONLY. If this field is not populated, it means the
+        #     document has never been indexed.
         class Document
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -85,7 +92,7 @@ module Google
           #   @return [::String]
           #     The URI of the content. Only Cloud Storage URIs (e.g.
           #     `gs://bucket-name/path/to/file`) are supported. The maximum file size
-          #     is 100 MB.
+          #     is 2.5 MB for text-based formats, 100 MB for other formats.
           # @!attribute [rw] mime_type
           #   @return [::String]
           #     The MIME type of the content. Supported types:

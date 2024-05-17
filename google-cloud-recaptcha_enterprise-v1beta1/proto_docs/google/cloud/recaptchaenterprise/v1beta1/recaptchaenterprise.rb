@@ -167,15 +167,14 @@ module Google
         #     whether the event is legitimate or fraudulent.
         # @!attribute [rw] reasons
         #   @return [::Array<::Google::Cloud::RecaptchaEnterprise::V1beta1::AnnotateAssessmentRequest::Reason>]
-        #     Optional. Optional reasons for the annotation that will be assigned to the
-        #     Event.
+        #     Optional. Reasons for the annotation that are assigned to the event.
         # @!attribute [rw] hashed_account_id
         #   @return [::String]
-        #     Optional. Optional unique stable hashed user identifier to apply to the
-        #     assessment. This is an alternative to setting the hashed_account_id in
-        #     CreateAssessment, for example when the account identifier is not yet known
-        #     in the initial request. It is recommended that the identifier is hashed
-        #     using hmac-sha256 with stable secret.
+        #     Optional. Unique stable hashed user identifier to apply to the assessment.
+        #     This is an alternative to setting the `hashed_account_id` in
+        #     `CreateAssessment`, for example, when the account identifier is not yet
+        #     known in the initial request. It is recommended that the identifier is
+        #     hashed using hmac-sha256 with stable secret.
         # @!attribute [rw] transaction_event
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1beta1::TransactionEvent]
         #     Optional. If the assessment is part of a payment transaction, provide
@@ -393,13 +392,33 @@ module Google
         #     Optional. Data describing a payment transaction to be assessed. Sending
         #     this data enables reCAPTCHA Enterprise Fraud Prevention and the
         #     FraudPreventionAssessment component in the response.
+        # @!attribute [rw] fraud_prevention
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1beta1::Event::FraudPrevention]
+        #     Optional. The Fraud Prevention setting for this Assessment.
         class Event
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Setting that controls Fraud Prevention assessments.
+          module FraudPrevention
+            # Default, unspecified setting. If opted in for automatic detection,
+            # `fraud_prevention_assessment` is returned based on the request.
+            # Otherwise, `fraud_prevention_assessment` is returned if
+            # `transaction_data` is present in the `Event` and Fraud Prevention is
+            # enabled in the Google Cloud console.
+            FRAUD_PREVENTION_UNSPECIFIED = 0
+
+            # Enable Fraud Prevention for this assessment, if Fraud Prevention is
+            # enabled in the Google Cloud console.
+            ENABLED = 1
+
+            # Disable Fraud Prevention for this assessment, regardless of opt-in
+            # status or the Google Cloud console settings.
+            DISABLED = 2
+          end
         end
 
         # Transaction data associated with a payment protected by reCAPTCHA Enterprise.
-        # All fields are optional.
         # @!attribute [rw] transaction_id
         #   @return [::String]
         #     Unique identifier for the transaction. This custom identifier can be used

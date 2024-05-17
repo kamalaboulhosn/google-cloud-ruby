@@ -45,6 +45,14 @@ class ::Google::Cloud::GkeBackup::V1::BackupForGKE::ClientTest < Minitest::Test
 
       @response
     end
+
+    def endpoint
+      "endpoint.example.com"
+    end
+
+    def universe_domain
+      "example.com"
+    end
   end
 
   def test_create_backup_plan
@@ -1615,11 +1623,70 @@ class ::Google::Cloud::GkeBackup::V1::BackupForGKE::ClientTest < Minitest::Test
     end
   end
 
+  def test_get_backup_index_download_url
+    # Create GRPC objects.
+    grpc_response = ::Google::Cloud::GkeBackup::V1::GetBackupIndexDownloadUrlResponse.new
+    grpc_operation = GRPC::ActiveCall::Operation.new nil
+    grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    grpc_options = {}
+
+    # Create request parameters for a unary method.
+    backup = "hello world"
+
+    get_backup_index_download_url_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
+      assert_equal :get_backup_index_download_url, name
+      assert_kind_of ::Google::Cloud::GkeBackup::V1::GetBackupIndexDownloadUrlRequest, request
+      assert_equal "hello world", request["backup"]
+      refute_nil options
+    end
+
+    Gapic::ServiceStub.stub :new, get_backup_index_download_url_client_stub do
+      # Create client
+      client = ::Google::Cloud::GkeBackup::V1::BackupForGKE::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      # Use hash object
+      client.get_backup_index_download_url({ backup: backup }) do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use named arguments
+      client.get_backup_index_download_url backup: backup do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object
+      client.get_backup_index_download_url ::Google::Cloud::GkeBackup::V1::GetBackupIndexDownloadUrlRequest.new(backup: backup) do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use hash object with options
+      client.get_backup_index_download_url({ backup: backup }, grpc_options) do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object with options
+      client.get_backup_index_download_url(::Google::Cloud::GkeBackup::V1::GetBackupIndexDownloadUrlRequest.new(backup: backup), grpc_options) do |response, operation|
+        assert_equal grpc_response, response
+        assert_equal grpc_operation, operation
+      end
+
+      # Verify method calls
+      assert_equal 5, get_backup_index_download_url_client_stub.call_rpc_count
+    end
+  end
+
   def test_configure
     grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
 
     client = block_config = config = nil
-    Gapic::ServiceStub.stub :new, nil do
+    dummy_stub = ClientStub.new nil, nil
+    Gapic::ServiceStub.stub :new, dummy_stub do
       client = ::Google::Cloud::GkeBackup::V1::BackupForGKE::Client.new do |config|
         config.credentials = grpc_channel
       end
@@ -1637,7 +1704,8 @@ class ::Google::Cloud::GkeBackup::V1::BackupForGKE::ClientTest < Minitest::Test
     grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
 
     client = nil
-    Gapic::ServiceStub.stub :new, nil do
+    dummy_stub = ClientStub.new nil, nil
+    Gapic::ServiceStub.stub :new, dummy_stub do
       client = ::Google::Cloud::GkeBackup::V1::BackupForGKE::Client.new do |config|
         config.credentials = grpc_channel
       end

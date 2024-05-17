@@ -1,6 +1,6 @@
 # Ruby Client for the Cloud Data Loss Prevention (DLP) V2 API
 
-Provides methods for detection, risk analysis, and de-identification of privacy-sensitive fragments in text, images, and Google Cloud Platform storage repositories.
+Discover and protect your sensitive data. A fully managed service designed to help you discover, classify, and protect your valuable data assets with ease.
 
 Provides methods for detection of privacy-sensitive fragments in text, images, and Google Cloud Platform storage repositories.
 
@@ -76,7 +76,7 @@ To browse ready to use code samples check [Google Cloud Samples](https://cloud.g
 
 ## Supported Ruby Versions
 
-This library is supported on Ruby 2.6+.
+This library is supported on Ruby 2.7+.
 
 Google provides official support for Ruby versions that are actively supported
 by Ruby Core—that is, Ruby versions that are either in normal maintenance or

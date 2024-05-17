@@ -128,9 +128,11 @@ module Google
           #     scopes needed by a data source to prepare data and ingest them into
           #     BigQuery, e.g., https://www.googleapis.com/auth/bigquery
           # @!attribute [rw] transfer_type
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Google::Cloud::Bigquery::DataTransfer::V1::TransferType]
           #     Deprecated. This field has no effect.
           # @!attribute [rw] supports_multiple_transfers
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Boolean]
           #     Deprecated. This field has no effect.
           # @!attribute [rw] update_deadline_seconds
@@ -614,7 +616,7 @@ module Google
           # A request to start manual transfer runs.
           # @!attribute [rw] parent
           #   @return [::String]
-          #     Transfer configuration name in the form:
+          #     Required. Transfer configuration name in the form:
           #     `projects/{project_id}/transferConfigs/{config_id}` or
           #     `projects/{project_id}/locations/{location_id}/transferConfigs/{config_id}`.
           # @!attribute [rw] requested_time_range
@@ -666,12 +668,28 @@ module Google
           # BigQuery UI's `Transfer` tab.
           # @!attribute [rw] name
           #   @return [::String]
-          #     The name of the project resource in the form: `projects/{project_id}`
+          #     Required. The name of the project resource in the form:
+          #     `projects/{project_id}`
           # @!attribute [rw] data_source_ids
           #   @return [::Array<::String>]
           #     Data sources that are enrolled. It is required to provide at least one
           #     data source id.
           class EnrollDataSourcesRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # A request to unenroll a set of data sources so they are no longer visible in
+          # the BigQuery UI's `Transfer` tab.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. The name of the project resource in the form:
+          #     `projects/{project_id}`
+          # @!attribute [rw] data_source_ids
+          #   @return [::Array<::String>]
+          #     Data sources that are unenrolled. It is required to provide at least one
+          #     data source id.
+          class UnenrollDataSourcesRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end

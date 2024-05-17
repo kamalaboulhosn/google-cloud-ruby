@@ -58,6 +58,12 @@ module Google
             # Provides methods to manage Cloud Certificate Manager entities.
             #
             class Client
+              # @private
+              API_VERSION = ""
+
+              # @private
+              DEFAULT_ENDPOINT_TEMPLATE = "certificatemanager.$UNIVERSE_DOMAIN$"
+
               include Paths
 
               # @private
@@ -239,6 +245,15 @@ module Google
               end
 
               ##
+              # The effective universe domain
+              #
+              # @return [String]
+              #
+              def universe_domain
+                @certificate_manager_stub.universe_domain
+              end
+
+              ##
               # Create a new CertificateManager REST client object.
               #
               # @example
@@ -265,8 +280,9 @@ module Google
                 credentials = @config.credentials
                 # Use self-signed JWT if the endpoint is unchanged from default,
                 # but only if the default endpoint does not have a region prefix.
-                enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                         !@config.endpoint.split(".").first.include?("-")
+                enable_self_signed_jwt = @config.endpoint.nil? ||
+                                         (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                         !@config.endpoint.split(".").first.include?("-"))
                 credentials ||= Credentials.default scope: @config.scope,
                                                     enable_self_signed_jwt: enable_self_signed_jwt
                 if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -280,16 +296,23 @@ module Google
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @config.endpoint
+                  config.universe_domain = @config.universe_domain
                 end
+
+                @certificate_manager_stub = ::Google::Cloud::CertificateManager::V1::CertificateManager::Rest::ServiceStub.new(
+                  endpoint: @config.endpoint,
+                  endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                  universe_domain: @config.universe_domain,
+                  credentials: credentials
+                )
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
-                  config.endpoint = @config.endpoint
+                  config.endpoint = @certificate_manager_stub.endpoint
+                  config.universe_domain = @certificate_manager_stub.universe_domain
                   config.bindings_override = @config.bindings_override
                 end
-
-                @certificate_manager_stub = ::Google::Cloud::CertificateManager::V1::CertificateManager::Rest::ServiceStub.new endpoint: @config.endpoint, credentials: credentials
               end
 
               ##
@@ -340,7 +363,7 @@ module Google
               #   @param order_by [::String]
               #     A list of Certificate field names used to specify the order of the returned
               #     results. The default sorting order is ascending. To specify descending
-              #     order for a field, add a suffix " desc".
+              #     order for a field, add a suffix `" desc"`.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CertificateManager::V1::ListCertificatesResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -379,12 +402,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_certificates.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_certificates.timeout,
@@ -458,12 +482,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_certificate.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_certificate.timeout,
@@ -548,12 +573,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_certificate.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_certificate.timeout,
@@ -638,12 +664,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_certificate.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_certificate.timeout,
@@ -725,12 +752,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_certificate.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_certificate.timeout,
@@ -782,7 +810,7 @@ module Google
               #   @param order_by [::String]
               #     A list of Certificate Map field names used to specify the order of the
               #     returned results. The default sorting order is ascending. To specify
-              #     descending order for a field, add a suffix " desc".
+              #     descending order for a field, add a suffix `" desc"`.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CertificateManager::V1::ListCertificateMapsResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -821,12 +849,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_certificate_maps.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_certificate_maps.timeout,
@@ -900,12 +929,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_certificate_map.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_certificate_map.timeout,
@@ -990,12 +1020,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_certificate_map.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_certificate_map.timeout,
@@ -1080,12 +1111,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_certificate_map.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_certificate_map.timeout,
@@ -1169,12 +1201,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_certificate_map.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_certificate_map.timeout,
@@ -1231,7 +1264,7 @@ module Google
               #   @param order_by [::String]
               #     A list of Certificate Map Entry field names used to specify
               #     the order of the returned results. The default sorting order is ascending.
-              #     To specify descending order for a field, add a suffix " desc".
+              #     To specify descending order for a field, add a suffix `" desc"`.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CertificateManager::V1::ListCertificateMapEntriesResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1270,12 +1303,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_certificate_map_entries.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_certificate_map_entries.timeout,
@@ -1349,12 +1383,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_certificate_map_entry.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_certificate_map_entry.timeout,
@@ -1439,12 +1474,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_certificate_map_entry.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_certificate_map_entry.timeout,
@@ -1529,12 +1565,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_certificate_map_entry.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_certificate_map_entry.timeout,
@@ -1616,12 +1653,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_certificate_map_entry.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_certificate_map_entry.timeout,
@@ -1673,7 +1711,7 @@ module Google
               #   @param order_by [::String]
               #     A list of Dns Authorization field names used to specify the order of the
               #     returned results. The default sorting order is ascending. To specify
-              #     descending order for a field, add a suffix " desc".
+              #     descending order for a field, add a suffix `" desc"`.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CertificateManager::V1::ListDnsAuthorizationsResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1712,12 +1750,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_dns_authorizations.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_dns_authorizations.timeout,
@@ -1791,12 +1830,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_dns_authorization.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_dns_authorization.timeout,
@@ -1881,12 +1921,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_dns_authorization.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_dns_authorization.timeout,
@@ -1971,12 +2012,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_dns_authorization.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_dns_authorization.timeout,
@@ -2058,12 +2100,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_dns_authorization.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_dns_authorization.timeout,
@@ -2116,7 +2159,7 @@ module Google
               #   @param order_by [::String]
               #     A list of Certificate Config field names used to specify the order of the
               #     returned results. The default sorting order is ascending. To specify
-              #     descending order for a field, add a suffix " desc".
+              #     descending order for a field, add a suffix `" desc"`.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CertificateManager::V1::ListCertificateIssuanceConfigsResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -2155,12 +2198,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_certificate_issuance_configs.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_certificate_issuance_configs.timeout,
@@ -2234,12 +2278,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_certificate_issuance_config.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_certificate_issuance_config.timeout,
@@ -2324,12 +2369,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_certificate_issuance_config.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_certificate_issuance_config.timeout,
@@ -2411,12 +2457,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_certificate_issuance_config.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_certificate_issuance_config.timeout,
@@ -2428,6 +2475,458 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @certificate_manager_stub.delete_certificate_issuance_config request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists TrustConfigs in a given project and location.
+              #
+              # @overload list_trust_configs(request, options = nil)
+              #   Pass arguments to `list_trust_configs` via a request object, either of type
+              #   {::Google::Cloud::CertificateManager::V1::ListTrustConfigsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::CertificateManager::V1::ListTrustConfigsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_trust_configs(parent: nil, page_size: nil, page_token: nil, filter: nil, order_by: nil)
+              #   Pass arguments to `list_trust_configs` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The project and location from which the TrustConfigs should be
+              #     listed, specified in the format `projects/*/locations/*`.
+              #   @param page_size [::Integer]
+              #     Maximum number of TrustConfigs to return per call.
+              #   @param page_token [::String]
+              #     The value returned by the last `ListTrustConfigsResponse`. Indicates
+              #     that this is a continuation of a prior `ListTrustConfigs` call, and that
+              #     the system should return the next page of data.
+              #   @param filter [::String]
+              #     Filter expression to restrict the TrustConfigs returned.
+              #   @param order_by [::String]
+              #     A list of TrustConfig field names used to specify the order of the
+              #     returned results. The default sorting order is ascending. To specify
+              #     descending order for a field, add a suffix `" desc"`.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::CertificateManager::V1::ListTrustConfigsResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::CertificateManager::V1::ListTrustConfigsResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/certificate_manager/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::CertificateManager::V1::CertificateManager::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::CertificateManager::V1::ListTrustConfigsRequest.new
+              #
+              #   # Call the list_trust_configs method.
+              #   result = client.list_trust_configs request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::CertificateManager::V1::TrustConfig.
+              #     p item
+              #   end
+              #
+              def list_trust_configs request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::CertificateManager::V1::ListTrustConfigsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_trust_configs.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_trust_configs.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_trust_configs.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @certificate_manager_stub.list_trust_configs request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets details of a single TrustConfig.
+              #
+              # @overload get_trust_config(request, options = nil)
+              #   Pass arguments to `get_trust_config` via a request object, either of type
+              #   {::Google::Cloud::CertificateManager::V1::GetTrustConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::CertificateManager::V1::GetTrustConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_trust_config(name: nil)
+              #   Pass arguments to `get_trust_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. A name of the TrustConfig to describe. Must be in the format
+              #     `projects/*/locations/*/trustConfigs/*`.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::CertificateManager::V1::TrustConfig]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::CertificateManager::V1::TrustConfig]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/certificate_manager/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::CertificateManager::V1::CertificateManager::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::CertificateManager::V1::GetTrustConfigRequest.new
+              #
+              #   # Call the get_trust_config method.
+              #   result = client.get_trust_config request
+              #
+              #   # The returned object is of type Google::Cloud::CertificateManager::V1::TrustConfig.
+              #   p result
+              #
+              def get_trust_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::CertificateManager::V1::GetTrustConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_trust_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_trust_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_trust_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @certificate_manager_stub.get_trust_config request, options do |result, operation|
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Creates a new TrustConfig in a given project and location.
+              #
+              # @overload create_trust_config(request, options = nil)
+              #   Pass arguments to `create_trust_config` via a request object, either of type
+              #   {::Google::Cloud::CertificateManager::V1::CreateTrustConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::CertificateManager::V1::CreateTrustConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload create_trust_config(parent: nil, trust_config_id: nil, trust_config: nil)
+              #   Pass arguments to `create_trust_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The parent resource of the TrustConfig. Must be in the format
+              #     `projects/*/locations/*`.
+              #   @param trust_config_id [::String]
+              #     Required. A user-provided name of the TrustConfig. Must match the regexp
+              #     `[a-z0-9-]{1,63}`.
+              #   @param trust_config [::Google::Cloud::CertificateManager::V1::TrustConfig, ::Hash]
+              #     Required. A definition of the TrustConfig to create.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/certificate_manager/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::CertificateManager::V1::CertificateManager::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::CertificateManager::V1::CreateTrustConfigRequest.new
+              #
+              #   # Call the create_trust_config method.
+              #   result = client.create_trust_config request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def create_trust_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::CertificateManager::V1::CreateTrustConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.create_trust_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.create_trust_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.create_trust_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @certificate_manager_stub.create_trust_config request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Updates a TrustConfig.
+              #
+              # @overload update_trust_config(request, options = nil)
+              #   Pass arguments to `update_trust_config` via a request object, either of type
+              #   {::Google::Cloud::CertificateManager::V1::UpdateTrustConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::CertificateManager::V1::UpdateTrustConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_trust_config(trust_config: nil, update_mask: nil)
+              #   Pass arguments to `update_trust_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param trust_config [::Google::Cloud::CertificateManager::V1::TrustConfig, ::Hash]
+              #     Required. A definition of the TrustConfig to update.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Required. The update mask applies to the resource. For the `FieldMask`
+              #     definition, see
+              #     https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/certificate_manager/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::CertificateManager::V1::CertificateManager::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::CertificateManager::V1::UpdateTrustConfigRequest.new
+              #
+              #   # Call the update_trust_config method.
+              #   result = client.update_trust_config request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def update_trust_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::CertificateManager::V1::UpdateTrustConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_trust_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_trust_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_trust_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @certificate_manager_stub.update_trust_config request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Deletes a single TrustConfig.
+              #
+              # @overload delete_trust_config(request, options = nil)
+              #   Pass arguments to `delete_trust_config` via a request object, either of type
+              #   {::Google::Cloud::CertificateManager::V1::DeleteTrustConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::CertificateManager::V1::DeleteTrustConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_trust_config(name: nil, etag: nil)
+              #   Pass arguments to `delete_trust_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. A name of the TrustConfig to delete. Must be in the format
+              #     `projects/*/locations/*/trustConfigs/*`.
+              #   @param etag [::String]
+              #     The current etag of the TrustConfig.
+              #     If an etag is provided and does not match the current etag of the resource,
+              #     deletion will be blocked and an ABORTED error will be returned.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/certificate_manager/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::CertificateManager::V1::CertificateManager::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::CertificateManager::V1::DeleteTrustConfigRequest.new
+              #
+              #   # Call the delete_trust_config method.
+              #   result = client.delete_trust_config request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def delete_trust_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::CertificateManager::V1::DeleteTrustConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_trust_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::CertificateManager::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_trust_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_trust_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @certificate_manager_stub.delete_trust_config request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
                   return result
@@ -2466,9 +2965,9 @@ module Google
               #   end
               #
               # @!attribute [rw] endpoint
-              #   The hostname or hostname:port of the service endpoint.
-              #   Defaults to `"certificatemanager.googleapis.com"`.
-              #   @return [::String]
+              #   A custom service endpoint, as a hostname or hostname:port. The default is
+              #   nil, indicating to use the default endpoint in the current universe domain.
+              #   @return [::String,nil]
               # @!attribute [rw] credentials
               #   Credentials to send with calls. You may provide any of the following types:
               #    *  (`String`) The path to a service account key file in JSON format
@@ -2505,13 +3004,20 @@ module Google
               # @!attribute [rw] quota_project
               #   A separate project against which to charge quota.
               #   @return [::String]
+              # @!attribute [rw] universe_domain
+              #   The universe domain within which to make requests. This determines the
+              #   default endpoint URL. The default value of nil uses the environment
+              #   universe (usually the default "googleapis.com" universe).
+              #   @return [::String,nil]
               #
               class Configuration
                 extend ::Gapic::Config
 
+                # @private
+                # The endpoint specific to the default "googleapis.com" universe. Deprecated.
                 DEFAULT_ENDPOINT = "certificatemanager.googleapis.com"
 
-                config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+                config_attr :endpoint,      nil, ::String, nil
                 config_attr :credentials,   nil do |value|
                   allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                   allowed.any? { |klass| klass === value }
@@ -2523,6 +3029,7 @@ module Google
                 config_attr :metadata,      nil, ::Hash, nil
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
+                config_attr :universe_domain, nil, ::String, nil
 
                 # @private
                 # Overrides for http bindings for the RPCs of this service
@@ -2688,6 +3195,31 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :delete_certificate_issuance_config
+                  ##
+                  # RPC-specific configuration for `list_trust_configs`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_trust_configs
+                  ##
+                  # RPC-specific configuration for `get_trust_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_trust_config
+                  ##
+                  # RPC-specific configuration for `create_trust_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :create_trust_config
+                  ##
+                  # RPC-specific configuration for `update_trust_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_trust_config
+                  ##
+                  # RPC-specific configuration for `delete_trust_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_trust_config
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -2739,6 +3271,16 @@ module Google
                     @create_certificate_issuance_config = ::Gapic::Config::Method.new create_certificate_issuance_config_config
                     delete_certificate_issuance_config_config = parent_rpcs.delete_certificate_issuance_config if parent_rpcs.respond_to? :delete_certificate_issuance_config
                     @delete_certificate_issuance_config = ::Gapic::Config::Method.new delete_certificate_issuance_config_config
+                    list_trust_configs_config = parent_rpcs.list_trust_configs if parent_rpcs.respond_to? :list_trust_configs
+                    @list_trust_configs = ::Gapic::Config::Method.new list_trust_configs_config
+                    get_trust_config_config = parent_rpcs.get_trust_config if parent_rpcs.respond_to? :get_trust_config
+                    @get_trust_config = ::Gapic::Config::Method.new get_trust_config_config
+                    create_trust_config_config = parent_rpcs.create_trust_config if parent_rpcs.respond_to? :create_trust_config
+                    @create_trust_config = ::Gapic::Config::Method.new create_trust_config_config
+                    update_trust_config_config = parent_rpcs.update_trust_config if parent_rpcs.respond_to? :update_trust_config
+                    @update_trust_config = ::Gapic::Config::Method.new update_trust_config_config
+                    delete_trust_config_config = parent_rpcs.delete_trust_config if parent_rpcs.respond_to? :delete_trust_config
+                    @delete_trust_config = ::Gapic::Config::Method.new delete_trust_config_config
 
                     yield self if block_given?
                   end

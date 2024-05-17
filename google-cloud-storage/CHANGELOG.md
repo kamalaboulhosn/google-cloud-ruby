@@ -1,5 +1,56 @@
 # Release History
 
+### 1.51.0 (2024-04-25)
+
+#### Features
+
+* Respect custom endpoint for signed_url ([#25469](https://github.com/googleapis/google-cloud-ruby/issues/25469)) 
+
+### 1.50.0 (2024-04-19)
+
+#### Features
+
+* Add support for soft deletion ([#25340](https://github.com/googleapis/google-cloud-ruby/issues/25340)) 
+#### Bug Fixes
+
+* Set configured univer_domain and endpoint when initializing through Service ([#25665](https://github.com/googleapis/google-cloud-ruby/issues/25665)) 
+
+### 1.49.0 (2024-02-21)
+
+#### Features
+
+* Support of Managed Folders ([#24809](https://github.com/googleapis/google-cloud-ruby/issues/24809)) 
+
+### 1.48.1 (2024-01-26)
+
+#### Bug Fixes
+
+* Raise an error on mismatching universe domain ([#24486](https://github.com/googleapis/google-cloud-ruby/issues/24486)) 
+
+### 1.48.0 (2024-01-25)
+
+#### Features
+
+* Support for universe_domain ([#24449](https://github.com/googleapis/google-cloud-ruby/issues/24449)) 
+
+### 1.47.0 (2024-01-09)
+
+#### Features
+
+* support for object lock / retention ([#23732](https://github.com/googleapis/google-cloud-ruby/issues/23732)) 
+
+### 1.46.0 (2024-01-08)
+
+#### Features
+
+* support match_glob for Object.list 
+
+### 1.45.0 (2023-11-06)
+
+#### Features
+
+* added autoclass v2.1 features ([#23483](https://github.com/googleapis/google-cloud-ruby/issues/23483)) 
+
 ### 1.44.0 (2022-11-02)
 
 #### Features

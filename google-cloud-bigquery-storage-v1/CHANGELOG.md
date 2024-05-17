@@ -1,5 +1,41 @@
 # Release History
 
+### 0.27.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24865](https://github.com/googleapis/google-cloud-ruby/issues/24865)) 
+
+### 0.26.0 (2024-02-22)
+
+#### Features
+
+* Add the RANGE type to the google.cloud.bigquery.storage.v1.TableFieldSchema ([#24835](https://github.com/googleapis/google-cloud-ruby/issues/24835)) 
+
+### 0.25.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.25.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.25.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23775](https://github.com/googleapis/google-cloud-ruby/issues/23775)) 
+
+### 0.24.0 (2024-01-10)
+
+#### Features
+
+* add ability to request compressed ReadRowsResponse rows ([#23771](https://github.com/googleapis/google-cloud-ruby/issues/23771)) 
+
 ### 0.23.0 (2023-09-12)
 
 #### Features

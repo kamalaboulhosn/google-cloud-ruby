@@ -413,6 +413,56 @@ module Google
         end
 
         ##
+        # Gets the Storage Billing Model for the dataset.
+        #
+        # @see https://cloud.google.com/blog/products/data-analytics/new-bigquery-billing-model-helps-reduce-physical-storage-costs
+        #
+        # @return [String, nil] A string containing the storage billing model, or `nil`.
+        #   Possible values of the string are `LOGICAL`, `PHYSICAL`.
+        #   It returns `nil` if either the object is a reference (see {#reference?}),
+        #   or if the storage billing model is unspecified.
+        #
+        # @example
+        #
+        #   require "google/cloud/bigquery"
+        #
+        #   bigquery = Google::Cloud::Bigquery.new
+        #   dataset = bigquery.dataset "my_dataset"
+        #
+        #   storage_billing_model = dataset.storage_billing_model
+        #
+        # @!group Attributes
+        #
+        def storage_billing_model
+          return nil if reference?
+          ensure_full_data!
+          @gapi.storage_billing_model
+        end
+
+        ##
+        # Sets the Storage Billing Model for the dataset.
+        #
+        # @see https://cloud.google.com/blog/products/data-analytics/new-bigquery-billing-model-helps-reduce-physical-storage-costs
+        #
+        # @param value [String] The new storage billing model. Accepted values
+        #   are `LOGICAL` and `PHYSICAL`.
+        #
+        # @example
+        #   require "google/cloud/bigquery"
+        #
+        #   bigquery = Google::Cloud::Bigquery.new
+        #   dataset = bigquery.dataset "my_dataset"
+        #   dataset.storage_billing_model = "LOGICAL"
+        #
+        # @!group Attributes
+        #
+        def storage_billing_model= value
+          ensure_full_data!
+          @gapi.storage_billing_model = value
+          patch_gapi! :storage_billing_model
+        end
+
+        ##
         # Retrieves the access rules for a Dataset. The rules can be updated
         # when passing a block, see {Dataset::Access} for all the methods
         # available.
@@ -1180,6 +1230,7 @@ module Google
         #   | `DATETIME`   | `DateTime`                           | `DATETIME` does not support time zone.             |
         #   | `DATE`       | `Date`                               |                                                    |
         #   | `GEOGRAPHY`  | `String` (WKT or GeoJSON)            | NOT AUTOMATIC: Must be mapped using `types`, below.|
+        #   | `JSON`       | `String` (Stringified JSON)          | String, as JSON does not have a schema to verify.  |
         #   | `TIMESTAMP`  | `Time`                               |                                                    |
         #   | `TIME`       | `Google::Cloud::BigQuery::Time`      |                                                    |
         #   | `BYTES`      | `File`, `IO`, `StringIO`, or similar |                                                    |
@@ -1206,6 +1257,7 @@ module Google
         #   * `:DATETIME`
         #   * `:DATE`
         #   * `:GEOGRAPHY`
+        #   * `:JSON`
         #   * `:TIMESTAMP`
         #   * `:TIME`
         #   * `:BYTES`
@@ -1585,6 +1637,7 @@ module Google
         #   | `DATETIME`   | `DateTime`                           | `DATETIME` does not support time zone.             |
         #   | `DATE`       | `Date`                               |                                                    |
         #   | `GEOGRAPHY`  | `String` (WKT or GeoJSON)            | NOT AUTOMATIC: Must be mapped using `types`, below.|
+        #   | `JSON`       | `String` (Stringified JSON)          | String, as JSON does not have a schema to verify.  |
         #   | `TIMESTAMP`  | `Time`                               |                                                    |
         #   | `TIME`       | `Google::Cloud::BigQuery::Time`      |                                                    |
         #   | `BYTES`      | `File`, `IO`, `StringIO`, or similar |                                                    |
@@ -1611,6 +1664,7 @@ module Google
         #   * `:DATETIME`
         #   * `:DATE`
         #   * `:GEOGRAPHY`
+        #   * `:JSON`
         #   * `:TIMESTAMP`
         #   * `:TIME`
         #   * `:BYTES`
@@ -2553,6 +2607,7 @@ module Google
         # | `DATETIME`   | `DateTime`                           | `DATETIME` does not support time zone.             |
         # | `DATE`       | `Date`                               |                                                    |
         # | `GEOGRAPHY`  | `String`                             |                                                    |
+        # | `JSON`       | `String` (Stringified JSON)          | String, as JSON does not have a schema to verify.  |
         # | `TIMESTAMP`  | `Time`                               |                                                    |
         # | `TIME`       | `Google::Cloud::BigQuery::Time`      |                                                    |
         # | `BYTES`      | `File`, `IO`, `StringIO`, or similar |                                                    |

@@ -75,6 +75,7 @@ module Google
         #     chronological order. Format: `projects/<Project ID>/locations/<Location
         #     ID>`.
         # @!attribute [rw] filter
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::String]
         #     Optional. Filters to restrict results to specific answer records.
         #
@@ -223,9 +224,21 @@ module Google
           # @!attribute [rw] summary_text
           #   @return [::String]
           #     Text of actual submitted summary.
+          # @!attribute [rw] text_sections
+          #   @return [::Google::Protobuf::Map{::String => ::String}]
+          #     Optional. Actual text sections of submitted summary.
           class SummarizationFeedback
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # @!attribute [rw] key
+            #   @return [::String]
+            # @!attribute [rw] value
+            #   @return [::String]
+            class TextSectionsEntry
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
           end
 
           # Feedback for knowledge search.

@@ -1,5 +1,41 @@
 # Changelog
 
+### 0.9.0 (2024-04-15)
+
+#### Features
+
+* Add additional `TokenType` options (`TOKEN_TYPE_PKI` and `TOKEN_TYPE_LIMITED_AWS`) ([#25444](https://github.com/googleapis/google-cloud-ruby/issues/25444)) 
+
+### 0.8.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24867](https://github.com/googleapis/google-cloud-ruby/issues/24867)) 
+
+### 0.7.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.7.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.7.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23776](https://github.com/googleapis/google-cloud-ruby/issues/23776)) 
+
+### 0.6.0 (2023-11-20)
+
+#### Features
+
+* Add a new field token_type to TokenOptions ([#23534](https://github.com/googleapis/google-cloud-ruby/issues/23534)) 
+
 ### 0.5.0 (2023-09-12)
 
 #### Features

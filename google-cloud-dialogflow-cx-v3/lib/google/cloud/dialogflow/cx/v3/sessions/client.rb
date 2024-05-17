@@ -35,6 +35,12 @@ module Google
             # determine user intent and respond.
             #
             class Client
+              # @private
+              API_VERSION = ""
+
+              # @private
+              DEFAULT_ENDPOINT_TEMPLATE = "dialogflow.$UNIVERSE_DOMAIN$"
+
               include Paths
 
               # @private
@@ -79,6 +85,8 @@ module Google
                     initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14]
                   }
 
+                  default_config.rpcs.server_streaming_detect_intent.timeout = 220.0
+
                   default_config.rpcs.streaming_detect_intent.timeout = 220.0
 
                   default_config
@@ -105,6 +113,15 @@ module Google
               def configure
                 yield @config if block_given?
                 @config
+              end
+
+              ##
+              # The effective universe domain
+              #
+              # @return [String]
+              #
+              def universe_domain
+                @sessions_stub.universe_domain
               end
 
               ##
@@ -140,8 +157,9 @@ module Google
                 credentials = @config.credentials
                 # Use self-signed JWT if the endpoint is unchanged from default,
                 # but only if the default endpoint does not have a region prefix.
-                enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                         !@config.endpoint.split(".").first.include?("-")
+                enable_self_signed_jwt = @config.endpoint.nil? ||
+                                         (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                         !@config.endpoint.split(".").first.include?("-"))
                 credentials ||= Credentials.default scope: @config.scope,
                                                     enable_self_signed_jwt: enable_self_signed_jwt
                 if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -150,20 +168,23 @@ module Google
                 @quota_project_id = @config.quota_project
                 @quota_project_id ||= credentials.quota_project_id if credentials.respond_to? :quota_project_id
 
-                @location_client = Google::Cloud::Location::Locations::Client.new do |config|
-                  config.credentials = credentials
-                  config.quota_project = @quota_project_id
-                  config.endpoint = @config.endpoint
-                end
-
                 @sessions_stub = ::Gapic::ServiceStub.new(
                   ::Google::Cloud::Dialogflow::CX::V3::Sessions::Stub,
-                  credentials:  credentials,
-                  endpoint:     @config.endpoint,
+                  credentials: credentials,
+                  endpoint: @config.endpoint,
+                  endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                  universe_domain: @config.universe_domain,
                   channel_args: @config.channel_args,
                   interceptors: @config.interceptors,
                   channel_pool_config: @config.channel_pool
                 )
+
+                @location_client = Google::Cloud::Location::Locations::Client.new do |config|
+                  config.credentials = credentials
+                  config.quota_project = @quota_project_id
+                  config.endpoint = @sessions_stub.endpoint
+                  config.universe_domain = @sessions_stub.universe_domain
+                end
               end
 
               ##
@@ -258,10 +279,11 @@ module Google
                 # Customize the options with defaults
                 metadata = @config.rpcs.detect_intent.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dialogflow::CX::V3::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 header_params = {}
@@ -281,6 +303,120 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @sessions_stub.call_rpc :detect_intent, request, options: options do |response, operation|
+                  yield response, operation if block_given?
+                  return response
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Processes a natural language query and returns structured, actionable data
+              # as a result through server-side streaming. Server-side streaming allows
+              # Dialogflow to send [partial
+              # responses](https://cloud.google.com/dialogflow/cx/docs/concept/fulfillment#partial-response)
+              # earlier in a single request.
+              #
+              # @overload server_streaming_detect_intent(request, options = nil)
+              #   Pass arguments to `server_streaming_detect_intent` via a request object, either of type
+              #   {::Google::Cloud::Dialogflow::CX::V3::DetectIntentRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dialogflow::CX::V3::DetectIntentRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload server_streaming_detect_intent(session: nil, query_params: nil, query_input: nil, output_audio_config: nil)
+              #   Pass arguments to `server_streaming_detect_intent` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param session [::String]
+              #     Required. The name of the session this query is sent to.
+              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
+              #     ID>/sessions/<Session ID>` or `projects/<Project ID>/locations/<Location
+              #     ID>/agents/<Agent ID>/environments/<Environment ID>/sessions/<Session ID>`.
+              #     If `Environment ID` is not specified, we assume default 'draft'
+              #     environment.
+              #     It's up to the API caller to choose an appropriate `Session ID`. It can be
+              #     a random number or some type of session identifiers (preferably hashed).
+              #     The length of the `Session ID` must not exceed 36 characters.
+              #
+              #     For more information, see the [sessions
+              #     guide](https://cloud.google.com/dialogflow/cx/docs/concept/session).
+              #
+              #     Note: Always use agent versions for production traffic.
+              #     See [Versions and
+              #     environments](https://cloud.google.com/dialogflow/cx/docs/concept/version).
+              #   @param query_params [::Google::Cloud::Dialogflow::CX::V3::QueryParameters, ::Hash]
+              #     The parameters of this query.
+              #   @param query_input [::Google::Cloud::Dialogflow::CX::V3::QueryInput, ::Hash]
+              #     Required. The input specification.
+              #   @param output_audio_config [::Google::Cloud::Dialogflow::CX::V3::OutputAudioConfig, ::Hash]
+              #     Instructs the speech synthesizer how to generate the output audio.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Enumerable<::Google::Cloud::Dialogflow::CX::V3::DetectIntentResponse>]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Enumerable<::Google::Cloud::Dialogflow::CX::V3::DetectIntentResponse>]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dialogflow/cx/v3"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dialogflow::CX::V3::Sessions::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dialogflow::CX::V3::DetectIntentRequest.new
+              #
+              #   # Call the server_streaming_detect_intent method to start streaming.
+              #   output = client.server_streaming_detect_intent request
+              #
+              #   # The returned object is a streamed enumerable yielding elements of type
+              #   # ::Google::Cloud::Dialogflow::CX::V3::DetectIntentResponse
+              #   output.each do |current_response|
+              #     p current_response
+              #   end
+              #
+              def server_streaming_detect_intent request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dialogflow::CX::V3::DetectIntentRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.server_streaming_detect_intent.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dialogflow::CX::V3::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.session
+                  header_params["session"] = request.session
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.server_streaming_detect_intent.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.server_streaming_detect_intent.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @sessions_stub.call_rpc :server_streaming_detect_intent, request, options: options do |response, operation|
                   yield response, operation if block_given?
                   return response
                 end
@@ -350,10 +486,11 @@ module Google
                 # Customize the options with defaults
                 metadata = @config.rpcs.streaming_detect_intent.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dialogflow::CX::V3::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.streaming_detect_intent.timeout,
@@ -445,10 +582,11 @@ module Google
                 # Customize the options with defaults
                 metadata = @config.rpcs.match_intent.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dialogflow::CX::V3::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 header_params = {}
@@ -541,10 +679,11 @@ module Google
                 # Customize the options with defaults
                 metadata = @config.rpcs.fulfill_intent.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::Dialogflow::CX::V3::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 header_params = {}
@@ -564,6 +703,101 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @sessions_stub.call_rpc :fulfill_intent, request, options: options do |response, operation|
+                  yield response, operation if block_given?
+                  return response
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Updates the feedback received from the user for a single turn of the bot
+              # response.
+              #
+              # @overload submit_answer_feedback(request, options = nil)
+              #   Pass arguments to `submit_answer_feedback` via a request object, either of type
+              #   {::Google::Cloud::Dialogflow::CX::V3::SubmitAnswerFeedbackRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dialogflow::CX::V3::SubmitAnswerFeedbackRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload submit_answer_feedback(session: nil, response_id: nil, answer_feedback: nil, update_mask: nil)
+              #   Pass arguments to `submit_answer_feedback` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param session [::String]
+              #     Required. The name of the session the feedback was sent to.
+              #   @param response_id [::String]
+              #     Required. ID of the response to update its feedback. This is the same as
+              #     DetectIntentResponse.response_id.
+              #   @param answer_feedback [::Google::Cloud::Dialogflow::CX::V3::AnswerFeedback, ::Hash]
+              #     Required. Feedback provided for a bot answer.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Optional. The mask to control which fields to update. If the mask is not
+              #     present, all fields will be updated.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Google::Cloud::Dialogflow::CX::V3::AnswerFeedback]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Google::Cloud::Dialogflow::CX::V3::AnswerFeedback]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dialogflow/cx/v3"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dialogflow::CX::V3::Sessions::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dialogflow::CX::V3::SubmitAnswerFeedbackRequest.new
+              #
+              #   # Call the submit_answer_feedback method.
+              #   result = client.submit_answer_feedback request
+              #
+              #   # The returned object is of type Google::Cloud::Dialogflow::CX::V3::AnswerFeedback.
+              #   p result
+              #
+              def submit_answer_feedback request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dialogflow::CX::V3::SubmitAnswerFeedbackRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.submit_answer_feedback.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dialogflow::CX::V3::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.session
+                  header_params["session"] = request.session
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.submit_answer_feedback.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.submit_answer_feedback.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @sessions_stub.call_rpc :submit_answer_feedback, request, options: options do |response, operation|
                   yield response, operation if block_given?
                   return response
                 end
@@ -601,9 +835,9 @@ module Google
               #   end
               #
               # @!attribute [rw] endpoint
-              #   The hostname or hostname:port of the service endpoint.
-              #   Defaults to `"dialogflow.googleapis.com"`.
-              #   @return [::String]
+              #   A custom service endpoint, as a hostname or hostname:port. The default is
+              #   nil, indicating to use the default endpoint in the current universe domain.
+              #   @return [::String,nil]
               # @!attribute [rw] credentials
               #   Credentials to send with calls. You may provide any of the following types:
               #    *  (`String`) The path to a service account key file in JSON format
@@ -649,13 +883,20 @@ module Google
               # @!attribute [rw] quota_project
               #   A separate project against which to charge quota.
               #   @return [::String]
+              # @!attribute [rw] universe_domain
+              #   The universe domain within which to make requests. This determines the
+              #   default endpoint URL. The default value of nil uses the environment
+              #   universe (usually the default "googleapis.com" universe).
+              #   @return [::String,nil]
               #
               class Configuration
                 extend ::Gapic::Config
 
+                # @private
+                # The endpoint specific to the default "googleapis.com" universe. Deprecated.
                 DEFAULT_ENDPOINT = "dialogflow.googleapis.com"
 
-                config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+                config_attr :endpoint,      nil, ::String, nil
                 config_attr :credentials,   nil do |value|
                   allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                   allowed += [::GRPC::Core::Channel, ::GRPC::Core::ChannelCredentials] if defined? ::GRPC
@@ -670,6 +911,7 @@ module Google
                 config_attr :metadata,      nil, ::Hash, nil
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
+                config_attr :universe_domain, nil, ::String, nil
 
                 # @private
                 def initialize parent_config = nil
@@ -722,6 +964,11 @@ module Google
                   #
                   attr_reader :detect_intent
                   ##
+                  # RPC-specific configuration for `server_streaming_detect_intent`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :server_streaming_detect_intent
+                  ##
                   # RPC-specific configuration for `streaming_detect_intent`
                   # @return [::Gapic::Config::Method]
                   #
@@ -736,17 +983,26 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :fulfill_intent
+                  ##
+                  # RPC-specific configuration for `submit_answer_feedback`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :submit_answer_feedback
 
                   # @private
                   def initialize parent_rpcs = nil
                     detect_intent_config = parent_rpcs.detect_intent if parent_rpcs.respond_to? :detect_intent
                     @detect_intent = ::Gapic::Config::Method.new detect_intent_config
+                    server_streaming_detect_intent_config = parent_rpcs.server_streaming_detect_intent if parent_rpcs.respond_to? :server_streaming_detect_intent
+                    @server_streaming_detect_intent = ::Gapic::Config::Method.new server_streaming_detect_intent_config
                     streaming_detect_intent_config = parent_rpcs.streaming_detect_intent if parent_rpcs.respond_to? :streaming_detect_intent
                     @streaming_detect_intent = ::Gapic::Config::Method.new streaming_detect_intent_config
                     match_intent_config = parent_rpcs.match_intent if parent_rpcs.respond_to? :match_intent
                     @match_intent = ::Gapic::Config::Method.new match_intent_config
                     fulfill_intent_config = parent_rpcs.fulfill_intent if parent_rpcs.respond_to? :fulfill_intent
                     @fulfill_intent = ::Gapic::Config::Method.new fulfill_intent_config
+                    submit_answer_feedback_config = parent_rpcs.submit_answer_feedback if parent_rpcs.respond_to? :submit_answer_feedback
+                    @submit_answer_feedback = ::Gapic::Config::Method.new submit_answer_feedback_config
 
                     yield self if block_given?
                   end

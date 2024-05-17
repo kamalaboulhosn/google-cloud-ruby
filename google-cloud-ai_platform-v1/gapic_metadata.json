@@ -104,6 +104,40 @@
         }
       }
     },
+    "DeploymentResourcePoolService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::Client",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
+              ]
+            }
+          }
+        }
+      }
+    },
     "EndpointService": {
       "clients": {
         "grpc": {
@@ -153,6 +187,80 @@
         }
       }
     },
+    "FeatureOnlineStoreAdminService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::FeatureOnlineStoreAdminService::Client",
+          "rpcs": {
+            "CreateFeatureOnlineStore": {
+              "methods": [
+                "create_feature_online_store"
+              ]
+            },
+            "GetFeatureOnlineStore": {
+              "methods": [
+                "get_feature_online_store"
+              ]
+            },
+            "ListFeatureOnlineStores": {
+              "methods": [
+                "list_feature_online_stores"
+              ]
+            },
+            "UpdateFeatureOnlineStore": {
+              "methods": [
+                "update_feature_online_store"
+              ]
+            },
+            "DeleteFeatureOnlineStore": {
+              "methods": [
+                "delete_feature_online_store"
+              ]
+            },
+            "CreateFeatureView": {
+              "methods": [
+                "create_feature_view"
+              ]
+            },
+            "GetFeatureView": {
+              "methods": [
+                "get_feature_view"
+              ]
+            },
+            "ListFeatureViews": {
+              "methods": [
+                "list_feature_views"
+              ]
+            },
+            "UpdateFeatureView": {
+              "methods": [
+                "update_feature_view"
+              ]
+            },
+            "DeleteFeatureView": {
+              "methods": [
+                "delete_feature_view"
+              ]
+            },
+            "SyncFeatureView": {
+              "methods": [
+                "sync_feature_view"
+              ]
+            },
+            "GetFeatureViewSync": {
+              "methods": [
+                "get_feature_view_sync"
+              ]
+            },
+            "ListFeatureViewSyncs": {
+              "methods": [
+                "list_feature_view_syncs"
+              ]
+            }
+          }
+        }
+      }
+    },
     "FeaturestoreOnlineServingService": {
       "clients": {
         "grpc": {
@@ -171,6 +279,25 @@
             "WriteFeatureValues": {
               "methods": [
                 "write_feature_values"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "FeatureOnlineStoreService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::FeatureOnlineStoreService::Client",
+          "rpcs": {
+            "FetchFeatureValues": {
+              "methods": [
+                "fetch_feature_values"
+              ]
+            },
+            "SearchNearestEntities": {
+              "methods": [
+                "search_nearest_entities"
               ]
             }
           }
@@ -285,6 +412,94 @@
             "SearchFeatures": {
               "methods": [
                 "search_features"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "FeatureRegistryService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client",
+          "rpcs": {
+            "CreateFeatureGroup": {
+              "methods": [
+                "create_feature_group"
+              ]
+            },
+            "GetFeatureGroup": {
+              "methods": [
+                "get_feature_group"
+              ]
+            },
+            "ListFeatureGroups": {
+              "methods": [
+                "list_feature_groups"
+              ]
+            },
+            "UpdateFeatureGroup": {
+              "methods": [
+                "update_feature_group"
+              ]
+            },
+            "DeleteFeatureGroup": {
+              "methods": [
+                "delete_feature_group"
+              ]
+            },
+            "CreateFeature": {
+              "methods": [
+                "create_feature"
+              ]
+            },
+            "GetFeature": {
+              "methods": [
+                "get_feature"
+              ]
+            },
+            "ListFeatures": {
+              "methods": [
+                "list_features"
+              ]
+            },
+            "UpdateFeature": {
+              "methods": [
+                "update_feature"
+              ]
+            },
+            "DeleteFeature": {
+              "methods": [
+                "delete_feature"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "GenAiTuningService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::GenAiTuningService::Client",
+          "rpcs": {
+            "CreateTuningJob": {
+              "methods": [
+                "create_tuning_job"
+              ]
+            },
+            "GetTuningJob": {
+              "methods": [
+                "get_tuning_job"
+              ]
+            },
+            "ListTuningJobs": {
+              "methods": [
+                "list_tuning_jobs"
+              ]
+            },
+            "CancelTuningJob": {
+              "methods": [
+                "cancel_tuning_job"
               ]
             }
           }
@@ -568,6 +783,99 @@
         }
       }
     },
+    "PredictionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::PredictionService::Client",
+          "rpcs": {
+            "Predict": {
+              "methods": [
+                "predict"
+              ]
+            },
+            "RawPredict": {
+              "methods": [
+                "raw_predict"
+              ]
+            },
+            "StreamRawPredict": {
+              "methods": [
+                "stream_raw_predict"
+              ]
+            },
+            "DirectPredict": {
+              "methods": [
+                "direct_predict"
+              ]
+            },
+            "DirectRawPredict": {
+              "methods": [
+                "direct_raw_predict"
+              ]
+            },
+            "StreamDirectPredict": {
+              "methods": [
+                "stream_direct_predict"
+              ]
+            },
+            "StreamDirectRawPredict": {
+              "methods": [
+                "stream_direct_raw_predict"
+              ]
+            },
+            "StreamingPredict": {
+              "methods": [
+                "streaming_predict"
+              ]
+            },
+            "ServerStreamingPredict": {
+              "methods": [
+                "server_streaming_predict"
+              ]
+            },
+            "StreamingRawPredict": {
+              "methods": [
+                "streaming_raw_predict"
+              ]
+            },
+            "Explain": {
+              "methods": [
+                "explain"
+              ]
+            },
+            "GenerateContent": {
+              "methods": [
+                "generate_content"
+              ]
+            },
+            "StreamGenerateContent": {
+              "methods": [
+                "stream_generate_content"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "LlmUtilityService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::LlmUtilityService::Client",
+          "rpcs": {
+            "CountTokens": {
+              "methods": [
+                "count_tokens"
+              ]
+            },
+            "ComputeTokens": {
+              "methods": [
+                "compute_tokens"
+              ]
+            }
+          }
+        }
+      }
+    },
     "MatchService": {
       "clients": {
         "grpc": {
@@ -775,6 +1083,20 @@
         }
       }
     },
+    "ModelGardenService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::ModelGardenService::Client",
+          "rpcs": {
+            "GetPublisherModel": {
+              "methods": [
+                "get_publisher_model"
+              ]
+            }
+          }
+        }
+      }
+    },
     "ModelService": {
       "clients": {
         "grpc": {
@@ -874,14 +1196,98 @@
         }
       }
     },
-    "ModelGardenService": {
+    "NotebookService": {
       "clients": {
         "grpc": {
-          "libraryClient": "::Google::Cloud::AIPlatform::V1::ModelGardenService::Client",
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::NotebookService::Client",
           "rpcs": {
-            "GetPublisherModel": {
+            "CreateNotebookRuntimeTemplate": {
               "methods": [
-                "get_publisher_model"
+                "create_notebook_runtime_template"
+              ]
+            },
+            "GetNotebookRuntimeTemplate": {
+              "methods": [
+                "get_notebook_runtime_template"
+              ]
+            },
+            "ListNotebookRuntimeTemplates": {
+              "methods": [
+                "list_notebook_runtime_templates"
+              ]
+            },
+            "DeleteNotebookRuntimeTemplate": {
+              "methods": [
+                "delete_notebook_runtime_template"
+              ]
+            },
+            "AssignNotebookRuntime": {
+              "methods": [
+                "assign_notebook_runtime"
+              ]
+            },
+            "GetNotebookRuntime": {
+              "methods": [
+                "get_notebook_runtime"
+              ]
+            },
+            "ListNotebookRuntimes": {
+              "methods": [
+                "list_notebook_runtimes"
+              ]
+            },
+            "DeleteNotebookRuntime": {
+              "methods": [
+                "delete_notebook_runtime"
+              ]
+            },
+            "UpgradeNotebookRuntime": {
+              "methods": [
+                "upgrade_notebook_runtime"
+              ]
+            },
+            "StartNotebookRuntime": {
+              "methods": [
+                "start_notebook_runtime"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "PersistentResourceService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::AIPlatform::V1::PersistentResourceService::Client",
+          "rpcs": {
+            "CreatePersistentResource": {
+              "methods": [
+                "create_persistent_resource"
+              ]
+            },
+            "GetPersistentResource": {
+              "methods": [
+                "get_persistent_resource"
+              ]
+            },
+            "ListPersistentResources": {
+              "methods": [
+                "list_persistent_resources"
+              ]
+            },
+            "DeletePersistentResource": {
+              "methods": [
+                "delete_persistent_resource"
+              ]
+            },
+            "UpdatePersistentResource": {
+              "methods": [
+                "update_persistent_resource"
+              ]
+            },
+            "RebootPersistentResource": {
+              "methods": [
+                "reboot_persistent_resource"
               ]
             }
           }
@@ -938,38 +1344,19 @@
                 "delete_pipeline_job"
               ]
             },
+            "BatchDeletePipelineJobs": {
+              "methods": [
+                "batch_delete_pipeline_jobs"
+              ]
+            },
             "CancelPipelineJob": {
               "methods": [
                 "cancel_pipeline_job"
               ]
-            }
-          }
-        }
-      }
-    },
-    "PredictionService": {
-      "clients": {
-        "grpc": {
-          "libraryClient": "::Google::Cloud::AIPlatform::V1::PredictionService::Client",
-          "rpcs": {
-            "Predict": {
-              "methods": [
-                "predict"
-              ]
             },
-            "RawPredict": {
+            "BatchCancelPipelineJobs": {
               "methods": [
-                "raw_predict"
-              ]
-            },
-            "ServerStreamingPredict": {
-              "methods": [
-                "server_streaming_predict"
-              ]
-            },
-            "Explain": {
-              "methods": [
-                "explain"
+                "batch_cancel_pipeline_jobs"
               ]
             }
           }

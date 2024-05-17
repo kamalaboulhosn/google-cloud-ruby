@@ -137,9 +137,10 @@ module Google
         #     conforming to https://google.aip.dev/160#filtering.
         #
         #     Similarly, for `view-item-list` events that are generated from a
-        #     [RecommendationService.RecommendRequest][], this field may be populated
-        #     directly from [RecommendationService.RecommendRequest.filter][] conforming
-        #     to https://google.aip.dev/160#filtering.
+        #     {::Google::Cloud::DiscoveryEngine::V1beta::RecommendRequest RecommendRequest},
+        #     this field may be populated directly from
+        #     {::Google::Cloud::DiscoveryEngine::V1beta::RecommendRequest#filter RecommendRequest.filter}
+        #     conforming to https://google.aip.dev/160#filtering.
         #
         #     The value must be a UTF-8 encoded string with a length limit of 1,000
         #     characters. Otherwise, an `INVALID_ARGUMENT` error is returned.
@@ -254,7 +255,7 @@ module Google
         #     The most specific category associated with a category page.
         #
         #     To represent full path of category, use '>' sign to separate different
-        #     hierarchies. If '>' is part of the category name, please replace it with
+        #     hierarchies. If '>' is part of the category name, replace it with
         #     other character(s).
         #
         #     Category pages include special pages such as sales or promotions. For

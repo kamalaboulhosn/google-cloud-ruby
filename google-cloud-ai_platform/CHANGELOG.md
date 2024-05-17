@@ -1,5 +1,28 @@
 # Changelog
 
+### 1.3.0 (2024-04-19)
+
+#### Features
+
+* GenAiTuningService aiplatform v1 initial release ([#25459](https://github.com/googleapis/google-cloud-ruby/issues/25459)) 
+
+### 1.2.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24862](https://github.com/googleapis/google-cloud-ruby/issues/24862)) 
+* Support for DeploymentResourcePoolService ([#23644](https://github.com/googleapis/google-cloud-ruby/issues/23644)) 
+* Support for universe_domain 
+
+### 1.1.0 (2023-12-08)
+
+#### Features
+
+* Support for FeatureOnlineStoreAdminService 
+* Support for FeatureOnlineStoreService 
+* Support for FeatureRegistryService 
+* Support for LlmUtilityService 
+
 ### 1.0.0 (2023-07-28)
 
 #### Features

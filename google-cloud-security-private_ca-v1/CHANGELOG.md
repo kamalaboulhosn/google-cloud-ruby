@@ -1,5 +1,44 @@
 # Changelog
 
+### 0.13.0 (2024-04-19)
+
+#### Features
+
+* Support encoding format in CaPool resource ([#25465](https://github.com/googleapis/google-cloud-ruby/issues/25465)) 
+
+### 0.12.0 (2024-03-18)
+
+#### Features
+
+* Add support for fine-grained maximum certificate lifetime controls ([#25372](https://github.com/googleapis/google-cloud-ruby/issues/25372)) 
+#### Documentation
+
+* Improve documentation ([#25372](https://github.com/googleapis/google-cloud-ruby/issues/25372)) 
+
+### 0.11.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24876](https://github.com/googleapis/google-cloud-ruby/issues/24876)) 
+
+### 0.10.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.10.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.10.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23785](https://github.com/googleapis/google-cloud-ruby/issues/23785)) 
+
 ### 0.9.0 (2023-09-12)
 
 #### Features

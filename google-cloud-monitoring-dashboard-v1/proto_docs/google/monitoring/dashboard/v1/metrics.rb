@@ -43,6 +43,15 @@ module Google
           #     the same as the
           #     [`unit`](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors)
           #     field in `MetricDescriptor`.
+          # @!attribute [rw] output_full_duration
+          #   @return [::Boolean]
+          #     Optional. If set, Cloud Monitoring will treat the full query duration as
+          #     the alignment period so that there will be only 1 output value.
+          #
+          #     *Note: This could override the configured alignment period except for
+          #     the cases where a series of data points are expected, like
+          #       - XyChart
+          #       - Scorecard's spark chart
           class TimeSeriesQuery
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -69,6 +78,7 @@ module Google
           #   @return [::Google::Cloud::Monitoring::Dashboard::V1::PickTimeSeriesFilter]
           #     Ranking based time series filter.
           # @!attribute [rw] statistical_time_series_filter
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Google::Cloud::Monitoring::Dashboard::V1::StatisticalTimeSeriesFilter]
           #     Statistics based time series filter.
           #     Note: This field is deprecated and completely ignored by the API.
@@ -93,6 +103,7 @@ module Google
           #   @return [::Google::Cloud::Monitoring::Dashboard::V1::PickTimeSeriesFilter]
           #     Ranking based time series filter.
           # @!attribute [rw] statistical_time_series_filter
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Google::Cloud::Monitoring::Dashboard::V1::StatisticalTimeSeriesFilter]
           #     Statistics based time series filter.
           #     Note: This field is deprecated and completely ignored by the API.

@@ -1,5 +1,35 @@
 # Changelog
 
+### 0.8.0 (2024-03-18)
+
+#### Features
+
+* Support new enum option "SBOM_REFERENCE" in NoteKind ([#25381](https://github.com/googleapis/google-cloud-ruby/issues/25381)) 
+
+### 0.7.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24865](https://github.com/googleapis/google-cloud-ruby/issues/24865)) 
+
+### 0.6.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.6.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.6.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23775](https://github.com/googleapis/google-cloud-ruby/issues/23775)) 
+
 ### 0.5.0 (2023-09-12)
 
 #### Features

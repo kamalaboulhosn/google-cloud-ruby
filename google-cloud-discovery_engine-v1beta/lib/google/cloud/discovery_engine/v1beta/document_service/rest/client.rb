@@ -35,6 +35,12 @@ module Google
             # customer's website.
             #
             class Client
+              # @private
+              API_VERSION = ""
+
+              # @private
+              DEFAULT_ENDPOINT_TEMPLATE = "discoveryengine.$UNIVERSE_DOMAIN$"
+
               include Paths
 
               # @private
@@ -106,6 +112,15 @@ module Google
               end
 
               ##
+              # The effective universe domain
+              #
+              # @return [String]
+              #
+              def universe_domain
+                @document_service_stub.universe_domain
+              end
+
+              ##
               # Create a new DocumentService REST client object.
               #
               # @example
@@ -132,8 +147,9 @@ module Google
                 credentials = @config.credentials
                 # Use self-signed JWT if the endpoint is unchanged from default,
                 # but only if the default endpoint does not have a region prefix.
-                enable_self_signed_jwt = @config.endpoint == Configuration::DEFAULT_ENDPOINT &&
-                                         !@config.endpoint.split(".").first.include?("-")
+                enable_self_signed_jwt = @config.endpoint.nil? ||
+                                         (@config.endpoint == Configuration::DEFAULT_ENDPOINT &&
+                                         !@config.endpoint.split(".").first.include?("-"))
                 credentials ||= Credentials.default scope: @config.scope,
                                                     enable_self_signed_jwt: enable_self_signed_jwt
                 if credentials.is_a?(::String) || credentials.is_a?(::Hash)
@@ -147,15 +163,22 @@ module Google
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @config.endpoint
+                  config.universe_domain = @config.universe_domain
                 end
+
+                @document_service_stub = ::Google::Cloud::DiscoveryEngine::V1beta::DocumentService::Rest::ServiceStub.new(
+                  endpoint: @config.endpoint,
+                  endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
+                  universe_domain: @config.universe_domain,
+                  credentials: credentials
+                )
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
-                  config.endpoint = @config.endpoint
+                  config.endpoint = @document_service_stub.endpoint
+                  config.universe_domain = @document_service_stub.universe_domain
                 end
-
-                @document_service_stub = ::Google::Cloud::DiscoveryEngine::V1beta::DocumentService::Rest::ServiceStub.new endpoint: @config.endpoint, credentials: credentials
               end
 
               ##
@@ -237,12 +260,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.get_document.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.get_document.timeout,
@@ -344,12 +368,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.list_documents.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.list_documents.timeout,
@@ -445,12 +470,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.create_document.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.create_document.timeout,
@@ -482,7 +508,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload update_document(document: nil, allow_missing: nil)
+              # @overload update_document(document: nil, allow_missing: nil, update_mask: nil)
               #   Pass arguments to `update_document` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -503,6 +529,9 @@ module Google
               #     {::Google::Cloud::DiscoveryEngine::V1beta::Document Document} is not found, a
               #     new {::Google::Cloud::DiscoveryEngine::V1beta::Document Document} will be
               #     created.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Indicates which fields in the provided imported 'document' to update. If
+              #     not set, will by default update all fields.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::Document]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -537,12 +566,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.update_document.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.update_document.timeout,
@@ -624,12 +654,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.delete_document.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.delete_document.timeout,
@@ -667,7 +698,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload import_documents(inline_source: nil, gcs_source: nil, bigquery_source: nil, parent: nil, error_config: nil, reconciliation_mode: nil, auto_generate_ids: nil, id_field: nil)
+              # @overload import_documents(inline_source: nil, gcs_source: nil, bigquery_source: nil, fhir_store_source: nil, spanner_source: nil, cloud_sql_source: nil, firestore_source: nil, bigtable_source: nil, parent: nil, error_config: nil, reconciliation_mode: nil, update_mask: nil, auto_generate_ids: nil, id_field: nil)
               #   Pass arguments to `import_documents` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -678,6 +709,16 @@ module Google
               #     Cloud Storage location for the input content.
               #   @param bigquery_source [::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource, ::Hash]
               #     BigQuery input source.
+              #   @param fhir_store_source [::Google::Cloud::DiscoveryEngine::V1beta::FhirStoreSource, ::Hash]
+              #     FhirStore input source.
+              #   @param spanner_source [::Google::Cloud::DiscoveryEngine::V1beta::SpannerSource, ::Hash]
+              #     Spanner input source.
+              #   @param cloud_sql_source [::Google::Cloud::DiscoveryEngine::V1beta::CloudSqlSource, ::Hash]
+              #     Cloud SQL input source.
+              #   @param firestore_source [::Google::Cloud::DiscoveryEngine::V1beta::FirestoreSource, ::Hash]
+              #     Firestore input source.
+              #   @param bigtable_source [::Google::Cloud::DiscoveryEngine::V1beta::BigtableSource, ::Hash]
+              #     Cloud Bigtable input source.
               #   @param parent [::String]
               #     Required. The parent branch resource name, such as
               #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/branches/{branch}`.
@@ -688,6 +729,9 @@ module Google
               #     The mode of reconciliation between existing documents and the documents to
               #     be imported. Defaults to
               #     {::Google::Cloud::DiscoveryEngine::V1beta::ImportDocumentsRequest::ReconciliationMode::INCREMENTAL ReconciliationMode.INCREMENTAL}.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Indicates which fields in the provided imported documents to update. If
+              #     not set, the default is to update all fields.
               #   @param auto_generate_ids [::Boolean]
               #     Whether to automatically generate IDs for the documents if absent.
               #
@@ -702,44 +746,53 @@ module Google
               #     {::Google::Cloud::DiscoveryEngine::V1beta::ImportDocumentsRequest#id_field id_field},
               #     otherwise, documents without IDs fail to be imported.
               #
-              #     Only set this field when using
-              #     {::Google::Cloud::DiscoveryEngine::V1beta::GcsSource GcsSource} or
-              #     {::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource BigQuerySource}, and
-              #     when
+              #     Supported data sources:
+              #
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::GcsSource GcsSource}.
               #     {::Google::Cloud::DiscoveryEngine::V1beta::GcsSource#data_schema GcsSource.data_schema}
-              #     or
+              #     must be `custom` or `csv`. Otherwise, an INVALID_ARGUMENT error is thrown.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource BigQuerySource}.
               #     {::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource#data_schema BigQuerySource.data_schema}
-              #     is `custom` or `csv`. Otherwise, an INVALID_ARGUMENT error is thrown.
+              #     must be `custom` or `csv`. Otherwise, an INVALID_ARGUMENT error is thrown.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::SpannerSource SpannerSource}.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::CloudSqlSource CloudSqlSource}.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::FirestoreSource FirestoreSource}.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::BigtableSource BigtableSource}.
               #   @param id_field [::String]
-              #     The field in the Cloud Storage and BigQuery sources that indicates the
-              #     unique IDs of the documents.
+              #     The field indicates the ID field or column to be used as unique IDs of
+              #     the documents.
               #
               #     For {::Google::Cloud::DiscoveryEngine::V1beta::GcsSource GcsSource} it is the
               #     key of the JSON field. For instance, `my_id` for JSON `{"my_id":
-              #     "some_uuid"}`. For
-              #     {::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource BigQuerySource} it is
-              #     the column name of the BigQuery table where the unique ids are stored.
+              #     "some_uuid"}`. For others, it may be the column name of the table where the
+              #     unique ids are stored.
               #
-              #     The values of the JSON field or the BigQuery column are used as the
+              #     The values of the JSON field or the table column are used as the
               #     {::Google::Cloud::DiscoveryEngine::V1beta::Document#id Document.id}s. The JSON
-              #     field or the BigQuery column must be of string type, and the values must be
+              #     field or the table column must be of string type, and the values must be
               #     set as valid strings conform to
               #     [RFC-1034](https://tools.ietf.org/html/rfc1034) with 1-63 characters.
               #     Otherwise, documents without valid IDs fail to be imported.
               #
-              #     Only set this field when using
-              #     {::Google::Cloud::DiscoveryEngine::V1beta::GcsSource GcsSource} or
-              #     {::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource BigQuerySource}, and
-              #     when
-              #     {::Google::Cloud::DiscoveryEngine::V1beta::GcsSource#data_schema GcsSource.data_schema}
-              #     or
-              #     {::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource#data_schema BigQuerySource.data_schema}
-              #     is `custom`. And only set this field when
+              #     Only set this field when
               #     {::Google::Cloud::DiscoveryEngine::V1beta::ImportDocumentsRequest#auto_generate_ids auto_generate_ids}
               #     is unset or set as `false`. Otherwise, an INVALID_ARGUMENT error is thrown.
               #
               #     If it is unset, a default value `_id` is used when importing from the
               #     allowed data sources.
+              #
+              #     Supported data sources:
+              #
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::GcsSource GcsSource}.
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::GcsSource#data_schema GcsSource.data_schema}
+              #     must be `custom` or `csv`. Otherwise, an INVALID_ARGUMENT error is thrown.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource BigQuerySource}.
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource#data_schema BigQuerySource.data_schema}
+              #     must be `custom` or `csv`. Otherwise, an INVALID_ARGUMENT error is thrown.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::SpannerSource SpannerSource}.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::CloudSqlSource CloudSqlSource}.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::FirestoreSource FirestoreSource}.
+              #     * {::Google::Cloud::DiscoveryEngine::V1beta::BigtableSource BigtableSource}.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -781,12 +834,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.import_documents.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.import_documents.timeout,
@@ -891,12 +945,13 @@ module Google
                 # Customize the options with defaults
                 call_metadata = @config.rpcs.purge_documents.metadata.to_h
 
-                # Set x-goog-api-client and x-goog-user-project headers
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
                   lib_name: @config.lib_name, lib_version: @config.lib_version,
                   gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
                   transports_version_send: [:rest]
 
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
                 call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
 
                 options.apply_defaults timeout:      @config.rpcs.purge_documents.timeout,
@@ -946,9 +1001,9 @@ module Google
               #   end
               #
               # @!attribute [rw] endpoint
-              #   The hostname or hostname:port of the service endpoint.
-              #   Defaults to `"discoveryengine.googleapis.com"`.
-              #   @return [::String]
+              #   A custom service endpoint, as a hostname or hostname:port. The default is
+              #   nil, indicating to use the default endpoint in the current universe domain.
+              #   @return [::String,nil]
               # @!attribute [rw] credentials
               #   Credentials to send with calls. You may provide any of the following types:
               #    *  (`String`) The path to a service account key file in JSON format
@@ -985,13 +1040,20 @@ module Google
               # @!attribute [rw] quota_project
               #   A separate project against which to charge quota.
               #   @return [::String]
+              # @!attribute [rw] universe_domain
+              #   The universe domain within which to make requests. This determines the
+              #   default endpoint URL. The default value of nil uses the environment
+              #   universe (usually the default "googleapis.com" universe).
+              #   @return [::String,nil]
               #
               class Configuration
                 extend ::Gapic::Config
 
+                # @private
+                # The endpoint specific to the default "googleapis.com" universe. Deprecated.
                 DEFAULT_ENDPOINT = "discoveryengine.googleapis.com"
 
-                config_attr :endpoint,      DEFAULT_ENDPOINT, ::String
+                config_attr :endpoint,      nil, ::String, nil
                 config_attr :credentials,   nil do |value|
                   allowed = [::String, ::Hash, ::Proc, ::Symbol, ::Google::Auth::Credentials, ::Signet::OAuth2::Client, nil]
                   allowed.any? { |klass| klass === value }
@@ -1003,6 +1065,7 @@ module Google
                 config_attr :metadata,      nil, ::Hash, nil
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
+                config_attr :universe_domain, nil, ::String, nil
 
                 # @private
                 def initialize parent_config = nil

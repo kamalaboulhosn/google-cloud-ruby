@@ -1,5 +1,63 @@
 # Release History
 
+### 0.32.0 (2024-04-17)
+
+#### Features
+
+* Add tag key id support ([#25414](https://github.com/googleapis/google-cloud-ruby/issues/25414)) 
+
+### 0.31.0 (2024-03-07)
+
+#### Features
+
+* Add asset_type effective_tags field to GovernedResource 
+* Add field condition_evaluation to AnalyzerOrgPolicy.Rule 
+* Add fields project, folders and organization to OrgPolicyResult 
+* Add fields project, folders, organization and effective_tags to GovernedContainer 
+
+### 0.30.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24863](https://github.com/googleapis/google-cloud-ruby/issues/24863)) 
+
+### 0.29.3 (2024-02-08)
+
+#### Documentation
+
+* Improve YARD documentation ([#24771](https://github.com/googleapis/google-cloud-ruby/issues/24771)) 
+
+### 0.29.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.29.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.29.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23773](https://github.com/googleapis/google-cloud-ruby/issues/23773)) 
+
+### 0.28.1 (2024-01-09)
+
+#### Documentation
+
+* Various documentation updates ([#23709](https://github.com/googleapis/google-cloud-ruby/issues/23709)) 
+
+### 0.28.0 (2024-01-04)
+
+#### Features
+
+* Support for directly attached and effective tags ([#23370](https://github.com/googleapis/google-cloud-ruby/issues/23370)) 
+* Support for Security Command Center security marks 
+
 ### 0.27.0 (2023-09-12)
 
 #### Features

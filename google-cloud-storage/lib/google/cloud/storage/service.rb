@@ -15,6 +15,7 @@
 
 require "google/cloud/storage/version"
 require "google/apis/storage_v1"
+require "google/cloud/config"
 require "digest"
 require "mini_mime"
 require "pathname"
@@ -36,6 +37,11 @@ module Google
         # @private
         attr_accessor :credentials
 
+        # @private
+        def universe_domain
+          service.universe_domain
+        end
+
         ##
         # Creates a new Service instance.
         # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
@@ -43,7 +49,8 @@ module Google
                        timeout: nil, open_timeout: nil, read_timeout: nil,
                        send_timeout: nil, host: nil, quota_project: nil,
                        max_elapsed_time: nil, base_interval: nil, max_interval: nil,
-                       multiplier: nil, upload_chunk_size: nil
+                       multiplier: nil, upload_chunk_size: nil, universe_domain: nil
+          host ||= Google::Cloud::Storage.configure.endpoint
           @project = project
           @credentials = credentials
           @service = API::StorageService.new
@@ -68,6 +75,13 @@ module Google
           @service.request_options.upload_chunk_size = upload_chunk_size if upload_chunk_size
           @service.authorization = @credentials.client if @credentials
           @service.root_url = host if host
+          @service.universe_domain = universe_domain || Google::Cloud::Storage.configure.universe_domain
+          begin
+            @service.verify_universe_domain!
+          rescue Google::Apis::UniverseDomainError => e
+            # TODO: Create a Google::Cloud::Error subclass for this.
+            raise Google::Cloud::Error, e.message
+          end
         end
         # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
@@ -112,14 +126,16 @@ module Google
         # Creates a new bucket.
         # Returns Google::Apis::StorageV1::Bucket.
         def insert_bucket bucket_gapi, acl: nil, default_acl: nil,
-                          user_project: nil, options: {}
+                          user_project: nil, enable_object_retention: nil,
+                          options: {}
           execute do
             service.insert_bucket \
               @project, bucket_gapi,
               predefined_acl: acl,
               predefined_default_object_acl: default_acl,
               user_project: user_project(user_project),
-              options: options
+              options: options,
+              enable_object_retention: enable_object_retention
           end
         end
 
@@ -349,13 +365,17 @@ module Google
         # Retrieves a list of files matching the criteria.
         def list_files bucket_name, delimiter: nil, max: nil, token: nil,
                        prefix: nil, versions: nil, user_project: nil,
-                       options: {}
+                       match_glob: nil, include_folders_as_prefixes: nil,
+                       soft_deleted: nil, options: {}
           execute do
             service.list_objects \
               bucket_name, delimiter: delimiter, max_results: max,
                            page_token: token, prefix: prefix,
                            versions: versions,
                            user_project: user_project(user_project),
+                           match_glob: match_glob,
+                           include_folders_as_prefixes: include_folders_as_prefixes,
+                           soft_deleted: soft_deleted,
                            options: options
           end
         end
@@ -439,6 +459,7 @@ module Google
                      if_metageneration_not_match: nil,
                      key: nil,
                      user_project: nil,
+                     soft_deleted: nil,
                      options: {}
           execute do
             service.get_object \
@@ -449,6 +470,7 @@ module Google
               if_metageneration_match: if_metageneration_match,
               if_metageneration_not_match: if_metageneration_not_match,
               user_project: user_project(user_project),
+              soft_deleted: soft_deleted,
               options: key_options(key).merge(options)
           end
         end
@@ -580,6 +602,7 @@ module Google
                        if_metageneration_not_match: nil,
                        predefined_acl: nil,
                        user_project: nil,
+                       override_unlocked_retention: nil,
                        options: {}
           file_gapi ||= Google::Apis::StorageV1::Object.new
 
@@ -599,6 +622,7 @@ module Google
                                  if_metageneration_not_match: if_metageneration_not_match,
                                  predefined_acl: predefined_acl,
                                  user_project: user_project(user_project),
+                                 override_unlocked_retention: override_unlocked_retention,
                                  options: options
           end
         end
@@ -629,6 +653,40 @@ module Google
                                   if_metageneration_not_match: if_metageneration_not_match,
                                   user_project: user_project(user_project),
                                   options: options
+          end
+        end
+
+        ##
+        # Restores a soft-deleted object.
+        def restore_file bucket_name,
+                         file_path,
+                         generation,
+                         copy_source_acl: nil,
+                         if_generation_match: nil,
+                         if_generation_not_match: nil,
+                         if_metageneration_match: nil,
+                         if_metageneration_not_match: nil,
+                         projection: nil,
+                         user_project: nil,
+                         fields: nil,
+                         options: {}
+
+          if options[:retries].nil?
+            is_idempotent = retry? generation: generation, if_generation_match: if_generation_match
+            options = is_idempotent ? {} : { retries: 0 }
+          end
+
+          execute do
+            service.restore_object bucket_name, file_path, generation,
+                                   copy_source_acl: copy_source_acl,
+                                   if_generation_match: if_generation_match,
+                                   if_generation_not_match: if_generation_not_match,
+                                   if_metageneration_match: if_metageneration_match,
+                                   if_metageneration_not_match: if_metageneration_not_match,
+                                   projection: projection,
+                                   user_project: user_project(user_project),
+                                   fields: fields,
+                                   options: options
           end
         end
 

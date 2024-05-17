@@ -108,9 +108,9 @@ module Google
         end
 
         # ActiveDirectory is the public representation of the active directory config.
-        # @!attribute [r] name
+        # @!attribute [rw] name
         #   @return [::String]
-        #     Output only. The resource name of the active directory.
+        #     Identifier. The resource name of the active directory.
         #     Format:
         #     `projects/{project_number}/locations/{location_id}/activeDirectories/{active_directory_id}`.
         # @!attribute [r] create_time
@@ -148,10 +148,11 @@ module Google
         #     Required. Password of the Active Directory domain administrator.
         # @!attribute [rw] backup_operators
         #   @return [::Array<::String>]
-        #     Users to be added to the Built-in Backup Operator active directory group.
+        #     Optional. Users to be added to the Built-in Backup Operator active
+        #     directory group.
         # @!attribute [rw] security_operators
         #   @return [::Array<::String>]
-        #     Domain users to be given the SeSecurityPrivilege.
+        #     Optional. Domain users to be given the SeSecurityPrivilege.
         # @!attribute [rw] kdc_hostname
         #   @return [::String]
         #     Name of the active directory machine. This optional parameter is used only

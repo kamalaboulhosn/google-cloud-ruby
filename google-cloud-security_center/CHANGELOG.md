@@ -1,5 +1,23 @@
 # Release History
 
+### 1.7.0 (2024-04-19)
+
+#### Features
+
+* include google-cloud-security_center-v2 as a dependency ([#25425](https://github.com/googleapis/google-cloud-ruby/issues/25425)) 
+
+### 1.6.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24876](https://github.com/googleapis/google-cloud-ruby/issues/24876)) 
+
+### 1.5.0 (2024-01-15)
+
+#### Features
+
+* Support for universe_domain ([#24266](https://github.com/googleapis/google-cloud-ruby/issues/24266)) 
+
 ### 1.4.1 (2023-07-10)
 
 #### Documentation

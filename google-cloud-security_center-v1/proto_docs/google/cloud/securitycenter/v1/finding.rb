@@ -212,6 +212,30 @@ module Google
         # @!attribute [rw] kernel_rootkit
         #   @return [::Google::Cloud::SecurityCenter::V1::KernelRootkit]
         #     Signature of the kernel rootkit.
+        # @!attribute [rw] org_policies
+        #   @return [::Array<::Google::Cloud::SecurityCenter::V1::OrgPolicy>]
+        #     Contains information about the org policies associated with the finding.
+        # @!attribute [rw] application
+        #   @return [::Google::Cloud::SecurityCenter::V1::Application]
+        #     Represents an application associated with the finding.
+        # @!attribute [rw] backup_disaster_recovery
+        #   @return [::Google::Cloud::SecurityCenter::V1::BackupDisasterRecovery]
+        #     Fields related to Backup and DR findings.
+        # @!attribute [rw] security_posture
+        #   @return [::Google::Cloud::SecurityCenter::V1::SecurityPosture]
+        #     The security posture associated with the finding.
+        # @!attribute [rw] log_entries
+        #   @return [::Array<::Google::Cloud::SecurityCenter::V1::LogEntry>]
+        #     Log entries that are relevant to the finding.
+        # @!attribute [rw] load_balancers
+        #   @return [::Array<::Google::Cloud::SecurityCenter::V1::LoadBalancer>]
+        #     The load balancers associated with the finding.
+        # @!attribute [rw] cloud_armor
+        #   @return [::Google::Cloud::SecurityCenter::V1::CloudArmor]
+        #     Fields related to Cloud Armor findings.
+        # @!attribute [rw] notebook
+        #   @return [::Google::Cloud::SecurityCenter::V1::Notebook]
+        #     Notebook associated with the finding.
         class Finding
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -352,6 +376,10 @@ module Google
 
             # Describes an error that prevents some SCC functionality.
             SCC_ERROR = 5
+
+            # Describes a potential security risk due to a change in the security
+            # posture.
+            POSTURE_VIOLATION = 6
           end
         end
       end

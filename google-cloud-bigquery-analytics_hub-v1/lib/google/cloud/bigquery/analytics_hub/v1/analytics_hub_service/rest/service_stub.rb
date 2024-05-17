@@ -31,14 +31,35 @@ module Google
               # including transcoding, making the REST call, and deserialing the response.
               #
               class ServiceStub
-                def initialize endpoint:, credentials:
+                def initialize endpoint:, endpoint_template:, universe_domain:, credentials:
                   # These require statements are intentionally placed here to initialize
                   # the REST modules only when it's required.
                   require "gapic/rest"
 
-                  @client_stub = ::Gapic::Rest::ClientStub.new endpoint: endpoint, credentials: credentials,
+                  @client_stub = ::Gapic::Rest::ClientStub.new endpoint: endpoint,
+                                                               endpoint_template: endpoint_template,
+                                                               universe_domain: universe_domain,
+                                                               credentials: credentials,
                                                                numeric_enums: false,
                                                                raise_faraday_errors: false
+                end
+
+                ##
+                # The effective universe domain
+                #
+                # @return [String]
+                #
+                def universe_domain
+                  @client_stub.universe_domain
+                end
+
+                ##
+                # The effective endpoint
+                #
+                # @return [String]
+                #
+                def endpoint
+                  @client_stub.endpoint
                 end
 
                 ##
@@ -1318,6 +1339,14 @@ module Google
                                                               ["resource", %r{^projects/[^/]+/locations/[^/]+/dataExchanges/[^/]+/listings/[^/]+/?$}, false]
                                                             ]
                                                           )
+                                                          .with_bindings(
+                                                            uri_method: :post,
+                                                            uri_template: "/v1/{resource}:getIamPolicy",
+                                                            body: "*",
+                                                            matches: [
+                                                              ["resource", %r{^projects/[^/]+/locations/[^/]+/subscriptions/[^/]+/?$}, false]
+                                                            ]
+                                                          )
                   transcoder.transcode request_pb
                 end
 
@@ -1346,6 +1375,14 @@ module Google
                                                             body: "*",
                                                             matches: [
                                                               ["resource", %r{^projects/[^/]+/locations/[^/]+/dataExchanges/[^/]+/listings/[^/]+/?$}, false]
+                                                            ]
+                                                          )
+                                                          .with_bindings(
+                                                            uri_method: :post,
+                                                            uri_template: "/v1/{resource}:setIamPolicy",
+                                                            body: "*",
+                                                            matches: [
+                                                              ["resource", %r{^projects/[^/]+/locations/[^/]+/subscriptions/[^/]+/?$}, false]
                                                             ]
                                                           )
                   transcoder.transcode request_pb

@@ -1,5 +1,29 @@
 # Release History
 
+### 2.18.0 (2024-03-26)
+
+#### Features
+
+* support ingestion_data_source_settings for create_topic ([#25418](https://github.com/googleapis/google-cloud-ruby/issues/25418)) 
+
+### 2.17.0 (2024-03-07)
+
+#### Features
+
+* Update minimum supported Ruby version to 2.7 ([#25298](https://github.com/googleapis/google-cloud-ruby/issues/25298)) 
+
+### 2.16.0 (2024-01-25)
+
+#### Features
+
+* Support for universe_domain ([#24437](https://github.com/googleapis/google-cloud-ruby/issues/24437)) 
+
+### 2.15.5 (2023-11-06)
+
+#### Bug Fixes
+
+* set x-goog-request-params for streaming pull request ([#23508](https://github.com/googleapis/google-cloud-ruby/issues/23508)) 
+
 ### 2.15.4 (2023-05-19)
 
 #### Documentation

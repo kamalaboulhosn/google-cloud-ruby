@@ -1,5 +1,41 @@
 # Release History
 
+### 0.19.0 (2024-05-15)
+
+#### Features
+
+* Support kms key names and encryption information in backup configuration ([#25854](https://github.com/googleapis/google-cloud-ruby/issues/25854)) 
+
+### 0.18.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24877](https://github.com/googleapis/google-cloud-ruby/issues/24877)) 
+
+### 0.17.1 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.17.0 (2024-01-25)
+
+#### Features
+
+* Support proto descriptors when creating a database or getting or updating a database DDL ([#24468](https://github.com/googleapis/google-cloud-ruby/issues/24468)) 
+
+### 0.16.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.16.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23786](https://github.com/googleapis/google-cloud-ruby/issues/23786)) 
+
 ### 0.15.0 (2023-09-12)
 
 #### Features

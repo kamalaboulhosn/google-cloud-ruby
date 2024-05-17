@@ -23,9 +23,19 @@ require "gapic/grpc/service_stub"
 require "google/cloud/discovery_engine/v1/conversational_search_service"
 
 class ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::ClientPathsTest < Minitest::Test
+  class DummyStub
+    def endpoint
+      "endpoint.example.com"
+    end
+  
+    def universe_domain
+      "example.com"
+    end
+  end
+
   def test_conversation_path
     grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
-    ::Gapic::ServiceStub.stub :new, nil do
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
       client = ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Client.new do |config|
         config.credentials = grpc_channel
       end
@@ -35,12 +45,15 @@ class ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::ClientP
 
       path = client.conversation_path project: "value0", location: "value1", collection: "value2", data_store: "value3", conversation: "value4"
       assert_equal "projects/value0/locations/value1/collections/value2/dataStores/value3/conversations/value4", path
+
+      path = client.conversation_path project: "value0", location: "value1", collection: "value2", engine: "value3", conversation: "value4"
+      assert_equal "projects/value0/locations/value1/collections/value2/engines/value3/conversations/value4", path
     end
   end
 
   def test_data_store_path
     grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
-    ::Gapic::ServiceStub.stub :new, nil do
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
       client = ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Client.new do |config|
         config.credentials = grpc_channel
       end
@@ -53,9 +66,24 @@ class ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::ClientP
     end
   end
 
+  def test_document_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.document_path project: "value0", location: "value1", data_store: "value2", branch: "value3", document: "value4"
+      assert_equal "projects/value0/locations/value1/dataStores/value2/branches/value3/documents/value4", path
+
+      path = client.document_path project: "value0", location: "value1", collection: "value2", data_store: "value3", branch: "value4", document: "value5"
+      assert_equal "projects/value0/locations/value1/collections/value2/dataStores/value3/branches/value4/documents/value5", path
+    end
+  end
+
   def test_serving_config_path
     grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
-    ::Gapic::ServiceStub.stub :new, nil do
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
       client = ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Client.new do |config|
         config.credentials = grpc_channel
       end
@@ -65,6 +93,9 @@ class ::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::ClientP
 
       path = client.serving_config_path project: "value0", location: "value1", collection: "value2", data_store: "value3", serving_config: "value4"
       assert_equal "projects/value0/locations/value1/collections/value2/dataStores/value3/servingConfigs/value4", path
+
+      path = client.serving_config_path project: "value0", location: "value1", collection: "value2", engine: "value3", serving_config: "value4"
+      assert_equal "projects/value0/locations/value1/collections/value2/engines/value3/servingConfigs/value4", path
     end
   end
 end

@@ -19,7 +19,6 @@ client gems:
 [google-cloud-beyond_corp-app_connections-v1](https://cloud.google.com/ruby/docs/reference/google-cloud-beyond_corp-app_connections-v1/latest),
 [google-cloud-beyond_corp-app_connectors-v1](https://cloud.google.com/ruby/docs/reference/google-cloud-beyond_corp-app_connectors-v1/latest),
 [google-cloud-beyond_corp-app_gateways-v1](https://cloud.google.com/ruby/docs/reference/google-cloud-beyond_corp-app_gateways-v1/latest),
-[google-cloud-beyond_corp-client_connector_services-v1](https://cloud.google.com/ruby/docs/reference/google-cloud-beyond_corp-client_connector_services-v1/latest),
 [google-cloud-beyond_corp-client_gateways-v1](https://cloud.google.com/ruby/docs/reference/google-cloud-beyond_corp-client_gateways-v1/latest).
 
 See also the [Product Documentation](https://cloud.google.com/beyondcorp/)
@@ -66,7 +65,7 @@ end
 
 ## Supported Ruby Versions
 
-This library is supported on Ruby 2.6+.
+This library is supported on Ruby 2.7+.
 
 Google provides official support for Ruby versions that are actively supported
 by Ruby Core—that is, Ruby versions that are either in normal maintenance or

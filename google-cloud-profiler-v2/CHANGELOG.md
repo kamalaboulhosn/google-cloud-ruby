@@ -1,5 +1,39 @@
 # Release History
 
+### 0.10.0 (2024-02-26)
+
+#### Features
+
+* Added the Profile#start_time field 
+* Update minimum supported Ruby version to 2.7 
+#### Documentation
+
+* Clarified that direct API calls are intended for use only by supported profiler agents 
+
+### 0.9.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.9.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.9.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23783](https://github.com/googleapis/google-cloud-ruby/issues/23783)) 
+
+### 0.8.0 (2024-01-03)
+
+#### Features
+
+* add `ListProfiles` RPC to `ExportService` ([#23659](https://github.com/googleapis/google-cloud-ruby/issues/23659)) 
+
 ### 0.7.0 (2023-09-12)
 
 #### Features

@@ -1,5 +1,45 @@
 # Changelog
 
+### 1.8.0 (2024-05-16)
+
+#### Features
+
+* Support for the InstanceGroupManagerResizeRequests service 
+* Support for the InstanceSettingsService 
+* Support for the StoragePools service 
+* Support for the StoragePoolTypes service 
+
+### 1.7.0 (2024-03-06)
+
+#### Features
+
+* Updated dependency on google-cloud-compute-v1 to the latest version ([#25277](https://github.com/googleapis/google-cloud-ruby/issues/25277)) 
+
+### 1.6.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24867](https://github.com/googleapis/google-cloud-ruby/issues/24867)) 
+
+### 1.5.0 (2024-02-08)
+
+#### Features
+
+* Support RegionZones API ([#24780](https://github.com/googleapis/google-cloud-ruby/issues/24780)) 
+
+### 1.4.0 (2024-01-15)
+
+#### Features
+
+* support for universe_domain ([#24273](https://github.com/googleapis/google-cloud-ruby/issues/24273)) 
+
+### 1.3.0 (2023-12-13)
+
+#### Features
+
+* add support to SnapshotSettingsService from revision 20231110 ([#23638](https://github.com/googleapis/google-cloud-ruby/issues/23638)) 
+* update google-cloud-compute-v1 dependency to version 2.6 
+
 ### 1.2.0 (2023-07-11)
 
 #### Features

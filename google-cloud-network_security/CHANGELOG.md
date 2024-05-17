@@ -1,5 +1,17 @@
 # Changelog
 
+### 0.5.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24873](https://github.com/googleapis/google-cloud-ruby/issues/24873)) 
+
+### 0.4.0 (2024-01-15)
+
+#### Features
+
+* Support for universe_domain ([#24263](https://github.com/googleapis/google-cloud-ruby/issues/24263)) 
+
 ### 0.3.0 (2023-03-09)
 
 #### Features

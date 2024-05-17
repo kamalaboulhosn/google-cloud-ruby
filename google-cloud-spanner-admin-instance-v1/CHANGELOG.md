@@ -1,5 +1,41 @@
 # Release History
 
+### 0.16.0 (2024-04-19)
+
+#### Features
+
+* Support FulfillmentPeriod expectation to instance creations triggered via On-Demand Capacity Feature ([#25471](https://github.com/googleapis/google-cloud-ruby/issues/25471)) 
+
+### 0.15.0 (2024-03-04)
+
+#### Features
+
+* Add instance partition support to spanner instance proto ([#25276](https://github.com/googleapis/google-cloud-ruby/issues/25276)) 
+
+### 0.14.0 (2024-02-26)
+
+#### Features
+
+* Updated minimum Ruby version to 2.7 ([#24877](https://github.com/googleapis/google-cloud-ruby/issues/24877)) 
+
+### 0.13.2 (2024-02-01)
+
+#### Bug Fixes
+
+* Eliminated a harmless but annoying warning in the protobuf class files 
+
+### 0.13.1 (2024-01-12)
+
+#### Bug Fixes
+
+* Ensure endpoints are correct for mixin clients ([#24032](https://github.com/googleapis/google-cloud-ruby/issues/24032)) 
+
+### 0.13.0 (2024-01-11)
+
+#### Features
+
+* Support for universe_domain ([#23786](https://github.com/googleapis/google-cloud-ruby/issues/23786)) 
+
 ### 0.12.0 (2023-10-17)
 
 #### Features

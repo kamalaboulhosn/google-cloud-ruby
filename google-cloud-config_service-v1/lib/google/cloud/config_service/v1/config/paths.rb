@@ -61,6 +61,25 @@ module Google
             end
 
             ##
+            # Create a fully-qualified Preview resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/previews/{preview}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param preview [String]
+            #
+            # @return [::String]
+            def preview_path project:, location:, preview:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/previews/#{preview}"
+            end
+
+            ##
             # Create a fully-qualified Resource resource string.
             #
             # The resource will be in the following format:
@@ -119,6 +138,25 @@ module Google
               raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
 
               "projects/#{project}/serviceAccounts/#{service_account}"
+            end
+
+            ##
+            # Create a fully-qualified TerraformVersion resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/terraformVersions/{terraform_version}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param terraform_version [String]
+            #
+            # @return [::String]
+            def terraform_version_path project:, location:, terraform_version:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/terraformVersions/#{terraform_version}"
             end
 
             ##

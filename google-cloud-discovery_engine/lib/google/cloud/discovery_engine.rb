@@ -29,7 +29,7 @@ require "google/cloud/config"
 
 # Set the default configuration
 ::Google::Cloud.configure.add_config! :discovery_engine do |config|
-  config.add_field! :endpoint,      "discoveryengine.googleapis.com", match: ::String
+  config.add_field! :endpoint,      nil, match: ::String
   config.add_field! :credentials,   nil, match: [::String, ::Hash, ::Google::Auth::Credentials]
   config.add_field! :scope,         nil, match: [::Array, ::String]
   config.add_field! :lib_name,      nil, match: ::String
@@ -39,6 +39,7 @@ require "google/cloud/config"
   config.add_field! :metadata,      nil, match: ::Hash
   config.add_field! :retry_policy,  nil, match: [::Hash, ::Proc]
   config.add_field! :quota_project, nil, match: ::String
+  config.add_field! :universe_domain, nil, match: ::String
 end
 
 module Google
@@ -147,6 +148,41 @@ module Google
       end
 
       ##
+      # Create a new client object for DataStoreService.
+      #
+      # By default, this returns an instance of
+      # [Google::Cloud::DiscoveryEngine::V1::DataStoreService::Client](https://cloud.google.com/ruby/docs/reference/google-cloud-discovery_engine-v1/latest/Google-Cloud-DiscoveryEngine-V1-DataStoreService-Client)
+      # for a gRPC client for version V1 of the API.
+      # However, you can specify a different API version by passing it in the
+      # `version` parameter. If the DataStoreService service is
+      # supported by that API version, and the corresponding gem is available, the
+      # appropriate versioned client will be returned.
+      # You can also specify a different transport by passing `:rest` or `:grpc` in
+      # the `transport` parameter.
+      #
+      # ## About DataStoreService
+      #
+      # Service for managing DataStore
+      # configuration.
+      #
+      # @param version [::String, ::Symbol] The API version to connect to. Optional.
+      #   Defaults to `:v1`.
+      # @param transport [:grpc, :rest] The transport to use. Defaults to `:grpc`.
+      # @return [::Object] A client object for the specified version.
+      #
+      def self.data_store_service version: :v1, transport: :grpc, &block
+        require "google/cloud/discovery_engine/#{version.to_s.downcase}"
+
+        package_name = Google::Cloud::DiscoveryEngine
+                       .constants
+                       .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
+                       .first
+        service_module = Google::Cloud::DiscoveryEngine.const_get(package_name).const_get(:DataStoreService)
+        service_module = service_module.const_get(:Rest) if transport == :rest
+        service_module.const_get(:Client).new(&block)
+      end
+
+      ##
       # Create a new client object for DocumentService.
       #
       # By default, this returns an instance of
@@ -182,6 +218,75 @@ module Google
       end
 
       ##
+      # Create a new client object for EngineService.
+      #
+      # By default, this returns an instance of
+      # [Google::Cloud::DiscoveryEngine::V1::EngineService::Client](https://cloud.google.com/ruby/docs/reference/google-cloud-discovery_engine-v1/latest/Google-Cloud-DiscoveryEngine-V1-EngineService-Client)
+      # for a gRPC client for version V1 of the API.
+      # However, you can specify a different API version by passing it in the
+      # `version` parameter. If the EngineService service is
+      # supported by that API version, and the corresponding gem is available, the
+      # appropriate versioned client will be returned.
+      # You can also specify a different transport by passing `:rest` or `:grpc` in
+      # the `transport` parameter.
+      #
+      # ## About EngineService
+      #
+      # Service for managing Engine
+      # configuration.
+      #
+      # @param version [::String, ::Symbol] The API version to connect to. Optional.
+      #   Defaults to `:v1`.
+      # @param transport [:grpc, :rest] The transport to use. Defaults to `:grpc`.
+      # @return [::Object] A client object for the specified version.
+      #
+      def self.engine_service version: :v1, transport: :grpc, &block
+        require "google/cloud/discovery_engine/#{version.to_s.downcase}"
+
+        package_name = Google::Cloud::DiscoveryEngine
+                       .constants
+                       .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
+                       .first
+        service_module = Google::Cloud::DiscoveryEngine.const_get(package_name).const_get(:EngineService)
+        service_module = service_module.const_get(:Rest) if transport == :rest
+        service_module.const_get(:Client).new(&block)
+      end
+
+      ##
+      # Create a new client object for RecommendationService.
+      #
+      # By default, this returns an instance of
+      # [Google::Cloud::DiscoveryEngine::V1::RecommendationService::Client](https://cloud.google.com/ruby/docs/reference/google-cloud-discovery_engine-v1/latest/Google-Cloud-DiscoveryEngine-V1-RecommendationService-Client)
+      # for a gRPC client for version V1 of the API.
+      # However, you can specify a different API version by passing it in the
+      # `version` parameter. If the RecommendationService service is
+      # supported by that API version, and the corresponding gem is available, the
+      # appropriate versioned client will be returned.
+      # You can also specify a different transport by passing `:rest` or `:grpc` in
+      # the `transport` parameter.
+      #
+      # ## About RecommendationService
+      #
+      # Service for making recommendations.
+      #
+      # @param version [::String, ::Symbol] The API version to connect to. Optional.
+      #   Defaults to `:v1`.
+      # @param transport [:grpc, :rest] The transport to use. Defaults to `:grpc`.
+      # @return [::Object] A client object for the specified version.
+      #
+      def self.recommendation_service version: :v1, transport: :grpc, &block
+        require "google/cloud/discovery_engine/#{version.to_s.downcase}"
+
+        package_name = Google::Cloud::DiscoveryEngine
+                       .constants
+                       .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
+                       .first
+        service_module = Google::Cloud::DiscoveryEngine.const_get(package_name).const_get(:RecommendationService)
+        service_module = service_module.const_get(:Rest) if transport == :rest
+        service_module.const_get(:Client).new(&block)
+      end
+
+      ##
       # Create a new client object for SchemaService.
       #
       # By default, this returns an instance of
@@ -211,6 +316,40 @@ module Google
                        .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
                        .first
         service_module = Google::Cloud::DiscoveryEngine.const_get(package_name).const_get(:SchemaService)
+        service_module = service_module.const_get(:Rest) if transport == :rest
+        service_module.const_get(:Client).new(&block)
+      end
+
+      ##
+      # Create a new client object for SiteSearchEngineService.
+      #
+      # By default, this returns an instance of
+      # [Google::Cloud::DiscoveryEngine::V1::SiteSearchEngineService::Client](https://cloud.google.com/ruby/docs/reference/google-cloud-discovery_engine-v1/latest/Google-Cloud-DiscoveryEngine-V1-SiteSearchEngineService-Client)
+      # for a gRPC client for version V1 of the API.
+      # However, you can specify a different API version by passing it in the
+      # `version` parameter. If the SiteSearchEngineService service is
+      # supported by that API version, and the corresponding gem is available, the
+      # appropriate versioned client will be returned.
+      # You can also specify a different transport by passing `:rest` or `:grpc` in
+      # the `transport` parameter.
+      #
+      # ## About SiteSearchEngineService
+      #
+      # Service for managing site search related resources.
+      #
+      # @param version [::String, ::Symbol] The API version to connect to. Optional.
+      #   Defaults to `:v1`.
+      # @param transport [:grpc, :rest] The transport to use. Defaults to `:grpc`.
+      # @return [::Object] A client object for the specified version.
+      #
+      def self.site_search_engine_service version: :v1, transport: :grpc, &block
+        require "google/cloud/discovery_engine/#{version.to_s.downcase}"
+
+        package_name = Google::Cloud::DiscoveryEngine
+                       .constants
+                       .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
+                       .first
+        service_module = Google::Cloud::DiscoveryEngine.const_get(package_name).const_get(:SiteSearchEngineService)
         service_module = service_module.const_get(:Rest) if transport == :rest
         service_module.const_get(:Client).new(&block)
       end

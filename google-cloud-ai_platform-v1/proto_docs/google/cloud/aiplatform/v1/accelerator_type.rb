@@ -50,6 +50,9 @@ module Google
           # Nvidia L4 GPU.
           NVIDIA_L4 = 11
 
+          # Nvidia H100 80Gb GPU.
+          NVIDIA_H100_80GB = 13
+
           # TPU v2.
           TPU_V2 = 6
 
@@ -58,6 +61,9 @@ module Google
 
           # TPU v4.
           TPU_V4_POD = 10
+
+          # TPU v5.
+          TPU_V5_LITEPOD = 12
         end
       end
     end
