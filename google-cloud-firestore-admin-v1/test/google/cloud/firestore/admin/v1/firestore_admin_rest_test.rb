@@ -33,24 +33,24 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_index
@@ -81,7 +89,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     parent = "hello world"
     index = {}
 
-    create_index_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_index_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -138,7 +146,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     page_size = 42
     page_token = "hello world"
 
-    list_indexes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_indexes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -192,7 +200,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_index_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_index_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -246,7 +254,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_index_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_index_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -300,7 +308,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_field_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_field_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -355,7 +363,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     field = {}
     update_mask = {}
 
-    update_field_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_field_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -412,7 +420,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     page_size = 42
     page_token = "hello world"
 
-    list_fields_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_fields_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -470,7 +478,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     namespace_ids = ["hello world"]
     snapshot_time = {}
 
-    export_documents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    export_documents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -527,7 +535,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     input_uri_prefix = "hello world"
     namespace_ids = ["hello world"]
 
-    import_documents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    import_documents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -571,6 +579,62 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     end
   end
 
+  def test_bulk_delete_documents
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    collection_ids = ["hello world"]
+    namespace_ids = ["hello world"]
+
+    bulk_delete_documents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ServiceStub.stub :transcode_bulk_delete_documents_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, bulk_delete_documents_client_stub do
+        # Create client
+        client = ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.bulk_delete_documents({ name: name, collection_ids: collection_ids, namespace_ids: namespace_ids }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.bulk_delete_documents name: name, collection_ids: collection_ids, namespace_ids: namespace_ids do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.bulk_delete_documents ::Google::Cloud::Firestore::Admin::V1::BulkDeleteDocumentsRequest.new(name: name, collection_ids: collection_ids, namespace_ids: namespace_ids) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.bulk_delete_documents({ name: name, collection_ids: collection_ids, namespace_ids: namespace_ids }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.bulk_delete_documents(::Google::Cloud::Firestore::Admin::V1::BulkDeleteDocumentsRequest.new(name: name, collection_ids: collection_ids, namespace_ids: namespace_ids), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, bulk_delete_documents_client_stub.call_count
+      end
+    end
+  end
+
   def test_create_database
     # Create test objects.
     client_result = ::Google::Longrunning::Operation.new
@@ -583,7 +647,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     database = {}
     database_id = "hello world"
 
-    create_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -637,7 +701,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -690,8 +754,9 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
 
     # Create request parameters for a unary method.
     parent = "hello world"
+    show_deleted = true
 
-    list_databases_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_databases_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -705,27 +770,27 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
         end
 
         # Use hash object
-        client.list_databases({ parent: parent }) do |_result, response|
+        client.list_databases({ parent: parent, show_deleted: show_deleted }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.list_databases parent: parent do |_result, response|
+        client.list_databases parent: parent, show_deleted: show_deleted do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.list_databases ::Google::Cloud::Firestore::Admin::V1::ListDatabasesRequest.new(parent: parent) do |_result, response|
+        client.list_databases ::Google::Cloud::Firestore::Admin::V1::ListDatabasesRequest.new(parent: parent, show_deleted: show_deleted) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.list_databases({ parent: parent }, call_options) do |_result, response|
+        client.list_databases({ parent: parent, show_deleted: show_deleted }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.list_databases(::Google::Cloud::Firestore::Admin::V1::ListDatabasesRequest.new(parent: parent), call_options) do |_result, response|
+        client.list_databases(::Google::Cloud::Firestore::Admin::V1::ListDatabasesRequest.new(parent: parent, show_deleted: show_deleted), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -746,7 +811,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     database = {}
     update_mask = {}
 
-    update_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -801,7 +866,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     name = "hello world"
     etag = "hello world"
 
-    delete_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -855,7 +920,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -908,8 +973,9 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
 
     # Create request parameters for a unary method.
     parent = "hello world"
+    filter = "hello world"
 
-    list_backups_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_backups_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -923,27 +989,27 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
         end
 
         # Use hash object
-        client.list_backups({ parent: parent }) do |_result, response|
+        client.list_backups({ parent: parent, filter: filter }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.list_backups parent: parent do |_result, response|
+        client.list_backups parent: parent, filter: filter do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.list_backups ::Google::Cloud::Firestore::Admin::V1::ListBackupsRequest.new(parent: parent) do |_result, response|
+        client.list_backups ::Google::Cloud::Firestore::Admin::V1::ListBackupsRequest.new(parent: parent, filter: filter) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.list_backups({ parent: parent }, call_options) do |_result, response|
+        client.list_backups({ parent: parent, filter: filter }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.list_backups(::Google::Cloud::Firestore::Admin::V1::ListBackupsRequest.new(parent: parent), call_options) do |_result, response|
+        client.list_backups(::Google::Cloud::Firestore::Admin::V1::ListBackupsRequest.new(parent: parent, filter: filter), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -963,7 +1029,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1018,8 +1084,9 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     parent = "hello world"
     database_id = "hello world"
     backup = "hello world"
+    encryption_config = {}
 
-    restore_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    restore_database_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1033,27 +1100,27 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
         end
 
         # Use hash object
-        client.restore_database({ parent: parent, database_id: database_id, backup: backup }) do |_result, response|
+        client.restore_database({ parent: parent, database_id: database_id, backup: backup, encryption_config: encryption_config }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.restore_database parent: parent, database_id: database_id, backup: backup do |_result, response|
+        client.restore_database parent: parent, database_id: database_id, backup: backup, encryption_config: encryption_config do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.restore_database ::Google::Cloud::Firestore::Admin::V1::RestoreDatabaseRequest.new(parent: parent, database_id: database_id, backup: backup) do |_result, response|
+        client.restore_database ::Google::Cloud::Firestore::Admin::V1::RestoreDatabaseRequest.new(parent: parent, database_id: database_id, backup: backup, encryption_config: encryption_config) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.restore_database({ parent: parent, database_id: database_id, backup: backup }, call_options) do |_result, response|
+        client.restore_database({ parent: parent, database_id: database_id, backup: backup, encryption_config: encryption_config }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.restore_database(::Google::Cloud::Firestore::Admin::V1::RestoreDatabaseRequest.new(parent: parent, database_id: database_id, backup: backup), call_options) do |_result, response|
+        client.restore_database(::Google::Cloud::Firestore::Admin::V1::RestoreDatabaseRequest.new(parent: parent, database_id: database_id, backup: backup, encryption_config: encryption_config), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -1074,7 +1141,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     parent = "hello world"
     backup_schedule = {}
 
-    create_backup_schedule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_backup_schedule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1128,7 +1195,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_backup_schedule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_backup_schedule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1182,7 +1249,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     parent = "hello world"
 
-    list_backup_schedules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_backup_schedules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1237,7 +1304,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     backup_schedule = {}
     update_mask = {}
 
-    update_backup_schedule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_backup_schedule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1291,7 +1358,7 @@ class ::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::ClientTest < 
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_backup_schedule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_backup_schedule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

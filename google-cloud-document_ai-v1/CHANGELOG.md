@@ -1,5 +1,65 @@
 # Changelog
 
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.2.0 (2024-10-24)
+
+#### Features
+
+* Add RESOURCE_EXHAUSTED to retryable status codes for ProcessDocument method 
+* Updated the exponential backoff settings for the Document AI ProcessDocument and BatchProcessDocuments methods ([#27457](https://github.com/googleapis/google-cloud-ruby/issues/27457)) 
+
+### 1.1.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27007](https://github.com/googleapis/google-cloud-ruby/issues/27007)) 
+
+### 1.1.0 (2024-08-05)
+
+#### Features
+
+* Support for imageless mode in the process_document RPC 
+* Support for information about Generative AI model-based processor versions 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.23.1 (2024-06-24)
+
+#### Documentation
+
+* Add a note about `documentai.processors.create` permission ([#26136](https://github.com/googleapis/google-cloud-ruby/issues/26136)) 
+
+### 0.23.0 (2024-06-04)
+
+#### Features
+
+* Promote Layout Parser to generally available in V1 ([#26018](https://github.com/googleapis/google-cloud-ruby/issues/26018)) 
+
+### 0.22.0 (2024-05-30)
+
+#### Features
+
+* Make Layout Parser generally available in V1 ([#25990](https://github.com/googleapis/google-cloud-ruby/issues/25990)) 
+
 ### 0.21.1 (2024-05-16)
 
 #### Documentation

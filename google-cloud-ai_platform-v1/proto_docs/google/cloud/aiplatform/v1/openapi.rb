@@ -23,8 +23,8 @@ module Google
       module V1
         # Schema is used to define the format of input/output data. Represents a select
         # subset of an [OpenAPI 3.0 schema
-        # object](https://spec.openapis.org/oas/v3.0.3#schema). More fields may be
-        # added in the future as needed.
+        # object](https://spec.openapis.org/oas/v3.0.3#schema-object). More fields may
+        # be added in the future as needed.
         # @!attribute [rw] type
         #   @return [::Google::Cloud::AIPlatform::V1::Type]
         #     Optional. The type of the data.
@@ -59,13 +59,21 @@ module Google
         #     Optional. Maximum number of the elements for Type.ARRAY.
         # @!attribute [rw] enum
         #   @return [::Array<::String>]
-        #     Optional. Possible values of the element of Type.STRING with enum format.
-        #     For example we can define an Enum Direction as :
+        #     Optional. Possible values of the element of primitive type with enum
+        #     format. Examples:
+        #     1. We can define direction as :
         #     \\{type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH", "WEST"]}
+        #     2. We can define apartment number as :
+        #     \\{type:INTEGER, format:enum, enum:["101", "201", "301"]}
         # @!attribute [rw] properties
         #   @return [::Google::Protobuf::Map{::String => ::Google::Cloud::AIPlatform::V1::Schema}]
         #     Optional. SCHEMA FIELDS FOR TYPE OBJECT
         #     Properties of Type.OBJECT.
+        # @!attribute [rw] property_ordering
+        #   @return [::Array<::String>]
+        #     Optional. The order of the properties.
+        #     Not a standard field in open api spec. Only used to support the order of
+        #     the properties.
         # @!attribute [rw] required
         #   @return [::Array<::String>]
         #     Optional. Required properties of Type.OBJECT.
@@ -97,6 +105,10 @@ module Google
         #   @return [::Google::Protobuf::Value]
         #     Optional. Example of the object. Will only populated when the object is the
         #     root.
+        # @!attribute [rw] any_of
+        #   @return [::Array<::Google::Cloud::AIPlatform::V1::Schema>]
+        #     Optional. The value should be validated against any (one or more) of the
+        #     subschemas in the list.
         class Schema
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

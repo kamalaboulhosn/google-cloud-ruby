@@ -31,6 +31,26 @@ class ::Google::Cloud::ArtifactRegistry::V1::ArtifactRegistry::ClientPathsTest <
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
+  end
+
+  def test_attachment_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::ArtifactRegistry::V1::ArtifactRegistry::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.attachment_path project: "value0", location: "value1", repository: "value2", attachment: "value3"
+      assert_equal "projects/value0/locations/value1/repositories/value2/attachments/value3", path
+    end
   end
 
   def test_docker_image_path
@@ -138,6 +158,18 @@ class ::Google::Cloud::ArtifactRegistry::V1::ArtifactRegistry::ClientPathsTest <
 
       path = client.repository_path project: "value0", location: "value1", repository: "value2"
       assert_equal "projects/value0/locations/value1/repositories/value2", path
+    end
+  end
+
+  def test_rule_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::ArtifactRegistry::V1::ArtifactRegistry::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.rule_path project: "value0", location: "value1", repository: "value2", rule: "value3"
+      assert_equal "projects/value0/locations/value1/repositories/value2/rules/value3", path
     end
   end
 

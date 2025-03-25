@@ -30,9 +30,18 @@ class Google::Cloud::BeyondCorp::AppConnections::ClientConstructionMinitest < Mi
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_app_connections_service_grpc
+    skip unless Google::Cloud::BeyondCorp::AppConnections.app_connections_service_available?
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::BeyondCorp::AppConnections.app_connections_service do |config|

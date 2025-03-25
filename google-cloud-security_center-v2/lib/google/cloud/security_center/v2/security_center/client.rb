@@ -164,8 +164,19 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @security_center_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
             end
 
             ##
@@ -174,6 +185,15 @@ module Google
             # @return [::Google::Cloud::SecurityCenter::V2::SecurityCenter::Operations]
             #
             attr_reader :operations_client
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @security_center_stub.logger
+            end
 
             # Service calls
 
@@ -262,7 +282,6 @@ module Google
 
               @security_center_stub.call_rpc :batch_create_resource_value_configs, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -284,7 +303,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload bulk_mute_findings(parent: nil, filter: nil)
+            # @overload bulk_mute_findings(parent: nil, filter: nil, mute_state: nil)
             #   Pass arguments to `bulk_mute_findings` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -321,6 +340,10 @@ module Google
             #     * string literals in quotes.
             #     * integer literals without quotes.
             #     * boolean literals `true` and `false` without quotes.
+            #   @param mute_state [::Google::Cloud::SecurityCenter::V2::BulkMuteFindingsRequest::MuteState]
+            #     Optional. All findings matching the given filter will have their mute state
+            #     set to this value. The default value is `MUTED`. Setting this to
+            #     `UNDEFINED` will clear the mute state on all matching findings.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::Operation]
@@ -389,7 +412,7 @@ module Google
               @security_center_stub.call_rpc :bulk_mute_findings, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -415,9 +438,9 @@ module Google
             #
             #   @param parent [::String]
             #     Required. The name of the parent resource of the new BigQuery export. Its
-            #     format is "organizations/[organization_id]/locations/[location_id]",
-            #     "folders/[folder_id]/locations/[location_id]", or
-            #     "projects/[project_id]/locations/[location_id]".
+            #     format is `organizations/[organization_id]/locations/[location_id]`,
+            #     `folders/[folder_id]/locations/[location_id]`, or
+            #     `projects/[project_id]/locations/[location_id]`.
             #   @param big_query_export [::Google::Cloud::SecurityCenter::V2::BigQueryExport, ::Hash]
             #     Required. The BigQuery export being created.
             #   @param big_query_export_id [::String]
@@ -485,7 +508,6 @@ module Google
 
               @security_center_stub.call_rpc :create_big_query_export, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -584,7 +606,6 @@ module Google
 
               @security_center_stub.call_rpc :create_finding, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -610,9 +631,9 @@ module Google
             #
             #   @param parent [::String]
             #     Required. Resource name of the new mute configs's parent. Its format is
-            #     "organizations/[organization_id]/locations/[location_id]",
-            #     "folders/[folder_id]/locations/[location_id]", or
-            #     "projects/[project_id]/locations/[location_id]".
+            #     `organizations/[organization_id]/locations/[location_id]`,
+            #     `folders/[folder_id]/locations/[location_id]`, or
+            #     `projects/[project_id]/locations/[location_id]`.
             #   @param mute_config [::Google::Cloud::SecurityCenter::V2::MuteConfig, ::Hash]
             #     Required. The mute config being created.
             #   @param mute_config_id [::String]
@@ -695,7 +716,6 @@ module Google
 
               @security_center_stub.call_rpc :create_mute_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -721,9 +741,9 @@ module Google
             #
             #   @param parent [::String]
             #     Required. Resource name of the new notification config's parent. Its format
-            #     is "organizations/[organization_id]/locations/[location_id]",
-            #     "folders/[folder_id]/locations/[location_id]", or
-            #     "projects/[project_id]/locations/[location_id]".
+            #     is `organizations/[organization_id]/locations/[location_id]`,
+            #     `folders/[folder_id]/locations/[location_id]`, or
+            #     `projects/[project_id]/locations/[location_id]`.
             #   @param config_id [::String]
             #     Required.
             #     Unique identifier provided by the client within the parent scope.
@@ -793,7 +813,6 @@ module Google
 
               @security_center_stub.call_rpc :create_notification_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -819,7 +838,7 @@ module Google
             #
             #   @param parent [::String]
             #     Required. Resource name of the new source's parent. Its format should be
-            #     "organizations/[organization_id]".
+            #     `organizations/[organization_id]`.
             #   @param source [::Google::Cloud::SecurityCenter::V2::Source, ::Hash]
             #     Required. The Source being created, only the display_name and description
             #     will be used. All other fields will be ignored.
@@ -883,7 +902,6 @@ module Google
 
               @security_center_stub.call_rpc :create_source, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -975,7 +993,6 @@ module Google
 
               @security_center_stub.call_rpc :delete_big_query_export, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1086,7 +1103,6 @@ module Google
 
               @security_center_stub.call_rpc :delete_mute_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1180,7 +1196,6 @@ module Google
 
               @security_center_stub.call_rpc :delete_notification_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1266,7 +1281,6 @@ module Google
 
               @security_center_stub.call_rpc :delete_resource_value_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1358,7 +1372,6 @@ module Google
 
               @security_center_stub.call_rpc :get_big_query_export, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1387,8 +1400,8 @@ module Google
             #     Required. The organization name or simulation name of this simulation
             #
             #     Valid format:
-            #     "organizations/\\{organization}/simulations/latest"
-            #     "organizations/\\{organization}/simulations/\\{simulation}"
+            #     `organizations/{organization}/simulations/latest`
+            #     `organizations/{organization}/simulations/{simulation}`
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::SecurityCenter::V2::Simulation]
@@ -1449,7 +1462,6 @@ module Google
 
               @security_center_stub.call_rpc :get_simulation, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1477,7 +1489,7 @@ module Google
             #     Required. The name of this valued resource
             #
             #     Valid format:
-            #     "organizations/\\{organization}/simulations/\\{simulation}/valuedResources/\\{valued_resource}"
+            #     `organizations/{organization}/simulations/{simulation}/valuedResources/{valued_resource}`
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::SecurityCenter::V2::ValuedResource]
@@ -1538,7 +1550,6 @@ module Google
 
               @security_center_stub.call_rpc :get_valued_resource, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1628,7 +1639,6 @@ module Google
 
               @security_center_stub.call_rpc :get_iam_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1739,7 +1749,6 @@ module Google
 
               @security_center_stub.call_rpc :get_mute_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1833,7 +1842,6 @@ module Google
 
               @security_center_stub.call_rpc :get_notification_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1920,7 +1928,6 @@ module Google
 
               @security_center_stub.call_rpc :get_resource_value_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1946,7 +1953,7 @@ module Google
             #
             #   @param name [::String]
             #     Required. Relative resource name of the source. Its format is
-            #     "organizations/[organization_id]/source/[source_id]".
+            #     `organizations/[organization_id]/source/[source_id]`.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::SecurityCenter::V2::Source]
@@ -2007,7 +2014,6 @@ module Google
 
               @security_center_stub.call_rpc :get_source, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2118,14 +2124,6 @@ module Google
             #     Required. Expression that defines what assets fields to use for grouping.
             #     The string value should follow SQL syntax: comma separated list of fields.
             #     For example: "parent,resource_name".
-            #
-            #     The following fields are supported:
-            #
-            #     * resource_name
-            #     * category
-            #     * state
-            #     * parent
-            #     * severity
             #   @param page_token [::String]
             #     The value returned by the last `GroupFindingsResponse`; indicates
             #     that this is a continuation of a prior `GroupFindings` call, and
@@ -2198,7 +2196,7 @@ module Google
               @security_center_stub.call_rpc :group_findings, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :group_findings, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2227,10 +2225,10 @@ module Google
             #     Required. Name of parent to list attack paths.
             #
             #     Valid formats:
-            #     "organizations/\\{organization}",
-            #     "organizations/\\{organization}/simulations/\\{simulation}"
-            #     "organizations/\\{organization}/simulations/\\{simulation}/attackExposureResults/\\{attack_exposure_result_v2}"
-            #     "organizations/\\{organization}/simulations/\\{simulation}/valuedResources/\\{valued_resource}"
+            #     `organizations/{organization}`,
+            #     `organizations/{organization}/simulations/{simulation}`
+            #     `organizations/{organization}/simulations/{simulation}/attackExposureResults/{attack_exposure_result_v2}`
+            #     `organizations/{organization}/simulations/{simulation}/valuedResources/{valued_resource}`
             #   @param filter [::String]
             #     The filter expression that filters the attack path in the response.
             #     Supported fields:
@@ -2308,7 +2306,7 @@ module Google
               @security_center_stub.call_rpc :list_attack_paths, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :list_attack_paths, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2338,9 +2336,9 @@ module Google
             #
             #   @param parent [::String]
             #     Required. The parent, which owns the collection of BigQuery exports. Its
-            #     format is "organizations/[organization_id]/locations/[location_id]",
-            #     "folders/[folder_id]/locations/[location_id]", or
-            #     "projects/[project_id]/locations/[location_id]".
+            #     format is `organizations/[organization_id]/locations/[location_id]`,
+            #     `folders/[folder_id]/locations/[location_id]`, or
+            #     `projects/[project_id]/locations/[location_id]`.
             #   @param page_size [::Integer]
             #     The maximum number of configs to return. The service may return fewer than
             #     this value.
@@ -2416,7 +2414,7 @@ module Google
               @security_center_stub.call_rpc :list_big_query_exports, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :list_big_query_exports, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2612,7 +2610,7 @@ module Google
               @security_center_stub.call_rpc :list_findings, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :list_findings, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2639,11 +2637,11 @@ module Google
             #
             #   @param parent [::String]
             #     Required. The parent, which owns the collection of mute configs. Its format
-            #     is "organizations/[organization_id]", "folders/[folder_id]",
-            #     "projects/[project_id]",
-            #     "organizations/[organization_id]/locations/[location_id]",
-            #     "folders/[folder_id]/locations/[location_id]",
-            #     "projects/[project_id]/locations/[location_id]".
+            #     is `organizations/[organization_id]", "folders/[folder_id]`,
+            #     `projects/[project_id]`,
+            #     `organizations/[organization_id]/locations/[location_id]`,
+            #     `folders/[folder_id]/locations/[location_id]`,
+            #     `projects/[project_id]/locations/[location_id]`.
             #   @param page_size [::Integer]
             #     The maximum number of configs to return. The service may return fewer than
             #     this value.
@@ -2735,7 +2733,7 @@ module Google
               @security_center_stub.call_rpc :list_mute_configs, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :list_mute_configs, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2837,7 +2835,7 @@ module Google
               @security_center_stub.call_rpc :list_notification_configs, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :list_notification_configs, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2864,7 +2862,7 @@ module Google
             #   @param parent [::String]
             #     Required. The parent, which owns the collection of resource value configs.
             #     Its format is
-            #     "organizations/[organization_id]"
+            #     `organizations/[organization_id]`
             #   @param page_size [::Integer]
             #     The maximum number of configs to return. The service may return fewer than
             #     this value.
@@ -2944,7 +2942,7 @@ module Google
               @security_center_stub.call_rpc :list_resource_value_configs, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :list_resource_value_configs, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2970,8 +2968,8 @@ module Google
             #
             #   @param parent [::String]
             #     Required. Resource name of the parent of sources to list. Its format should
-            #     be "organizations/[organization_id]", "folders/[folder_id]", or
-            #     "projects/[project_id]".
+            #     be `organizations/[organization_id]`, `folders/[folder_id]`, or
+            #     `projects/[project_id]`.
             #   @param page_token [::String]
             #     The value returned by the last `ListSourcesResponse`; indicates
             #     that this is a continuation of a prior `ListSources` call, and
@@ -3044,7 +3042,7 @@ module Google
               @security_center_stub.call_rpc :list_sources, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :list_sources, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3072,9 +3070,9 @@ module Google
             #     Required. Name of parent to list exposed resources.
             #
             #     Valid formats:
-            #     "organizations/\\{organization}",
-            #     "organizations/\\{organization}/simulations/\\{simulation}"
-            #     "organizations/\\{organization}/simulations/\\{simulation}/attackExposureResults/\\{attack_exposure_result_v2}"
+            #     `organizations/{organization}`,
+            #     `organizations/{organization}/simulations/{simulation}`
+            #     `organizations/{organization}/simulations/{simulation}/attackExposureResults/{attack_exposure_result_v2}`
             #   @param filter [::String]
             #     The filter expression that filters the valued resources in the response.
             #     Supported fields:
@@ -3170,7 +3168,7 @@ module Google
               @security_center_stub.call_rpc :list_valued_resources, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @security_center_stub, :list_valued_resources, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3273,7 +3271,6 @@ module Google
 
               @security_center_stub.call_rpc :set_finding_state, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3371,7 +3368,6 @@ module Google
 
               @security_center_stub.call_rpc :set_iam_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3474,7 +3470,6 @@ module Google
 
               @security_center_stub.call_rpc :set_mute, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3566,7 +3561,6 @@ module Google
 
               @security_center_stub.call_rpc :test_iam_permissions, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3655,7 +3649,6 @@ module Google
 
               @security_center_stub.call_rpc :update_big_query_export, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3746,7 +3739,6 @@ module Google
 
               @security_center_stub.call_rpc :update_external_system, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3847,7 +3839,6 @@ module Google
 
               @security_center_stub.call_rpc :update_finding, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3952,7 +3943,6 @@ module Google
 
               @security_center_stub.call_rpc :update_mute_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -4043,7 +4033,6 @@ module Google
 
               @security_center_stub.call_rpc :update_notification_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -4072,6 +4061,10 @@ module Google
             #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
             #     The list of fields to be updated.
             #     If empty all mutable fields will be updated.
+            #
+            #     To update nested fields, include the top level field in the mask
+            #     For example, to update gcp_metadata.resource_type, include the
+            #     "gcp_metadata" field mask
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::SecurityCenter::V2::ResourceValueConfig]
@@ -4132,7 +4125,6 @@ module Google
 
               @security_center_stub.call_rpc :update_resource_value_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -4226,7 +4218,6 @@ module Google
 
               @security_center_stub.call_rpc :update_security_marks, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -4316,7 +4307,6 @@ module Google
 
               @security_center_stub.call_rpc :update_source, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -4366,6 +4356,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -4405,6 +4402,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -4429,6 +4431,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

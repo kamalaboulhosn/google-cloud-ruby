@@ -24,7 +24,7 @@ module Google
         # A collection of DataItems and Annotations on them.
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The resource name of the Dataset.
+        #     Output only. Identifier. The resource name of the Dataset.
         # @!attribute [rw] display_name
         #   @return [::String]
         #     Required. The user-defined name of the Dataset.
@@ -93,6 +93,16 @@ module Google
         #     MetadataStore when creating the Dataset. The Artifact resource name pattern
         #     is
         #     `projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}`.
+        # @!attribute [rw] model_reference
+        #   @return [::String]
+        #     Optional. Reference to the public base model last used by the dataset. Only
+        #     set for prompt datasets.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
         class Dataset
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -184,9 +194,13 @@ module Google
         # @!attribute [rw] fraction_split
         #   @return [::Google::Cloud::AIPlatform::V1::ExportFractionSplit]
         #     Split based on fractions defining the size of each set.
+        #
+        #     Note: The following fields are mutually exclusive: `fraction_split`, `filter_split`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] filter_split
         #   @return [::Google::Cloud::AIPlatform::V1::ExportFilterSplit]
         #     Split based on the provided filters for each set.
+        #
+        #     Note: The following fields are mutually exclusive: `filter_split`, `fraction_split`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] annotations_filter
         #   @return [::String]
         #     An expression for filtering what part of the Dataset is to be exported.
@@ -196,7 +210,8 @@ module Google
         # @!attribute [rw] saved_query_id
         #   @return [::String]
         #     The ID of a SavedQuery (annotation set) under the Dataset specified by
-        #     [dataset_id][] used for filtering Annotations for training.
+        #     {::Google::Cloud::AIPlatform::V1::ExportDataRequest#name ExportDataRequest.name}
+        #     used for filtering Annotations for training.
         #
         #     Only used for custom training data export use cases.
         #     Only applicable to Datasets that have SavedQueries.
@@ -223,7 +238,8 @@ module Google
         #     gs://google-cloud-aiplatform/schema/dataset/annotation/, note that the
         #     chosen schema must be consistent with
         #     {::Google::Cloud::AIPlatform::V1::Dataset#metadata_schema_uri metadata} of the
-        #     Dataset specified by [dataset_id][].
+        #     Dataset specified by
+        #     {::Google::Cloud::AIPlatform::V1::ExportDataRequest#name ExportDataRequest.name}.
         #
         #     Only used for custom training data export use cases.
         #     Only applicable to Datasets that have DataItems and Annotations.

@@ -1,5 +1,95 @@
 # Changelog
 
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28821](https://github.com/googleapis/google-cloud-ruby/issues/28821))
+
+#### Features
+
+* MountOption reports the IP address 
+* Support CRUD operations on QuotaRules 
+* Support for local source volume, cluster, and svm names in hybrid peering 
+* Support for LocationMetadata#supported_flex_performance 
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28821](https://github.com/googleapis/google-cloud-ruby/issues/28821)) 
+
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.0 (2025-01-15)
+
+#### Features
+
+* Add ValidateDirectoryService API for testing AD connection of a storage pool ([#28206](https://github.com/googleapis/google-cloud-ruby/issues/28206)) 
+#### Documentation
+
+* Removed comments from HybridReplicationParameters 
+
+### 1.4.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.3.0 (2024-12-04)
+
+#### Features
+
+* Add EstablishPeering API for Onprem Migration 
+* Add new Active Directory state for AD Diagnostics support 
+* Add Sync API for Replications 
+* Enable creation of Onprem Migration in CreateVolume ([#27656](https://github.com/googleapis/google-cloud-ruby/issues/27656)) 
+
+### 1.2.0 (2024-09-19)
+
+#### Features
+
+* A new field 'allow_auto_tiering' in message 'google.cloud.netapp.v1.StoragePool' is added 
+* A new field 'cold_tier_size_gib' in message 'google.cloud.netapp.v1.Volume' is added 
+* A new message 'google.cloud.netapp.v1.SwitchActiveReplicaZoneRequest' is added 
+* A new rpc 'SwitchActiveReplicaZone' is added to service 'google.cloud.netapp.v1.NetApp' ([#27329](https://github.com/googleapis/google-cloud-ruby/issues/27329)) 
+
+### 1.1.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.1.0 (2024-08-02)
+
+#### Features
+
+* Support for ActiveDirectory administrators group 
+* Support for replica zone and active zone in StoragePool and Volume 
+* Support for Volume large_capacity and multiple_endpoints flags 
+#### Documentation
+
+* Various updates and clarifications in the reference documentation 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.6.0 (2024-05-23)
+
+#### Features
+
+* BackupConfig reports the total byte size of a backup chain 
+* Support for the Flex service level 
+* Support for volume tiering policy 
+
 ### 0.5.2 (2024-04-15)
 
 #### Documentation

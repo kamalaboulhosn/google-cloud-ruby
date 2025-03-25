@@ -163,14 +163,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @completion_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @completion_service_stub.endpoint
                   config.universe_domain = @completion_service_stub.universe_domain
+                  config.logger = @completion_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -187,6 +199,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @completion_service_stub.logger
+              end
 
               # Service calls
 
@@ -306,7 +327,146 @@ module Google
 
                 @completion_service_stub.complete_query request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Completes the user input with advanced keyword suggestions.
+              #
+              # @overload advanced_complete_query(request, options = nil)
+              #   Pass arguments to `advanced_complete_query` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload advanced_complete_query(completion_config: nil, query: nil, query_model: nil, user_pseudo_id: nil, user_info: nil, include_tail_suggestions: nil, boost_spec: nil, suggestion_types: nil)
+              #   Pass arguments to `advanced_complete_query` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param completion_config [::String]
+              #     Required. The completion_config of the parent dataStore or engine resource
+              #     name for which the completion is performed, such as
+              #     `projects/*/locations/global/collections/default_collection/dataStores/*/completionConfig`
+              #     `projects/*/locations/global/collections/default_collection/engines/*/completionConfig`.
+              #   @param query [::String]
+              #     Required. The typeahead input used to fetch suggestions. Maximum length is
+              #     128 characters.
+              #
+              #     The query can not be empty for most of the suggestion types. If it is
+              #     empty, an `INVALID_ARGUMENT` error is returned. The exception is when the
+              #     suggestion_types contains only the type `RECENT_SEARCH`, the query can
+              #     be an empty string. The is called "zero prefix" feature, which returns
+              #     user's recently searched queries given the empty query.
+              #   @param query_model [::String]
+              #     Specifies the autocomplete data model. This overrides any model specified
+              #     in the Configuration > Autocomplete section of the Cloud console. Currently
+              #     supported values:
+              #
+              #     * `document` - Using suggestions generated from user-imported documents.
+              #     * `search-history` - Using suggestions generated from the past history of
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchService::Rest::Client#search SearchService.Search}
+              #     API calls. Do not use it when there is no traffic for Search API.
+              #     * `user-event` - Using suggestions generated from user-imported search
+              #     events.
+              #     * `document-completable` - Using suggestions taken directly from
+              #     user-imported document fields marked as completable.
+              #
+              #     Default values:
+              #
+              #     * `document` is the default model for regular dataStores.
+              #     * `search-history` is the default model for site search dataStores.
+              #   @param user_pseudo_id [::String]
+              #     A unique identifier for tracking visitors. For example, this could be
+              #     implemented with an HTTP cookie, which should be able to uniquely identify
+              #     a visitor on a single device. This unique identifier should not change if
+              #     the visitor logs in or out of the website.
+              #
+              #     This field should NOT have a fixed value such as `unknown_visitor`.
+              #
+              #     This should be the same identifier as
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::UserEvent#user_pseudo_id UserEvent.user_pseudo_id}
+              #     and
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest#user_pseudo_id SearchRequest.user_pseudo_id}.
+              #
+              #     The field must be a UTF-8 encoded string with a length limit of 128
+              #   @param user_info [::Google::Cloud::DiscoveryEngine::V1beta::UserInfo, ::Hash]
+              #     Optional. Information about the end user.
+              #
+              #     This should be the same identifier information as
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::UserEvent#user_info UserEvent.user_info}
+              #     and
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest#user_info SearchRequest.user_info}.
+              #   @param include_tail_suggestions [::Boolean]
+              #     Indicates if tail suggestions should be returned if there are no
+              #     suggestions that match the full query. Even if set to true, if there are
+              #     suggestions that match the full query, those are returned and no
+              #     tail suggestions are returned.
+              #   @param boost_spec [::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryRequest::BoostSpec, ::Hash]
+              #     Optional. Specification to boost suggestions matching the condition.
+              #   @param suggestion_types [::Array<::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryRequest::SuggestionType>]
+              #     Optional. Suggestion types to return. If empty or unspecified, query
+              #     suggestions are returned. Only one suggestion type is supported at the
+              #     moment.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1beta"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1beta::CompletionService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryRequest.new
+              #
+              #   # Call the advanced_complete_query method.
+              #   result = client.advanced_complete_query request
+              #
+              #   # The returned object is of type Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryResponse.
+              #   p result
+              #
+              def advanced_complete_query request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.advanced_complete_query.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.advanced_complete_query.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.advanced_complete_query.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @completion_service_stub.advanced_complete_query request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -334,6 +494,8 @@ module Google
               #
               #   @param inline_source [::Google::Cloud::DiscoveryEngine::V1beta::ImportSuggestionDenyListEntriesRequest::InlineSource, ::Hash]
               #     The Inline source for the input content for suggestion deny list entries.
+              #
+              #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param gcs_source [::Google::Cloud::DiscoveryEngine::V1beta::GcsSource, ::Hash]
               #     Cloud Storage location for the input content.
               #
@@ -343,6 +505,8 @@ module Google
               #
               #     * `suggestion_deny_list` (default): One JSON [SuggestionDenyListEntry]
               #     per line.
+              #
+              #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param parent [::String]
               #     Required. The parent data store resource name for which to import denylist
               #     entries. Follows pattern projects/*/locations/*/collections/*/dataStores/*.
@@ -407,7 +571,7 @@ module Google
                 @completion_service_stub.import_suggestion_deny_list_entries request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -497,7 +661,204 @@ module Google
                 @completion_service_stub.purge_suggestion_deny_list_entries request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Imports
+              # {::Google::Cloud::DiscoveryEngine::V1beta::CompletionSuggestion CompletionSuggestion}s
+              # for a DataStore.
+              #
+              # @overload import_completion_suggestions(request, options = nil)
+              #   Pass arguments to `import_completion_suggestions` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1beta::ImportCompletionSuggestionsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1beta::ImportCompletionSuggestionsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload import_completion_suggestions(inline_source: nil, gcs_source: nil, bigquery_source: nil, parent: nil, error_config: nil)
+              #   Pass arguments to `import_completion_suggestions` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param inline_source [::Google::Cloud::DiscoveryEngine::V1beta::ImportCompletionSuggestionsRequest::InlineSource, ::Hash]
+              #     The Inline source for suggestion entries.
+              #
+              #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param gcs_source [::Google::Cloud::DiscoveryEngine::V1beta::GcsSource, ::Hash]
+              #     Cloud Storage location for the input content.
+              #
+              #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param bigquery_source [::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource, ::Hash]
+              #     BigQuery input source.
+              #
+              #     Note: The following fields are mutually exclusive: `bigquery_source`, `inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param parent [::String]
+              #     Required. The parent data store resource name for which to import customer
+              #     autocomplete suggestions.
+              #
+              #     Follows pattern `projects/*/locations/*/collections/*/dataStores/*`
+              #   @param error_config [::Google::Cloud::DiscoveryEngine::V1beta::ImportErrorConfig, ::Hash]
+              #     The desired location of errors incurred during the Import.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1beta"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1beta::CompletionService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1beta::ImportCompletionSuggestionsRequest.new
+              #
+              #   # Call the import_completion_suggestions method.
+              #   result = client.import_completion_suggestions request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def import_completion_suggestions request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1beta::ImportCompletionSuggestionsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.import_completion_suggestions.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.import_completion_suggestions.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.import_completion_suggestions.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @completion_service_stub.import_completion_suggestions request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Permanently deletes all
+              # {::Google::Cloud::DiscoveryEngine::V1beta::CompletionSuggestion CompletionSuggestion}s
+              # for a DataStore.
+              #
+              # @overload purge_completion_suggestions(request, options = nil)
+              #   Pass arguments to `purge_completion_suggestions` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1beta::PurgeCompletionSuggestionsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1beta::PurgeCompletionSuggestionsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload purge_completion_suggestions(parent: nil)
+              #   Pass arguments to `purge_completion_suggestions` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The parent data store resource name for which to purge completion
+              #     suggestions. Follows pattern
+              #     projects/*/locations/*/collections/*/dataStores/*.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1beta"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1beta::CompletionService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1beta::PurgeCompletionSuggestionsRequest.new
+              #
+              #   # Call the purge_completion_suggestions method.
+              #   result = client.purge_completion_suggestions request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def purge_completion_suggestions request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1beta::PurgeCompletionSuggestionsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.purge_completion_suggestions.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.purge_completion_suggestions.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.purge_completion_suggestions.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @completion_service_stub.purge_completion_suggestions request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -545,6 +906,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -577,6 +945,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -598,6 +971,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -642,6 +1016,11 @@ module Google
                   #
                   attr_reader :complete_query
                   ##
+                  # RPC-specific configuration for `advanced_complete_query`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :advanced_complete_query
+                  ##
                   # RPC-specific configuration for `import_suggestion_deny_list_entries`
                   # @return [::Gapic::Config::Method]
                   #
@@ -651,15 +1030,31 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :purge_suggestion_deny_list_entries
+                  ##
+                  # RPC-specific configuration for `import_completion_suggestions`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :import_completion_suggestions
+                  ##
+                  # RPC-specific configuration for `purge_completion_suggestions`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :purge_completion_suggestions
 
                   # @private
                   def initialize parent_rpcs = nil
                     complete_query_config = parent_rpcs.complete_query if parent_rpcs.respond_to? :complete_query
                     @complete_query = ::Gapic::Config::Method.new complete_query_config
+                    advanced_complete_query_config = parent_rpcs.advanced_complete_query if parent_rpcs.respond_to? :advanced_complete_query
+                    @advanced_complete_query = ::Gapic::Config::Method.new advanced_complete_query_config
                     import_suggestion_deny_list_entries_config = parent_rpcs.import_suggestion_deny_list_entries if parent_rpcs.respond_to? :import_suggestion_deny_list_entries
                     @import_suggestion_deny_list_entries = ::Gapic::Config::Method.new import_suggestion_deny_list_entries_config
                     purge_suggestion_deny_list_entries_config = parent_rpcs.purge_suggestion_deny_list_entries if parent_rpcs.respond_to? :purge_suggestion_deny_list_entries
                     @purge_suggestion_deny_list_entries = ::Gapic::Config::Method.new purge_suggestion_deny_list_entries_config
+                    import_completion_suggestions_config = parent_rpcs.import_completion_suggestions if parent_rpcs.respond_to? :import_completion_suggestions
+                    @import_completion_suggestions = ::Gapic::Config::Method.new import_completion_suggestions_config
+                    purge_completion_suggestions_config = parent_rpcs.purge_completion_suggestions if parent_rpcs.respond_to? :purge_completion_suggestions
+                    @purge_completion_suggestions = ::Gapic::Config::Method.new purge_completion_suggestions_config
 
                     yield self if block_given?
                   end

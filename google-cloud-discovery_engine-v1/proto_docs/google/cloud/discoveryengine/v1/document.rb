@@ -28,11 +28,15 @@ module Google
         #     The structured JSON data for the document. It should conform to the
         #     registered {::Google::Cloud::DiscoveryEngine::V1::Schema Schema} or an
         #     `INVALID_ARGUMENT` error is thrown.
+        #
+        #     Note: The following fields are mutually exclusive: `struct_data`, `json_data`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] json_data
         #   @return [::String]
         #     The JSON string representation of the document. It should conform to the
         #     registered {::Google::Cloud::DiscoveryEngine::V1::Schema Schema} or an
         #     `INVALID_ARGUMENT` error is thrown.
+        #
+        #     Note: The following fields are mutually exclusive: `json_data`, `struct_data`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] name
         #   @return [::String]
         #     Immutable. The full resource name of the document.
@@ -73,6 +77,14 @@ module Google
         #
         #     This field is OUTPUT_ONLY. If this field is not populated, it means the
         #     document has never been indexed.
+        # @!attribute [r] index_status
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::Document::IndexStatus]
+        #     Output only. The index status of the document.
+        #
+        #     * If document is indexed successfully, the index_time field is populated.
+        #     * Otherwise, if document is not indexed due to errors, the error_samples
+        #       field is populated.
+        #     * Otherwise, index_status is unset.
         class Document
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -88,11 +100,15 @@ module Google
           #     example, `abc123!?$*&()'-=@~` should be represented as
           #     `YWJjMTIzIT8kKiYoKSctPUB+` in JSON. See
           #     https://developers.google.com/protocol-buffers/docs/proto3#json.
+          #
+          #     Note: The following fields are mutually exclusive: `raw_bytes`, `uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] uri
           #   @return [::String]
           #     The URI of the content. Only Cloud Storage URIs (e.g.
           #     `gs://bucket-name/path/to/file`) are supported. The maximum file size
-          #     is 2.5 MB for text-based formats, 100 MB for other formats.
+          #     is 2.5 MB for text-based formats, 200 MB for other formats.
+          #
+          #     Note: The following fields are mutually exclusive: `uri`, `raw_bytes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] mime_type
           #   @return [::String]
           #     The MIME type of the content. Supported types:
@@ -105,6 +121,20 @@ module Google
           #
           #     See https://www.iana.org/assignments/media-types/media-types.xhtml.
           class Content
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Index status of the document.
+          # @!attribute [rw] index_time
+          #   @return [::Google::Protobuf::Timestamp]
+          #     The time when the document was indexed.
+          #     If this field is populated, it means the document has been indexed.
+          # @!attribute [rw] error_samples
+          #   @return [::Array<::Google::Rpc::Status>]
+          #     A sample of errors encountered while indexing the document.
+          #     If this field is populated, the document is not indexed due to errors.
+          class IndexStatus
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end

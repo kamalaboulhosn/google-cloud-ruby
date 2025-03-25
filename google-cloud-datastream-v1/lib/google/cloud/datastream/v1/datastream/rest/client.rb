@@ -184,8 +184,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @datastream_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -193,6 +204,7 @@ module Google
                   config.endpoint = @datastream_stub.endpoint
                   config.universe_domain = @datastream_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @datastream_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -200,6 +212,7 @@ module Google
                   config.quota_project = @quota_project_id
                   config.endpoint = @datastream_stub.endpoint
                   config.universe_domain = @datastream_stub.universe_domain
+                  config.logger = @datastream_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -223,6 +236,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @datastream_stub.logger
+              end
 
               # Service calls
 
@@ -262,10 +284,10 @@ module Google
               #   @param order_by [::String]
               #     Order by fields for the result.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Datastream::V1::ListConnectionProfilesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Datastream::V1::ConnectionProfile>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Datastream::V1::ListConnectionProfilesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Datastream::V1::ConnectionProfile>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -317,8 +339,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @datastream_stub.list_connection_profiles request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @datastream_stub, :list_connection_profiles, "connection_profiles", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -397,7 +420,6 @@ module Google
 
                 @datastream_stub.get_connection_profile request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -507,7 +529,7 @@ module Google
                 @datastream_stub.create_connection_profile request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -619,7 +641,7 @@ module Google
                 @datastream_stub.update_connection_profile request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -720,7 +742,7 @@ module Google
                 @datastream_stub.delete_connection_profile request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -742,7 +764,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload discover_connection_profile(parent: nil, connection_profile: nil, connection_profile_name: nil, full_hierarchy: nil, hierarchy_depth: nil, oracle_rdbms: nil, mysql_rdbms: nil, postgresql_rdbms: nil)
+              # @overload discover_connection_profile(parent: nil, connection_profile: nil, connection_profile_name: nil, full_hierarchy: nil, hierarchy_depth: nil, oracle_rdbms: nil, mysql_rdbms: nil, postgresql_rdbms: nil, sql_server_rdbms: nil)
               #   Pass arguments to `discover_connection_profile` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -752,19 +774,37 @@ module Google
               #     the format `projects/*/locations/*`.
               #   @param connection_profile [::Google::Cloud::Datastream::V1::ConnectionProfile, ::Hash]
               #     An ad-hoc connection profile configuration.
+              #
+              #     Note: The following fields are mutually exclusive: `connection_profile`, `connection_profile_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param connection_profile_name [::String]
               #     A reference to an existing connection profile.
+              #
+              #     Note: The following fields are mutually exclusive: `connection_profile_name`, `connection_profile`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param full_hierarchy [::Boolean]
               #     Whether to retrieve the full hierarchy of data objects (TRUE) or only the
               #     current level (FALSE).
+              #
+              #     Note: The following fields are mutually exclusive: `full_hierarchy`, `hierarchy_depth`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param hierarchy_depth [::Integer]
               #     The number of hierarchy levels below the current level to be retrieved.
+              #
+              #     Note: The following fields are mutually exclusive: `hierarchy_depth`, `full_hierarchy`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param oracle_rdbms [::Google::Cloud::Datastream::V1::OracleRdbms, ::Hash]
               #     Oracle RDBMS to enrich with child data objects and metadata.
+              #
+              #     Note: The following fields are mutually exclusive: `oracle_rdbms`, `mysql_rdbms`, `postgresql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param mysql_rdbms [::Google::Cloud::Datastream::V1::MysqlRdbms, ::Hash]
               #     MySQL RDBMS to enrich with child data objects and metadata.
+              #
+              #     Note: The following fields are mutually exclusive: `mysql_rdbms`, `oracle_rdbms`, `postgresql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param postgresql_rdbms [::Google::Cloud::Datastream::V1::PostgresqlRdbms, ::Hash]
               #     PostgreSQL RDBMS to enrich with child data objects and metadata.
+              #
+              #     Note: The following fields are mutually exclusive: `postgresql_rdbms`, `oracle_rdbms`, `mysql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param sql_server_rdbms [::Google::Cloud::Datastream::V1::SqlServerRdbms, ::Hash]
+              #     SQLServer RDBMS to enrich with child data objects and metadata.
+              #
+              #     Note: The following fields are mutually exclusive: `sql_server_rdbms`, `oracle_rdbms`, `mysql_rdbms`, `postgresql_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Datastream::V1::DiscoverConnectionProfileResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -818,7 +858,6 @@ module Google
 
                 @datastream_stub.discover_connection_profile request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -859,10 +898,10 @@ module Google
               #   @param order_by [::String]
               #     Order by fields for the result.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Datastream::V1::ListStreamsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Datastream::V1::Stream>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Datastream::V1::ListStreamsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Datastream::V1::Stream>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -914,8 +953,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @datastream_stub.list_streams request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @datastream_stub, :list_streams, "streams", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -994,7 +1034,6 @@ module Google
 
                 @datastream_stub.get_stream request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1104,7 +1143,7 @@ module Google
                 @datastream_stub.create_stream request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1216,7 +1255,7 @@ module Google
                 @datastream_stub.update_stream request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1317,7 +1356,101 @@ module Google
                 @datastream_stub.delete_stream request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Use this method to start, resume or recover a stream with a non default CDC
+              # strategy.
+              #
+              # @overload run_stream(request, options = nil)
+              #   Pass arguments to `run_stream` via a request object, either of type
+              #   {::Google::Cloud::Datastream::V1::RunStreamRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Datastream::V1::RunStreamRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload run_stream(name: nil, cdc_strategy: nil, force: nil)
+              #   Pass arguments to `run_stream` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Name of the stream resource to start, in the format:
+              #     projects/\\{project_id}/locations/\\{location}/streams/\\{stream_name}
+              #   @param cdc_strategy [::Google::Cloud::Datastream::V1::CdcStrategy, ::Hash]
+              #     Optional. The CDC strategy of the stream. If not set, the system's default
+              #     value will be used.
+              #   @param force [::Boolean]
+              #     Optional. Update the stream without validating it.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/datastream/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Datastream::V1::Datastream::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Datastream::V1::RunStreamRequest.new
+              #
+              #   # Call the run_stream method.
+              #   result = client.run_stream request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def run_stream request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Datastream::V1::RunStreamRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.run_stream.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Datastream::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.run_stream.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.run_stream.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @datastream_stub.run_stream request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1396,7 +1529,6 @@ module Google
 
                 @datastream_stub.get_stream_object request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1477,7 +1609,6 @@ module Google
 
                 @datastream_stub.lookup_stream_object request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1571,7 +1702,7 @@ module Google
                 @datastream_stub.list_stream_objects request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @datastream_stub, :list_stream_objects, "stream_objects", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1651,7 +1782,6 @@ module Google
 
                 @datastream_stub.start_backfill_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1731,7 +1861,6 @@ module Google
 
                 @datastream_stub.stop_backfill_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1765,10 +1894,10 @@ module Google
               #     A page token, received from a previous `ListStaticIps` call.
               #     will likely not be specified.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::String>]
+              # @yieldparam result [::Google::Cloud::Datastream::V1::FetchStaticIpsResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Gapic::Rest::PagedEnumerable<::String>]
+              # @return [::Google::Cloud::Datastream::V1::FetchStaticIpsResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1816,9 +1945,7 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @datastream_stub.fetch_static_ips request, options do |result, operation|
-                  result = ::Gapic::Rest::PagedEnumerable.new @datastream_stub, :fetch_static_ips, "static_ips", request, result, options
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1925,7 +2052,7 @@ module Google
                 @datastream_stub.create_private_connection request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2004,7 +2131,6 @@ module Google
 
                 @datastream_stub.get_private_connection request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2049,10 +2175,10 @@ module Google
               #   @param order_by [::String]
               #     Order by fields for the result.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Datastream::V1::ListPrivateConnectionsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Datastream::V1::PrivateConnection>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Datastream::V1::ListPrivateConnectionsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Datastream::V1::PrivateConnection>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2104,8 +2230,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @datastream_stub.list_private_connections request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @datastream_stub, :list_private_connections, "private_connections", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2209,7 +2336,7 @@ module Google
                 @datastream_stub.delete_private_connection request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2315,7 +2442,7 @@ module Google
                 @datastream_stub.create_route request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2394,7 +2521,6 @@ module Google
 
                 @datastream_stub.get_route request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2438,10 +2564,10 @@ module Google
               #   @param order_by [::String]
               #     Order by fields for the result.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Datastream::V1::ListRoutesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Datastream::V1::Route>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Datastream::V1::ListRoutesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Datastream::V1::Route>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2493,8 +2619,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @datastream_stub.list_routes request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @datastream_stub, :list_routes, "routes", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2595,7 +2722,7 @@ module Google
                 @datastream_stub.delete_route request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2643,6 +2770,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -2675,6 +2809,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -2703,6 +2842,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -2796,6 +2936,11 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :delete_stream
+                  ##
+                  # RPC-specific configuration for `run_stream`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :run_stream
                   ##
                   # RPC-specific configuration for `get_stream_object`
                   # @return [::Gapic::Config::Method]
@@ -2891,6 +3036,8 @@ module Google
                     @update_stream = ::Gapic::Config::Method.new update_stream_config
                     delete_stream_config = parent_rpcs.delete_stream if parent_rpcs.respond_to? :delete_stream
                     @delete_stream = ::Gapic::Config::Method.new delete_stream_config
+                    run_stream_config = parent_rpcs.run_stream if parent_rpcs.respond_to? :run_stream
+                    @run_stream = ::Gapic::Config::Method.new run_stream_config
                     get_stream_object_config = parent_rpcs.get_stream_object if parent_rpcs.respond_to? :get_stream_object
                     @get_stream_object = ::Gapic::Config::Method.new get_stream_object_config
                     lookup_stream_object_config = parent_rpcs.lookup_stream_object if parent_rpcs.respond_to? :lookup_stream_object

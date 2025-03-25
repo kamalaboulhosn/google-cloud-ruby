@@ -59,6 +59,40 @@
         }
       }
     },
+    "Generators": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::Dialogflow::V2::Generators::Client",
+          "rpcs": {
+            "CreateGenerator": {
+              "methods": [
+                "create_generator"
+              ]
+            },
+            "GetGenerator": {
+              "methods": [
+                "get_generator"
+              ]
+            },
+            "ListGenerators": {
+              "methods": [
+                "list_generators"
+              ]
+            },
+            "DeleteGenerator": {
+              "methods": [
+                "delete_generator"
+              ]
+            },
+            "UpdateGenerator": {
+              "methods": [
+                "update_generator"
+              ]
+            }
+          }
+        }
+      }
+    },
     "Contexts": {
       "clients": {
         "grpc": {
@@ -303,6 +337,11 @@
               "methods": [
                 "suggest_smart_replies"
               ]
+            },
+            "SuggestKnowledgeAssist": {
+              "methods": [
+                "suggest_knowledge_assist"
+              ]
             }
           }
         }
@@ -396,6 +435,11 @@
                 "complete_conversation"
               ]
             },
+            "IngestContextReferences": {
+              "methods": [
+                "ingest_context_references"
+              ]
+            },
             "ListMessages": {
               "methods": [
                 "list_messages"
@@ -411,9 +455,19 @@
                 "generate_stateless_summary"
               ]
             },
+            "GenerateStatelessSuggestion": {
+              "methods": [
+                "generate_stateless_suggestion"
+              ]
+            },
             "SearchKnowledge": {
               "methods": [
                 "search_knowledge"
+              ]
+            },
+            "GenerateSuggestions": {
+              "methods": [
+                "generate_suggestions"
               ]
             }
           }
@@ -551,6 +605,25 @@
             "ExportDocument": {
               "methods": [
                 "export_document"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "EncryptionSpecService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "::Google::Cloud::Dialogflow::V2::EncryptionSpecService::Client",
+          "rpcs": {
+            "GetEncryptionSpec": {
+              "methods": [
+                "get_encryption_spec"
+              ]
+            },
+            "InitializeEncryptionSpec": {
+              "methods": [
+                "initialize_encryption_spec"
               ]
             }
           }

@@ -31,6 +31,14 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::ClientP
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_site_search_engine_path
@@ -45,6 +53,21 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::ClientP
 
       path = client.site_search_engine_path project: "value0", location: "value1", collection: "value2", data_store: "value3"
       assert_equal "projects/value0/locations/value1/collections/value2/dataStores/value3/siteSearchEngine", path
+    end
+  end
+
+  def test_sitemap_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.sitemap_path project: "value0", location: "value1", data_store: "value2", sitemap: "value3"
+      assert_equal "projects/value0/locations/value1/dataStores/value2/siteSearchEngine/sitemaps/value3", path
+
+      path = client.sitemap_path project: "value0", location: "value1", collection: "value2", data_store: "value3", sitemap: "value4"
+      assert_equal "projects/value0/locations/value1/collections/value2/dataStores/value3/siteSearchEngine/sitemaps/value4", path
     end
   end
 

@@ -22,7 +22,7 @@ module Google
     module Video
       module Stitcher
         module V1
-          VERSION = "0.9.0"
+          VERSION = "1.2.0"
         end
       end
     end

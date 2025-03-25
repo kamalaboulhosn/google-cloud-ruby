@@ -1,5 +1,66 @@
 # Release History
 
+### 1.5.0 (2025-02-07)
+
+#### Features
+
+* Support a filter string to match on Alert fields when silencing the alerts ([#28822](https://github.com/googleapis/google-cloud-ruby/issues/28822)) 
+
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* The list_metric_descriptors RPC supports the active_only parameter ([#28223](https://github.com/googleapis/google-cloud-ruby/issues/28223)) 
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.0 (2025-01-08)
+
+#### Features
+
+* added PrometheusQueryLanguageCondition.disable_metric_validation 
+* added SqlCondition in AlertPolicy 
+* added TimeSeries.description for input only 
+#### Documentation
+
+* deprecated QueryTimeSeries (MQL query endpoint) 
+* ServiceAgentAuthentication supports generating an OAuth token 
+* ServiceLevelObjective.goal must be &lt;= 0.9999 
+* TimeSeries.unit allows limited updating by CreateTimeSeries 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-12-05)
+
+#### Features
+
+* Added support for notification prompts in AlertPolicy ([#27693](https://github.com/googleapis/google-cloud-ruby/issues/27693)) 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.18.0 (2024-06-25)
+
+#### Features
+
+* Support links in AlertPolicy ([#26141](https://github.com/googleapis/google-cloud-ruby/issues/26141)) 
+
 ### 0.17.0 (2024-04-25)
 
 #### Features

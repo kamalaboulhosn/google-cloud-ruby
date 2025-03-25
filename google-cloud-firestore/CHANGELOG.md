@@ -1,5 +1,34 @@
 # Release History
 
+### 3.0.0 (2025-03-10)
+
+### ⚠ BREAKING CHANGES
+
+* Updated google-cloud-firestore-v1 dependency to gem version 2.x
+
+#### Features
+
+* Update required version to Ruby 3.0 [#29070](https://github.com/googleapis/google-cloud-ruby/issues/29070) 
+* Updated google-cloud-firestore-v1 dependency to gem version 2.x 
+
+### 2.16.1 (2025-01-29)
+
+#### Bug Fixes
+
+* correct cursor flipping in limit_to_last ([#28137](https://github.com/googleapis/google-cloud-ruby/issues/28137)) 
+
+### 2.16.0 (2024-07-09)
+
+#### Features
+
+* compatibility with GA releases of underlying versioned clients ([#26361](https://github.com/googleapis/google-cloud-ruby/issues/26361)) 
+
+### 2.15.1 (2024-06-05)
+
+#### Bug Fixes
+
+* Added bigdecimal to the gem dependencies ([#26012](https://github.com/googleapis/google-cloud-ruby/issues/26012)) 
+
 ### 2.15.0 (2024-03-07)
 
 #### Features

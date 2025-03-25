@@ -41,9 +41,10 @@ class ::Google::Cloud::Channel::V1::CloudChannelService::ClientTest < Minitest::
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::Channel::V1::CloudChannelService::ClientTest < Minitest::
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -192,12 +201,14 @@ class ::Google::Cloud::Channel::V1::CloudChannelService::ClientTest < Minitest::
     # Create request parameters for a unary method.
     parent = "hello world"
     domain = "hello world"
+    primary_admin_email = "hello world"
 
     check_cloud_identity_accounts_exist_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :check_cloud_identity_accounts_exist, name
       assert_kind_of ::Google::Cloud::Channel::V1::CheckCloudIdentityAccountsExistRequest, request
       assert_equal "hello world", request["parent"]
       assert_equal "hello world", request["domain"]
+      assert_equal "hello world", request["primary_admin_email"]
       refute_nil options
     end
 
@@ -208,31 +219,31 @@ class ::Google::Cloud::Channel::V1::CloudChannelService::ClientTest < Minitest::
       end
 
       # Use hash object
-      client.check_cloud_identity_accounts_exist({ parent: parent, domain: domain }) do |response, operation|
+      client.check_cloud_identity_accounts_exist({ parent: parent, domain: domain, primary_admin_email: primary_admin_email }) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.check_cloud_identity_accounts_exist parent: parent, domain: domain do |response, operation|
+      client.check_cloud_identity_accounts_exist parent: parent, domain: domain, primary_admin_email: primary_admin_email do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.check_cloud_identity_accounts_exist ::Google::Cloud::Channel::V1::CheckCloudIdentityAccountsExistRequest.new(parent: parent, domain: domain) do |response, operation|
+      client.check_cloud_identity_accounts_exist ::Google::Cloud::Channel::V1::CheckCloudIdentityAccountsExistRequest.new(parent: parent, domain: domain, primary_admin_email: primary_admin_email) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.check_cloud_identity_accounts_exist({ parent: parent, domain: domain }, grpc_options) do |response, operation|
+      client.check_cloud_identity_accounts_exist({ parent: parent, domain: domain, primary_admin_email: primary_admin_email }, grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.check_cloud_identity_accounts_exist(::Google::Cloud::Channel::V1::CheckCloudIdentityAccountsExistRequest.new(parent: parent, domain: domain), grpc_options) do |response, operation|
+      client.check_cloud_identity_accounts_exist(::Google::Cloud::Channel::V1::CheckCloudIdentityAccountsExistRequest.new(parent: parent, domain: domain, primary_admin_email: primary_admin_email), grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end

@@ -41,9 +41,10 @@ class ::Google::Cloud::Dataplex::V1::DataScanService::ClientTest < Minitest::Tes
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::Dataplex::V1::DataScanService::ClientTest < Minitest::Tes
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -200,11 +209,13 @@ class ::Google::Cloud::Dataplex::V1::DataScanService::ClientTest < Minitest::Tes
 
     # Create request parameters for a unary method.
     name = "hello world"
+    force = true
 
     delete_data_scan_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :delete_data_scan, name
       assert_kind_of ::Google::Cloud::Dataplex::V1::DeleteDataScanRequest, request
       assert_equal "hello world", request["name"]
+      assert_equal true, request["force"]
       refute_nil options
     end
 
@@ -215,35 +226,35 @@ class ::Google::Cloud::Dataplex::V1::DataScanService::ClientTest < Minitest::Tes
       end
 
       # Use hash object
-      client.delete_data_scan({ name: name }) do |response, operation|
+      client.delete_data_scan({ name: name, force: force }) do |response, operation|
         assert_kind_of Gapic::Operation, response
         assert_equal grpc_response, response.grpc_op
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.delete_data_scan name: name do |response, operation|
+      client.delete_data_scan name: name, force: force do |response, operation|
         assert_kind_of Gapic::Operation, response
         assert_equal grpc_response, response.grpc_op
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.delete_data_scan ::Google::Cloud::Dataplex::V1::DeleteDataScanRequest.new(name: name) do |response, operation|
+      client.delete_data_scan ::Google::Cloud::Dataplex::V1::DeleteDataScanRequest.new(name: name, force: force) do |response, operation|
         assert_kind_of Gapic::Operation, response
         assert_equal grpc_response, response.grpc_op
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.delete_data_scan({ name: name }, grpc_options) do |response, operation|
+      client.delete_data_scan({ name: name, force: force }, grpc_options) do |response, operation|
         assert_kind_of Gapic::Operation, response
         assert_equal grpc_response, response.grpc_op
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.delete_data_scan(::Google::Cloud::Dataplex::V1::DeleteDataScanRequest.new(name: name), grpc_options) do |response, operation|
+      client.delete_data_scan(::Google::Cloud::Dataplex::V1::DeleteDataScanRequest.new(name: name, force: force), grpc_options) do |response, operation|
         assert_kind_of Gapic::Operation, response
         assert_equal grpc_response, response.grpc_op
         assert_equal grpc_operation, operation

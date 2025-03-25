@@ -1,5 +1,55 @@
 # Release History
 
+### 0.17.1 (2025-03-18)
+
+#### Documentation
+
+* Minor typo fix in reference documentation ([#29379](https://github.com/googleapis/google-cloud-ruby/issues/29379)) 
+
+### 0.17.0 (2025-01-29)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Include note about validating externally-provided credentials 
+
+### 0.16.1 (2025-01-15)
+
+#### Documentation
+
+* Minor update to FraudPrevention enumeration documentation ([#28212](https://github.com/googleapis/google-cloud-ruby/issues/28212)) 
+
+### 0.16.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.15.2 (2024-10-15)
+
+#### Documentation
+
+* Minor wording and branding adjustments ([#27423](https://github.com/googleapis/google-cloud-ruby/issues/27423)) 
+
+### 0.15.1 (2024-09-11)
+
+#### Documentation
+
+* Minor documentation updates ([#27302](https://github.com/googleapis/google-cloud-ruby/issues/27302)) 
+
+### 0.15.0 (2024-08-30)
+
+#### Features
+
+* add AssessmentEnvironment for CreateAssessement to explicitly describe the environment of the assessment 
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+* Add field `experimental_features` to message `PythonSettings` ([#27011](https://github.com/googleapis/google-cloud-ruby/issues/27011)) 
+* minor doc fixes 
+
 ### 0.14.0 (2024-04-25)
 
 #### Features

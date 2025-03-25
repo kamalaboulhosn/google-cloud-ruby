@@ -1,5 +1,60 @@
 # Release History
 
+### 1.3.0 (2025-02-25)
+
+#### Features
+
+* Support for authentication configuration in serverless workloads ([#29182](https://github.com/googleapis/google-cloud-ruby/issues/29182)) 
+
+### 1.2.0 (2025-02-07)
+
+#### Features
+
+* Provide opt-in debug logging 
+* Report batches that could not be included in a list_batches response 
+* Report unreachable resources due to KMS-key-encrypted parameters that could not be decrypted 
+* Support Apache Flink 
+* Support configuring how the Group selects the provisioning model to ensure required reliability 
+* Support configuring IOPS and throughput provisioning in DiskConfig 
+* Support configuring the cloud KMS key resource name to use for cluster persistent disk and job argument encryption 
+* Support encryption for workflow template job arguments 
+* Support Spark Connect for interactive seesions 
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.1.0 (2024-09-11)
+
+#### Features
+
+* Support for tarball_access parameter to the diagnose_cluster RPC ([#27287](https://github.com/googleapis/google-cloud-ruby/issues/27287)) 
+
+### 1.0.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26626](https://github.com/googleapis/google-cloud-ruby/issues/26626)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.26.0 (2024-06-26)
+
+#### Features
+
+* Support cohort and auto tuning configuration in batch RuntimeConfig ([#26159](https://github.com/googleapis/google-cloud-ruby/issues/26159)) 
+
 ### 0.25.0 (2024-02-26)
 
 #### Features

@@ -24,6 +24,8 @@ module Google
     module DataCatalog
       module V1
         module DataCatalog
+          # Deprecated: Please use Dataplex Catalog instead.
+          #
           # Data Catalog API service allows you to discover, understand, and manage
           # your data.
           class Service
@@ -322,6 +324,19 @@ module Google
             # [ImportEntriesResponse][google.cloud.datacatalog.v1.ImportEntriesResponse]
             # message.
             rpc :ImportEntries, ::Google::Cloud::DataCatalog::V1::ImportEntriesRequest, ::Google::Longrunning::Operation
+            # Sets the configuration related to the migration to Dataplex for an
+            # organization or project.
+            rpc :SetConfig, ::Google::Cloud::DataCatalog::V1::SetConfigRequest, ::Google::Cloud::DataCatalog::V1::MigrationConfig
+            # Retrieves the configuration related to the migration from Data Catalog to
+            # Dataplex for a specific organization, including all the projects under it
+            # which have a separate configuration set.
+            rpc :RetrieveConfig, ::Google::Cloud::DataCatalog::V1::RetrieveConfigRequest, ::Google::Cloud::DataCatalog::V1::OrganizationConfig
+            # Retrieves the effective configuration related to the migration from Data
+            # Catalog to Dataplex for a specific organization or project. If there is no
+            # specific configuration set for the resource, the setting is checked
+            # hierarchicahlly through the ancestors of the resource, starting from the
+            # resource itself.
+            rpc :RetrieveEffectiveConfig, ::Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest, ::Google::Cloud::DataCatalog::V1::MigrationConfig
           end
 
           Stub = Service.rpc_stub_class

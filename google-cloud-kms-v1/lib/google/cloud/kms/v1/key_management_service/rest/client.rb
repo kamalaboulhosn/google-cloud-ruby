@@ -287,8 +287,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @key_management_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -296,6 +307,7 @@ module Google
                   config.endpoint = @key_management_service_stub.endpoint
                   config.universe_domain = @key_management_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @key_management_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -304,6 +316,7 @@ module Google
                   config.endpoint = @key_management_service_stub.endpoint
                   config.universe_domain = @key_management_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @key_management_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -320,6 +333,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @key_management_service_stub.logger
+              end
 
               # Service calls
 
@@ -424,7 +446,7 @@ module Google
                 @key_management_service_stub.list_key_rings request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @key_management_service_stub, :list_key_rings, "key_rings", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -532,7 +554,7 @@ module Google
                 @key_management_service_stub.list_crypto_keys request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @key_management_service_stub, :list_crypto_keys, "crypto_keys", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -641,7 +663,7 @@ module Google
                 @key_management_service_stub.list_crypto_key_versions request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @key_management_service_stub, :list_crypto_key_versions, "crypto_key_versions", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -747,7 +769,7 @@ module Google
                 @key_management_service_stub.list_import_jobs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @key_management_service_stub, :list_import_jobs, "import_jobs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -827,7 +849,6 @@ module Google
 
                 @key_management_service_stub.get_key_ring request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -909,7 +930,6 @@ module Google
 
                 @key_management_service_stub.get_crypto_key request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -990,7 +1010,6 @@ module Google
 
                 @key_management_service_stub.get_crypto_key_version request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1014,7 +1033,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload get_public_key(name: nil)
+              # @overload get_public_key(name: nil, public_key_format: nil)
               #   Pass arguments to `get_public_key` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1022,6 +1041,14 @@ module Google
               #   @param name [::String]
               #     Required. The {::Google::Cloud::Kms::V1::CryptoKeyVersion#name name} of the
               #     {::Google::Cloud::Kms::V1::CryptoKeyVersion CryptoKeyVersion} public key to get.
+              #   @param public_key_format [::Google::Cloud::Kms::V1::PublicKey::PublicKeyFormat]
+              #     Optional. The {::Google::Cloud::Kms::V1::PublicKey PublicKey} format specified
+              #     by the user. This field is required for PQC algorithms. If specified, the
+              #     public key will be exported through the
+              #     {::Google::Cloud::Kms::V1::PublicKey#public_key public_key} field in the
+              #     requested format. Otherwise, the {::Google::Cloud::Kms::V1::PublicKey#pem pem}
+              #     field will be populated for non-PQC algorithms, and an error will be
+              #     returned for PQC algorithms.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Kms::V1::PublicKey]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1075,7 +1102,6 @@ module Google
 
                 @key_management_service_stub.get_public_key request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1155,7 +1181,6 @@ module Google
 
                 @key_management_service_stub.get_import_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1243,7 +1268,6 @@ module Google
 
                 @key_management_service_stub.create_key_ring request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1343,7 +1367,6 @@ module Google
 
                 @key_management_service_stub.create_crypto_key request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1432,7 +1455,6 @@ module Google
 
                 @key_management_service_stub.create_crypto_key_version request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1482,7 +1504,9 @@ module Google
               #     {::Google::Cloud::Kms::V1::CryptoKeyVersion CryptoKeyVersion}, the
               #     {::Google::Cloud::Kms::V1::CryptoKeyVersion CryptoKeyVersion} must be a child of
               #     {::Google::Cloud::Kms::V1::ImportCryptoKeyVersionRequest#parent ImportCryptoKeyVersionRequest.parent},
-              #     have been previously created via [ImportCryptoKeyVersion][], and be in
+              #     have been previously created via
+              #     {::Google::Cloud::Kms::V1::KeyManagementService::Rest::Client#import_crypto_key_version ImportCryptoKeyVersion},
+              #     and be in
               #     {::Google::Cloud::Kms::V1::CryptoKeyVersion::CryptoKeyVersionState::DESTROYED DESTROYED}
               #     or
               #     {::Google::Cloud::Kms::V1::CryptoKeyVersion::CryptoKeyVersionState::IMPORT_FAILED IMPORT_FAILED}
@@ -1598,7 +1622,6 @@ module Google
 
                 @key_management_service_stub.import_crypto_key_version request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1689,7 +1712,6 @@ module Google
 
                 @key_management_service_stub.create_import_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1770,7 +1792,6 @@ module Google
 
                 @key_management_service_stub.update_crypto_key request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1863,7 +1884,6 @@ module Google
 
                 @key_management_service_stub.update_crypto_key_version request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1951,7 +1971,6 @@ module Google
 
                 @key_management_service_stub.update_crypto_key_primary_version request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2051,7 +2070,6 @@ module Google
 
                 @key_management_service_stub.destroy_crypto_key_version request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2139,7 +2157,6 @@ module Google
 
                 @key_management_service_stub.restore_crypto_key_version request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2293,7 +2310,6 @@ module Google
 
                 @key_management_service_stub.encrypt request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2423,7 +2439,6 @@ module Google
 
                 @key_management_service_stub.decrypt request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2590,7 +2605,6 @@ module Google
 
                 @key_management_service_stub.raw_encrypt request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2737,7 +2751,6 @@ module Google
 
                 @key_management_service_stub.raw_decrypt request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2875,7 +2888,6 @@ module Google
 
                 @key_management_service_stub.asymmetric_sign request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2984,7 +2996,6 @@ module Google
 
                 @key_management_service_stub.asymmetric_decrypt request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3088,7 +3099,6 @@ module Google
 
                 @key_management_service_stub.mac_sign request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3153,7 +3163,8 @@ module Google
               #     checksum. {::Google::Cloud::Kms::V1::KeyManagementService::Rest::Client KeyManagementService}
               #     will report an error if the checksum verification fails. If you receive a
               #     checksum error, your client should verify that
-              #     CRC32C([MacVerifyRequest.tag][]) is equal to
+              #     CRC32C({::Google::Cloud::Kms::V1::MacVerifyRequest#mac MacVerifyRequest.mac}) is
+              #     equal to
               #     {::Google::Cloud::Kms::V1::MacVerifyRequest#mac_crc32c MacVerifyRequest.mac_crc32c},
               #     and if so, perform a limited number of retries. A persistent mismatch may
               #     indicate an issue in your computation of the CRC32C checksum. Note: This
@@ -3214,7 +3225,6 @@ module Google
 
                 @key_management_service_stub.mac_verify request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3303,7 +3313,6 @@ module Google
 
                 @key_management_service_stub.generate_random_bytes request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3351,6 +3360,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -3383,6 +3399,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -3411,6 +3432,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

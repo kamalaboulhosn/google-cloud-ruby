@@ -25,9 +25,9 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Immutable. Fully qualified name
-        #     `project/*/locations/global/collections/{collection}/dataStore/*/conversations/*`
+        #     `projects/{project}/locations/global/collections/{collection}/dataStore/*/conversations/*`
         #     or
-        #     `project/*/locations/global/collections/{collection}/engines/*/conversations/*`.
+        #     `projects/{project}/locations/global/collections/{collection}/engines/*/conversations/*`.
         # @!attribute [rw] state
         #   @return [::Google::Cloud::DiscoveryEngine::V1::Conversation::State]
         #     The state of the Conversation.
@@ -99,9 +99,13 @@ module Google
         # @!attribute [rw] user_input
         #   @return [::Google::Cloud::DiscoveryEngine::V1::TextInput]
         #     User text input.
+        #
+        #     Note: The following fields are mutually exclusive: `user_input`, `reply`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] reply
         #   @return [::Google::Cloud::DiscoveryEngine::V1::Reply]
         #     Search reply.
+        #
+        #     Note: The following fields are mutually exclusive: `reply`, `user_input`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] create_time
         #   @return [::Google::Protobuf::Timestamp]
         #     Output only. Message creation timestamp.

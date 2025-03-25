@@ -156,14 +156,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @conversational_search_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @conversational_search_service_stub.endpoint
                   config.universe_domain = @conversational_search_service_stub.universe_domain
+                  config.logger = @conversational_search_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -173,6 +185,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @conversational_search_service_stub.logger
+              end
 
               # Service calls
 
@@ -196,16 +217,16 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Conversation to get. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`.
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`.
               #     Use
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/-`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/-`
               #     to activate auto session mode, which automatically creates a new
               #     conversation inside a ConverseConversation session.
               #   @param query [::Google::Cloud::DiscoveryEngine::V1beta::TextInput, ::Hash]
               #     Required. Current user input.
               #   @param serving_config [::String]
               #     The resource name of the Serving Config to use. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/servingConfigs/{serving_config_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/servingConfigs/{serving_config_id}`
               #     If this is not set, the default serving config will be used.
               #   @param conversation [::Google::Cloud::DiscoveryEngine::V1beta::Conversation, ::Hash]
               #     The conversation to be used by auto session only. The name field will be
@@ -307,7 +328,6 @@ module Google
 
                 @conversational_search_service_stub.converse_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -336,7 +356,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. Full resource name of parent data store. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
               #   @param conversation [::Google::Cloud::DiscoveryEngine::V1beta::Conversation, ::Hash]
               #     Required. The conversation to create.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -392,7 +412,6 @@ module Google
 
                 @conversational_search_service_stub.create_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -421,7 +440,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Conversation to delete. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Protobuf::Empty]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -475,7 +494,6 @@ module Google
 
                 @conversational_search_service_stub.delete_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -567,7 +585,6 @@ module Google
 
                 @conversational_search_service_stub.update_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -593,7 +610,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Conversation to get. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::Conversation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -647,7 +664,6 @@ module Google
 
                 @conversational_search_service_stub.get_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -674,7 +690,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The data store resource name. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
               #   @param page_size [::Integer]
               #     Maximum number of results to return. If unspecified, defaults
               #     to 50. Max allowed value is 1000.
@@ -756,7 +772,7 @@ module Google
                 @conversational_search_service_stub.list_conversations request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @conversational_search_service_stub, :list_conversations, "conversations", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -775,7 +791,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload answer_query(serving_config: nil, query: nil, session: nil, safety_spec: nil, related_questions_spec: nil, answer_generation_spec: nil, search_spec: nil, query_understanding_spec: nil, asynchronous_mode: nil, user_pseudo_id: nil)
+              # @overload answer_query(serving_config: nil, query: nil, session: nil, safety_spec: nil, related_questions_spec: nil, grounding_spec: nil, answer_generation_spec: nil, search_spec: nil, query_understanding_spec: nil, asynchronous_mode: nil, user_pseudo_id: nil, user_labels: nil)
               #   Pass arguments to `answer_query` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -794,12 +810,14 @@ module Google
               #
               #     When session field is not set, the API is in sessionless mode.
               #
-              #     We support auto session mode: users can use the wildcard symbol “-” as
-              #     session id.  A new id will be automatically generated and assigned.
+              #     We support auto session mode: users can use the wildcard symbol `-` as
+              #     session ID.  A new ID will be automatically generated and assigned.
               #   @param safety_spec [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SafetySpec, ::Hash]
               #     Model specification.
               #   @param related_questions_spec [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::RelatedQuestionsSpec, ::Hash]
               #     Related questions specification.
+              #   @param grounding_spec [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::GroundingSpec, ::Hash]
+              #     Optional. Grounding specification.
               #   @param answer_generation_spec [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::AnswerGenerationSpec, ::Hash]
               #     Answer generation specification.
               #   @param search_spec [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec, ::Hash]
@@ -807,6 +825,9 @@ module Google
               #   @param query_understanding_spec [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::QueryUnderstandingSpec, ::Hash]
               #     Query understanding specification.
               #   @param asynchronous_mode [::Boolean]
+              #     Deprecated: This field is deprecated. Streaming Answer API will be
+              #     supported.
+              #
               #     Asynchronous mode control.
               #
               #     If enabled, the response will be returned with answer/session resource
@@ -826,6 +847,24 @@ module Google
               #
               #     The field must be a UTF-8 encoded string with a length limit of 128
               #     characters. Otherwise, an  `INVALID_ARGUMENT`  error is returned.
+              #   @param user_labels [::Hash{::String => ::String}]
+              #     The user labels applied to a resource must meet the following requirements:
+              #
+              #     * Each resource can have multiple labels, up to a maximum of 64.
+              #     * Each label must be a key-value pair.
+              #     * Keys have a minimum length of 1 character and a maximum length of 63
+              #       characters and cannot be empty. Values can be empty and have a maximum
+              #       length of 63 characters.
+              #     * Keys and values can contain only lowercase letters, numeric characters,
+              #       underscores, and dashes. All characters must use UTF-8 encoding, and
+              #       international characters are allowed.
+              #     * The key portion of a label must be unique. However, you can use the same
+              #       key with multiple resources.
+              #     * Keys must start with a lowercase letter or international character.
+              #
+              #     See [Google Cloud
+              #     Document](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements)
+              #     for more details.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -879,7 +918,6 @@ module Google
 
                 @conversational_search_service_stub.answer_query request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -905,7 +943,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Answer to get. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/engines/{engine_id}/sessions/{session_id}/answers/{answer_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/engines/{engine_id}/sessions/{session_id}/answers/{answer_id}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::Answer]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -959,7 +997,6 @@ module Google
 
                 @conversational_search_service_stub.get_answer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -988,7 +1025,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. Full resource name of parent data store. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
               #   @param session [::Google::Cloud::DiscoveryEngine::V1beta::Session, ::Hash]
               #     Required. The session to create.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -1044,7 +1081,6 @@ module Google
 
                 @conversational_search_service_stub.create_session request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1073,7 +1109,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Session to delete. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Protobuf::Empty]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1127,7 +1163,6 @@ module Google
 
                 @conversational_search_service_stub.delete_session request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1218,7 +1253,6 @@ module Google
 
                 @conversational_search_service_stub.update_session request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1244,7 +1278,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Session to get. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::Session]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1298,7 +1332,6 @@ module Google
 
                 @conversational_search_service_stub.get_session request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1325,7 +1358,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The data store resource name. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
               #   @param page_size [::Integer]
               #     Maximum number of results to return. If unspecified, defaults
               #     to 50. Max allowed value is 1000.
@@ -1407,7 +1440,7 @@ module Google
                 @conversational_search_service_stub.list_sessions request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @conversational_search_service_stub, :list_sessions, "sessions", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1455,6 +1488,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1487,6 +1527,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1508,6 +1553,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

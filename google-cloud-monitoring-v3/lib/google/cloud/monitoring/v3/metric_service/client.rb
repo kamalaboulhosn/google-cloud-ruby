@@ -192,8 +192,28 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @metric_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @metric_service_stub.logger
             end
 
             # Service calls
@@ -300,7 +320,7 @@ module Google
               @metric_service_stub.call_rpc :list_monitored_resource_descriptors, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @metric_service_stub, :list_monitored_resource_descriptors, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -391,7 +411,6 @@ module Google
 
               @metric_service_stub.call_rpc :get_monitored_resource_descriptor, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -410,7 +429,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload list_metric_descriptors(name: nil, filter: nil, page_size: nil, page_token: nil)
+            # @overload list_metric_descriptors(name: nil, filter: nil, page_size: nil, page_token: nil, active_only: nil)
             #   Pass arguments to `list_metric_descriptors` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -422,7 +441,7 @@ module Google
             #
             #         projects/[PROJECT_ID_OR_NUMBER]
             #   @param filter [::String]
-            #     If this field is empty, all custom and
+            #     Optional. If this field is empty, all custom and
             #     system-defined metric descriptors are returned.
             #     Otherwise, the [filter](https://cloud.google.com/monitoring/api/v3/filters)
             #     specifies which metric descriptors are to be
@@ -431,13 +450,25 @@ module Google
             #
             #         metric.type = starts_with("custom.googleapis.com/")
             #   @param page_size [::Integer]
-            #     A positive number that is the maximum number of results to return. The
-            #     default and maximum value is 10,000. If a page_size <= 0 or > 10,000 is
-            #     submitted, will instead return a maximum of 10,000 results.
+            #     Optional. A positive number that is the maximum number of results to
+            #     return. The default and maximum value is 10,000. If a page_size <= 0 or >
+            #     10,000 is submitted, will instead return a maximum of 10,000 results.
             #   @param page_token [::String]
-            #     If this field is not empty then it must contain the `nextPageToken` value
-            #     returned by a previous call to this method.  Using this field causes the
-            #     method to return additional results from the previous method call.
+            #     Optional. If this field is not empty then it must contain the
+            #     `nextPageToken` value returned by a previous call to this method.  Using
+            #     this field causes the method to return additional results from the previous
+            #     method call.
+            #   @param active_only [::Boolean]
+            #     Optional. If true, only metrics and monitored resource types that have
+            #     recent data (within roughly 25 hours) will be included in the response.
+            #      - If a metric descriptor enumerates monitored resource types, only the
+            #        monitored resource types for which the metric type has recent data will
+            #        be included in the returned metric descriptor, and if none of them have
+            #        recent data, the metric descriptor will not be returned.
+            #      - If a metric descriptor does not enumerate the compatible monitored
+            #        resource types, it will be returned only if the metric type has recent
+            #        data for some monitored resource type. The returned descriptor will not
+            #        enumerate any monitored resource types.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::PagedEnumerable<::Google::Api::MetricDescriptor>]
@@ -503,7 +534,7 @@ module Google
               @metric_service_stub.call_rpc :list_metric_descriptors, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @metric_service_stub, :list_metric_descriptors, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -595,7 +626,6 @@ module Google
 
               @metric_service_stub.call_rpc :get_metric_descriptor, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -693,7 +723,6 @@ module Google
 
               @metric_service_stub.call_rpc :create_metric_descriptor, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -787,7 +816,6 @@ module Google
 
               @metric_service_stub.call_rpc :delete_metric_descriptor, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -921,7 +949,7 @@ module Google
               @metric_service_stub.call_rpc :list_time_series, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @metric_service_stub, :list_time_series, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1025,7 +1053,6 @@ module Google
 
               @metric_service_stub.call_rpc :create_time_series, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1131,7 +1158,6 @@ module Google
 
               @metric_service_stub.call_rpc :create_service_time_series, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1181,6 +1207,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -1220,6 +1253,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -1244,6 +1282,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

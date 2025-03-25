@@ -33,24 +33,24 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_bulk_mute_findings
@@ -81,8 +89,9 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     parent = "hello world"
     filter = "hello world"
     mute_annotation = "hello world"
+    mute_state = :MUTE_STATE_UNSPECIFIED
 
-    bulk_mute_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    bulk_mute_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -96,27 +105,27 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
         end
 
         # Use hash object
-        client.bulk_mute_findings({ parent: parent, filter: filter, mute_annotation: mute_annotation }) do |_result, response|
+        client.bulk_mute_findings({ parent: parent, filter: filter, mute_annotation: mute_annotation, mute_state: mute_state }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.bulk_mute_findings parent: parent, filter: filter, mute_annotation: mute_annotation do |_result, response|
+        client.bulk_mute_findings parent: parent, filter: filter, mute_annotation: mute_annotation, mute_state: mute_state do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.bulk_mute_findings ::Google::Cloud::SecurityCenter::V1::BulkMuteFindingsRequest.new(parent: parent, filter: filter, mute_annotation: mute_annotation) do |_result, response|
+        client.bulk_mute_findings ::Google::Cloud::SecurityCenter::V1::BulkMuteFindingsRequest.new(parent: parent, filter: filter, mute_annotation: mute_annotation, mute_state: mute_state) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.bulk_mute_findings({ parent: parent, filter: filter, mute_annotation: mute_annotation }, call_options) do |_result, response|
+        client.bulk_mute_findings({ parent: parent, filter: filter, mute_annotation: mute_annotation, mute_state: mute_state }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.bulk_mute_findings(::Google::Cloud::SecurityCenter::V1::BulkMuteFindingsRequest.new(parent: parent, filter: filter, mute_annotation: mute_annotation), call_options) do |_result, response|
+        client.bulk_mute_findings(::Google::Cloud::SecurityCenter::V1::BulkMuteFindingsRequest.new(parent: parent, filter: filter, mute_annotation: mute_annotation, mute_state: mute_state), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -137,7 +146,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     parent = "hello world"
     security_health_analytics_custom_module = {}
 
-    create_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -192,7 +201,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     parent = "hello world"
     source = {}
 
-    create_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -248,7 +257,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     finding_id = "hello world"
     finding = {}
 
-    create_finding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_finding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -304,7 +313,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     mute_config = {}
     mute_config_id = "hello world"
 
-    create_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -360,7 +369,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     config_id = "hello world"
     notification_config = {}
 
-    create_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -414,7 +423,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -468,7 +477,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -522,7 +531,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -566,6 +575,114 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     end
   end
 
+  def test_get_simulation
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::Simulation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_simulation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_get_simulation_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_simulation_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_simulation({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_simulation name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_simulation ::Google::Cloud::SecurityCenter::V1::GetSimulationRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_simulation({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_simulation(::Google::Cloud::SecurityCenter::V1::GetSimulationRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_simulation_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_valued_resource
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ValuedResource.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_valued_resource_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_get_valued_resource_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_valued_resource_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_valued_resource({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_valued_resource name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_valued_resource ::Google::Cloud::SecurityCenter::V1::GetValuedResourceRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_valued_resource({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_valued_resource(::Google::Cloud::SecurityCenter::V1::GetValuedResourceRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_valued_resource_client_stub.call_count
+      end
+    end
+  end
+
   def test_get_big_query_export
     # Create test objects.
     client_result = ::Google::Cloud::SecurityCenter::V1::BigQueryExport.new
@@ -576,7 +693,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -631,7 +748,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     resource = "hello world"
     options = {}
 
-    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -685,7 +802,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -739,7 +856,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -793,7 +910,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_organization_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_organization_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -847,7 +964,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_effective_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_effective_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -901,7 +1018,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -955,7 +1072,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1015,7 +1132,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    group_assets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    group_assets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1075,7 +1192,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    group_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    group_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1136,7 +1253,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    list_assets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_assets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1192,7 +1309,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_descendant_security_health_analytics_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_descendant_security_health_analytics_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1253,7 +1370,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    list_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1309,7 +1426,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_mute_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_mute_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1365,7 +1482,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    list_notification_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_notification_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1421,7 +1538,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_effective_security_health_analytics_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_effective_security_health_analytics_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1477,7 +1594,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_security_health_analytics_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_security_health_analytics_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1533,7 +1650,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    list_sources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_sources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1587,7 +1704,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     parent = "hello world"
 
-    run_asset_discovery_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    run_asset_discovery_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1643,7 +1760,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     state = :STATE_UNSPECIFIED
     start_time = {}
 
-    set_finding_state_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_finding_state_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1698,7 +1815,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     name = "hello world"
     mute = :MUTE_UNSPECIFIED
 
-    set_mute_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_mute_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1754,7 +1871,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     policy = {}
     update_mask = {}
 
-    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1809,7 +1926,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     resource = "hello world"
     permissions = ["hello world"]
 
-    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1865,7 +1982,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     custom_config = {}
     resource = {}
 
-    simulate_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    simulate_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1920,7 +2037,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     external_system = {}
     update_mask = {}
 
-    update_external_system_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_external_system_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1975,7 +2092,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     finding = {}
     update_mask = {}
 
-    update_finding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_finding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2030,7 +2147,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     mute_config = {}
     update_mask = {}
 
-    update_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2085,7 +2202,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     notification_config = {}
     update_mask = {}
 
-    update_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2140,7 +2257,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     organization_settings = {}
     update_mask = {}
 
-    update_organization_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_organization_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2195,7 +2312,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     security_health_analytics_custom_module = {}
     update_mask = {}
 
-    update_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_security_health_analytics_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2250,7 +2367,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     source = {}
     update_mask = {}
 
-    update_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2306,7 +2423,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     update_mask = {}
     start_time = {}
 
-    update_security_marks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_security_marks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2362,7 +2479,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     big_query_export = {}
     big_query_export_id = "hello world"
 
-    create_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2416,7 +2533,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2471,7 +2588,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     big_query_export = {}
     update_mask = {}
 
-    update_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2527,7 +2644,7 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_big_query_exports_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_big_query_exports_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2567,6 +2684,891 @@ class ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ClientTest < Mi
 
         # Verify method calls
         assert_equal 5, list_big_query_exports_client_stub.call_count
+      end
+    end
+  end
+
+  def test_create_event_threat_detection_custom_module
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::EventThreatDetectionCustomModule.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    event_threat_detection_custom_module = {}
+
+    create_event_threat_detection_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_create_event_threat_detection_custom_module_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, create_event_threat_detection_custom_module_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.create_event_threat_detection_custom_module({ parent: parent, event_threat_detection_custom_module: event_threat_detection_custom_module }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.create_event_threat_detection_custom_module parent: parent, event_threat_detection_custom_module: event_threat_detection_custom_module do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.create_event_threat_detection_custom_module ::Google::Cloud::SecurityCenter::V1::CreateEventThreatDetectionCustomModuleRequest.new(parent: parent, event_threat_detection_custom_module: event_threat_detection_custom_module) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.create_event_threat_detection_custom_module({ parent: parent, event_threat_detection_custom_module: event_threat_detection_custom_module }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.create_event_threat_detection_custom_module(::Google::Cloud::SecurityCenter::V1::CreateEventThreatDetectionCustomModuleRequest.new(parent: parent, event_threat_detection_custom_module: event_threat_detection_custom_module), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, create_event_threat_detection_custom_module_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_event_threat_detection_custom_module
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_event_threat_detection_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_delete_event_threat_detection_custom_module_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_event_threat_detection_custom_module_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_event_threat_detection_custom_module({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_event_threat_detection_custom_module name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_event_threat_detection_custom_module ::Google::Cloud::SecurityCenter::V1::DeleteEventThreatDetectionCustomModuleRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_event_threat_detection_custom_module({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_event_threat_detection_custom_module(::Google::Cloud::SecurityCenter::V1::DeleteEventThreatDetectionCustomModuleRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_event_threat_detection_custom_module_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_event_threat_detection_custom_module
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::EventThreatDetectionCustomModule.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_event_threat_detection_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_get_event_threat_detection_custom_module_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_event_threat_detection_custom_module_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_event_threat_detection_custom_module({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_event_threat_detection_custom_module name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_event_threat_detection_custom_module ::Google::Cloud::SecurityCenter::V1::GetEventThreatDetectionCustomModuleRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_event_threat_detection_custom_module({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_event_threat_detection_custom_module(::Google::Cloud::SecurityCenter::V1::GetEventThreatDetectionCustomModuleRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_event_threat_detection_custom_module_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_descendant_event_threat_detection_custom_modules
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ListDescendantEventThreatDetectionCustomModulesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_token = "hello world"
+    page_size = 42
+
+    list_descendant_event_threat_detection_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_list_descendant_event_threat_detection_custom_modules_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_descendant_event_threat_detection_custom_modules_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_descendant_event_threat_detection_custom_modules({ parent: parent, page_token: page_token, page_size: page_size }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_descendant_event_threat_detection_custom_modules parent: parent, page_token: page_token, page_size: page_size do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_descendant_event_threat_detection_custom_modules ::Google::Cloud::SecurityCenter::V1::ListDescendantEventThreatDetectionCustomModulesRequest.new(parent: parent, page_token: page_token, page_size: page_size) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_descendant_event_threat_detection_custom_modules({ parent: parent, page_token: page_token, page_size: page_size }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_descendant_event_threat_detection_custom_modules(::Google::Cloud::SecurityCenter::V1::ListDescendantEventThreatDetectionCustomModulesRequest.new(parent: parent, page_token: page_token, page_size: page_size), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_descendant_event_threat_detection_custom_modules_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_event_threat_detection_custom_modules
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ListEventThreatDetectionCustomModulesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_token = "hello world"
+    page_size = 42
+
+    list_event_threat_detection_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_list_event_threat_detection_custom_modules_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_event_threat_detection_custom_modules_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_event_threat_detection_custom_modules({ parent: parent, page_token: page_token, page_size: page_size }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_event_threat_detection_custom_modules parent: parent, page_token: page_token, page_size: page_size do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_event_threat_detection_custom_modules ::Google::Cloud::SecurityCenter::V1::ListEventThreatDetectionCustomModulesRequest.new(parent: parent, page_token: page_token, page_size: page_size) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_event_threat_detection_custom_modules({ parent: parent, page_token: page_token, page_size: page_size }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_event_threat_detection_custom_modules(::Google::Cloud::SecurityCenter::V1::ListEventThreatDetectionCustomModulesRequest.new(parent: parent, page_token: page_token, page_size: page_size), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_event_threat_detection_custom_modules_client_stub.call_count
+      end
+    end
+  end
+
+  def test_update_event_threat_detection_custom_module
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::EventThreatDetectionCustomModule.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    event_threat_detection_custom_module = {}
+    update_mask = {}
+
+    update_event_threat_detection_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_update_event_threat_detection_custom_module_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_event_threat_detection_custom_module_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_event_threat_detection_custom_module({ event_threat_detection_custom_module: event_threat_detection_custom_module, update_mask: update_mask }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_event_threat_detection_custom_module event_threat_detection_custom_module: event_threat_detection_custom_module, update_mask: update_mask do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_event_threat_detection_custom_module ::Google::Cloud::SecurityCenter::V1::UpdateEventThreatDetectionCustomModuleRequest.new(event_threat_detection_custom_module: event_threat_detection_custom_module, update_mask: update_mask) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_event_threat_detection_custom_module({ event_threat_detection_custom_module: event_threat_detection_custom_module, update_mask: update_mask }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_event_threat_detection_custom_module(::Google::Cloud::SecurityCenter::V1::UpdateEventThreatDetectionCustomModuleRequest.new(event_threat_detection_custom_module: event_threat_detection_custom_module, update_mask: update_mask), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_event_threat_detection_custom_module_client_stub.call_count
+      end
+    end
+  end
+
+  def test_validate_event_threat_detection_custom_module
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ValidateEventThreatDetectionCustomModuleResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    raw_text = "hello world"
+    type = "hello world"
+
+    validate_event_threat_detection_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_validate_event_threat_detection_custom_module_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, validate_event_threat_detection_custom_module_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.validate_event_threat_detection_custom_module({ parent: parent, raw_text: raw_text, type: type }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.validate_event_threat_detection_custom_module parent: parent, raw_text: raw_text, type: type do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.validate_event_threat_detection_custom_module ::Google::Cloud::SecurityCenter::V1::ValidateEventThreatDetectionCustomModuleRequest.new(parent: parent, raw_text: raw_text, type: type) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.validate_event_threat_detection_custom_module({ parent: parent, raw_text: raw_text, type: type }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.validate_event_threat_detection_custom_module(::Google::Cloud::SecurityCenter::V1::ValidateEventThreatDetectionCustomModuleRequest.new(parent: parent, raw_text: raw_text, type: type), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, validate_event_threat_detection_custom_module_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_effective_event_threat_detection_custom_module
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::EffectiveEventThreatDetectionCustomModule.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_effective_event_threat_detection_custom_module_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_get_effective_event_threat_detection_custom_module_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_effective_event_threat_detection_custom_module_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_effective_event_threat_detection_custom_module({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_effective_event_threat_detection_custom_module name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_effective_event_threat_detection_custom_module ::Google::Cloud::SecurityCenter::V1::GetEffectiveEventThreatDetectionCustomModuleRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_effective_event_threat_detection_custom_module({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_effective_event_threat_detection_custom_module(::Google::Cloud::SecurityCenter::V1::GetEffectiveEventThreatDetectionCustomModuleRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_effective_event_threat_detection_custom_module_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_effective_event_threat_detection_custom_modules
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ListEffectiveEventThreatDetectionCustomModulesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_token = "hello world"
+    page_size = 42
+
+    list_effective_event_threat_detection_custom_modules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_list_effective_event_threat_detection_custom_modules_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_effective_event_threat_detection_custom_modules_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_effective_event_threat_detection_custom_modules({ parent: parent, page_token: page_token, page_size: page_size }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_effective_event_threat_detection_custom_modules parent: parent, page_token: page_token, page_size: page_size do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_effective_event_threat_detection_custom_modules ::Google::Cloud::SecurityCenter::V1::ListEffectiveEventThreatDetectionCustomModulesRequest.new(parent: parent, page_token: page_token, page_size: page_size) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_effective_event_threat_detection_custom_modules({ parent: parent, page_token: page_token, page_size: page_size }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_effective_event_threat_detection_custom_modules(::Google::Cloud::SecurityCenter::V1::ListEffectiveEventThreatDetectionCustomModulesRequest.new(parent: parent, page_token: page_token, page_size: page_size), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_effective_event_threat_detection_custom_modules_client_stub.call_count
+      end
+    end
+  end
+
+  def test_batch_create_resource_value_configs
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::BatchCreateResourceValueConfigsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    requests = [{}]
+
+    batch_create_resource_value_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_batch_create_resource_value_configs_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, batch_create_resource_value_configs_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.batch_create_resource_value_configs({ parent: parent, requests: requests }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.batch_create_resource_value_configs parent: parent, requests: requests do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.batch_create_resource_value_configs ::Google::Cloud::SecurityCenter::V1::BatchCreateResourceValueConfigsRequest.new(parent: parent, requests: requests) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.batch_create_resource_value_configs({ parent: parent, requests: requests }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.batch_create_resource_value_configs(::Google::Cloud::SecurityCenter::V1::BatchCreateResourceValueConfigsRequest.new(parent: parent, requests: requests), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, batch_create_resource_value_configs_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_resource_value_config
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_delete_resource_value_config_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_resource_value_config_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_resource_value_config({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_resource_value_config name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_resource_value_config ::Google::Cloud::SecurityCenter::V1::DeleteResourceValueConfigRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_resource_value_config({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_resource_value_config(::Google::Cloud::SecurityCenter::V1::DeleteResourceValueConfigRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_resource_value_config_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_resource_value_config
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ResourceValueConfig.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_get_resource_value_config_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_resource_value_config_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_resource_value_config({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_resource_value_config name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_resource_value_config ::Google::Cloud::SecurityCenter::V1::GetResourceValueConfigRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_resource_value_config({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_resource_value_config(::Google::Cloud::SecurityCenter::V1::GetResourceValueConfigRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_resource_value_config_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_resource_value_configs
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ListResourceValueConfigsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_size = 42
+    page_token = "hello world"
+
+    list_resource_value_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_list_resource_value_configs_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_resource_value_configs_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_resource_value_configs({ parent: parent, page_size: page_size, page_token: page_token }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_resource_value_configs parent: parent, page_size: page_size, page_token: page_token do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_resource_value_configs ::Google::Cloud::SecurityCenter::V1::ListResourceValueConfigsRequest.new(parent: parent, page_size: page_size, page_token: page_token) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_resource_value_configs({ parent: parent, page_size: page_size, page_token: page_token }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_resource_value_configs(::Google::Cloud::SecurityCenter::V1::ListResourceValueConfigsRequest.new(parent: parent, page_size: page_size, page_token: page_token), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_resource_value_configs_client_stub.call_count
+      end
+    end
+  end
+
+  def test_update_resource_value_config
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ResourceValueConfig.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    resource_value_config = {}
+    update_mask = {}
+
+    update_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_update_resource_value_config_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_resource_value_config_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_resource_value_config({ resource_value_config: resource_value_config, update_mask: update_mask }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_resource_value_config resource_value_config: resource_value_config, update_mask: update_mask do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_resource_value_config ::Google::Cloud::SecurityCenter::V1::UpdateResourceValueConfigRequest.new(resource_value_config: resource_value_config, update_mask: update_mask) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_resource_value_config({ resource_value_config: resource_value_config, update_mask: update_mask }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_resource_value_config(::Google::Cloud::SecurityCenter::V1::UpdateResourceValueConfigRequest.new(resource_value_config: resource_value_config, update_mask: update_mask), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_resource_value_config_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_valued_resources
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ListValuedResourcesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    filter = "hello world"
+    page_token = "hello world"
+    page_size = 42
+    order_by = "hello world"
+
+    list_valued_resources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_list_valued_resources_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_valued_resources_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_valued_resources({ parent: parent, filter: filter, page_token: page_token, page_size: page_size, order_by: order_by }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_valued_resources parent: parent, filter: filter, page_token: page_token, page_size: page_size, order_by: order_by do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_valued_resources ::Google::Cloud::SecurityCenter::V1::ListValuedResourcesRequest.new(parent: parent, filter: filter, page_token: page_token, page_size: page_size, order_by: order_by) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_valued_resources({ parent: parent, filter: filter, page_token: page_token, page_size: page_size, order_by: order_by }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_valued_resources(::Google::Cloud::SecurityCenter::V1::ListValuedResourcesRequest.new(parent: parent, filter: filter, page_token: page_token, page_size: page_size, order_by: order_by), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_valued_resources_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_attack_paths
+    # Create test objects.
+    client_result = ::Google::Cloud::SecurityCenter::V1::ListAttackPathsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    filter = "hello world"
+    page_token = "hello world"
+    page_size = 42
+
+    list_attack_paths_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::ServiceStub.stub :transcode_list_attack_paths_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_attack_paths_client_stub do
+        # Create client
+        client = ::Google::Cloud::SecurityCenter::V1::SecurityCenter::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_attack_paths({ parent: parent, filter: filter, page_token: page_token, page_size: page_size }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_attack_paths parent: parent, filter: filter, page_token: page_token, page_size: page_size do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_attack_paths ::Google::Cloud::SecurityCenter::V1::ListAttackPathsRequest.new(parent: parent, filter: filter, page_token: page_token, page_size: page_size) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_attack_paths({ parent: parent, filter: filter, page_token: page_token, page_size: page_size }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_attack_paths(::Google::Cloud::SecurityCenter::V1::ListAttackPathsRequest.new(parent: parent, filter: filter, page_token: page_token, page_size: page_size), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_attack_paths_client_stub.call_count
       end
     end
   end

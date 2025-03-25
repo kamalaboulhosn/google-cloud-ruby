@@ -31,6 +31,14 @@ class ::Google::Cloud::Dialogflow::V2::Participants::ClientPathsTest < Minitest:
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_context_path
@@ -96,6 +104,18 @@ class ::Google::Cloud::Dialogflow::V2::Participants::ClientPathsTest < Minitest:
 
       path = client.participant_path project: "value0", location: "value1", conversation: "value2", participant: "value3"
       assert_equal "projects/value0/locations/value1/conversations/value2/participants/value3", path
+    end
+  end
+
+  def test_phrase_set_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::Dialogflow::V2::Participants::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.phrase_set_path project: "value0", location: "value1", phrase_set: "value2"
+      assert_equal "projects/value0/locations/value1/phraseSets/value2", path
     end
   end
 

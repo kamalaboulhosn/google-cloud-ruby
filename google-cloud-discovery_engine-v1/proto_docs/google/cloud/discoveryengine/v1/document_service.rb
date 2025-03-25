@@ -59,7 +59,7 @@ module Google
         #   @return [::Integer]
         #     Maximum number of {::Google::Cloud::DiscoveryEngine::V1::Document Document}s to
         #     return. If unspecified, defaults to 100. The maximum allowed value is 1000.
-        #     Values above 1000 will be coerced to 1000.
+        #     Values above 1000 are set to 1000.
         #
         #     If this field is negative, an `INVALID_ARGUMENT` error is returned.
         # @!attribute [rw] page_token
@@ -110,7 +110,7 @@ module Google
         # @!attribute [rw] document_id
         #   @return [::String]
         #     Required. The ID to use for the
-        #     {::Google::Cloud::DiscoveryEngine::V1::Document Document}, which will become the
+        #     {::Google::Cloud::DiscoveryEngine::V1::Document Document}, which becomes the
         #     final component of the
         #     {::Google::Cloud::DiscoveryEngine::V1::Document#name Document.name}.
         #
@@ -148,13 +148,13 @@ module Google
         #     is not set, a `NOT_FOUND` error is returned.
         # @!attribute [rw] allow_missing
         #   @return [::Boolean]
-        #     If set to true, and the
+        #     If set to `true` and the
         #     {::Google::Cloud::DiscoveryEngine::V1::Document Document} is not found, a new
-        #     {::Google::Cloud::DiscoveryEngine::V1::Document Document} will be created.
+        #     {::Google::Cloud::DiscoveryEngine::V1::Document Document} is be created.
         # @!attribute [rw] update_mask
         #   @return [::Google::Protobuf::FieldMask]
         #     Indicates which fields in the provided imported 'document' to update. If
-        #     not set, will by default update all fields.
+        #     not set, by default updates all fields.
         class UpdateDocumentRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -178,6 +178,134 @@ module Google
         class DeleteDocumentRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Request message for
+        # {::Google::Cloud::DiscoveryEngine::V1::DocumentService::Client#batch_get_documents_metadata DocumentService.BatchGetDocumentsMetadata}
+        # method.
+        # @!attribute [rw] parent
+        #   @return [::String]
+        #     Required. The parent branch resource name, such as
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/branches/{branch}`.
+        # @!attribute [rw] matcher
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::BatchGetDocumentsMetadataRequest::Matcher]
+        #     Required. Matcher for the
+        #     {::Google::Cloud::DiscoveryEngine::V1::Document Document}s.
+        class BatchGetDocumentsMetadataRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Matcher for the {::Google::Cloud::DiscoveryEngine::V1::Document Document}s by
+          # exact uris.
+          # @!attribute [rw] uris
+          #   @return [::Array<::String>]
+          #     The exact URIs to match by.
+          class UrisMatcher
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Matcher for the {::Google::Cloud::DiscoveryEngine::V1::Document Document}s by
+          # FHIR resource names.
+          # @!attribute [rw] fhir_resources
+          #   @return [::Array<::String>]
+          #     Required. The FHIR resources to match by.
+          #     Format:
+          #     projects/\\{project}/locations/\\{location}/datasets/\\{dataset}/fhirStores/\\{fhir_store}/fhir/\\{resource_type}/\\{fhir_resource_id}
+          class FhirMatcher
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Matcher for the {::Google::Cloud::DiscoveryEngine::V1::Document Document}s.
+          # Currently supports matching by exact URIs.
+          # @!attribute [rw] uris_matcher
+          #   @return [::Google::Cloud::DiscoveryEngine::V1::BatchGetDocumentsMetadataRequest::UrisMatcher]
+          #     Matcher by exact URIs.
+          #
+          #     Note: The following fields are mutually exclusive: `uris_matcher`, `fhir_matcher`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] fhir_matcher
+          #   @return [::Google::Cloud::DiscoveryEngine::V1::BatchGetDocumentsMetadataRequest::FhirMatcher]
+          #     Matcher by FHIR resource names.
+          #
+          #     Note: The following fields are mutually exclusive: `fhir_matcher`, `uris_matcher`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          class Matcher
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+        end
+
+        # Response message for
+        # {::Google::Cloud::DiscoveryEngine::V1::DocumentService::Client#batch_get_documents_metadata DocumentService.BatchGetDocumentsMetadata}
+        # method.
+        # @!attribute [rw] documents_metadata
+        #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1::BatchGetDocumentsMetadataResponse::DocumentMetadata>]
+        #     The metadata of the {::Google::Cloud::DiscoveryEngine::V1::Document Document}s.
+        class BatchGetDocumentsMetadataResponse
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # The metadata of a {::Google::Cloud::DiscoveryEngine::V1::Document Document}.
+          # @!attribute [rw] matcher_value
+          #   @return [::Google::Cloud::DiscoveryEngine::V1::BatchGetDocumentsMetadataResponse::DocumentMetadata::MatcherValue]
+          #     The value of the matcher that was used to match the
+          #     {::Google::Cloud::DiscoveryEngine::V1::Document Document}.
+          # @!attribute [rw] state
+          #   @return [::Google::Cloud::DiscoveryEngine::V1::BatchGetDocumentsMetadataResponse::State]
+          #     The state of the document.
+          # @!attribute [rw] last_refreshed_time
+          #   @return [::Google::Protobuf::Timestamp]
+          #     The timestamp of the last time the
+          #     {::Google::Cloud::DiscoveryEngine::V1::Document Document} was last indexed.
+          # @!attribute [rw] data_ingestion_source
+          #   @return [::String]
+          #     The data ingestion source of the
+          #     {::Google::Cloud::DiscoveryEngine::V1::Document Document}.
+          #
+          #     Allowed values are:
+          #
+          #     * `batch`: Data ingested via Batch API, e.g., ImportDocuments.
+          #     * `streaming` Data ingested via Streaming API, e.g., FHIR streaming.
+          class DocumentMetadata
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # The value of the matcher that was used to match the
+            # {::Google::Cloud::DiscoveryEngine::V1::Document Document}.
+            # @!attribute [rw] uri
+            #   @return [::String]
+            #     If match by URI, the URI of the
+            #     {::Google::Cloud::DiscoveryEngine::V1::Document Document}.
+            #
+            #     Note: The following fields are mutually exclusive: `uri`, `fhir_resource`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] fhir_resource
+            #   @return [::String]
+            #     Format:
+            #     projects/\\{project}/locations/\\{location}/datasets/\\{dataset}/fhirStores/\\{fhir_store}/fhir/\\{resource_type}/\\{fhir_resource_id}
+            #
+            #     Note: The following fields are mutually exclusive: `fhir_resource`, `uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            class MatcherValue
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+          end
+
+          # The state of the {::Google::Cloud::DiscoveryEngine::V1::Document Document}.
+          module State
+            # Should never be set.
+            STATE_UNSPECIFIED = 0
+
+            # The {::Google::Cloud::DiscoveryEngine::V1::Document Document} is indexed.
+            INDEXED = 1
+
+            # The {::Google::Cloud::DiscoveryEngine::V1::Document Document} is not indexed
+            # because its URI is not in the
+            # {::Google::Cloud::DiscoveryEngine::V1::TargetSite TargetSite}.
+            NOT_IN_TARGET_SITE = 2
+
+            # The {::Google::Cloud::DiscoveryEngine::V1::Document Document} is not indexed.
+            NOT_IN_INDEX = 3
+          end
         end
       end
     end

@@ -31,6 +31,14 @@ class ::Google::Cloud::OsLogin::V1::OsLoginService::ClientPathsTest < Minitest::
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_posix_account_path

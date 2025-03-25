@@ -1,5 +1,90 @@
 # Release History
 
+### 1.7.0 (2025-03-13)
+
+#### Features
+
+* Support JA4 fingerprint for SSL clients ([#29327](https://github.com/googleapis/google-cloud-ruby/issues/29327)) 
+
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.1 (2025-01-08)
+
+#### Documentation
+
+* Minor update to FraudPrevention description ([#28184](https://github.com/googleapis/google-cloud-ruby/issues/28184)) 
+
+### 1.5.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.4.1 (2024-12-04)
+
+#### Documentation
+
+* Clarify that challenge information is also returned for INVISIBLE keys ([#27683](https://github.com/googleapis/google-cloud-ruby/issues/27683)) 
+
+### 1.4.0 (2024-11-14)
+
+#### Features
+
+* A new enum `Challenge` is added ([#27608](https://github.com/googleapis/google-cloud-ruby/issues/27608)) 
+* A new field `challenge` is added to message `.google.cloud.recaptchaenterprise.v1.RiskAnalysis` 
+
+### 1.3.0 (2024-11-04)
+
+#### Features
+
+* enable Akamai web application firewall 
+* support for ListIpOverrides and RemoveIpOverride ([#27532](https://github.com/googleapis/google-cloud-ruby/issues/27532)) 
+#### Documentation
+
+* minor updates to reference documentation 
+
+### 1.2.0 (2024-08-30)
+
+#### Features
+
+* add AssessmentEnvironment for CreateAssessement to explicitly describe the environment of the assessment 
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+* Add field `experimental_features` to message `PythonSettings` ([#27011](https://github.com/googleapis/google-cloud-ruby/issues/27011)) 
+* minor doc fixes ([#27021](https://github.com/googleapis/google-cloud-ruby/issues/27021)) 
+
+### 1.1.0 (2024-08-22)
+
+#### Features
+
+* add `express_settings` to `Key` 
+* add AddIpOverride RPC ([#26975](https://github.com/googleapis/google-cloud-ruby/issues/26975)) 
+#### Documentation
+
+* clarify `Event.express` field 
+* fix billing, quota, and usecase links 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.22.0 (2024-06-26)
+
+#### Features
+
+* Support SMS Toll Fraud assessment ([#26179](https://github.com/googleapis/google-cloud-ruby/issues/26179)) 
+
 ### 0.21.0 (2024-04-25)
 
 #### Features

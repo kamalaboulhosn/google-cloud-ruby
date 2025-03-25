@@ -1,5 +1,84 @@
 # Release History
 
+### 2.1.0 (2025-03-14)
+
+#### Features
+
+* Documented the service as deprecated ([#29352](https://github.com/googleapis/google-cloud-ruby/issues/29352)) 
+
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28823](https://github.com/googleapis/google-cloud-ruby/issues/28823))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28823](https://github.com/googleapis/google-cloud-ruby/issues/28823)) 
+
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.1 (2025-01-08)
+
+#### Documentation
+
+* Fixed a link ([#28119](https://github.com/googleapis/google-cloud-ruby/issues/28119)) 
+
+### 1.3.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.2.0 (2024-12-04)
+
+#### Features
+
+* Support for dataplex transfers 
+* Support for the set_config, retrieve_config, and retrieve_effective_config RPCs 
+
+### 1.1.0 (2024-11-14)
+
+#### Features
+
+* A new enum `DataplexTransferStatus` is added 
+* A new field `dataplex_transfer_status` is added to message `.google.cloud.datacatalog.v1.TagTemplate` 
+* A new field `feature_online_store_spec` is added to message `.google.cloud.datacatalog.v1.Entry` ([#27611](https://github.com/googleapis/google-cloud-ruby/issues/27611)) 
+* A new message `FeatureOnlineStoreSpec` is added 
+* A new value `CUSTOM_TEXT_EMBEDDING` is added to enum `ModelSourceType` 
+* A new value `FEATURE_GROUP` is added to enum `EntryType` 
+* A new value `FEATURE_ONLINE_STORE` is added to enum `EntryType` 
+* A new value `FEATURE_VIEW` is added to enum `EntryType` 
+* A new value `GENIE` is added to enum `ModelSourceType` 
+* A new value `MARKETPLACE` is added to enum `ModelSourceType` 
+#### Documentation
+
+* A comment for field `name` in message `.google.cloud.datacatalog.v1.Entry` is changed 
+* A comment for field `name` in message `.google.cloud.datacatalog.v1.EntryGroup` is changed 
+* A comment for field `name` in message `.google.cloud.datacatalog.v1.Tag` is changed 
+* A comment for field `name` in message `.google.cloud.datacatalog.v1.TagTemplate` is changed 
+* A comment for field `name` in message `.google.cloud.datacatalog.v1.TagTemplateField` is changed 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.23.0 (2024-03-18)
 
 #### Features

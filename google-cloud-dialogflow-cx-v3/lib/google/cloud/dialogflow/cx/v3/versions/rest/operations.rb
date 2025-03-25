@@ -116,14 +116,6 @@ module Google
                 # Lists operations that match the specified filter in the request. If the
                 # server doesn't support this method, it returns `UNIMPLEMENTED`.
                 #
-                # NOTE: the `name` binding allows API services to override the binding
-                # to use different resource name schemes, such as `users/*/operations`. To
-                # override the binding, API services can add a binding such as
-                # `"/v1/{name=users/*}/operations"` to their service configuration.
-                # For backwards compatibility, the default name includes the operations
-                # collection id, however overriding users must ensure the name binding
-                # is the parent resource, without the operations collection id.
-                #
                 # @overload list_operations(request, options = nil)
                 #   Pass arguments to `list_operations` via a request object, either of type
                 #   {::Google::Longrunning::ListOperationsRequest} or an equivalent Hash.
@@ -205,7 +197,7 @@ module Google
                   @operations_stub.list_operations request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @operations_stub, :list_operations, "operations", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -294,7 +286,7 @@ module Google
                   @operations_stub.get_operation request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -376,7 +368,6 @@ module Google
 
                   @operations_stub.delete_operation request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -391,8 +382,9 @@ module Google
                 # other methods to check whether the cancellation succeeded or whether the
                 # operation completed despite cancellation. On successful cancellation,
                 # the operation is not deleted; instead, it becomes an operation with
-                # an {::Google::Longrunning::Operation#error Operation.error} value with a {::Google::Rpc::Status#code google.rpc.Status.code} of 1,
-                # corresponding to `Code.CANCELLED`.
+                # an {::Google::Longrunning::Operation#error Operation.error} value with a
+                # {::Google::Rpc::Status#code google.rpc.Status.code} of `1`, corresponding to
+                # `Code.CANCELLED`.
                 #
                 # @overload cancel_operation(request, options = nil)
                 #   Pass arguments to `cancel_operation` via a request object, either of type
@@ -464,7 +456,6 @@ module Google
 
                   @operations_stub.cancel_operation request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -512,6 +503,13 @@ module Google
                 #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
                 #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -544,6 +542,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -565,6 +568,7 @@ module Google
                   config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                   config_attr :quota_project, nil, ::String, nil
                   config_attr :universe_domain, nil, ::String, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil
@@ -684,16 +688,18 @@ module Google
 
                   response = @client_stub.make_http_request(
                     verb,
-                    uri:     uri,
-                    body:    body || "",
-                    params:  query_string_params,
+                    uri: uri,
+                    body: body || "",
+                    params: query_string_params,
+                    method_name: "list_operations",
                     options: options
                   )
                   operation = ::Gapic::Rest::TransportOperation.new response
                   result = ::Google::Longrunning::ListOperationsResponse.decode_json response.body, ignore_unknown_fields: true
-
-                  yield result, operation if block_given?
-                  result
+                  catch :response do
+                    yield result, operation if block_given?
+                    result
+                  end
                 end
 
                 ##
@@ -722,16 +728,18 @@ module Google
 
                   response = @client_stub.make_http_request(
                     verb,
-                    uri:     uri,
-                    body:    body || "",
-                    params:  query_string_params,
+                    uri: uri,
+                    body: body || "",
+                    params: query_string_params,
+                    method_name: "get_operation",
                     options: options
                   )
                   operation = ::Gapic::Rest::TransportOperation.new response
                   result = ::Google::Longrunning::Operation.decode_json response.body, ignore_unknown_fields: true
-
-                  yield result, operation if block_given?
-                  result
+                  catch :response do
+                    yield result, operation if block_given?
+                    result
+                  end
                 end
 
                 ##
@@ -760,16 +768,18 @@ module Google
 
                   response = @client_stub.make_http_request(
                     verb,
-                    uri:     uri,
-                    body:    body || "",
-                    params:  query_string_params,
+                    uri: uri,
+                    body: body || "",
+                    params: query_string_params,
+                    method_name: "delete_operation",
                     options: options
                   )
                   operation = ::Gapic::Rest::TransportOperation.new response
                   result = ::Google::Protobuf::Empty.decode_json response.body, ignore_unknown_fields: true
-
-                  yield result, operation if block_given?
-                  result
+                  catch :response do
+                    yield result, operation if block_given?
+                    result
+                  end
                 end
 
                 ##
@@ -798,16 +808,18 @@ module Google
 
                   response = @client_stub.make_http_request(
                     verb,
-                    uri:     uri,
-                    body:    body || "",
-                    params:  query_string_params,
+                    uri: uri,
+                    body: body || "",
+                    params: query_string_params,
+                    method_name: "cancel_operation",
                     options: options
                   )
                   operation = ::Gapic::Rest::TransportOperation.new response
                   result = ::Google::Protobuf::Empty.decode_json response.body, ignore_unknown_fields: true
-
-                  yield result, operation if block_given?
-                  result
+                  catch :response do
+                    yield result, operation if block_given?
+                    result
+                  end
                 end
 
                 ##

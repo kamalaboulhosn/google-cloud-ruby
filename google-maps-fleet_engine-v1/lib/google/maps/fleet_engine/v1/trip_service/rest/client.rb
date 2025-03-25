@@ -170,8 +170,28 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @trip_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
+              end
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @trip_service_stub.logger
               end
 
               # Service calls
@@ -300,7 +320,6 @@ module Google
 
                 @trip_service_stub.create_trip request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -414,7 +433,92 @@ module Google
 
                 @trip_service_stub.get_trip request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Deletes a single Trip.
+              #
+              # Returns FAILED_PRECONDITION if the Trip is active and assigned to a
+              # vehicle.
+              #
+              # @overload delete_trip(request, options = nil)
+              #   Pass arguments to `delete_trip` via a request object, either of type
+              #   {::Google::Maps::FleetEngine::V1::DeleteTripRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Maps::FleetEngine::V1::DeleteTripRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_trip(header: nil, name: nil)
+              #   Pass arguments to `delete_trip` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param header [::Google::Maps::FleetEngine::V1::RequestHeader, ::Hash]
+              #     Optional. The standard Fleet Engine request header.
+              #   @param name [::String]
+              #     Required. Must be in the format `providers/{provider}/trips/{trip}`.
+              #     The provider must be the Project ID (for example, `sample-cloud-project`)
+              #     of the Google Cloud Project of which the service account making
+              #     this call is a member.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Protobuf::Empty]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/maps/fleet_engine/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Maps::FleetEngine::V1::TripService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Maps::FleetEngine::V1::DeleteTripRequest.new
+              #
+              #   # Call the delete_trip method.
+              #   result = client.delete_trip request
+              #
+              #   # The returned object is of type Google::Protobuf::Empty.
+              #   p result
+              #
+              def delete_trip request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Maps::FleetEngine::V1::DeleteTripRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_trip.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Maps::FleetEngine::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_trip.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_trip.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @trip_service_stub.delete_trip request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -510,7 +614,6 @@ module Google
 
                 @trip_service_stub.report_billable_trip request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -618,7 +721,7 @@ module Google
                 @trip_service_stub.search_trips request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @trip_service_stub, :search_trips, "trips", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -747,7 +850,6 @@ module Google
 
                 @trip_service_stub.update_trip request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -795,6 +897,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -827,6 +936,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -848,6 +962,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -897,6 +1012,11 @@ module Google
                   #
                   attr_reader :get_trip
                   ##
+                  # RPC-specific configuration for `delete_trip`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_trip
+                  ##
                   # RPC-specific configuration for `report_billable_trip`
                   # @return [::Gapic::Config::Method]
                   #
@@ -918,6 +1038,8 @@ module Google
                     @create_trip = ::Gapic::Config::Method.new create_trip_config
                     get_trip_config = parent_rpcs.get_trip if parent_rpcs.respond_to? :get_trip
                     @get_trip = ::Gapic::Config::Method.new get_trip_config
+                    delete_trip_config = parent_rpcs.delete_trip if parent_rpcs.respond_to? :delete_trip
+                    @delete_trip = ::Gapic::Config::Method.new delete_trip_config
                     report_billable_trip_config = parent_rpcs.report_billable_trip if parent_rpcs.respond_to? :report_billable_trip
                     @report_billable_trip = ::Gapic::Config::Method.new report_billable_trip_config
                     search_trips_config = parent_rpcs.search_trips if parent_rpcs.respond_to? :search_trips

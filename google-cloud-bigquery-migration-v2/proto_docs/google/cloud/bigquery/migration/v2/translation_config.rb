@@ -45,6 +45,12 @@ module Google
           # @!attribute [rw] request_source
           #   @return [::String]
           #     The indicator to show translation request initiator.
+          # @!attribute [rw] target_types
+          #   @return [::Array<::String>]
+          #     The types of output to generate, e.g. sql, metadata etc. If not specified,
+          #     a default set of targets will be generated. Some additional target types
+          #     may be slower to generate. See the documentation for the set of available
+          #     target types.
           class TranslationConfigDetails
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -54,45 +60,88 @@ module Google
           # @!attribute [rw] bigquery_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::BigQueryDialect]
           #     The BigQuery dialect
+          #
+          #     Note: The following fields are mutually exclusive: `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] hiveql_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::HiveQLDialect]
           #     The HiveQL dialect
+          #
+          #     Note: The following fields are mutually exclusive: `hiveql_dialect`, `bigquery_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] redshift_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::RedshiftDialect]
           #     The Redshift dialect
+          #
+          #     Note: The following fields are mutually exclusive: `redshift_dialect`, `bigquery_dialect`, `hiveql_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] teradata_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::TeradataDialect]
           #     The Teradata dialect
+          #
+          #     Note: The following fields are mutually exclusive: `teradata_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] oracle_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::OracleDialect]
           #     The Oracle dialect
+          #
+          #     Note: The following fields are mutually exclusive: `oracle_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] sparksql_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::SparkSQLDialect]
           #     The SparkSQL dialect
+          #
+          #     Note: The following fields are mutually exclusive: `sparksql_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] snowflake_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::SnowflakeDialect]
           #     The Snowflake dialect
+          #
+          #     Note: The following fields are mutually exclusive: `snowflake_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] netezza_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::NetezzaDialect]
           #     The Netezza dialect
+          #
+          #     Note: The following fields are mutually exclusive: `netezza_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] azure_synapse_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::AzureSynapseDialect]
           #     The Azure Synapse dialect
+          #
+          #     Note: The following fields are mutually exclusive: `azure_synapse_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] vertica_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::VerticaDialect]
           #     The Vertica dialect
+          #
+          #     Note: The following fields are mutually exclusive: `vertica_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] sql_server_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::SQLServerDialect]
           #     The SQL Server dialect
+          #
+          #     Note: The following fields are mutually exclusive: `sql_server_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] postgresql_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::PostgresqlDialect]
           #     The Postgresql dialect
+          #
+          #     Note: The following fields are mutually exclusive: `postgresql_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] presto_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::PrestoDialect]
           #     The Presto dialect
+          #
+          #     Note: The following fields are mutually exclusive: `presto_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] mysql_dialect
           #   @return [::Google::Cloud::Bigquery::Migration::V2::MySQLDialect]
           #     The MySQL dialect
+          #
+          #     Note: The following fields are mutually exclusive: `mysql_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `db2_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] db2_dialect
+          #   @return [::Google::Cloud::Bigquery::Migration::V2::DB2Dialect]
+          #     DB2 dialect
+          #
+          #     Note: The following fields are mutually exclusive: `db2_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `sqlite_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] sqlite_dialect
+          #   @return [::Google::Cloud::Bigquery::Migration::V2::SQLiteDialect]
+          #     SQLite dialect
+          #
+          #     Note: The following fields are mutually exclusive: `sqlite_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `greenplum_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] greenplum_dialect
+          #   @return [::Google::Cloud::Bigquery::Migration::V2::GreenplumDialect]
+          #     Greenplum dialect
+          #
+          #     Note: The following fields are mutually exclusive: `greenplum_dialect`, `bigquery_dialect`, `hiveql_dialect`, `redshift_dialect`, `teradata_dialect`, `oracle_dialect`, `sparksql_dialect`, `snowflake_dialect`, `netezza_dialect`, `azure_synapse_dialect`, `vertica_dialect`, `sql_server_dialect`, `postgresql_dialect`, `presto_dialect`, `mysql_dialect`, `db2_dialect`, `sqlite_dialect`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class Dialect
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -193,6 +242,24 @@ module Google
 
           # The dialect definition for MySQL.
           class MySQLDialect
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The dialect definition for DB2.
+          class DB2Dialect
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The dialect definition for SQLite.
+          class SQLiteDialect
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The dialect definition for Greenplum.
+          class GreenplumDialect
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
@@ -303,6 +370,14 @@ module Google
           #   @return [::Array<::String>]
           #     The schema search path. When SQL objects are missing schema name,
           #     translation engine will search through this list to find the value.
+          # @!attribute [rw] metadata_store_dataset
+          #   @return [::String]
+          #     Optional. Expects a valid BigQuery dataset ID that exists, e.g.,
+          #     project-123.metadata_store_123.  If specified, translation will search and
+          #     read the required schema information from a metadata store in this dataset.
+          #     If metadata store doesn't exist, translation will parse the metadata file
+          #     and upload the schema info to a temp table in the dataset to speed up
+          #     future translation jobs.
           class SourceEnv
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

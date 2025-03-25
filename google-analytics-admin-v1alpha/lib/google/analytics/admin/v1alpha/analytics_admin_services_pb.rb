@@ -24,7 +24,7 @@ module Google
     module Admin
       module V1alpha
         module AnalyticsAdminService
-          # Service Interface for the Analytics Admin API (GA4).
+          # Service Interface for the Google Analytics Admin API.
           class Service
 
             include ::GRPC::GenericService
@@ -37,7 +37,7 @@ module Google
             rpc :GetAccount, ::Google::Analytics::Admin::V1alpha::GetAccountRequest, ::Google::Analytics::Admin::V1alpha::Account
             # Returns all accounts accessible by the caller.
             #
-            # Note that these accounts might not currently have GA4 properties.
+            # Note that these accounts might not currently have GA properties.
             # Soft-deleted (ie: "trashed") accounts are excluded by default.
             # Returns an empty list if no relevant accounts are found.
             rpc :ListAccounts, ::Google::Analytics::Admin::V1alpha::ListAccountsRequest, ::Google::Analytics::Admin::V1alpha::ListAccountsResponse
@@ -59,16 +59,16 @@ module Google
             rpc :ProvisionAccountTicket, ::Google::Analytics::Admin::V1alpha::ProvisionAccountTicketRequest, ::Google::Analytics::Admin::V1alpha::ProvisionAccountTicketResponse
             # Returns summaries of all accounts accessible by the caller.
             rpc :ListAccountSummaries, ::Google::Analytics::Admin::V1alpha::ListAccountSummariesRequest, ::Google::Analytics::Admin::V1alpha::ListAccountSummariesResponse
-            # Lookup for a single "GA4" Property.
+            # Lookup for a single GA Property.
             rpc :GetProperty, ::Google::Analytics::Admin::V1alpha::GetPropertyRequest, ::Google::Analytics::Admin::V1alpha::Property
             # Returns child Properties under the specified parent Account.
             #
-            # Only "GA4" properties will be returned.
             # Properties will be excluded if the caller does not have access.
             # Soft-deleted (ie: "trashed") properties are excluded by default.
             # Returns an empty list if no relevant properties are found.
             rpc :ListProperties, ::Google::Analytics::Admin::V1alpha::ListPropertiesRequest, ::Google::Analytics::Admin::V1alpha::ListPropertiesResponse
-            # Creates an "GA4" property with the specified location and attributes.
+            # Creates a Google Analytics property with the specified location and
+            # attributes.
             rpc :CreateProperty, ::Google::Analytics::Admin::V1alpha::CreatePropertyRequest, ::Google::Analytics::Admin::V1alpha::Property
             # Marks target Property as soft-deleted (ie: "trashed") and returns it.
             #
@@ -80,7 +80,7 @@ module Google
             # will be permanently purged.
             # https://support.google.com/analytics/answer/6154772
             #
-            # Returns an error if the target is not found, or is not a GA4 Property.
+            # Returns an error if the target is not found.
             rpc :DeleteProperty, ::Google::Analytics::Admin::V1alpha::DeletePropertyRequest, ::Google::Analytics::Admin::V1alpha::Property
             # Updates a property.
             rpc :UpdateProperty, ::Google::Analytics::Admin::V1alpha::UpdatePropertyRequest, ::Google::Analytics::Admin::V1alpha::Property
@@ -107,7 +107,7 @@ module Google
             # Get data sharing settings on an account.
             # Data sharing settings are singletons.
             rpc :GetDataSharingSettings, ::Google::Analytics::Admin::V1alpha::GetDataSharingSettingsRequest, ::Google::Analytics::Admin::V1alpha::DataSharingSettings
-            # Lookup for a single "GA4" MeasurementProtocolSecret.
+            # Lookup for a single MeasurementProtocolSecret.
             rpc :GetMeasurementProtocolSecret, ::Google::Analytics::Admin::V1alpha::GetMeasurementProtocolSecretRequest, ::Google::Analytics::Admin::V1alpha::MeasurementProtocolSecret
             # Returns child MeasurementProtocolSecrets under the specified parent
             # Property.
@@ -137,23 +137,42 @@ module Google
             rpc :ListSKAdNetworkConversionValueSchemas, ::Google::Analytics::Admin::V1alpha::ListSKAdNetworkConversionValueSchemasRequest, ::Google::Analytics::Admin::V1alpha::ListSKAdNetworkConversionValueSchemasResponse
             # Searches through all changes to an account or its children given the
             # specified set of filters.
+            #
+            # Only returns the subset of changes supported by the API. The UI may return
+            # additional changes.
             rpc :SearchChangeHistoryEvents, ::Google::Analytics::Admin::V1alpha::SearchChangeHistoryEventsRequest, ::Google::Analytics::Admin::V1alpha::SearchChangeHistoryEventsResponse
             # Lookup for Google Signals settings for a property.
             rpc :GetGoogleSignalsSettings, ::Google::Analytics::Admin::V1alpha::GetGoogleSignalsSettingsRequest, ::Google::Analytics::Admin::V1alpha::GoogleSignalsSettings
             # Updates Google Signals settings for a property.
             rpc :UpdateGoogleSignalsSettings, ::Google::Analytics::Admin::V1alpha::UpdateGoogleSignalsSettingsRequest, ::Google::Analytics::Admin::V1alpha::GoogleSignalsSettings
+            # Deprecated: Use `CreateKeyEvent` instead.
             # Creates a conversion event with the specified attributes.
             rpc :CreateConversionEvent, ::Google::Analytics::Admin::V1alpha::CreateConversionEventRequest, ::Google::Analytics::Admin::V1alpha::ConversionEvent
+            # Deprecated: Use `UpdateKeyEvent` instead.
             # Updates a conversion event with the specified attributes.
             rpc :UpdateConversionEvent, ::Google::Analytics::Admin::V1alpha::UpdateConversionEventRequest, ::Google::Analytics::Admin::V1alpha::ConversionEvent
+            # Deprecated: Use `GetKeyEvent` instead.
             # Retrieve a single conversion event.
             rpc :GetConversionEvent, ::Google::Analytics::Admin::V1alpha::GetConversionEventRequest, ::Google::Analytics::Admin::V1alpha::ConversionEvent
+            # Deprecated: Use `DeleteKeyEvent` instead.
             # Deletes a conversion event in a property.
             rpc :DeleteConversionEvent, ::Google::Analytics::Admin::V1alpha::DeleteConversionEventRequest, ::Google::Protobuf::Empty
+            # Deprecated: Use `ListKeyEvents` instead.
             # Returns a list of conversion events in the specified parent property.
             #
             # Returns an empty list if no conversion events are found.
             rpc :ListConversionEvents, ::Google::Analytics::Admin::V1alpha::ListConversionEventsRequest, ::Google::Analytics::Admin::V1alpha::ListConversionEventsResponse
+            # Creates a Key Event.
+            rpc :CreateKeyEvent, ::Google::Analytics::Admin::V1alpha::CreateKeyEventRequest, ::Google::Analytics::Admin::V1alpha::KeyEvent
+            # Updates a Key Event.
+            rpc :UpdateKeyEvent, ::Google::Analytics::Admin::V1alpha::UpdateKeyEventRequest, ::Google::Analytics::Admin::V1alpha::KeyEvent
+            # Retrieve a single Key Event.
+            rpc :GetKeyEvent, ::Google::Analytics::Admin::V1alpha::GetKeyEventRequest, ::Google::Analytics::Admin::V1alpha::KeyEvent
+            # Deletes a Key Event.
+            rpc :DeleteKeyEvent, ::Google::Analytics::Admin::V1alpha::DeleteKeyEventRequest, ::Google::Protobuf::Empty
+            # Returns a list of Key Events in the specified parent property.
+            # Returns an empty list if no Key Events are found.
+            rpc :ListKeyEvents, ::Google::Analytics::Admin::V1alpha::ListKeyEventsRequest, ::Google::Analytics::Admin::V1alpha::ListKeyEventsResponse
             # Look up a single DisplayVideo360AdvertiserLink
             rpc :GetDisplayVideo360AdvertiserLink, ::Google::Analytics::Admin::V1alpha::GetDisplayVideo360AdvertiserLinkRequest, ::Google::Analytics::Admin::V1alpha::DisplayVideo360AdvertiserLink
             # Lists all DisplayVideo360AdvertiserLinks on a property.
@@ -258,12 +277,17 @@ module Google
             # only be requested on Google Analytics 360 properties. This method is only
             # available to Administrators.
             #
-            # These data access records include GA4 UI Reporting, GA4 UI Explorations,
-            # GA4 Data API, and other products like Firebase & Admob that can retrieve
+            # These data access records include GA UI Reporting, GA UI Explorations,
+            # GA Data API, and other products like Firebase & Admob that can retrieve
             # data from Google Analytics through a linkage. These records don't include
             # property configuration changes like adding a stream or changing a
             # property's time zone. For configuration change history, see
             # [searchChangeHistoryEvents](https://developers.google.com/analytics/devguides/config/admin/v1/rest/v1alpha/accounts/searchChangeHistoryEvents).
+            #
+            # To give your feedback on this API, complete the [Google Analytics Access
+            # Reports
+            # feedback](https://docs.google.com/forms/d/e/1FAIpQLSdmEBUrMzAEdiEKk5TV5dEHvDUZDRlgWYdQdAeSdtR4hVjEhw/viewform)
+            # form.
             rpc :RunAccessReport, ::Google::Analytics::Admin::V1alpha::RunAccessReportRequest, ::Google::Analytics::Admin::V1alpha::RunAccessReportResponse
             # Creates an access binding on an account or property.
             rpc :CreateAccessBinding, ::Google::Analytics::Admin::V1alpha::CreateAccessBindingRequest, ::Google::Analytics::Admin::V1alpha::AccessBinding
@@ -316,10 +340,16 @@ module Google
             # property.
             # Note: this has no effect on GA4 property.
             rpc :FetchAutomatedGa4ConfigurationOptOut, ::Google::Analytics::Admin::V1alpha::FetchAutomatedGa4ConfigurationOptOutRequest, ::Google::Analytics::Admin::V1alpha::FetchAutomatedGa4ConfigurationOptOutResponse
+            # Creates a BigQueryLink.
+            rpc :CreateBigQueryLink, ::Google::Analytics::Admin::V1alpha::CreateBigQueryLinkRequest, ::Google::Analytics::Admin::V1alpha::BigQueryLink
             # Lookup for a single BigQuery Link.
             rpc :GetBigQueryLink, ::Google::Analytics::Admin::V1alpha::GetBigQueryLinkRequest, ::Google::Analytics::Admin::V1alpha::BigQueryLink
             # Lists BigQuery Links on a property.
             rpc :ListBigQueryLinks, ::Google::Analytics::Admin::V1alpha::ListBigQueryLinksRequest, ::Google::Analytics::Admin::V1alpha::ListBigQueryLinksResponse
+            # Deletes a BigQueryLink on a property.
+            rpc :DeleteBigQueryLink, ::Google::Analytics::Admin::V1alpha::DeleteBigQueryLinkRequest, ::Google::Protobuf::Empty
+            # Updates a BigQueryLink.
+            rpc :UpdateBigQueryLink, ::Google::Analytics::Admin::V1alpha::UpdateBigQueryLinkRequest, ::Google::Analytics::Admin::V1alpha::BigQueryLink
             # Returns the enhanced measurement settings for this data stream.
             # Note that the stream must enable enhanced measurement for these settings to
             # take effect.
@@ -360,6 +390,18 @@ module Google
             rpc :UpdateEventCreateRule, ::Google::Analytics::Admin::V1alpha::UpdateEventCreateRuleRequest, ::Google::Analytics::Admin::V1alpha::EventCreateRule
             # Deletes an EventCreateRule.
             rpc :DeleteEventCreateRule, ::Google::Analytics::Admin::V1alpha::DeleteEventCreateRuleRequest, ::Google::Protobuf::Empty
+            # Lookup for a single EventEditRule.
+            rpc :GetEventEditRule, ::Google::Analytics::Admin::V1alpha::GetEventEditRuleRequest, ::Google::Analytics::Admin::V1alpha::EventEditRule
+            # Lists EventEditRules on a web data stream.
+            rpc :ListEventEditRules, ::Google::Analytics::Admin::V1alpha::ListEventEditRulesRequest, ::Google::Analytics::Admin::V1alpha::ListEventEditRulesResponse
+            # Creates an EventEditRule.
+            rpc :CreateEventEditRule, ::Google::Analytics::Admin::V1alpha::CreateEventEditRuleRequest, ::Google::Analytics::Admin::V1alpha::EventEditRule
+            # Updates an EventEditRule.
+            rpc :UpdateEventEditRule, ::Google::Analytics::Admin::V1alpha::UpdateEventEditRuleRequest, ::Google::Analytics::Admin::V1alpha::EventEditRule
+            # Deletes an EventEditRule.
+            rpc :DeleteEventEditRule, ::Google::Analytics::Admin::V1alpha::DeleteEventEditRuleRequest, ::Google::Protobuf::Empty
+            # Changes the processing order of event edit rules on the specified stream.
+            rpc :ReorderEventEditRules, ::Google::Analytics::Admin::V1alpha::ReorderEventEditRulesRequest, ::Google::Protobuf::Empty
             # Updates a DataRedactionSettings on a property.
             rpc :UpdateDataRedactionSettings, ::Google::Analytics::Admin::V1alpha::UpdateDataRedactionSettingsRequest, ::Google::Analytics::Admin::V1alpha::DataRedactionSettings
             # Lookup for a single DataRedactionSettings.
@@ -394,7 +436,7 @@ module Google
             rpc :DeleteRollupPropertySourceLink, ::Google::Analytics::Admin::V1alpha::DeleteRollupPropertySourceLinkRequest, ::Google::Protobuf::Empty
             # Create a subproperty and a subproperty event filter that applies to the
             # created subproperty.
-            rpc :CreateSubproperty, ::Google::Analytics::Admin::V1alpha::CreateSubpropertyRequest, ::Google::Analytics::Admin::V1alpha::CreateSubpropertyResponse
+            rpc :ProvisionSubproperty, ::Google::Analytics::Admin::V1alpha::ProvisionSubpropertyRequest, ::Google::Analytics::Admin::V1alpha::ProvisionSubpropertyResponse
             # Creates a subproperty Event Filter.
             rpc :CreateSubpropertyEventFilter, ::Google::Analytics::Admin::V1alpha::CreateSubpropertyEventFilterRequest, ::Google::Analytics::Admin::V1alpha::SubpropertyEventFilter
             # Lookup for a single subproperty Event Filter.

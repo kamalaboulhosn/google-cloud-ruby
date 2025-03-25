@@ -20,6 +20,8 @@ require_relative "../storage_cors_configuration"
 require_relative "../storage_create_bucket"
 require_relative "../storage_create_bucket_class_location"
 require_relative "../storage_create_bucket_dual_region"
+require_relative "../storage_create_bucket_hierarchical_namespace"
+require_relative "../storage_create_bucket_with_object_retention"
 require_relative "../storage_define_bucket_website_configuration"
 require_relative "../storage_delete_bucket"
 require_relative "../storage_disable_bucket_lifecycle_management"
@@ -32,6 +34,7 @@ require_relative "../storage_enable_default_event_based_hold"
 require_relative "../storage_enable_requester_pays"
 require_relative "../storage_enable_uniform_bucket_level_access"
 require_relative "../storage_enable_versioning"
+require_relative "../storage_get_bucket_class_and_location"
 require_relative "../storage_get_bucket_metadata"
 require_relative "../storage_get_default_event_based_hold"
 require_relative "../storage_get_public_access_prevention"
@@ -44,6 +47,7 @@ require_relative "../storage_remove_bucket_label"
 require_relative "../storage_remove_cors_configuration"
 require_relative "../storage_remove_retention_policy"
 require_relative "../storage_set_bucket_default_kms_key"
+require_relative "../storage_set_object_retention_policy"
 require_relative "../storage_set_public_access_prevention_enforced"
 require_relative "../storage_set_public_access_prevention_inherited"
 require_relative "../storage_set_retention_policy"
@@ -140,6 +144,62 @@ describe "Buckets Snippets" do
 
       refute_nil storage_client.bucket bucket_name
 
+      delete_bucket_helper bucket_name
+    end
+  end
+
+  describe "storage_create_bucket_hierarchical_namespace" do
+    it "creates hierarchical namespace enabled bucket" do
+      bucket_name = random_bucket_name
+      refute storage_client.bucket bucket_name
+
+      expected = "Created bucket #{bucket_name} with Hierarchical Namespace enabled.\n"
+
+      retry_resource_exhaustion do
+        assert_output expected do
+          create_bucket_hierarchical_namespace bucket_name: bucket_name
+        end
+      end
+
+      refute_nil storage_client.bucket bucket_name
+
+      delete_bucket_helper bucket_name
+    end
+  end
+
+  describe "storage_create_bucket_with_object_retention" do
+    it "creates a bucket with object retention enabled." do
+      bucket_name = random_bucket_name
+      refute storage_client.bucket bucket_name
+
+      expected = "Created bucket #{bucket_name} with object retention setting: Enabled\n"
+
+      retry_resource_exhaustion do
+        assert_output expected do
+          create_bucket_with_object_retention bucket_name: bucket_name
+        end
+      end
+
+      refute_nil storage_client.bucket bucket_name
+
+      file_name = "test_object_retention"
+
+      bucket = storage_client.bucket bucket_name
+
+      out, _err = capture_io do
+        set_object_retention_policy bucket_name: bucket.name,
+                                    content: "hello world",
+                                    destination_file_name: file_name
+      end
+
+      assert_includes out, "Retention policy for file #{file_name}"
+
+      file = bucket.file file_name
+      file.retention = {
+        mode: nil,
+        retain_until_time: nil,
+        override_unlocked_retention: true
+      }
       delete_bucket_helper bucket_name
     end
   end
@@ -243,7 +303,7 @@ describe "Buckets Snippets" do
       assert bucket.uniform_bucket_level_access?
 
       # get_uniform_bucket_level_access
-      assert_output "Uniform bucket-level access is enabled for #{bucket.name}.\nBucket "\
+      assert_output "Uniform bucket-level access is enabled for #{bucket.name}.\nBucket " \
                     "will be locked on #{bucket.uniform_bucket_level_access_locked_at}.\n" do
         get_uniform_bucket_level_access bucket_name: bucket.name
       end
@@ -287,6 +347,23 @@ describe "Buckets Snippets" do
 
       bucket.refresh!
       refute bucket.default_kms_key
+    end
+  end
+
+  describe "get bucket class and location data" do
+    bucket_name = random_bucket_name
+    location = "US"
+    storage_class = "COLDLINE"
+
+    it "get_bucket_class_and_location" do
+      storage_client.create_bucket bucket_name,
+                                   location: location,
+                                   storage_class: storage_class
+      expected_output = "Bucket #{bucket_name} storage class is " \
+                        "#{storage_class}, and the location is #{location}\n"
+      assert_output expected_output do
+        get_bucket_class_and_location bucket_name: bucket_name
+      end
     end
   end
 

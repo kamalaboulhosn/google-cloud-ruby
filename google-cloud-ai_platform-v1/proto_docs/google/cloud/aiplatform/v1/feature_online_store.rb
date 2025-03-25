@@ -29,6 +29,8 @@ module Google
         #     Contains settings for the Cloud Bigtable instance that will be created
         #     to serve featureValues for all FeatureViews under this
         #     FeatureOnlineStore.
+        #
+        #     Note: The following fields are mutually exclusive: `bigtable`, `optimized`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] optimized
         #   @return [::Google::Cloud::AIPlatform::V1::FeatureOnlineStore::Optimized]
         #     Contains settings for the Optimized store that will be created
@@ -36,6 +38,8 @@ module Google
         #     FeatureOnlineStore. When choose Optimized storage type, need to set
         #     {::Google::Cloud::AIPlatform::V1::PrivateServiceConnectConfig#enable_private_service_connect PrivateServiceConnectConfig.enable_private_service_connect}
         #     to use private endpoint. Otherwise will use public endpoint by default.
+        #
+        #     Note: The following fields are mutually exclusive: `optimized`, `bigtable`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] name
         #   @return [::String]
         #     Identifier. Name of the FeatureOnlineStore. Format:
@@ -70,6 +74,16 @@ module Google
         #   @return [::Google::Cloud::AIPlatform::V1::FeatureOnlineStore::DedicatedServingEndpoint]
         #     Optional. The dedicated serving endpoint for this FeatureOnlineStore, which
         #     is different from common Vertex service endpoint.
+        # @!attribute [rw] encryption_spec
+        #   @return [::Google::Cloud::AIPlatform::V1::EncryptionSpec]
+        #     Optional. Customer-managed encryption key spec for data storage. If set,
+        #     online store will be secured by this key.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
         class FeatureOnlineStore
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -116,6 +130,18 @@ module Google
           #   @return [::String]
           #     Output only. This field will be populated with the domain name to use for
           #     this FeatureOnlineStore
+          # @!attribute [rw] private_service_connect_config
+          #   @return [::Google::Cloud::AIPlatform::V1::PrivateServiceConnectConfig]
+          #     Optional. Private service connect config. The private service connection
+          #     is available only for Optimized storage type, not for embedding
+          #     management now. If
+          #     {::Google::Cloud::AIPlatform::V1::PrivateServiceConnectConfig#enable_private_service_connect PrivateServiceConnectConfig.enable_private_service_connect}
+          #     set to true, customers will use private service connection to send
+          #     request. Otherwise, the connection will set to public endpoint.
+          # @!attribute [r] service_attachment
+          #   @return [::String]
+          #     Output only. The name of the service attachment resource. Populated if
+          #     private service connect is enabled and after FeatureViewSync is created.
           class DedicatedServingEndpoint
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

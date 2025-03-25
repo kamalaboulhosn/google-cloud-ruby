@@ -1,5 +1,72 @@
 # Changelog
 
+### 1.6.0 (2025-03-10)
+
+#### Features
+
+* Change client_secret in OAuthConfig from required to optional ([#29310](https://github.com/googleapis/google-cloud-ruby/issues/29310)) 
+
+### 1.5.0 (2025-03-04)
+
+#### Features
+
+* Agent resources report their Zone Separation and Zone Isolation status 
+* Support the document processing mode for a data store connectdion 
+#### Documentation
+
+* Deprecated the populate_data_store_connection_signals query parameter 
+
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.2.0 (2024-11-13)
+
+#### Features
+
+* add options of client_certificate_settings, bigquery_export_settings, bearer_token_config and boost_control_spec; add support of ALAW encoding ([#27559](https://github.com/googleapis/google-cloud-ruby/issues/27559)) 
+
+### 1.1.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.1.0 (2024-07-24)
+
+#### Features
+
+* added support for lock flow 
+* added support for multi language settings in flow 
+* added support for oauth and service agent auth for webhook. 
+* added support for service directory in tools 
+* expose PersonalizationSettings & SpeechSettings in v3 API. 
+* expose store tts option in security settings 
+* exposed DataStoreConnectionSignals ([#26508](https://github.com/googleapis/google-cloud-ruby/issues/26508)) 
+#### Documentation
+
+* clarified wording around audio redaction 
+* clarified wording around enable_stackdriver_logging & enable_interaction_logging 
+* clarified wording around start point of test config. 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.26.0 (2024-02-26)
 
 #### Features

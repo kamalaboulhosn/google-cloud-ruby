@@ -128,6 +128,27 @@ module Google
             end
 
             ##
+            # Create a fully-qualified GitRepositoryLink resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/connections/{connection}/gitRepositoryLinks/{git_repository_link}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param connection [String]
+            # @param git_repository_link [String]
+            #
+            # @return [::String]
+            def git_repository_link_path project:, location:, connection:, git_repository_link:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+              raise ::ArgumentError, "connection cannot contain /" if connection.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/connections/#{connection}/gitRepositoryLinks/#{git_repository_link}"
+            end
+
+            ##
             # Create a fully-qualified GithubEnterpriseConfig resource string.
             #
             # @overload github_enterprise_config_path(project:, config:)
@@ -200,6 +221,25 @@ module Google
               raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
 
               "projects/#{project}/global/networks/#{network}"
+            end
+
+            ##
+            # Create a fully-qualified NetworkAttachment resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/regions/{region}/networkAttachments/{networkattachment}`
+            #
+            # @param project [String]
+            # @param region [String]
+            # @param networkattachment [String]
+            #
+            # @return [::String]
+            def network_attachment_path project:, region:, networkattachment:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "region cannot contain /" if region.to_s.include? "/"
+
+              "projects/#{project}/regions/#{region}/networkAttachments/#{networkattachment}"
             end
 
             ##

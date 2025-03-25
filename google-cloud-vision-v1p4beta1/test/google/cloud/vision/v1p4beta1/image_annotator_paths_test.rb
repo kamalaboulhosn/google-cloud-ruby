@@ -31,6 +31,14 @@ class ::Google::Cloud::Vision::V1p4beta1::ImageAnnotator::ClientPathsTest < Mini
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_product_set_path

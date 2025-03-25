@@ -95,10 +95,14 @@ module Google
         # @!attribute [rw] condition
         #   @return [::Google::Cloud::ArtifactRegistry::V1::CleanupPolicyCondition]
         #     Policy condition for matching versions.
+        #
+        #     Note: The following fields are mutually exclusive: `condition`, `most_recent_versions`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] most_recent_versions
         #   @return [::Google::Cloud::ArtifactRegistry::V1::CleanupPolicyMostRecentVersions]
         #     Policy condition for retaining a minimum number of versions. May only be
         #     specified with a Keep action.
+        #
+        #     Note: The following fields are mutually exclusive: `most_recent_versions`, `condition`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] id
         #   @return [::String]
         #     The user-provided ID of the cleanup policy.
@@ -136,27 +140,49 @@ module Google
         # @!attribute [rw] docker_repository
         #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::DockerRepository]
         #     Specific settings for a Docker remote repository.
+        #
+        #     Note: The following fields are mutually exclusive: `docker_repository`, `maven_repository`, `npm_repository`, `python_repository`, `apt_repository`, `yum_repository`, `common_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] maven_repository
         #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::MavenRepository]
         #     Specific settings for a Maven remote repository.
+        #
+        #     Note: The following fields are mutually exclusive: `maven_repository`, `docker_repository`, `npm_repository`, `python_repository`, `apt_repository`, `yum_repository`, `common_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] npm_repository
         #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::NpmRepository]
         #     Specific settings for an Npm remote repository.
+        #
+        #     Note: The following fields are mutually exclusive: `npm_repository`, `docker_repository`, `maven_repository`, `python_repository`, `apt_repository`, `yum_repository`, `common_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] python_repository
         #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::PythonRepository]
         #     Specific settings for a Python remote repository.
+        #
+        #     Note: The following fields are mutually exclusive: `python_repository`, `docker_repository`, `maven_repository`, `npm_repository`, `apt_repository`, `yum_repository`, `common_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] apt_repository
         #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::AptRepository]
         #     Specific settings for an Apt remote repository.
+        #
+        #     Note: The following fields are mutually exclusive: `apt_repository`, `docker_repository`, `maven_repository`, `npm_repository`, `python_repository`, `yum_repository`, `common_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] yum_repository
         #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::YumRepository]
         #     Specific settings for a Yum remote repository.
+        #
+        #     Note: The following fields are mutually exclusive: `yum_repository`, `docker_repository`, `maven_repository`, `npm_repository`, `python_repository`, `apt_repository`, `common_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] common_repository
+        #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::CommonRemoteRepository]
+        #     Common remote repository settings.
+        #     Used as the remote repository upstream URL.
+        #
+        #     Note: The following fields are mutually exclusive: `common_repository`, `docker_repository`, `maven_repository`, `npm_repository`, `python_repository`, `apt_repository`, `yum_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] description
         #   @return [::String]
         #     The description of the remote source.
         # @!attribute [rw] upstream_credentials
         #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::UpstreamCredentials]
         #     Optional. The credentials used to access the remote repository.
+        # @!attribute [rw] disable_upstream_validation
+        #   @return [::Boolean]
+        #     Input only. A create/update remote repo option to avoid making a HEAD/GET
+        #     request to validate a remote repo and any supplied upstream credentials.
         class RemoteRepositoryConfig
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -189,9 +215,26 @@ module Google
           #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::DockerRepository::PublicRepository]
           #     One of the publicly available Docker repositories supported by Artifact
           #     Registry.
+          #
+          #     Note: The following fields are mutually exclusive: `public_repository`, `custom_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] custom_repository
+          #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::DockerRepository::CustomRepository]
+          #     Customer-specified remote repository.
+          #
+          #     Note: The following fields are mutually exclusive: `custom_repository`, `public_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class DockerRepository
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Customer-specified publicly available remote repository.
+            # @!attribute [rw] uri
+            #   @return [::String]
+            #     An http/https uri reference to the custom remote repository, for ex:
+            #     "https://registry-1.docker.io".
+            class CustomRepository
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
 
             # Predefined list of publicly available Docker repositories like Docker
             # Hub.
@@ -209,9 +252,26 @@ module Google
           #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::MavenRepository::PublicRepository]
           #     One of the publicly available Maven repositories supported by Artifact
           #     Registry.
+          #
+          #     Note: The following fields are mutually exclusive: `public_repository`, `custom_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] custom_repository
+          #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::MavenRepository::CustomRepository]
+          #     Customer-specified remote repository.
+          #
+          #     Note: The following fields are mutually exclusive: `custom_repository`, `public_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class MavenRepository
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Customer-specified publicly available remote repository.
+            # @!attribute [rw] uri
+            #   @return [::String]
+            #     An http/https uri reference to the upstream remote repository, for ex:
+            #     "https://my.maven.registry/".
+            class CustomRepository
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
 
             # Predefined list of publicly available Maven repositories like Maven
             # Central.
@@ -229,9 +289,26 @@ module Google
           #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::NpmRepository::PublicRepository]
           #     One of the publicly available Npm repositories supported by Artifact
           #     Registry.
+          #
+          #     Note: The following fields are mutually exclusive: `public_repository`, `custom_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] custom_repository
+          #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::NpmRepository::CustomRepository]
+          #     Customer-specified remote repository.
+          #
+          #     Note: The following fields are mutually exclusive: `custom_repository`, `public_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class NpmRepository
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Customer-specified publicly available remote repository.
+            # @!attribute [rw] uri
+            #   @return [::String]
+            #     An http/https uri reference to the upstream remote repository, for ex:
+            #     "https://my.npm.registry/".
+            class CustomRepository
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
 
             # Predefined list of publicly available NPM repositories like npmjs.
             module PublicRepository
@@ -248,9 +325,26 @@ module Google
           #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::PythonRepository::PublicRepository]
           #     One of the publicly available Python repositories supported by Artifact
           #     Registry.
+          #
+          #     Note: The following fields are mutually exclusive: `public_repository`, `custom_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] custom_repository
+          #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::PythonRepository::CustomRepository]
+          #     Customer-specified remote repository.
+          #
+          #     Note: The following fields are mutually exclusive: `custom_repository`, `public_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class PythonRepository
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Customer-specified publicly available remote repository.
+            # @!attribute [rw] uri
+            #   @return [::String]
+            #     An http/https uri reference to the upstream remote repository, for ex:
+            #     "https://my.python.registry/".
+            class CustomRepository
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
 
             # Predefined list of publicly available Python repositories like PyPI.org.
             module PublicRepository
@@ -267,6 +361,13 @@ module Google
           #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::AptRepository::PublicRepository]
           #     One of the publicly available Apt repositories supported by Artifact
           #     Registry.
+          #
+          #     Note: The following fields are mutually exclusive: `public_repository`, `custom_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] custom_repository
+          #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::AptRepository::CustomRepository]
+          #     Customer-specified remote repository.
+          #
+          #     Note: The following fields are mutually exclusive: `custom_repository`, `public_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class AptRepository
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -293,7 +394,20 @@ module Google
 
                 # Ubuntu LTS/Pro.
                 UBUNTU = 2
+
+                # Archived Debian.
+                DEBIAN_SNAPSHOT = 3
               end
+            end
+
+            # Customer-specified publicly available remote repository.
+            # @!attribute [rw] uri
+            #   @return [::String]
+            #     An http/https uri reference to the upstream remote repository, for ex:
+            #     "https://my.apt.registry/".
+            class CustomRepository
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
             end
           end
 
@@ -302,6 +416,13 @@ module Google
           #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::YumRepository::PublicRepository]
           #     One of the publicly available Yum repositories supported by Artifact
           #     Registry.
+          #
+          #     Note: The following fields are mutually exclusive: `public_repository`, `custom_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] custom_repository
+          #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig::YumRepository::CustomRepository]
+          #     Customer-specified remote repository.
+          #
+          #     Note: The following fields are mutually exclusive: `custom_repository`, `public_repository`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class YumRepository
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -342,6 +463,25 @@ module Google
                 EPEL = 6
               end
             end
+
+            # Customer-specified publicly available remote repository.
+            # @!attribute [rw] uri
+            #   @return [::String]
+            #     An http/https uri reference to the upstream remote repository, for ex:
+            #     "https://my.yum.registry/".
+            class CustomRepository
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+          end
+
+          # Common remote repository settings type.
+          # @!attribute [rw] uri
+          #   @return [::String]
+          #     Required. A common public repository base for remote repository.
+          class CommonRemoteRepository
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
           end
         end
 
@@ -350,20 +490,29 @@ module Google
         #   @return [::Google::Cloud::ArtifactRegistry::V1::Repository::MavenRepositoryConfig]
         #     Maven repository config contains repository level configuration
         #     for the repositories of maven type.
+        #
+        #     Note: The following fields are mutually exclusive: `maven_config`, `docker_config`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] docker_config
         #   @return [::Google::Cloud::ArtifactRegistry::V1::Repository::DockerRepositoryConfig]
         #     Docker repository config contains repository level configuration
         #     for the repositories of docker type.
+        #
+        #     Note: The following fields are mutually exclusive: `docker_config`, `maven_config`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] virtual_repository_config
         #   @return [::Google::Cloud::ArtifactRegistry::V1::VirtualRepositoryConfig]
         #     Configuration specific for a Virtual Repository.
+        #
+        #     Note: The following fields are mutually exclusive: `virtual_repository_config`, `remote_repository_config`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] remote_repository_config
         #   @return [::Google::Cloud::ArtifactRegistry::V1::RemoteRepositoryConfig]
         #     Configuration specific for a Remote Repository.
+        #
+        #     Note: The following fields are mutually exclusive: `remote_repository_config`, `virtual_repository_config`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] name
         #   @return [::String]
         #     The name of the repository, for example:
-        #     `projects/p1/locations/us-central1/repositories/repo1`.
+        #     `projects/p1/locations/us-central1/repositories/repo1`. For each location
+        #     in a project, repository names must be unique.
         # @!attribute [rw] format
         #   @return [::Google::Cloud::ArtifactRegistry::V1::Repository::Format]
         #     Optional. The format of packages that are stored in the repository.
@@ -410,6 +559,17 @@ module Google
         #   @return [::Boolean]
         #     Optional. If true, the cleanup pipeline is prevented from deleting versions
         #     in this repository.
+        # @!attribute [rw] vulnerability_scanning_config
+        #   @return [::Google::Cloud::ArtifactRegistry::V1::Repository::VulnerabilityScanningConfig]
+        #     Optional. Config and state for vulnerability scanning of resources within
+        #     this Repository.
+        # @!attribute [rw] disallow_unspecified_mode
+        #   @return [::Boolean]
+        #     Optional. If this is true, an unspecified repo type will be treated as
+        #     error rather than defaulting to standard.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. If set, the repository satisfies physical zone isolation.
         class Repository
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -454,6 +614,56 @@ module Google
           class DockerRepositoryConfig
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Config on whether to perform vulnerability scanning for resources in this
+          # repository, as well as output fields describing current state.
+          # @!attribute [rw] enablement_config
+          #   @return [::Google::Cloud::ArtifactRegistry::V1::Repository::VulnerabilityScanningConfig::EnablementConfig]
+          #     Optional. Config for whether this repository has vulnerability scanning
+          #     disabled.
+          # @!attribute [r] last_enable_time
+          #   @return [::Google::Protobuf::Timestamp]
+          #     Output only. The last time this repository config was enabled.
+          # @!attribute [r] enablement_state
+          #   @return [::Google::Cloud::ArtifactRegistry::V1::Repository::VulnerabilityScanningConfig::EnablementState]
+          #     Output only. State of feature enablement, combining repository enablement
+          #     config and API enablement state.
+          # @!attribute [r] enablement_state_reason
+          #   @return [::String]
+          #     Output only. Reason for the repository state.
+          class VulnerabilityScanningConfig
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Config for vulnerability scanning of resources in this repository.
+            module EnablementConfig
+              # Not set. This will be treated as INHERITED.
+              ENABLEMENT_CONFIG_UNSPECIFIED = 0
+
+              # Scanning is Enabled, but dependent on API enablement.
+              INHERITED = 1
+
+              # No automatic vulnerability scanning will be performed for this
+              # repository.
+              DISABLED = 2
+            end
+
+            # Describes the state of vulnerability scanning in this repository,
+            # including both repository enablement and API enablement.
+            module EnablementState
+              # Enablement state is unclear.
+              ENABLEMENT_STATE_UNSPECIFIED = 0
+
+              # Repository does not support vulnerability scanning.
+              SCANNING_UNSUPPORTED = 1
+
+              # Vulnerability scanning is disabled for this repository.
+              SCANNING_DISABLED = 2
+
+              # Vulnerability scanning is active for this repository.
+              SCANNING_ACTIVE = 3
+            end
           end
 
           # @!attribute [rw] key
@@ -502,6 +712,9 @@ module Google
 
             # Go package format.
             GO = 10
+
+            # Generic package format.
+            GENERIC = 11
           end
 
           # The mode configures the repository to serve artifacts from different
@@ -532,6 +745,30 @@ module Google
         # @!attribute [rw] page_token
         #   @return [::String]
         #     The next_page_token value returned from a previous list request, if any.
+        # @!attribute [rw] filter
+        #   @return [::String]
+        #     Optional. An expression for filtering the results of the request. Filter
+        #     rules are case insensitive. The fields eligible for filtering are:
+        #
+        #       * `name`
+        #
+        #      Examples of using a filter:
+        #
+        #     To filter the results of your request to repositories with the name
+        #     `my-repo` in project `my-project` in the `us-central` region, append the
+        #     following filter expression to your request:
+        #
+        #       * `name="projects/my-project/locations/us-central1/repositories/my-repo"`
+        #
+        #      You can also use wildcards to match any number of characters before or
+        #      after the value:
+        #
+        #       * `name="projects/my-project/locations/us-central1/repositories/my-*"`
+        #       * `name="projects/my-project/locations/us-central1/repositories/*repo"`
+        #       * `name="projects/my-project/locations/us-central1/repositories/*repo*"`
+        # @!attribute [rw] order_by
+        #   @return [::String]
+        #     Optional. The field to order the results by.
         class ListRepositoriesRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

@@ -59,6 +59,25 @@ module Google
             end
 
             ##
+            # Create a fully-qualified NotebookExecutionJob resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param notebook_execution_job [String]
+            #
+            # @return [::String]
+            def notebook_execution_job_path project:, location:, notebook_execution_job:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/notebookExecutionJobs/#{notebook_execution_job}"
+            end
+
+            ##
             # Create a fully-qualified NotebookRuntime resource string.
             #
             # The resource will be in the following format:
@@ -94,6 +113,44 @@ module Google
               raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
 
               "projects/#{project}/locations/#{location}/notebookRuntimeTemplates/#{notebook_runtime_template}"
+            end
+
+            ##
+            # Create a fully-qualified Reservation resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}`
+            #
+            # @param project_id_or_number [String]
+            # @param zone [String]
+            # @param reservation_name [String]
+            #
+            # @return [::String]
+            def reservation_path project_id_or_number:, zone:, reservation_name:
+              raise ::ArgumentError, "project_id_or_number cannot contain /" if project_id_or_number.to_s.include? "/"
+              raise ::ArgumentError, "zone cannot contain /" if zone.to_s.include? "/"
+
+              "projects/#{project_id_or_number}/zones/#{zone}/reservations/#{reservation_name}"
+            end
+
+            ##
+            # Create a fully-qualified Schedule resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/schedules/{schedule}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param schedule [String]
+            #
+            # @return [::String]
+            def schedule_path project:, location:, schedule:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/schedules/#{schedule}"
             end
 
             ##

@@ -254,8 +254,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @auto_ml_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
               end
 
               ##
@@ -264,6 +275,15 @@ module Google
               # @return [::Google::Cloud::AutoML::V1beta1::AutoML::Rest::Operations]
               #
               attr_reader :operations_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @auto_ml_stub.logger
+              end
 
               # Service calls
 
@@ -342,7 +362,6 @@ module Google
 
                 @auto_ml_stub.create_dataset request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -421,7 +440,6 @@ module Google
 
                 @auto_ml_stub.get_dataset request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -522,7 +540,7 @@ module Google
                 @auto_ml_stub.list_datasets request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @auto_ml_stub, :list_datasets, "datasets", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -603,7 +621,6 @@ module Google
 
                 @auto_ml_stub.update_dataset request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -694,7 +711,7 @@ module Google
                 @auto_ml_stub.delete_dataset request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -793,7 +810,7 @@ module Google
                 @auto_ml_stub.import_data request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -884,7 +901,7 @@ module Google
                 @auto_ml_stub.export_data request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -963,7 +980,6 @@ module Google
 
                 @auto_ml_stub.get_annotation_spec request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1044,7 +1060,6 @@ module Google
 
                 @auto_ml_stub.get_table_spec request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1140,7 +1155,7 @@ module Google
                 @auto_ml_stub.list_table_specs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @auto_ml_stub, :list_table_specs, "table_specs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1221,7 +1236,6 @@ module Google
 
                 @auto_ml_stub.update_table_spec request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1302,7 +1316,6 @@ module Google
 
                 @auto_ml_stub.get_column_spec request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1398,7 +1411,7 @@ module Google
                 @auto_ml_stub.list_column_specs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @auto_ml_stub, :list_column_specs, "column_specs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1479,7 +1492,6 @@ module Google
 
                 @auto_ml_stub.update_column_spec request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1572,7 +1584,7 @@ module Google
                 @auto_ml_stub.create_model request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1651,7 +1663,6 @@ module Google
 
                 @auto_ml_stub.get_model request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1752,7 +1763,7 @@ module Google
                 @auto_ml_stub.list_models request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @auto_ml_stub, :list_models, "model", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1843,7 +1854,7 @@ module Google
                 @auto_ml_stub.delete_model request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1880,8 +1891,12 @@ module Google
               #
               #   @param image_object_detection_model_deployment_metadata [::Google::Cloud::AutoML::V1beta1::ImageObjectDetectionModelDeploymentMetadata, ::Hash]
               #     Model deployment metadata specific to Image Object Detection.
+              #
+              #     Note: The following fields are mutually exclusive: `image_object_detection_model_deployment_metadata`, `image_classification_model_deployment_metadata`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param image_classification_model_deployment_metadata [::Google::Cloud::AutoML::V1beta1::ImageClassificationModelDeploymentMetadata, ::Hash]
               #     Model deployment metadata specific to Image Classification.
+              #
+              #     Note: The following fields are mutually exclusive: `image_classification_model_deployment_metadata`, `image_object_detection_model_deployment_metadata`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param name [::String]
               #     Required. Resource name of the model to deploy.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -1945,7 +1960,7 @@ module Google
                 @auto_ml_stub.deploy_model request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2038,7 +2053,7 @@ module Google
                 @auto_ml_stub.undeploy_model request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2134,7 +2149,7 @@ module Google
                 @auto_ml_stub.export_model request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2237,7 +2252,7 @@ module Google
                 @auto_ml_stub.export_evaluated_examples request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2316,7 +2331,6 @@ module Google
 
                 @auto_ml_stub.get_model_evaluation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2421,7 +2435,7 @@ module Google
                 @auto_ml_stub.list_model_evaluations request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @auto_ml_stub, :list_model_evaluations, "model_evaluation", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2469,6 +2483,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -2501,6 +2522,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -2522,6 +2548,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

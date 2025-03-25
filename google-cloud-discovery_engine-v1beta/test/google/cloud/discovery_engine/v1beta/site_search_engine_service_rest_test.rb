@@ -33,24 +33,24 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_get_site_search_engine
@@ -80,7 +88,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_site_search_engine_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_site_search_engine_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -135,7 +143,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     parent = "hello world"
     target_site = {}
 
-    create_target_site_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_target_site_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -190,7 +198,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     parent = "hello world"
     requests = [{}]
 
-    batch_create_target_sites_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_create_target_sites_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -244,7 +252,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_target_site_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_target_site_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -298,7 +306,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     # Create request parameters for a unary method.
     target_site = {}
 
-    update_target_site_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_target_site_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -352,7 +360,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_target_site_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_target_site_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -408,7 +416,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     page_size = 42
     page_token = "hello world"
 
-    list_target_sites_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_target_sites_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -452,6 +460,170 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     end
   end
 
+  def test_create_sitemap
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    sitemap = {}
+
+    create_sitemap_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::ServiceStub.stub :transcode_create_sitemap_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, create_sitemap_client_stub do
+        # Create client
+        client = ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.create_sitemap({ parent: parent, sitemap: sitemap }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.create_sitemap parent: parent, sitemap: sitemap do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.create_sitemap ::Google::Cloud::DiscoveryEngine::V1beta::CreateSitemapRequest.new(parent: parent, sitemap: sitemap) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.create_sitemap({ parent: parent, sitemap: sitemap }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.create_sitemap(::Google::Cloud::DiscoveryEngine::V1beta::CreateSitemapRequest.new(parent: parent, sitemap: sitemap), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, create_sitemap_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_sitemap
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_sitemap_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::ServiceStub.stub :transcode_delete_sitemap_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_sitemap_client_stub do
+        # Create client
+        client = ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_sitemap({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_sitemap name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_sitemap ::Google::Cloud::DiscoveryEngine::V1beta::DeleteSitemapRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_sitemap({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_sitemap(::Google::Cloud::DiscoveryEngine::V1beta::DeleteSitemapRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_sitemap_client_stub.call_count
+      end
+    end
+  end
+
+  def test_fetch_sitemaps
+    # Create test objects.
+    client_result = ::Google::Cloud::DiscoveryEngine::V1beta::FetchSitemapsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    matcher = {}
+
+    fetch_sitemaps_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::ServiceStub.stub :transcode_fetch_sitemaps_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, fetch_sitemaps_client_stub do
+        # Create client
+        client = ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.fetch_sitemaps({ parent: parent, matcher: matcher }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.fetch_sitemaps parent: parent, matcher: matcher do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.fetch_sitemaps ::Google::Cloud::DiscoveryEngine::V1beta::FetchSitemapsRequest.new(parent: parent, matcher: matcher) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.fetch_sitemaps({ parent: parent, matcher: matcher }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.fetch_sitemaps(::Google::Cloud::DiscoveryEngine::V1beta::FetchSitemapsRequest.new(parent: parent, matcher: matcher), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, fetch_sitemaps_client_stub.call_count
+      end
+    end
+  end
+
   def test_enable_advanced_site_search
     # Create test objects.
     client_result = ::Google::Longrunning::Operation.new
@@ -462,7 +634,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     # Create request parameters for a unary method.
     site_search_engine = "hello world"
 
-    enable_advanced_site_search_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    enable_advanced_site_search_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -516,7 +688,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     # Create request parameters for a unary method.
     site_search_engine = "hello world"
 
-    disable_advanced_site_search_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    disable_advanced_site_search_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -570,8 +742,9 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     # Create request parameters for a unary method.
     site_search_engine = "hello world"
     uris = ["hello world"]
+    site_credential = "hello world"
 
-    recrawl_uris_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    recrawl_uris_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -585,27 +758,27 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
         end
 
         # Use hash object
-        client.recrawl_uris({ site_search_engine: site_search_engine, uris: uris }) do |_result, response|
+        client.recrawl_uris({ site_search_engine: site_search_engine, uris: uris, site_credential: site_credential }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.recrawl_uris site_search_engine: site_search_engine, uris: uris do |_result, response|
+        client.recrawl_uris site_search_engine: site_search_engine, uris: uris, site_credential: site_credential do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.recrawl_uris ::Google::Cloud::DiscoveryEngine::V1beta::RecrawlUrisRequest.new(site_search_engine: site_search_engine, uris: uris) do |_result, response|
+        client.recrawl_uris ::Google::Cloud::DiscoveryEngine::V1beta::RecrawlUrisRequest.new(site_search_engine: site_search_engine, uris: uris, site_credential: site_credential) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.recrawl_uris({ site_search_engine: site_search_engine, uris: uris }, call_options) do |_result, response|
+        client.recrawl_uris({ site_search_engine: site_search_engine, uris: uris, site_credential: site_credential }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.recrawl_uris(::Google::Cloud::DiscoveryEngine::V1beta::RecrawlUrisRequest.new(site_search_engine: site_search_engine, uris: uris), call_options) do |_result, response|
+        client.recrawl_uris(::Google::Cloud::DiscoveryEngine::V1beta::RecrawlUrisRequest.new(site_search_engine: site_search_engine, uris: uris, site_credential: site_credential), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -625,7 +798,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     # Create request parameters for a unary method.
     parent = "hello world"
 
-    batch_verify_target_sites_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_verify_target_sites_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -681,7 +854,7 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SiteSearchEngineService::Rest::C
     page_size = 42
     page_token = "hello world"
 
-    fetch_domain_verification_status_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    fetch_domain_verification_status_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

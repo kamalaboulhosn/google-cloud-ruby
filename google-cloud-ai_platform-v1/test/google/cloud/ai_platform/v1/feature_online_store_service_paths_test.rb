@@ -31,6 +31,14 @@ class ::Google::Cloud::AIPlatform::V1::FeatureOnlineStoreService::ClientPathsTes
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_feature_view_path

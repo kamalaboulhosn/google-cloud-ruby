@@ -28,8 +28,7 @@ module Google
           #     The unique identifier of the test case.
           #     {::Google::Cloud::Dialogflow::CX::V3::TestCases::Client#create_test_case TestCases.CreateTestCase}
           #     will populate the name automatically. Otherwise use format:
-          #     `projects/<Project ID>/locations/<LocationID>/agents/
-          #     <AgentID>/testCases/<TestCase ID>`.
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
           # @!attribute [rw] tags
           #   @return [::Array<::String>]
           #     Tags are short descriptions that users may apply to test cases for
@@ -65,8 +64,7 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     The resource name for the test case result. Format:
-          #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/testCases/
-          #     <TestCase ID>/results/<TestCaseResult ID>`.
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>/results/<TestCaseResultID>`.
           # @!attribute [rw] environment
           #   @return [::String]
           #     Environment where the test was run. If not set, it indicates the draft
@@ -93,23 +91,21 @@ module Google
           # @!attribute [rw] flow
           #   @return [::String]
           #     Flow name to start the test case with.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/flows/<Flow ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
           #
-          #     Only one of `flow` and `page` should be set to indicate the starting point
-          #     of the test case. If both are set, `page` takes precedence over `flow`. If
-          #     neither is set, the test case will start with start page on the default
-          #     start flow.
+          #      Only one of `flow` and `page` should be set to indicate the starting point
+          #      of the test case. If neither is set, the test case will start with start
+          #      page on the default start flow.
           # @!attribute [rw] page
           #   @return [::String]
           #     The {::Google::Cloud::Dialogflow::CX::V3::Page page} to start the test case with.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/flows/<Flow ID>/pages/<Page ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/pages/<PageID>`.
           #
-          #     Only one of `flow` and `page` should be set to indicate the starting point
-          #     of the test case. If both are set, `page` takes precedence over `flow`. If
-          #     neither is set, the test case will start with start page on the default
-          #     start flow.
+          #      Only one of `flow` and `page` should be set to indicate the starting point
+          #      of the test case. If neither is set, the test case will start with start
+          #      page on the default start flow.
           class TestConfig
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -238,10 +234,14 @@ module Google
             #   @return [::Google::Cloud::Dialogflow::CX::V3::Page]
             #     Indicates a transition to a {::Google::Cloud::Dialogflow::CX::V3::Page Page}.
             #     Only some fields such as name and displayname will be set.
+            #
+            #     Note: The following fields are mutually exclusive: `page`, `flow`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] flow
             #   @return [::Google::Cloud::Dialogflow::CX::V3::Flow]
             #     Indicates a transition to a {::Google::Cloud::Dialogflow::CX::V3::Flow Flow}.
             #     Only some fields such as name and displayname will be set.
+            #
+            #     Note: The following fields are mutually exclusive: `flow`, `page`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             class TransitionNode
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -264,9 +264,13 @@ module Google
             # @!attribute [rw] transition_route
             #   @return [::Google::Cloud::Dialogflow::CX::V3::TransitionRoute]
             #     Intent route or condition route.
+            #
+            #     Note: The following fields are mutually exclusive: `transition_route`, `event_handler`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] event_handler
             #   @return [::Google::Cloud::Dialogflow::CX::V3::EventHandler]
             #     Event handler.
+            #
+            #     Note: The following fields are mutually exclusive: `event_handler`, `transition_route`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             class Transition
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -348,7 +352,7 @@ module Google
           # @!attribute [rw] agent
           #   @return [::String]
           #     Required. The agent to calculate coverage for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] type
           #   @return [::Google::Cloud::Dialogflow::CX::V3::CalculateCoverageRequest::CoverageType]
           #     Required. The type of coverage requested.
@@ -377,16 +381,22 @@ module Google
           # @!attribute [rw] agent
           #   @return [::String]
           #     The agent to calculate coverage for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] intent_coverage
           #   @return [::Google::Cloud::Dialogflow::CX::V3::IntentCoverage]
           #     Intent coverage.
+          #
+          #     Note: The following fields are mutually exclusive: `intent_coverage`, `transition_coverage`, `route_group_coverage`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] transition_coverage
           #   @return [::Google::Cloud::Dialogflow::CX::V3::TransitionCoverage]
           #     Transition (excluding transition route groups) coverage.
+          #
+          #     Note: The following fields are mutually exclusive: `transition_coverage`, `intent_coverage`, `route_group_coverage`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] route_group_coverage
           #   @return [::Google::Cloud::Dialogflow::CX::V3::TransitionRouteGroupCoverage]
           #     Transition route group coverage.
+          #
+          #     Note: The following fields are mutually exclusive: `route_group_coverage`, `intent_coverage`, `transition_coverage`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class CalculateCoverageResponse
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -397,7 +407,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to list all pages for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] page_size
           #   @return [::Integer]
           #     The maximum number of items to return in a single page. By default 20.
@@ -448,11 +458,11 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to delete test cases from.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] names
           #   @return [::Array<::String>]
-          #     Required. Format of test case names: `projects/<Project ID>/locations/
-          #     <Location ID>/agents/<AgentID>/testCases/<TestCase ID>`.
+          #     Required. Format of test case names:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
           class BatchDeleteTestCasesRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -463,7 +473,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to create the test case for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] test_case
           #   @return [::Google::Cloud::Dialogflow::CX::V3::TestCase]
           #     Required. The test case to create.
@@ -493,8 +503,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the testcase.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/testCases/<TestCase ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
           class GetTestCaseRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -504,13 +514,13 @@ module Google
           # {::Google::Cloud::Dialogflow::CX::V3::TestCases::Client#run_test_case TestCases.RunTestCase}.
           # @!attribute [rw] name
           #   @return [::String]
-          #     Required. Format of test case name to run: `projects/<Project
-          #     ID>/locations/ <Location ID>/agents/<AgentID>/testCases/<TestCase ID>`.
+          #     Required. Format of test case name to run:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
           # @!attribute [rw] environment
           #   @return [::String]
           #     Optional. Environment name. If not set, draft environment is assumed.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>`.
           class RunTestCaseRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -538,17 +548,16 @@ module Google
           # {::Google::Cloud::Dialogflow::CX::V3::TestCases::Client#batch_run_test_cases TestCases.BatchRunTestCases}.
           # @!attribute [rw] parent
           #   @return [::String]
-          #     Required. Agent name. Format: `projects/<Project ID>/locations/<Location
-          #     ID>/agents/ <AgentID>`.
+          #     Required. Agent name. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] environment
           #   @return [::String]
           #     Optional. If not set, draft environment is assumed. Format:
-          #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>`.
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>`.
           # @!attribute [rw] test_cases
           #   @return [::Array<::String>]
-          #     Required. Format: `projects/<Project ID>/locations/<Location
-          #     ID>/agents/<Agent ID>/testCases/<TestCase ID>`.
+          #     Required. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
           class BatchRunTestCasesRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -598,7 +607,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to import test cases to.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] gcs_uri
           #   @return [::String]
           #     The [Google Cloud Storage](https://cloud.google.com/storage/docs/) URI
@@ -610,9 +619,13 @@ module Google
           #     have read permissions for the object. For more information, see
           #     [Dialogflow access
           #     control](https://cloud.google.com/dialogflow/cx/docs/concept/access-control#storage).
+          #
+          #     Note: The following fields are mutually exclusive: `gcs_uri`, `content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] content
           #   @return [::String]
           #     Uncompressed raw byte content for test cases.
+          #
+          #     Note: The following fields are mutually exclusive: `content`, `gcs_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class ImportTestCasesRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -623,8 +636,8 @@ module Google
           # @!attribute [rw] names
           #   @return [::Array<::String>]
           #     The unique identifiers of the new test cases.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/testCases/<TestCase ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
           class ImportTestCasesResponse
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -658,7 +671,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent where to export test cases from.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] gcs_uri
           #   @return [::String]
           #     The [Google Cloud Storage](https://cloud.google.com/storage/docs/) URI to
@@ -709,11 +722,15 @@ module Google
           # @!attribute [rw] gcs_uri
           #   @return [::String]
           #     The URI to a file containing the exported test cases. This field is
-          #     populated only if `gcs_uri` is specified in
+          #      populated only if `gcs_uri` is specified in
           #     {::Google::Cloud::Dialogflow::CX::V3::ExportTestCasesRequest ExportTestCasesRequest}.
+          #
+          #     Note: The following fields are mutually exclusive: `gcs_uri`, `content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] content
           #   @return [::String]
           #     Uncompressed raw byte content for test cases.
+          #
+          #     Note: The following fields are mutually exclusive: `content`, `gcs_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class ExportTestCasesResponse
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -732,9 +749,10 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The test case to list results for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/
-          #     testCases/<TestCase ID>`. Specify a `-` as a wildcard for TestCase ID to
-          #     list results across multiple test cases.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
+          #     Specify a `-` as a wildcard for TestCase ID to
+          #      list results across multiple test cases.
           # @!attribute [rw] page_size
           #   @return [::Integer]
           #     The maximum number of items to return in a single page. By default 100 and
@@ -792,8 +810,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the testcase.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/testCases/<TestCase ID>/results/<TestCaseResult ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>/results/<TestCaseResultID>`.
           class GetTestCaseResultRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

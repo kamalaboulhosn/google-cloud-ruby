@@ -1,5 +1,73 @@
 # Release History
 
+### 1.6.0 (2025-02-13)
+
+#### Features
+
+* Backup resources now report the instance partitions storing the backup ([#29069](https://github.com/googleapis/google-cloud-ruby/issues/29069)) 
+
+### 1.5.0 (2025-01-31)
+
+#### Features
+
+* Support for the add_split_points RPC ([#28794](https://github.com/googleapis/google-cloud-ruby/issues/28794)) 
+
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* fix typo in timezone ([#28248](https://github.com/googleapis/google-cloud-ruby/issues/28248)) 
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.2.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27012](https://github.com/googleapis/google-cloud-ruby/issues/27012)) 
+
+### 1.2.0 (2024-08-28)
+
+#### Features
+
+* Add resource reference annotation to backup schedules ([#26960](https://github.com/googleapis/google-cloud-ruby/issues/26960)) 
+#### Documentation
+
+* Add an example to filter backups based on schedule name 
+
+### 1.1.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26667](https://github.com/googleapis/google-cloud-ruby/issues/26667)) 
+
+### 1.1.0 (2024-08-02)
+
+#### Features
+
+* Support for incremental backups ([#26546](https://github.com/googleapis/google-cloud-ruby/issues/26546)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.20.0 (2024-07-08)
+
+#### Features
+
+* Add support for Cloud Spanner Scheduled Backups ([#26279](https://github.com/googleapis/google-cloud-ruby/issues/26279)) 
+
 ### 0.19.0 (2024-05-15)
 
 #### Features

@@ -148,12 +148,30 @@ module Google
                 @quota_project_id = @config.quota_project
                 @quota_project_id ||= credentials.quota_project_id if credentials.respond_to? :quota_project_id
 
+                @operations_client = ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::Operations.new do |config|
+                  config.credentials = credentials
+                  config.quota_project = @quota_project_id
+                  config.endpoint = @config.endpoint
+                  config.universe_domain = @config.universe_domain
+                end
+
                 @gen_ai_tuning_service_stub = ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ServiceStub.new(
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @gen_ai_tuning_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -161,6 +179,7 @@ module Google
                   config.endpoint = @gen_ai_tuning_service_stub.endpoint
                   config.universe_domain = @gen_ai_tuning_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @gen_ai_tuning_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -169,8 +188,16 @@ module Google
                   config.endpoint = @gen_ai_tuning_service_stub.endpoint
                   config.universe_domain = @gen_ai_tuning_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @gen_ai_tuning_service_stub.logger if config.respond_to? :logger=
                 end
               end
+
+              ##
+              # Get the associated client for long-running operations.
+              #
+              # @return [::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::Operations]
+              #
+              attr_reader :operations_client
 
               ##
               # Get the associated client for mix-in of the Locations.
@@ -185,6 +212,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @gen_ai_tuning_service_stub.logger
+              end
 
               # Service calls
 
@@ -265,7 +301,6 @@ module Google
 
                 @gen_ai_tuning_service_stub.create_tuning_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -345,7 +380,6 @@ module Google
 
                 @gen_ai_tuning_service_stub.get_tuning_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -378,8 +412,9 @@ module Google
               #     Optional. The standard list page size.
               #   @param page_token [::String]
               #     Optional. The standard list page token.
-              #     Typically obtained via [ListTuningJob.next_page_token][] of the
-              #     previous GenAiTuningService.ListTuningJob][] call.
+              #     Typically obtained via
+              #     {::Google::Cloud::AIPlatform::V1::ListTuningJobsResponse#next_page_token ListTuningJobsResponse.next_page_token}
+              #     of the previous GenAiTuningService.ListTuningJob][] call.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AIPlatform::V1::TuningJob>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -438,7 +473,7 @@ module Google
                 @gen_ai_tuning_service_stub.list_tuning_jobs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @gen_ai_tuning_service_stub, :list_tuning_jobs, "tuning_jobs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -529,7 +564,105 @@ module Google
 
                 @gen_ai_tuning_service_stub.cancel_tuning_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Rebase a TunedModel.
+              #
+              # @overload rebase_tuned_model(request, options = nil)
+              #   Pass arguments to `rebase_tuned_model` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::RebaseTunedModelRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::RebaseTunedModelRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload rebase_tuned_model(parent: nil, tuned_model_ref: nil, tuning_job: nil, artifact_destination: nil, deploy_to_same_endpoint: nil)
+              #   Pass arguments to `rebase_tuned_model` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The resource name of the Location into which to rebase the Model.
+              #     Format: `projects/{project}/locations/{location}`
+              #   @param tuned_model_ref [::Google::Cloud::AIPlatform::V1::TunedModelRef, ::Hash]
+              #     Required. TunedModel reference to retrieve the legacy model information.
+              #   @param tuning_job [::Google::Cloud::AIPlatform::V1::TuningJob, ::Hash]
+              #     Optional. The TuningJob to be updated. Users can use this TuningJob field
+              #     to overwrite tuning configs.
+              #   @param artifact_destination [::Google::Cloud::AIPlatform::V1::GcsDestination, ::Hash]
+              #     Optional. The Google Cloud Storage location to write the artifacts.
+              #   @param deploy_to_same_endpoint [::Boolean]
+              #     Optional. By default, bison to gemini migration will always create new
+              #     model/endpoint, but for gemini-1.0 to gemini-1.5 migration, we default
+              #     deploy to the same endpoint. See details in this Section.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::RebaseTunedModelRequest.new
+              #
+              #   # Call the rebase_tuned_model method.
+              #   result = client.rebase_tuned_model request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def rebase_tuned_model request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::RebaseTunedModelRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.rebase_tuned_model.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.rebase_tuned_model.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.rebase_tuned_model.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @gen_ai_tuning_service_stub.rebase_tuned_model request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -577,6 +710,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -609,6 +749,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -637,6 +782,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -695,6 +841,11 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :cancel_tuning_job
+                  ##
+                  # RPC-specific configuration for `rebase_tuned_model`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :rebase_tuned_model
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -706,6 +857,8 @@ module Google
                     @list_tuning_jobs = ::Gapic::Config::Method.new list_tuning_jobs_config
                     cancel_tuning_job_config = parent_rpcs.cancel_tuning_job if parent_rpcs.respond_to? :cancel_tuning_job
                     @cancel_tuning_job = ::Gapic::Config::Method.new cancel_tuning_job_config
+                    rebase_tuned_model_config = parent_rpcs.rebase_tuned_model if parent_rpcs.respond_to? :rebase_tuned_model
+                    @rebase_tuned_model = ::Gapic::Config::Method.new rebase_tuned_model_config
 
                     yield self if block_given?
                   end

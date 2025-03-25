@@ -170,14 +170,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @document_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @document_service_stub.endpoint
                   config.universe_domain = @document_service_stub.universe_domain
+                  config.logger = @document_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -194,6 +206,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @document_service_stub.logger
+              end
 
               # Service calls
 
@@ -279,7 +300,6 @@ module Google
 
                 @document_service_stub.get_document request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -316,7 +336,7 @@ module Google
               #   @param page_size [::Integer]
               #     Maximum number of {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}s
               #     to return. If unspecified, defaults to 100. The maximum allowed value is
-              #     1000. Values above 1000 will be coerced to 1000.
+              #     1000. Values above 1000 are set to 1000.
               #
               #     If this field is negative, an `INVALID_ARGUMENT` error is returned.
               #   @param page_token [::String]
@@ -388,7 +408,7 @@ module Google
                 @document_service_stub.list_documents request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @document_service_stub, :list_documents, "documents", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -420,8 +440,8 @@ module Google
               #     create.
               #   @param document_id [::String]
               #     Required. The ID to use for the
-              #     {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}, which will become
-              #     the final component of the
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}, which becomes the
+              #     final component of the
               #     {::Google::Cloud::DiscoveryEngine::V1beta::Document#name Document.name}.
               #
               #     If the caller does not have permission to create the
@@ -489,7 +509,6 @@ module Google
 
                 @document_service_stub.create_document request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -525,13 +544,12 @@ module Google
               #     {::Google::Cloud::DiscoveryEngine::V1beta::UpdateDocumentRequest#allow_missing allow_missing}
               #     is not set, a `NOT_FOUND` error is returned.
               #   @param allow_missing [::Boolean]
-              #     If set to true, and the
+              #     If set to `true` and the
               #     {::Google::Cloud::DiscoveryEngine::V1beta::Document Document} is not found, a
-              #     new {::Google::Cloud::DiscoveryEngine::V1beta::Document Document} will be
-              #     created.
+              #     new {::Google::Cloud::DiscoveryEngine::V1beta::Document Document} is be created.
               #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
               #     Indicates which fields in the provided imported 'document' to update. If
-              #     not set, will by default update all fields.
+              #     not set, by default updates all fields.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::Document]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -585,7 +603,6 @@ module Google
 
                 @document_service_stub.update_document request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -673,7 +690,6 @@ module Google
 
                 @document_service_stub.delete_document request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -682,7 +698,7 @@ module Google
               ##
               # Bulk import of multiple
               # {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}s. Request
-              # processing may be synchronous. Non-existing items will be created.
+              # processing may be synchronous. Non-existing items are created.
               #
               # Note: It is possible for a subset of the
               # {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}s to be
@@ -698,27 +714,47 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload import_documents(inline_source: nil, gcs_source: nil, bigquery_source: nil, fhir_store_source: nil, spanner_source: nil, cloud_sql_source: nil, firestore_source: nil, bigtable_source: nil, parent: nil, error_config: nil, reconciliation_mode: nil, update_mask: nil, auto_generate_ids: nil, id_field: nil)
+              # @overload import_documents(inline_source: nil, gcs_source: nil, bigquery_source: nil, fhir_store_source: nil, spanner_source: nil, cloud_sql_source: nil, firestore_source: nil, alloy_db_source: nil, bigtable_source: nil, parent: nil, error_config: nil, reconciliation_mode: nil, update_mask: nil, auto_generate_ids: nil, id_field: nil)
               #   Pass arguments to `import_documents` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param inline_source [::Google::Cloud::DiscoveryEngine::V1beta::ImportDocumentsRequest::InlineSource, ::Hash]
               #     The Inline source for the input content for documents.
+              #
+              #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param gcs_source [::Google::Cloud::DiscoveryEngine::V1beta::GcsSource, ::Hash]
               #     Cloud Storage location for the input content.
+              #
+              #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param bigquery_source [::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource, ::Hash]
               #     BigQuery input source.
+              #
+              #     Note: The following fields are mutually exclusive: `bigquery_source`, `inline_source`, `gcs_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param fhir_store_source [::Google::Cloud::DiscoveryEngine::V1beta::FhirStoreSource, ::Hash]
               #     FhirStore input source.
+              #
+              #     Note: The following fields are mutually exclusive: `fhir_store_source`, `inline_source`, `gcs_source`, `bigquery_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param spanner_source [::Google::Cloud::DiscoveryEngine::V1beta::SpannerSource, ::Hash]
               #     Spanner input source.
+              #
+              #     Note: The following fields are mutually exclusive: `spanner_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param cloud_sql_source [::Google::Cloud::DiscoveryEngine::V1beta::CloudSqlSource, ::Hash]
               #     Cloud SQL input source.
+              #
+              #     Note: The following fields are mutually exclusive: `cloud_sql_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param firestore_source [::Google::Cloud::DiscoveryEngine::V1beta::FirestoreSource, ::Hash]
               #     Firestore input source.
+              #
+              #     Note: The following fields are mutually exclusive: `firestore_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param alloy_db_source [::Google::Cloud::DiscoveryEngine::V1beta::AlloyDbSource, ::Hash]
+              #     AlloyDB input source.
+              #
+              #     Note: The following fields are mutually exclusive: `alloy_db_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param bigtable_source [::Google::Cloud::DiscoveryEngine::V1beta::BigtableSource, ::Hash]
               #     Cloud Bigtable input source.
+              #
+              #     Note: The following fields are mutually exclusive: `bigtable_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param parent [::String]
               #     Required. The parent branch resource name, such as
               #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/branches/{branch}`.
@@ -854,7 +890,7 @@ module Google
                 @document_service_stub.import_documents request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -889,11 +925,22 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload purge_documents(parent: nil, filter: nil, force: nil)
+              # @overload purge_documents(gcs_source: nil, inline_source: nil, parent: nil, filter: nil, error_config: nil, force: nil)
               #   Pass arguments to `purge_documents` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
+              #   @param gcs_source [::Google::Cloud::DiscoveryEngine::V1beta::GcsSource, ::Hash]
+              #     Cloud Storage location for the input content.
+              #     Supported `data_schema`:
+              #     * `document_id`: One valid
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::Document#id Document.id} per line.
+              #
+              #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param inline_source [::Google::Cloud::DiscoveryEngine::V1beta::PurgeDocumentsRequest::InlineSource, ::Hash]
+              #     Inline source for the input content for purge.
+              #
+              #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param parent [::String]
               #     Required. The parent resource name, such as
               #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/branches/{branch}`.
@@ -901,6 +948,8 @@ module Google
               #     Required. Filter matching documents to purge. Only currently supported
               #     value is
               #     `*` (all items).
+              #   @param error_config [::Google::Cloud::DiscoveryEngine::V1beta::PurgeErrorConfig, ::Hash]
+              #     The desired location of errors incurred during the purge.
               #   @param force [::Boolean]
               #     Actually performs the purge. If `force` is set to false, return the
               #     expected purge count without deleting any documents.
@@ -965,7 +1014,91 @@ module Google
                 @document_service_stub.purge_documents request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets index freshness metadata for
+              # {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}s. Supported for
+              # website search only.
+              #
+              # @overload batch_get_documents_metadata(request, options = nil)
+              #   Pass arguments to `batch_get_documents_metadata` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1beta::BatchGetDocumentsMetadataRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1beta::BatchGetDocumentsMetadataRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload batch_get_documents_metadata(parent: nil, matcher: nil)
+              #   Pass arguments to `batch_get_documents_metadata` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The parent branch resource name, such as
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/branches/{branch}`.
+              #   @param matcher [::Google::Cloud::DiscoveryEngine::V1beta::BatchGetDocumentsMetadataRequest::Matcher, ::Hash]
+              #     Required. Matcher for the
+              #     {::Google::Cloud::DiscoveryEngine::V1beta::Document Document}s.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::BatchGetDocumentsMetadataResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DiscoveryEngine::V1beta::BatchGetDocumentsMetadataResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1beta"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1beta::DocumentService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1beta::BatchGetDocumentsMetadataRequest.new
+              #
+              #   # Call the batch_get_documents_metadata method.
+              #   result = client.batch_get_documents_metadata request
+              #
+              #   # The returned object is of type Google::Cloud::DiscoveryEngine::V1beta::BatchGetDocumentsMetadataResponse.
+              #   p result
+              #
+              def batch_get_documents_metadata request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1beta::BatchGetDocumentsMetadataRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.batch_get_documents_metadata.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.batch_get_documents_metadata.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.batch_get_documents_metadata.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @document_service_stub.batch_get_documents_metadata request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1013,6 +1146,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1045,6 +1185,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1066,6 +1211,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -1139,6 +1285,11 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :purge_documents
+                  ##
+                  # RPC-specific configuration for `batch_get_documents_metadata`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :batch_get_documents_metadata
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -1156,6 +1307,8 @@ module Google
                     @import_documents = ::Gapic::Config::Method.new import_documents_config
                     purge_documents_config = parent_rpcs.purge_documents if parent_rpcs.respond_to? :purge_documents
                     @purge_documents = ::Gapic::Config::Method.new purge_documents_config
+                    batch_get_documents_metadata_config = parent_rpcs.batch_get_documents_metadata if parent_rpcs.respond_to? :batch_get_documents_metadata
+                    @batch_get_documents_metadata = ::Gapic::Config::Method.new batch_get_documents_metadata_config
 
                     yield self if block_given?
                   end

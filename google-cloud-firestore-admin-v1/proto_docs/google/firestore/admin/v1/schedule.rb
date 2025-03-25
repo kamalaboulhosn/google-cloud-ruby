@@ -50,18 +50,24 @@ module Google
           #   @return [::Google::Protobuf::Duration]
           #     At what relative time in the future, compared to its creation time,
           #     the backup should be deleted, e.g. keep backups for 7 days.
+          #
+          #     The maximum supported retention period is 14 weeks.
           # @!attribute [rw] daily_recurrence
           #   @return [::Google::Cloud::Firestore::Admin::V1::DailyRecurrence]
           #     For a schedule that runs daily.
+          #
+          #     Note: The following fields are mutually exclusive: `daily_recurrence`, `weekly_recurrence`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] weekly_recurrence
           #   @return [::Google::Cloud::Firestore::Admin::V1::WeeklyRecurrence]
           #     For a schedule that runs weekly on a specific day.
+          #
+          #     Note: The following fields are mutually exclusive: `weekly_recurrence`, `daily_recurrence`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class BackupSchedule
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
 
-          # Represents a recurring schedule that runs at a specific time every day.
+          # Represents a recurring schedule that runs every day.
           #
           # The time zone is UTC.
           class DailyRecurrence

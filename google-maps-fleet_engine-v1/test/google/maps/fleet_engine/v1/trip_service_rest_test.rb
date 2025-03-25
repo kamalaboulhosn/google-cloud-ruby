@@ -33,24 +33,24 @@ class ::Google::Maps::FleetEngine::V1::TripService::Rest::ClientTest < Minitest:
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Maps::FleetEngine::V1::TripService::Rest::ClientTest < Minitest:
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_trip
@@ -83,7 +91,7 @@ class ::Google::Maps::FleetEngine::V1::TripService::Rest::ClientTest < Minitest:
     trip_id = "hello world"
     trip = {}
 
-    create_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -144,7 +152,7 @@ class ::Google::Maps::FleetEngine::V1::TripService::Rest::ClientTest < Minitest:
     current_route_segment_traffic_version = {}
     remaining_waypoints_route_version = {}
 
-    get_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -188,6 +196,61 @@ class ::Google::Maps::FleetEngine::V1::TripService::Rest::ClientTest < Minitest:
     end
   end
 
+  def test_delete_trip
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    header = {}
+    name = "hello world"
+
+    delete_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Maps::FleetEngine::V1::TripService::Rest::ServiceStub.stub :transcode_delete_trip_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_trip_client_stub do
+        # Create client
+        client = ::Google::Maps::FleetEngine::V1::TripService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_trip({ header: header, name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_trip header: header, name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_trip ::Google::Maps::FleetEngine::V1::DeleteTripRequest.new(header: header, name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_trip({ header: header, name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_trip(::Google::Maps::FleetEngine::V1::DeleteTripRequest.new(header: header, name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_trip_client_stub.call_count
+      end
+    end
+  end
+
   def test_report_billable_trip
     # Create test objects.
     client_result = ::Google::Protobuf::Empty.new
@@ -202,7 +265,7 @@ class ::Google::Maps::FleetEngine::V1::TripService::Rest::ClientTest < Minitest:
     related_ids = ["hello world"]
     solution_type = :SOLUTION_TYPE_UNSPECIFIED
 
-    report_billable_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    report_billable_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -262,7 +325,7 @@ class ::Google::Maps::FleetEngine::V1::TripService::Rest::ClientTest < Minitest:
     page_token = "hello world"
     minimum_staleness = {}
 
-    search_trips_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    search_trips_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -319,7 +382,7 @@ class ::Google::Maps::FleetEngine::V1::TripService::Rest::ClientTest < Minitest:
     trip = {}
     update_mask = {}
 
-    update_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_trip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

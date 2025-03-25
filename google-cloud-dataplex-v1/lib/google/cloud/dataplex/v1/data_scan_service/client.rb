@@ -168,14 +168,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @data_scan_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @data_scan_service_stub.endpoint
                 config.universe_domain = @data_scan_service_stub.universe_domain
+                config.logger = @data_scan_service_stub.logger if config.respond_to? :logger=
               end
 
               @iam_policy_client = Google::Iam::V1::IAMPolicy::Client.new do |config|
@@ -183,6 +195,7 @@ module Google
                 config.quota_project = @quota_project_id
                 config.endpoint = @data_scan_service_stub.endpoint
                 config.universe_domain = @data_scan_service_stub.universe_domain
+                config.logger = @data_scan_service_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -206,6 +219,15 @@ module Google
             # @return [Google::Iam::V1::IAMPolicy::Client]
             #
             attr_reader :iam_policy_client
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @data_scan_service_stub.logger
+            end
 
             # Service calls
 
@@ -313,7 +335,7 @@ module Google
               @data_scan_service_stub.call_rpc :create_data_scan, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -342,7 +364,7 @@ module Google
             #
             #     Only fields specified in `update_mask` are updated.
             #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
-            #     Required. Mask of fields to update.
+            #     Optional. Mask of fields to update.
             #   @param validate_only [::Boolean]
             #     Optional. Only validate the request, but do not perform mutations.
             #     The default is `false`.
@@ -414,7 +436,7 @@ module Google
               @data_scan_service_stub.call_rpc :update_data_scan, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -433,7 +455,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload delete_data_scan(name: nil)
+            # @overload delete_data_scan(name: nil, force: nil)
             #   Pass arguments to `delete_data_scan` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -443,6 +465,10 @@ module Google
             #     `projects/{project}/locations/{location_id}/dataScans/{data_scan_id}`
             #     where `project` refers to a *project_id* or *project_number* and
             #     `location_id` refers to a GCP region.
+            #   @param force [::Boolean]
+            #     Optional. If set to true, any child resources of this data scan will also
+            #     be deleted. (Otherwise, the request will only work if the data scan has no
+            #     child resources.)
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::Operation]
@@ -511,7 +537,7 @@ module Google
               @data_scan_service_stub.call_rpc :delete_data_scan, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -602,7 +628,6 @@ module Google
 
               @data_scan_service_stub.call_rpc :get_data_scan, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -710,7 +735,7 @@ module Google
               @data_scan_service_stub.call_rpc :list_data_scans, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_scan_service_stub, :list_data_scans, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -801,7 +826,6 @@ module Google
 
               @data_scan_service_stub.call_rpc :run_data_scan, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -892,7 +916,6 @@ module Google
 
               @data_scan_service_stub.call_rpc :get_data_scan_job, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1014,14 +1037,17 @@ module Google
               @data_scan_service_stub.call_rpc :list_data_scan_jobs, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_scan_service_stub, :list_data_scan_jobs, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Generates recommended DataQualityRule from a data profiling DataScan.
+            # Generates recommended data quality rules based on the results of a data
+            # profiling scan.
+            #
+            # Use the recommendations to build rules for a data quality scan.
             #
             # @overload generate_data_quality_rules(request, options = nil)
             #   Pass arguments to `generate_data_quality_rules` via a request object, either of type
@@ -1039,10 +1065,12 @@ module Google
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param name [::String]
-            #     Required. The name should be either
-            #     * the name of a datascan with at least one successful completed data
-            #     profiling job, or
-            #     * the name of a successful completed data profiling datascan job.
+            #     Required. The name must be one of the following:
+            #
+            #     * The name of a data scan with at least one successful, completed data
+            #     profiling job
+            #     * The name of a successful, completed data profiling job (a data scan job
+            #     where the job type is data profiling)
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Dataplex::V1::GenerateDataQualityRulesResponse]
@@ -1103,7 +1131,6 @@ module Google
 
               @data_scan_service_stub.call_rpc :generate_data_quality_rules, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1153,6 +1180,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -1192,6 +1226,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -1216,6 +1255,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

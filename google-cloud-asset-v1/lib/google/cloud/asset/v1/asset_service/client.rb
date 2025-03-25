@@ -256,8 +256,19 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @asset_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
             end
 
             ##
@@ -266,6 +277,15 @@ module Google
             # @return [::Google::Cloud::Asset::V1::AssetService::Operations]
             #
             attr_reader :operations_client
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @asset_service_stub.logger
+            end
 
             # Service calls
 
@@ -417,7 +437,7 @@ module Google
               @asset_service_stub.call_rpc :export_assets, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -564,7 +584,7 @@ module Google
               @asset_service_stub.call_rpc :list_assets, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @asset_service_stub, :list_assets, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -693,7 +713,6 @@ module Google
 
               @asset_service_stub.call_rpc :batch_get_assets_history, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -792,7 +811,6 @@ module Google
 
               @asset_service_stub.call_rpc :create_feed, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -881,7 +899,6 @@ module Google
 
               @asset_service_stub.call_rpc :get_feed, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -969,7 +986,6 @@ module Google
 
               @asset_service_stub.call_rpc :list_feeds, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1063,7 +1079,6 @@ module Google
 
               @asset_service_stub.call_rpc :update_feed, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1152,7 +1167,6 @@ module Google
 
               @asset_service_stub.call_rpc :delete_feed, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1414,7 +1428,7 @@ module Google
               @asset_service_stub.call_rpc :search_all_resources, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @asset_service_stub, :search_all_resources, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1602,7 +1616,7 @@ module Google
               @asset_service_stub.call_rpc :search_all_iam_policies, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @asset_service_stub, :search_all_iam_policies, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1718,7 +1732,6 @@ module Google
 
               @asset_service_stub.call_rpc :analyze_iam_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1841,7 +1854,7 @@ module Google
               @asset_service_stub.call_rpc :analyze_iam_policy_longrunning, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1943,7 +1956,6 @@ module Google
 
               @asset_service_stub.call_rpc :analyze_move, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1988,9 +2000,13 @@ module Google
             #   @param statement [::String]
             #     Optional. A SQL statement that's compatible with [BigQuery
             #     SQL](https://cloud.google.com/bigquery/docs/introduction-sql).
+            #
+            #     Note: The following fields are mutually exclusive: `statement`, `job_reference`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param job_reference [::String]
             #     Optional. Reference to the query job, which is from the
             #     `QueryAssetsResponse` of previous `QueryAssets` call.
+            #
+            #     Note: The following fields are mutually exclusive: `job_reference`, `statement`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param page_size [::Integer]
             #     Optional. The maximum number of rows to return in the results. Responses
             #     are limited to 10 MB and 1000 rows.
@@ -2021,9 +2037,13 @@ module Google
             #     Optional. [start_time] is required. [start_time] must be less than
             #     [end_time] Defaults [end_time] to now if [start_time] is set and
             #     [end_time] isn't. Maximum permitted time range is 7 days.
+            #
+            #     Note: The following fields are mutually exclusive: `read_time_window`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param read_time [::Google::Protobuf::Timestamp, ::Hash]
             #     Optional. Queries cloud assets as they appeared at the specified point in
             #     time.
+            #
+            #     Note: The following fields are mutually exclusive: `read_time`, `read_time_window`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param output_config [::Google::Cloud::Asset::V1::QueryAssetsOutputConfig, ::Hash]
             #     Optional. Destination where the query results will be saved.
             #
@@ -2094,7 +2114,6 @@ module Google
 
               @asset_service_stub.call_rpc :query_assets, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2197,7 +2216,6 @@ module Google
 
               @asset_service_stub.call_rpc :create_saved_query, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2287,7 +2305,6 @@ module Google
 
               @asset_service_stub.call_rpc :get_saved_query, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2399,7 +2416,7 @@ module Google
               @asset_service_stub.call_rpc :list_saved_queries, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @asset_service_stub, :list_saved_queries, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2494,7 +2511,6 @@ module Google
 
               @asset_service_stub.call_rpc :update_saved_query, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2585,7 +2601,6 @@ module Google
 
               @asset_service_stub.call_rpc :delete_saved_query, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2687,7 +2702,6 @@ module Google
 
               @asset_service_stub.call_rpc :batch_get_effective_iam_policies, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2803,7 +2817,7 @@ module Google
               @asset_service_stub.call_rpc :analyze_org_policies, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @asset_service_stub, :analyze_org_policies, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2922,7 +2936,7 @@ module Google
               @asset_service_stub.call_rpc :analyze_org_policy_governed_containers, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @asset_service_stub, :analyze_org_policy_governed_containers, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3104,7 +3118,7 @@ module Google
               @asset_service_stub.call_rpc :analyze_org_policy_governed_assets, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @asset_service_stub, :analyze_org_policy_governed_assets, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3154,6 +3168,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -3193,6 +3214,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -3217,6 +3243,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

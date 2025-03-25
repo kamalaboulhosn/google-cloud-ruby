@@ -1,5 +1,34 @@
 # Release History
 
+### 2.1.0 (2025-03-14)
+
+#### Features
+
+* Documented the service as deprecatedad ([#29351](https://github.com/googleapis/google-cloud-ruby/issues/29351)) 
+
+### 2.0.0 (2025-02-13)
+
+### ⚠ BREAKING CHANGES
+
+* Update google-cloud-data_catalog-v1 dependency to version 2.x ([#29051](https://github.com/googleapis/google-cloud-ruby/issues/29051))
+
+#### Features
+
+* Update google-cloud-data_catalog-v1 dependency to version 2.x ([#29051](https://github.com/googleapis/google-cloud-ruby/issues/29051)) 
+
+### 1.7.0 (2025-01-29)
+
+#### Features
+
+* Provide methods to determine whether services are available with the currently installed versioned client ([#28528](https://github.com/googleapis/google-cloud-ruby/issues/28528)) 
+* Update Ruby version requirement to 3.0 
+
+### 1.6.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26626](https://github.com/googleapis/google-cloud-ruby/issues/26626)) 
+
 ### 1.6.0 (2024-02-26)
 
 #### Features

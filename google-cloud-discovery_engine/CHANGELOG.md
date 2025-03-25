@@ -1,5 +1,54 @@
 # Changelog
 
+### 2.0.0 (2025-02-13)
+
+### ⚠ BREAKING CHANGES
+
+* Removed dependency on google-cloud-discovery_engine-v1beta prerelease service
+* Update google-cloud-discovery_engine-v1 dependency to version 2.x ([#29063](https://github.com/googleapis/google-cloud-ruby/issues/29063))
+
+#### Features
+
+* Removed dependency on google-cloud-discovery_engine-v1beta prerelease service 
+* Update google-cloud-discovery_engine-v1 dependency to version 2.x ([#29063](https://github.com/googleapis/google-cloud-ruby/issues/29063)) 
+
+### 1.2.0 (2025-01-29)
+
+#### Features
+
+* Provide methods to determine whether services are available with the currently installed versioned client ([#28529](https://github.com/googleapis/google-cloud-ruby/issues/28529)) 
+* Update Ruby version requirement to 3.0 
+
+### 1.1.0 (2024-12-10)
+
+#### Features
+
+* Support for the SearchTuningService ([#27290](https://github.com/googleapis/google-cloud-ruby/issues/27290)) 
+
+### 1.0.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26627](https://github.com/googleapis/google-cloud-ruby/issues/26627)) 
+
+### 1.0.0 (2024-06-26)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.7.0 (2024-05-31)
+
+#### Features
+
+* Add control service APIs 
+* Promote answer APIs to v1 GA 
+* Promote grounding check APIs to v1 GA 
+* Promote ranking APIs to v1 GA 
+* Promote various APIs to v1 GA ([#25965](https://github.com/googleapis/google-cloud-ruby/issues/25965)) 
+* Support cancelling import operations 
+* Support writing user events for blended engines 
+
 ### 0.6.0 (2024-04-19)
 
 #### Features

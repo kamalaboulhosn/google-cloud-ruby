@@ -33,24 +33,24 @@ class ::Google::Cloud::Workflows::V1::Workflows::Rest::ClientTest < Minitest::Te
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Workflows::V1::Workflows::Rest::ClientTest < Minitest::Te
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_list_workflows
@@ -84,7 +92,7 @@ class ::Google::Cloud::Workflows::V1::Workflows::Rest::ClientTest < Minitest::Te
     filter = "hello world"
     order_by = "hello world"
 
-    list_workflows_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_workflows_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -139,7 +147,7 @@ class ::Google::Cloud::Workflows::V1::Workflows::Rest::ClientTest < Minitest::Te
     name = "hello world"
     revision_id = "hello world"
 
-    get_workflow_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_workflow_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -195,7 +203,7 @@ class ::Google::Cloud::Workflows::V1::Workflows::Rest::ClientTest < Minitest::Te
     workflow = {}
     workflow_id = "hello world"
 
-    create_workflow_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_workflow_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -249,7 +257,7 @@ class ::Google::Cloud::Workflows::V1::Workflows::Rest::ClientTest < Minitest::Te
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_workflow_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_workflow_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -304,7 +312,7 @@ class ::Google::Cloud::Workflows::V1::Workflows::Rest::ClientTest < Minitest::Te
     workflow = {}
     update_mask = {}
 
-    update_workflow_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_workflow_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -344,6 +352,62 @@ class ::Google::Cloud::Workflows::V1::Workflows::Rest::ClientTest < Minitest::Te
 
         # Verify method calls
         assert_equal 5, update_workflow_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_workflow_revisions
+    # Create test objects.
+    client_result = ::Google::Cloud::Workflows::V1::ListWorkflowRevisionsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    page_size = 42
+    page_token = "hello world"
+
+    list_workflow_revisions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Workflows::V1::Workflows::Rest::ServiceStub.stub :transcode_list_workflow_revisions_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_workflow_revisions_client_stub do
+        # Create client
+        client = ::Google::Cloud::Workflows::V1::Workflows::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_workflow_revisions({ name: name, page_size: page_size, page_token: page_token }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_workflow_revisions name: name, page_size: page_size, page_token: page_token do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_workflow_revisions ::Google::Cloud::Workflows::V1::ListWorkflowRevisionsRequest.new(name: name, page_size: page_size, page_token: page_token) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_workflow_revisions({ name: name, page_size: page_size, page_token: page_token }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_workflow_revisions(::Google::Cloud::Workflows::V1::ListWorkflowRevisionsRequest.new(name: name, page_size: page_size, page_token: page_token), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_workflow_revisions_client_stub.call_count
       end
     end
   end

@@ -24,13 +24,9 @@ module Google
     module Dlp
       module V2
         module DlpService
-          # The Cloud Data Loss Prevention (DLP) API is a service that allows clients
-          # to detect the presence of Personally Identifiable Information (PII) and other
-          # privacy-sensitive data in user-supplied, unstructured data streams, like text
-          # blocks or images.
-          # The service also includes methods for sensitive data redaction and
-          # scheduling of data scans on Google Cloud Platform based data sets.
-          #
+          # Sensitive Data Protection provides access to a powerful sensitive data
+          # inspection, classification, and de-identification platform that works
+          # on text, images, and Google Cloud storage repositories.
           # To learn more about concepts and find how-to guides see
           # https://cloud.google.com/sensitive-data-protection/docs/.
           class Service
@@ -62,6 +58,9 @@ module Google
             # When no InfoTypes or CustomInfoTypes are specified in this request, the
             # system will automatically choose what detectors to run. By default this may
             # be all types, but may change over time as detectors are updated.
+            #
+            # Only the first frame of each multiframe image is redacted. Metadata and
+            # other frames are omitted in the response.
             rpc :RedactImage, ::Google::Cloud::Dlp::V2::RedactImageRequest, ::Google::Cloud::Dlp::V2::RedactImageResponse
             # De-identifies potentially sensitive info from a ContentItem.
             # This method has limits on input size and output size.
@@ -78,7 +77,7 @@ module Google
             # https://cloud.google.com/sensitive-data-protection/docs/pseudonymization#re-identification_in_free_text_code_example
             # to learn more.
             rpc :ReidentifyContent, ::Google::Cloud::Dlp::V2::ReidentifyContentRequest, ::Google::Cloud::Dlp::V2::ReidentifyContentResponse
-            # Returns a list of the sensitive information types that DLP API
+            # Returns a list of the sensitive information types that the DLP API
             # supports. See
             # https://cloud.google.com/sensitive-data-protection/docs/infotypes-reference
             # to learn more.
@@ -255,6 +254,13 @@ module Google
             rpc :ListColumnDataProfiles, ::Google::Cloud::Dlp::V2::ListColumnDataProfilesRequest, ::Google::Cloud::Dlp::V2::ListColumnDataProfilesResponse
             # Gets a project data profile.
             rpc :GetProjectDataProfile, ::Google::Cloud::Dlp::V2::GetProjectDataProfileRequest, ::Google::Cloud::Dlp::V2::ProjectDataProfile
+            # Lists file store data profiles for an organization.
+            rpc :ListFileStoreDataProfiles, ::Google::Cloud::Dlp::V2::ListFileStoreDataProfilesRequest, ::Google::Cloud::Dlp::V2::ListFileStoreDataProfilesResponse
+            # Gets a file store data profile.
+            rpc :GetFileStoreDataProfile, ::Google::Cloud::Dlp::V2::GetFileStoreDataProfileRequest, ::Google::Cloud::Dlp::V2::FileStoreDataProfile
+            # Delete a FileStoreDataProfile. Will not prevent the profile from being
+            # regenerated if the resource is still included in a discovery configuration.
+            rpc :DeleteFileStoreDataProfile, ::Google::Cloud::Dlp::V2::DeleteFileStoreDataProfileRequest, ::Google::Protobuf::Empty
             # Gets a table data profile.
             rpc :GetTableDataProfile, ::Google::Cloud::Dlp::V2::GetTableDataProfileRequest, ::Google::Cloud::Dlp::V2::TableDataProfile
             # Gets a column data profile.
@@ -273,7 +279,8 @@ module Google
             rpc :CreateConnection, ::Google::Cloud::Dlp::V2::CreateConnectionRequest, ::Google::Cloud::Dlp::V2::Connection
             # Get a Connection by name.
             rpc :GetConnection, ::Google::Cloud::Dlp::V2::GetConnectionRequest, ::Google::Cloud::Dlp::V2::Connection
-            # Lists Connections in a parent.
+            # Lists Connections in a parent. Use SearchConnections to see all connections
+            # within an organization.
             rpc :ListConnections, ::Google::Cloud::Dlp::V2::ListConnectionsRequest, ::Google::Cloud::Dlp::V2::ListConnectionsResponse
             # Searches for Connections in a parent.
             rpc :SearchConnections, ::Google::Cloud::Dlp::V2::SearchConnectionsRequest, ::Google::Cloud::Dlp::V2::SearchConnectionsResponse

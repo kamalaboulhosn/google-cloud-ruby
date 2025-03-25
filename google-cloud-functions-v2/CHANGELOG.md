@@ -1,5 +1,56 @@
 # Changelog
 
+### 1.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824))
+
+#### Features
+
+* Bump version to 1.0.0 ([#28941](https://github.com/googleapis/google-cloud-ruby/issues/28941)) 
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824)) 
+
+### 0.10.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.9.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.8.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 0.8.0 (2024-08-08)
+
+#### Features
+
+* additional field on the output that specified whether the deployment supports Physical Zone Separation. 
+* Generate upload URL now supports for specifying the GCF generation that the generated upload url will be used for. 
+* ListRuntimes response now includes deprecation and decommissioning dates. 
+* optional field for binary authorization policy. 
+* optional field for deploying a source from a GitHub repository. 
+* optional field for specifying a revision on GetFunction. 
+* optional field for specifying a service account to use for the build. This helps navigate the change of historical default on new projects. For more details, see https://cloud.google.com/build/docs/cloud-build-service-account-updates ([#26621](https://github.com/googleapis/google-cloud-ruby/issues/26621)) 
+* optional fields for setting up automatic base image updates. 
+#### Documentation
+
+* Refined description in several fields. 
+
 ### 0.7.0 (2024-02-26)
 
 #### Features

@@ -164,8 +164,19 @@ module Google
                     endpoint: @config.endpoint,
                     endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                     universe_domain: @config.universe_domain,
-                    credentials: credentials
+                    credentials: credentials,
+                    logger: @config.logger
                   )
+
+                  @flows_stub.logger(stub: true)&.info do |entry|
+                    entry.set_system_name
+                    entry.set_service
+                    entry.message = "Created client for #{entry.service}"
+                    entry.set_credentials_fields credentials
+                    entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                    entry.set "defaultTimeout", @config.timeout if @config.timeout
+                    entry.set "quotaProject", @quota_project_id if @quota_project_id
+                  end
 
                   @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                     config.credentials = credentials
@@ -173,6 +184,7 @@ module Google
                     config.endpoint = @flows_stub.endpoint
                     config.universe_domain = @flows_stub.universe_domain
                     config.bindings_override = @config.bindings_override
+                    config.logger = @flows_stub.logger if config.respond_to? :logger=
                   end
                 end
 
@@ -189,6 +201,15 @@ module Google
                 # @return [Google::Cloud::Location::Locations::Rest::Client]
                 #
                 attr_reader :location_client
+
+                ##
+                # The logger used for request/response debug logging.
+                #
+                # @return [Logger]
+                #
+                def logger
+                  @flows_stub.logger
+                end
 
                 # Service calls
 
@@ -216,7 +237,7 @@ module Google
                 #
                 #   @param parent [::String]
                 #     Required. The agent to create a flow for.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+                #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
                 #   @param flow [::Google::Cloud::Dialogflow::CX::V3::Flow, ::Hash]
                 #     Required. The flow to create.
                 #   @param language_code [::String]
@@ -285,7 +306,6 @@ module Google
 
                   @flows_stub.create_flow request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -311,8 +331,8 @@ module Google
                 #
                 #   @param name [::String]
                 #     Required. The name of the flow to delete.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-                #     ID>/flows/<Flow ID>`.
+                #     Format:
+                #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
                 #   @param force [::Boolean]
                 #     This field has no effect for flows with no incoming transitions.
                 #     For flows with incoming transitions:
@@ -377,7 +397,6 @@ module Google
 
                   @flows_stub.delete_flow request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -403,7 +422,7 @@ module Google
                 #
                 #   @param parent [::String]
                 #     Required. The agent containing the flows.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+                #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
                 #   @param page_size [::Integer]
                 #     The maximum number of items to return in a single page. By default 100 and
                 #     at most 1000.
@@ -481,7 +500,7 @@ module Google
                   @flows_stub.list_flows request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @flows_stub, :list_flows, "flows", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -507,8 +526,8 @@ module Google
                 #
                 #   @param name [::String]
                 #     Required. The name of the flow to get.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-                #     ID>/flows/<Flow ID>`.
+                #     Format:
+                #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
                 #   @param language_code [::String]
                 #     The language to retrieve the flow for. The following fields are language
                 #     dependent:
@@ -576,7 +595,6 @@ module Google
 
                   @flows_stub.get_flow request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -675,7 +693,6 @@ module Google
 
                   @flows_stub.update_flow request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -715,8 +732,8 @@ module Google
                 #
                 #   @param name [::String]
                 #     Required. The flow to train.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-                #     ID>/flows/<Flow ID>`.
+                #     Format:
+                #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
                 # @yield [result, operation] Access the result along with the TransportOperation object
                 # @yieldparam result [::Gapic::Operation]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -778,7 +795,7 @@ module Google
                   @flows_stub.train_flow request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -806,8 +823,8 @@ module Google
                 #
                 #   @param name [::String]
                 #     Required. The flow to validate.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-                #     ID>/flows/<Flow ID>`.
+                #     Format:
+                #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
                 #   @param language_code [::String]
                 #     If not specified, the agent's default language is used.
                 # @yield [result, operation] Access the result along with the TransportOperation object
@@ -863,7 +880,6 @@ module Google
 
                   @flows_stub.validate_flow request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -890,8 +906,8 @@ module Google
                 #
                 #   @param name [::String]
                 #     Required. The flow name.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-                #     ID>/flows/<Flow ID>/validationResult`.
+                #     Format:
+                #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/validationResult`.
                 #   @param language_code [::String]
                 #     If not specified, the agent's default language is used.
                 # @yield [result, operation] Access the result along with the TransportOperation object
@@ -947,7 +963,6 @@ module Google
 
                   @flows_stub.get_flow_validation_result request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -986,7 +1001,7 @@ module Google
                 #
                 #   @param parent [::String]
                 #     Required. The agent to import the flow into.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+                #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
                 #   @param flow_uri [::String]
                 #     The [Google Cloud Storage](https://cloud.google.com/storage/docs/) URI
                 #     to import flow from. The format of this URI must be
@@ -997,8 +1012,12 @@ module Google
                 #     have read permissions for the object. For more information, see
                 #     [Dialogflow access
                 #     control](https://cloud.google.com/dialogflow/cx/docs/concept/access-control#storage).
+                #
+                #     Note: The following fields are mutually exclusive: `flow_uri`, `flow_content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
                 #   @param flow_content [::String]
                 #     Uncompressed raw byte content for flow.
+                #
+                #     Note: The following fields are mutually exclusive: `flow_content`, `flow_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
                 #   @param import_option [::Google::Cloud::Dialogflow::CX::V3::ImportFlowRequest::ImportOption]
                 #     Flow import mode. If not specified, `KEEP` is assumed.
                 #   @param flow_import_strategy [::Google::Cloud::Dialogflow::CX::V3::FlowImportStrategy, ::Hash]
@@ -1065,7 +1084,7 @@ module Google
                   @flows_stub.import_flow request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1103,8 +1122,8 @@ module Google
                 #
                 #   @param name [::String]
                 #     Required. The name of the flow to export.
-                #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-                #     ID>/flows/<Flow ID>`.
+                #     Format:
+                #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
                 #   @param flow_uri [::String]
                 #     Optional. The [Google Cloud
                 #     Storage](https://cloud.google.com/storage/docs/) URI to export the flow to.
@@ -1179,7 +1198,7 @@ module Google
                   @flows_stub.export_flow request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1227,6 +1246,13 @@ module Google
                 #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
                 #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -1259,6 +1285,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -1287,6 +1318,7 @@ module Google
                   # by the host service.
                   # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                   config_attr :bindings_override, {}, ::Hash, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil

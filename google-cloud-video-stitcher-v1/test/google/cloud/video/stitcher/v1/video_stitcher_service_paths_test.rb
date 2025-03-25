@@ -31,6 +31,14 @@ class ::Google::Cloud::Video::Stitcher::V1::VideoStitcherService::ClientPathsTes
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_cdn_key_path
@@ -114,6 +122,18 @@ class ::Google::Cloud::Video::Stitcher::V1::VideoStitcherService::ClientPathsTes
 
       path = client.vod_ad_tag_detail_path project: "value0", location: "value1", vod_session: "value2", vod_ad_tag_detail: "value3"
       assert_equal "projects/value0/locations/value1/vodSessions/value2/vodAdTagDetails/value3", path
+    end
+  end
+
+  def test_vod_config_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::Video::Stitcher::V1::VideoStitcherService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.vod_config_path project: "value0", location: "value1", vod_config: "value2"
+      assert_equal "projects/value0/locations/value1/vodConfigs/value2", path
     end
   end
 

@@ -2072,13 +2072,57 @@ module Google
         def self.gapi_from_attrs gapi, attributes
           attributes.flatten!
           return nil if attributes.empty?
-          attr_params = Hash[attributes.map do |attr|
-                               [attr, gapi.send(attr)]
-                             end]
+          attr_params = attributes.to_h do |attr|
+            [attr, gapi.send(attr)]
+          end
           # Sending nil metadata results in an Apiary runtime error:
           # NoMethodError: undefined method `each' for nil:NilClass
           attr_params.reject! { |k, v| k == :metadata && v.nil? }
           Google::Apis::StorageV1::Object.new(**attr_params)
+        end
+
+        ##
+        # from_gs_url is a method to fetch bucket details and file details from a gs url
+        #
+        # @return [Hash(String => String)]
+        #
+        # @example Fetch bucket_name and file_Path from gs url:
+        #   require "google/cloud/storage"
+        #   gs_url= "gs://my-todo-app/avatars/heidi.jpeg"
+        #   file=Google::Cloud::Storage::File
+        #   file.from_gs_url(gs_url)
+        #   =>
+        #   {"bucket_name"=>"my-todo-app", "file_path"=>"avatars/heidi.jpeg"}
+        #
+        # @example Fetch bucket_name , file_Path and other query params from gs url:
+        #   require "google/cloud/storage"
+        #   gs_url= "gs://my-todo-app/test_sub_folder/heidi.jpeg?params1=test1&params2=test2"
+        #   file=Google::Cloud::Storage::File
+        #   file.from_gs_url(gs_url)
+        #   =>{
+        #     "bucket_name"=>"my-todo-app",
+        #     "file_path"=>"test_sub_folder/heidi.jpeg",
+        #     "options" => {
+        #       "params1"=>"test1",
+        #       "params2"=>"test2"
+        #       }
+        #      }
+
+        def self.from_gs_url gs_url
+          prefix = "gs://".freeze
+          raise ArgumentError, "Invalid GCS URL" unless gs_url.start_with? prefix
+          # seprating params from input url
+          path, query = gs_url.sub(prefix, "").split("?", 2)
+          # parsing the url
+          bucket_name, file_path = path.split "/", 2
+          query_params = URI.decode_www_form(query).to_h if query
+          url_items = {
+            "bucket_name" => bucket_name,
+            "file_path" => file_path
+          }
+          # adding url params to output hash
+          url_items.merge! "options" => query_params if query
+          url_items
         end
 
         protected
@@ -2196,10 +2240,8 @@ module Google
           [dest_bucket, dest_path]
         end
 
-        # rubocop:disable Style/MultipleComparison
-
         def verify_file! file, verify = :md5
-          verify_md5    = verify == :md5    || verify == :all
+          verify_md5    = verify == :md5 || verify == :all
           verify_crc32c = verify == :crc32c || verify == :all
           Verifier.verify_md5! self, file    if verify_md5    && md5
           Verifier.verify_crc32c! self, file if verify_crc32c && crc32c

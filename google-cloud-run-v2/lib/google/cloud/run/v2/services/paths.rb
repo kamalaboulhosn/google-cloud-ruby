@@ -25,6 +25,25 @@ module Google
           # Path helper methods for the Services API.
           module Paths
             ##
+            # Create a fully-qualified Build resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/builds/{build}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param build [String]
+            #
+            # @return [::String]
+            def build_path project:, location:, build:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/builds/#{build}"
+            end
+
+            ##
             # Create a fully-qualified Connector resource string.
             #
             # The resource will be in the following format:
@@ -79,6 +98,58 @@ module Google
               raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
 
               "projects/#{project}/locations/#{location}"
+            end
+
+            ##
+            # Create a fully-qualified Mesh resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/meshes/{mesh}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param mesh [String]
+            #
+            # @return [::String]
+            def mesh_path project:, location:, mesh:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/meshes/#{mesh}"
+            end
+
+            ##
+            # Create a fully-qualified Policy resource string.
+            #
+            # @overload policy_path(project:)
+            #   The resource will be in the following format:
+            #
+            #   `projects/{project}/policy`
+            #
+            #   @param project [String]
+            #
+            # @overload policy_path(location:)
+            #   The resource will be in the following format:
+            #
+            #   `locations/{location}/policy`
+            #
+            #   @param location [String]
+            #
+            # @return [::String]
+            def policy_path **args
+              resources = {
+                "project" => (proc do |project:|
+                  "projects/#{project}/policy"
+                end),
+                "location" => (proc do |location:|
+                  "locations/#{location}/policy"
+                end)
+              }
+
+              resource = resources[args.keys.sort.join(":")]
+              raise ::ArgumentError, "no resource found for values #{args.keys}" if resource.nil?
+              resource.call(**args)
             end
 
             ##
@@ -155,6 +226,25 @@ module Google
               raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
 
               "projects/#{project}/locations/#{location}/services/#{service}"
+            end
+
+            ##
+            # Create a fully-qualified WorkerPool resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/workerPools/{worker_pool}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param worker_pool [String]
+            #
+            # @return [::String]
+            def worker_pool_path project:, location:, worker_pool:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/workerPools/#{worker_pool}"
             end
 
             extend self

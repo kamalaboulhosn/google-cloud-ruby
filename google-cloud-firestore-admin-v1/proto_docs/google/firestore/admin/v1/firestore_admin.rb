@@ -27,6 +27,9 @@ module Google
           #   @return [::String]
           #     Required. A parent name of the form
           #     `projects/{project_id}`
+          # @!attribute [rw] show_deleted
+          #   @return [::Boolean]
+          #     If true, also returns deleted resources.
           class ListDatabasesRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -50,7 +53,7 @@ module Google
           #     with first character a letter and the last a letter or a number. Must not
           #     be UUID-like /[0-9a-f]\\{8}(-[0-9a-f]\\{4})\\{3}-[0-9a-f]\\{12}/.
           #
-          #     "(default)" database id is also valid.
+          #     "(default)" database ID is also valid.
           class CreateDatabaseRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -319,7 +322,8 @@ module Google
           #     only supports listing fields that have been explicitly overridden. To issue
           #     this query, call
           #     {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#list_fields FirestoreAdmin.ListFields}
-          #     with a filter that includes `indexConfig.usesAncestorConfig:false` .
+          #     with a filter that includes `indexConfig.usesAncestorConfig:false` or
+          #     `ttlConfig:*`.
           # @!attribute [rw] page_size
           #   @return [::Integer]
           #     The number of results to return.
@@ -355,7 +359,8 @@ module Google
           #     `projects/{project_id}/databases/{database_id}`.
           # @!attribute [rw] collection_ids
           #   @return [::Array<::String>]
-          #     Which collection ids to export. Unspecified means all collections.
+          #     Which collection IDs to export. Unspecified means all collections. Each
+          #     collection ID in this list must be unique.
           # @!attribute [rw] output_uri_prefix
           #   @return [::String]
           #     The output URI. Currently only supports Google Cloud Storage URIs of the
@@ -396,8 +401,8 @@ module Google
           #     `projects/{project_id}/databases/{database_id}`.
           # @!attribute [rw] collection_ids
           #   @return [::Array<::String>]
-          #     Which collection ids to import. Unspecified means all collections included
-          #     in the import.
+          #     Which collection IDs to import. Unspecified means all collections included
+          #     in the import. Each collection ID in this list must be unique.
           # @!attribute [rw] input_uri_prefix
           #   @return [::String]
           #     Location of the exported files.
@@ -414,6 +419,50 @@ module Google
           #     used if the database has data in non-default namespaces, but doesn't want
           #     to include them. Each namespace in this list must be unique.
           class ImportDocumentsRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The request for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#bulk_delete_documents FirestoreAdmin.BulkDeleteDocuments}.
+          #
+          # When both collection_ids and namespace_ids are set, only documents satisfying
+          # both conditions will be deleted.
+          #
+          # Requests with namespace_ids and collection_ids both empty will be rejected.
+          # Please use
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#delete_database FirestoreAdmin.DeleteDatabase}
+          # instead.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. Database to operate. Should be of the form:
+          #     `projects/{project_id}/databases/{database_id}`.
+          # @!attribute [rw] collection_ids
+          #   @return [::Array<::String>]
+          #     Optional. IDs of the collection groups to delete. Unspecified means all
+          #     collection groups.
+          #
+          #     Each collection group in this list must be unique.
+          # @!attribute [rw] namespace_ids
+          #   @return [::Array<::String>]
+          #     Optional. Namespaces to delete.
+          #
+          #     An empty list means all namespaces. This is the recommended
+          #     usage for databases that don't use namespaces.
+          #
+          #     An empty string element represents the default namespace. This should be
+          #     used if the database has data in non-default namespaces, but doesn't want
+          #     to delete from them.
+          #
+          #     Each namespace in this list must be unique.
+          class BulkDeleteDocumentsRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The response for
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#bulk_delete_documents FirestoreAdmin.BulkDeleteDocuments}.
+          class BulkDeleteDocumentsResponse
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
@@ -440,6 +489,20 @@ module Google
           #     Use `{location} = '-'` to list backups from all locations for the given
           #     project. This allows listing backups from a single location or from all
           #     locations.
+          # @!attribute [rw] filter
+          #   @return [::String]
+          #     An expression that filters the list of returned backups.
+          #
+          #     A filter expression consists of a field name, a comparison operator, and a
+          #     value for filtering.
+          #     The value must be a string, a number, or a boolean. The comparison operator
+          #     must be one of: `<`, `>`, `<=`, `>=`, `!=`, `=`, or `:`.
+          #     Colon `:` is the contains operator. Filter rules are not case sensitive.
+          #
+          #     The following fields in the {::Google::Cloud::Firestore::Admin::V1::Backup Backup} are
+          #     eligible for filtering:
+          #
+          #       * `database_uid` (supports `=` only)
           class ListBackupsRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -476,7 +539,7 @@ module Google
           end
 
           # The request message for
-          # [FirestoreAdmin.RestoreDatabase][google.firestore.admin.v1.RestoreDatabase].
+          # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Client#restore_database FirestoreAdmin.RestoreDatabase}.
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The project to restore the database in. Format is
@@ -484,20 +547,30 @@ module Google
           # @!attribute [rw] database_id
           #   @return [::String]
           #     Required. The ID to use for the database, which will become the final
-          #     component of the database's resource name. This database id must not be
+          #     component of the database's resource name. This database ID must not be
           #     associated with an existing database.
           #
           #     This value should be 4-63 characters. Valid characters are /[a-z][0-9]-/
           #     with first character a letter and the last a letter or a number. Must not
           #     be UUID-like /[0-9a-f]\\{8}(-[0-9a-f]\\{4})\\{3}-[0-9a-f]\\{12}/.
           #
-          #     "(default)" database id is also valid.
+          #     "(default)" database ID is also valid.
           # @!attribute [rw] backup
           #   @return [::String]
           #     Required. Backup to restore from. Must be from the same project as the
           #     parent.
           #
+          #     The restored database will be created in the same location as the source
+          #     backup.
+          #
           #     Format is: `projects/{project_id}/locations/{location}/backups/{backup}`
+          # @!attribute [rw] encryption_config
+          #   @return [::Google::Cloud::Firestore::Admin::V1::Database::EncryptionConfig]
+          #     Optional. Encryption configuration for the restored database.
+          #
+          #     If this field is not specified, the restored database will use
+          #     the same encryption configuration as the backup, namely
+          #     {::Google::Cloud::Firestore::Admin::V1::Database::EncryptionConfig#use_source_encryption use_source_encryption}.
           class RestoreDatabaseRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

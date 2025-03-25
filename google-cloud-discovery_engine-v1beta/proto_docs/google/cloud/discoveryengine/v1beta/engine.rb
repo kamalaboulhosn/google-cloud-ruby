@@ -29,12 +29,16 @@ module Google
         #     {::Google::Cloud::DiscoveryEngine::V1beta::Engine#solution_type solution_type}
         #     is
         #     {::Google::Cloud::DiscoveryEngine::V1beta::SolutionType::SOLUTION_TYPE_CHAT SOLUTION_TYPE_CHAT}.
+        #
+        #     Note: The following fields are mutually exclusive: `chat_engine_config`, `search_engine_config`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] search_engine_config
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Engine::SearchEngineConfig]
         #     Configurations for the Search Engine. Only applicable if
         #     {::Google::Cloud::DiscoveryEngine::V1beta::Engine#solution_type solution_type}
         #     is
         #     {::Google::Cloud::DiscoveryEngine::V1beta::SolutionType::SOLUTION_TYPE_SEARCH SOLUTION_TYPE_SEARCH}.
+        #
+        #     Note: The following fields are mutually exclusive: `search_engine_config`, `chat_engine_config`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] chat_engine_metadata
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Engine::ChatEngineMetadata]
         #     Output only. Additional information of the Chat Engine. Only applicable
@@ -50,7 +54,7 @@ module Google
         #     characters.
         #
         #     Format:
-        #     `projects/{project_number}/locations/{location}/collections/{collection}/engines/{engine}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}`
         #     engine should be 1-63 characters, and valid characters are
         #     /[a-z0-9][a-z0-9-_]*/. Otherwise, an INVALID_ARGUMENT error is returned.
         # @!attribute [rw] display_name
@@ -94,10 +98,14 @@ module Google
         #     The restriction of the Engine industry vertical is based on
         #     {::Google::Cloud::DiscoveryEngine::V1beta::DataStore DataStore}: If unspecified,
         #     default to `GENERIC`. Vertical on Engine has to match vertical of the
-        #     DataStore liniked to the engine.
+        #     DataStore linked to the engine.
         # @!attribute [rw] common_config
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Engine::CommonConfig]
         #     Common config spec that specifies the metadata of the engine.
+        # @!attribute [rw] disable_analytics
+        #   @return [::Boolean]
+        #     Optional. Whether to disable analytics for searches performed on this
+        #     engine.
         class Engine
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -192,8 +200,8 @@ module Google
           # Common configurations for an Engine.
           # @!attribute [rw] company_name
           #   @return [::String]
-          #     Immutable. The name of the company, business or entity that is associated
-          #     with the engine. Setting this may help improve LLM related features.
+          #     The name of the company, business or entity that is associated with the
+          #     engine. Setting this may help improve LLM related features.
           class CommonConfig
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

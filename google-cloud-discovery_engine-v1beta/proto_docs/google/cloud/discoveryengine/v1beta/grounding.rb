@@ -21,6 +21,16 @@ module Google
   module Cloud
     module DiscoveryEngine
       module V1beta
+        # Grounding configuration.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. Name of the GroundingConfig, of the form
+        #     `projects/{project}/locations/{location}/groundingConfigs/{grounding_config}`.
+        class GroundingConfig
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # Grounding Fact.
         # @!attribute [rw] fact_text
         #   @return [::String]
@@ -54,6 +64,9 @@ module Google
         #     from the GroundingFacts provided in the request then this field will
         #     contain the index of the specific fact from which this chunk was
         #     retrieved.
+        # @!attribute [rw] index
+        #   @return [::Integer]
+        #     The index of this chunk. Currently, only used for the streaming mode.
         # @!attribute [rw] source_metadata
         #   @return [::Google::Protobuf::Map{::String => ::String}]
         #     More fine-grained information for the source reference.

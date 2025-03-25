@@ -74,7 +74,7 @@ module Google
             service.client_options.send_timeout_sec = timeout
             service.request_options.retries = 0 # handle retries in #execute
             service.request_options.header ||= {}
-            service.request_options.header["x-goog-api-client"] = \
+            service.request_options.header["x-goog-api-client"] =
               "gl-ruby/#{RUBY_VERSION} gccl/#{Google::Cloud::Bigquery::VERSION}"
             service.request_options.query ||= {}
             service.request_options.query["prettyPrint"] = false
@@ -110,9 +110,15 @@ module Google
         ##
         # Returns the dataset specified by datasetID.
         def get_dataset dataset_id
+          get_project_dataset @project, dataset_id
+        end
+
+        ##
+        # Gets the specified dataset resource by full dataset reference.
+        def get_project_dataset project_id, dataset_id
           # The get operation is considered idempotent
           execute backoff: true do
-            service.get_dataset @project, dataset_id
+            service.get_dataset project_id, dataset_id
           end
         end
 
@@ -251,15 +257,17 @@ module Google
           end
         end
 
-        def insert_tabledata dataset_id, table_id, rows, insert_ids: nil, ignore_unknown: nil, skip_invalid: nil
+        def insert_tabledata dataset_id, table_id, rows, insert_ids: nil, ignore_unknown: nil,
+                             skip_invalid: nil, project_id: nil
           json_rows = Array(rows).map { |row| Convert.to_json_row row }
           insert_tabledata_json_rows dataset_id, table_id, json_rows, insert_ids:     insert_ids,
                                                                       ignore_unknown: ignore_unknown,
-                                                                      skip_invalid:   skip_invalid
+                                                                      skip_invalid:   skip_invalid,
+                                                                      project_id:     project_id
         end
 
         def insert_tabledata_json_rows dataset_id, table_id, json_rows, insert_ids: nil, ignore_unknown: nil,
-                                       skip_invalid: nil
+                                       skip_invalid: nil, project_id: nil
           rows_and_ids = Array(json_rows).zip Array(insert_ids)
           insert_rows = rows_and_ids.map do |json_row, insert_id|
             if insert_id == :skip
@@ -280,9 +288,10 @@ module Google
           }.to_json
 
           # The insertAll with insertId operation is considered idempotent
+          project_id ||= @project
           execute backoff: true do
             service.insert_all_table_data(
-              @project, dataset_id, table_id, insert_req,
+              project_id, dataset_id, table_id, insert_req,
               options: { skip_serialization: true }
             )
           end

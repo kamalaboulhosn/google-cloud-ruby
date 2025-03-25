@@ -47,8 +47,9 @@ module Google
         #    returned to the customers.
         # 2. The customer uses the
         # {::Google::Cloud::Dialogflow::V2::AnswerRecord#name AnswerRecord.name} to call the
-        #    [UpdateAnswerRecord][] method to send feedback about a specific answer
-        #    that they believe is wrong.
+        #    {::Google::Cloud::Dialogflow::V2::AnswerRecords::Client#update_answer_record AnswerRecords.UpdateAnswerRecord}
+        #    method to send feedback about a specific answer that they believe is
+        #    wrong.
         # @!attribute [rw] name
         #   @return [::String]
         #     The unique identifier of this answer record.
@@ -75,11 +76,20 @@ module Google
         #     chronological order. Format: `projects/<Project ID>/locations/<Location
         #     ID>`.
         # @!attribute [rw] filter
-        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::String]
-        #     Optional. Filters to restrict results to specific answer records.
+        #     Optional. Filters to restrict results to specific answer records. The
+        #     expression has the following syntax:
         #
-        #     Marked deprecated as it hasn't been, and isn't currently, supported.
+        #         <field> <operator> <value> [AND <field> <operator> <value>] ...
+        #
+        #     The following fields and operators are supported:
+        #     * conversation_id with equals(=) operator
+        #
+        #     Examples:
+        #
+        #     * `conversation_id=bar` matches answer records in the
+        #       `projects/foo/locations/global/conversations/bar` conversation
+        #       (assuming the parent is `projects/foo/locations/global`).
         #
         #     For more information about filtering, see
         #     [API Filtering](https://aip.dev/160).
@@ -195,7 +205,7 @@ module Google
         #     * Suggested document says: "Items must be returned/exchanged within 60
         #       days of the purchase date."
         #     * Ground truth: "No return or exchange is allowed."
-        #     * [document_correctness]: INCORRECT
+        #     * {::Google::Cloud::Dialogflow::V2::AgentAssistantFeedback#document_correctness document_correctness}: {::Google::Cloud::Dialogflow::V2::AgentAssistantFeedback::DocumentCorrectness::INCORRECT INCORRECT}
         # @!attribute [rw] document_efficiency
         #   @return [::Google::Cloud::Dialogflow::V2::AgentAssistantFeedback::DocumentEfficiency]
         #     Optional. Whether or not the suggested document is efficient. For example,
@@ -210,6 +220,9 @@ module Google
         # @!attribute [rw] knowledge_search_feedback
         #   @return [::Google::Cloud::Dialogflow::V2::AgentAssistantFeedback::KnowledgeSearchFeedback]
         #     Optional. Feedback for knowledge search.
+        # @!attribute [rw] knowledge_assist_feedback
+        #   @return [::Google::Cloud::Dialogflow::V2::AgentAssistantFeedback::KnowledgeAssistFeedback]
+        #     Optional. Feedback for knowledge assist.
         class AgentAssistantFeedback
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -260,6 +273,25 @@ module Google
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
 
+          # Feedback for knowledge assist.
+          # @!attribute [rw] answer_copied
+          #   @return [::Boolean]
+          #     Whether the suggested answer was copied by the human agent.
+          #     If the value is set to be true,
+          #     {::Google::Cloud::Dialogflow::V2::AnswerFeedback#clicked AnswerFeedback.clicked}
+          #     will be updated to be true.
+          # @!attribute [rw] clicked_uris
+          #   @return [::Array<::String>]
+          #     The URIs clicked by the human agent. The value is appended for each
+          #     UpdateAnswerRecordRequest.
+          #     If the value is not empty,
+          #     {::Google::Cloud::Dialogflow::V2::AnswerFeedback#clicked AnswerFeedback.clicked}
+          #     will be updated to be true.
+          class KnowledgeAssistFeedback
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
           # Relevance of an answer.
           module AnswerRelevance
             # Answer relevance unspecified.
@@ -301,12 +333,18 @@ module Google
         # @!attribute [r] article_suggestion_answer
         #   @return [::Google::Cloud::Dialogflow::V2::ArticleAnswer]
         #     Output only. The article suggestion answer.
+        #
+        #     Note: The following fields are mutually exclusive: `article_suggestion_answer`, `faq_answer`, `dialogflow_assist_answer`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] faq_answer
         #   @return [::Google::Cloud::Dialogflow::V2::FaqAnswer]
         #     Output only. The FAQ answer.
+        #
+        #     Note: The following fields are mutually exclusive: `faq_answer`, `article_suggestion_answer`, `dialogflow_assist_answer`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] dialogflow_assist_answer
         #   @return [::Google::Cloud::Dialogflow::V2::DialogflowAssistAnswer]
         #     Output only. Dialogflow assist answer.
+        #
+        #     Note: The following fields are mutually exclusive: `dialogflow_assist_answer`, `article_suggestion_answer`, `faq_answer`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class AgentAssistantRecord
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

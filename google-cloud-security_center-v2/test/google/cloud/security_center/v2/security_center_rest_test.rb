@@ -33,24 +33,24 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_batch_create_resource_value_configs
@@ -81,7 +89,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     parent = "hello world"
     requests = [{}]
 
-    batch_create_resource_value_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_create_resource_value_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -135,8 +143,9 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     parent = "hello world"
     filter = "hello world"
+    mute_state = :MUTE_STATE_UNSPECIFIED
 
-    bulk_mute_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    bulk_mute_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -150,27 +159,27 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
         end
 
         # Use hash object
-        client.bulk_mute_findings({ parent: parent, filter: filter }) do |_result, response|
+        client.bulk_mute_findings({ parent: parent, filter: filter, mute_state: mute_state }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.bulk_mute_findings parent: parent, filter: filter do |_result, response|
+        client.bulk_mute_findings parent: parent, filter: filter, mute_state: mute_state do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.bulk_mute_findings ::Google::Cloud::SecurityCenter::V2::BulkMuteFindingsRequest.new(parent: parent, filter: filter) do |_result, response|
+        client.bulk_mute_findings ::Google::Cloud::SecurityCenter::V2::BulkMuteFindingsRequest.new(parent: parent, filter: filter, mute_state: mute_state) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.bulk_mute_findings({ parent: parent, filter: filter }, call_options) do |_result, response|
+        client.bulk_mute_findings({ parent: parent, filter: filter, mute_state: mute_state }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.bulk_mute_findings(::Google::Cloud::SecurityCenter::V2::BulkMuteFindingsRequest.new(parent: parent, filter: filter), call_options) do |_result, response|
+        client.bulk_mute_findings(::Google::Cloud::SecurityCenter::V2::BulkMuteFindingsRequest.new(parent: parent, filter: filter, mute_state: mute_state), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -192,7 +201,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     big_query_export = {}
     big_query_export_id = "hello world"
 
-    create_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -248,7 +257,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     finding_id = "hello world"
     finding = {}
 
-    create_finding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_finding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -304,7 +313,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     mute_config = {}
     mute_config_id = "hello world"
 
-    create_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -360,7 +369,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     config_id = "hello world"
     notification_config = {}
 
-    create_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -415,7 +424,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     parent = "hello world"
     source = {}
 
-    create_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -469,7 +478,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -523,7 +532,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -577,7 +586,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -631,7 +640,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -685,7 +694,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -739,7 +748,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_simulation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_simulation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -793,7 +802,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_valued_resource_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_valued_resource_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -848,7 +857,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     resource = "hello world"
     options = {}
 
-    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -902,7 +911,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -956,7 +965,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1010,7 +1019,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1064,7 +1073,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1122,7 +1131,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    group_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    group_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1179,7 +1188,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    list_attack_paths_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_attack_paths_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1235,7 +1244,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_big_query_exports_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_big_query_exports_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1294,7 +1303,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    list_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_findings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1350,7 +1359,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_mute_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_mute_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1406,7 +1415,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    list_notification_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_notification_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1462,7 +1471,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_resource_value_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_resource_value_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1518,7 +1527,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_token = "hello world"
     page_size = 42
 
-    list_sources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_sources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1576,7 +1585,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     page_size = 42
     order_by = "hello world"
 
-    list_valued_resources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_valued_resources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1631,7 +1640,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     name = "hello world"
     state = :STATE_UNSPECIFIED
 
-    set_finding_state_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_finding_state_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1687,7 +1696,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     policy = {}
     update_mask = {}
 
-    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1742,7 +1751,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     name = "hello world"
     mute = :MUTE_UNSPECIFIED
 
-    set_mute_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_mute_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1797,7 +1806,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     resource = "hello world"
     permissions = ["hello world"]
 
-    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1852,7 +1861,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     big_query_export = {}
     update_mask = {}
 
-    update_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_big_query_export_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1907,7 +1916,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     external_system = {}
     update_mask = {}
 
-    update_external_system_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_external_system_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1962,7 +1971,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     finding = {}
     update_mask = {}
 
-    update_finding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_finding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2017,7 +2026,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     mute_config = {}
     update_mask = {}
 
-    update_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_mute_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2072,7 +2081,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     notification_config = {}
     update_mask = {}
 
-    update_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_notification_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2127,7 +2136,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     resource_value_config = {}
     update_mask = {}
 
-    update_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_resource_value_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2182,7 +2191,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     security_marks = {}
     update_mask = {}
 
-    update_security_marks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_security_marks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2237,7 +2246,7 @@ class ::Google::Cloud::SecurityCenter::V2::SecurityCenter::Rest::ClientTest < Mi
     source = {}
     update_mask = {}
 
-    update_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_source_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

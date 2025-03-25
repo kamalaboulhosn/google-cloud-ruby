@@ -28,12 +28,18 @@ module Google
           # @!attribute [rw] google_cdn_key
           #   @return [::Google::Cloud::Video::Stitcher::V1::GoogleCdnKey]
           #     The configuration for a Google Cloud CDN key.
+          #
+          #     Note: The following fields are mutually exclusive: `google_cdn_key`, `akamai_cdn_key`, `media_cdn_key`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] akamai_cdn_key
           #   @return [::Google::Cloud::Video::Stitcher::V1::AkamaiCdnKey]
           #     The configuration for an Akamai CDN key.
+          #
+          #     Note: The following fields are mutually exclusive: `akamai_cdn_key`, `google_cdn_key`, `media_cdn_key`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] media_cdn_key
           #   @return [::Google::Cloud::Video::Stitcher::V1::MediaCdnKey]
           #     The configuration for a Media CDN key.
+          #
+          #     Note: The following fields are mutually exclusive: `media_cdn_key`, `google_cdn_key`, `akamai_cdn_key`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] name
           #   @return [::String]
           #     The resource name of the CDN key, in the form of
@@ -75,9 +81,29 @@ module Google
           # @!attribute [rw] key_name
           #   @return [::String]
           #     The keyset name of the Media CDN key.
+          # @!attribute [rw] token_config
+          #   @return [::Google::Cloud::Video::Stitcher::V1::MediaCdnKey::TokenConfig]
+          #     Optional. If set, the URL will be signed using the Media CDN token.
+          #     Otherwise, the URL would be signed using the standard Media CDN signature.
           class MediaCdnKey
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Configuration for a Media CDN token.
+            # @!attribute [rw] query_parameter
+            #   @return [::String]
+            #     Optional. The query parameter in which to find the token.
+            #
+            #     The name must be 1-64 characters long and match
+            #     the regular expression `[a-zA-Z]([a-zA-Z0-9_-])*` which means the
+            #     first character must be a letter, and all following characters
+            #     must be a dash, underscore, letter or digit.
+            #
+            #     Defaults to `edge-cache-token`.
+            class TokenConfig
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
           end
         end
       end

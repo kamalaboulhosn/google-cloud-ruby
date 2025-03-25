@@ -1,5 +1,33 @@
 # Release History
 
+### 1.55.0 (2025-02-13)
+
+#### Features
+
+* Soft deleted Bucket Restore ([#28138](https://github.com/googleapis/google-cloud-ruby/issues/28138)) 
+#### Documentation
+
+* updating the encryption key GCS sample ([#28815](https://github.com/googleapis/google-cloud-ruby/issues/28815)) 
+
+### 1.54.0 (2024-12-11)
+
+#### Features
+
+* Updated required Ruby version to 3.0 or later ([#27599](https://github.com/googleapis/google-cloud-ruby/issues/27599)) 
+
+### 1.53.0 (2024-12-04)
+
+#### Features
+
+* add integration test for universe domain ([#27384](https://github.com/googleapis/google-cloud-ruby/issues/27384)) 
+* fetch file and bucket details from url ([#27322](https://github.com/googleapis/google-cloud-ruby/issues/27322)) 
+
+### 1.52.0 (2024-05-31)
+
+#### Features
+
+* support for hierarchical namespace (folders) ([#25967](https://github.com/googleapis/google-cloud-ruby/issues/25967)) 
+
 ### 1.51.0 (2024-04-25)
 
 #### Features

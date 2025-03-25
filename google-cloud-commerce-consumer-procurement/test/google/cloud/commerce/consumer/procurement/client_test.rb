@@ -31,9 +31,39 @@ class Google::Cloud::Commerce::Consumer::Procurement::ClientConstructionMinitest
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
+  end
+
+  def test_license_management_service_grpc
+    skip unless Google::Cloud::Commerce::Consumer::Procurement.license_management_service_available? transport: :grpc
+    Gapic::ServiceStub.stub :new, DummyStub.new do
+      grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+      client = Google::Cloud::Commerce::Consumer::Procurement.license_management_service transport: :grpc do |config|
+        config.credentials = grpc_channel
+      end
+      assert_kind_of Google::Cloud::Commerce::Consumer::Procurement::V1::LicenseManagementService::Client, client
+    end
+  end
+
+  def test_license_management_service_rest
+    skip unless Google::Cloud::Commerce::Consumer::Procurement.license_management_service_available? transport: :rest
+    Gapic::Rest::ClientStub.stub :new, DummyStub.new do
+      client = Google::Cloud::Commerce::Consumer::Procurement.license_management_service transport: :rest do |config|
+        config.credentials = :dummy_credentials
+      end
+      assert_kind_of Google::Cloud::Commerce::Consumer::Procurement::V1::LicenseManagementService::Rest::Client, client
+    end
   end
 
   def test_consumer_procurement_service_grpc
+    skip unless Google::Cloud::Commerce::Consumer::Procurement.consumer_procurement_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Commerce::Consumer::Procurement.consumer_procurement_service transport: :grpc do |config|
@@ -44,6 +74,7 @@ class Google::Cloud::Commerce::Consumer::Procurement::ClientConstructionMinitest
   end
 
   def test_consumer_procurement_service_rest
+    skip unless Google::Cloud::Commerce::Consumer::Procurement.consumer_procurement_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Commerce::Consumer::Procurement.consumer_procurement_service transport: :rest do |config|
         config.credentials = :dummy_credentials

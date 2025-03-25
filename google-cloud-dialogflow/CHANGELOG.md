@@ -1,5 +1,53 @@
 # Release History
 
+### 1.11.0 (2025-03-11)
+
+#### Features
+
+* Add new RPC IngestContextReferences, GenerateSuggestions ([#29299](https://github.com/googleapis/google-cloud-ruby/issues/29299)) 
+
+### 1.10.0 (2025-01-29)
+
+#### Features
+
+* Provide methods to determine whether services are available with the currently installed versioned client ([#28529](https://github.com/googleapis/google-cloud-ruby/issues/28529)) 
+* Update Ruby version requirement to 3.0 
+
+### 1.9.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26627](https://github.com/googleapis/google-cloud-ruby/issues/26627)) 
+
+### 1.9.0 (2024-08-05)
+
+#### Features
+
+* Add GenerateStatelessSuggestion related endpoints and types 
+* Add Generator related services and types 
+* Add Proactive Generative Knowledge Assist endpoints and types ([#26572](https://github.com/googleapis/google-cloud-ruby/issues/26572)) 
+#### Bug Fixes
+
+* Changed field behavior for an existing field `parent` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` 
+* Changed field behavior for an existing field `session_id` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` 
+#### Documentation
+
+* A comment for field `assist_query_params` in message `.google.cloud.dialogflow.v2.SuggestConversationSummaryRequest` is changed 
+* A comment for field `audio` in message `.google.cloud.dialogflow.v2.AudioInput` is changed 
+* A comment for field `context_size` in message `.google.cloud.dialogflow.v2.SuggestConversationSummaryRequest` is changed 
+* A comment for field `conversation_stage` in message `.google.cloud.dialogflow.v2.Conversation` is changed 
+* A comment for field `conversation` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` is changed 
+* A comment for field `filter` in message `.google.cloud.dialogflow.v2.ListConversationsRequest` is changed 
+* A comment for field `latest_message` in message `.google.cloud.dialogflow.v2.GenerateStatelessSummaryRequest` is changed 
+* A comment for field `latest_message` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` is changed 
+* A comment for field `latest_message` in message `.google.cloud.dialogflow.v2.SuggestConversationSummaryRequest` is changed 
+* A comment for field `live_person_config` in message `.google.cloud.dialogflow.v2.HumanAgentHandoffConfig` is changed 
+* A comment for field `max_context_size` in message `.google.cloud.dialogflow.v2.GenerateStatelessSummaryRequest` is changed 
+* A comment for field `name` in message `.google.cloud.dialogflow.v2.Conversation` is changed 
+* A comment for field `parent` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` is changed 
+* A comment for field `session_id` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` is changed 
+* A comment for message `HumanAgentHandoffConfig` is changed 
+
 ### 1.8.0 (2024-02-26)
 
 #### Features

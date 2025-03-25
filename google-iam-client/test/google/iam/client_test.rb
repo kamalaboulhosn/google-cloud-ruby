@@ -31,9 +31,18 @@ class Google::Iam::ClientConstructionMinitest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_policies_grpc
+    skip unless Google::Iam.policies_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Iam.policies transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Iam::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_policies_rest
+    skip unless Google::Iam.policies_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Iam.policies transport: :rest do |config|
         config.credentials = :dummy_credentials

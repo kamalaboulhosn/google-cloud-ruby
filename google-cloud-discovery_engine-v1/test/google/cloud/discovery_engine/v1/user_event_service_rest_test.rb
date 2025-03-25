@@ -33,24 +33,24 @@ class ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::ClientTest <
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::ClientTest <
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_write_user_event
@@ -80,8 +88,9 @@ class ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::ClientTest <
     # Create request parameters for a unary method.
     parent = "hello world"
     user_event = {}
+    write_async = true
 
-    write_user_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    write_user_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -95,27 +104,27 @@ class ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::ClientTest <
         end
 
         # Use hash object
-        client.write_user_event({ parent: parent, user_event: user_event }) do |_result, response|
+        client.write_user_event({ parent: parent, user_event: user_event, write_async: write_async }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.write_user_event parent: parent, user_event: user_event do |_result, response|
+        client.write_user_event parent: parent, user_event: user_event, write_async: write_async do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.write_user_event ::Google::Cloud::DiscoveryEngine::V1::WriteUserEventRequest.new(parent: parent, user_event: user_event) do |_result, response|
+        client.write_user_event ::Google::Cloud::DiscoveryEngine::V1::WriteUserEventRequest.new(parent: parent, user_event: user_event, write_async: write_async) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.write_user_event({ parent: parent, user_event: user_event }, call_options) do |_result, response|
+        client.write_user_event({ parent: parent, user_event: user_event, write_async: write_async }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.write_user_event(::Google::Cloud::DiscoveryEngine::V1::WriteUserEventRequest.new(parent: parent, user_event: user_event), call_options) do |_result, response|
+        client.write_user_event(::Google::Cloud::DiscoveryEngine::V1::WriteUserEventRequest.new(parent: parent, user_event: user_event, write_async: write_async), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -138,7 +147,7 @@ class ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::ClientTest <
     uri = "hello world"
     ets = 42
 
-    collect_user_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    collect_user_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -182,6 +191,62 @@ class ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::ClientTest <
     end
   end
 
+  def test_purge_user_events
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    filter = "hello world"
+    force = true
+
+    purge_user_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::ServiceStub.stub :transcode_purge_user_events_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, purge_user_events_client_stub do
+        # Create client
+        client = ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.purge_user_events({ parent: parent, filter: filter, force: force }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.purge_user_events parent: parent, filter: filter, force: force do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.purge_user_events ::Google::Cloud::DiscoveryEngine::V1::PurgeUserEventsRequest.new(parent: parent, filter: filter, force: force) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.purge_user_events({ parent: parent, filter: filter, force: force }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.purge_user_events(::Google::Cloud::DiscoveryEngine::V1::PurgeUserEventsRequest.new(parent: parent, filter: filter, force: force), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, purge_user_events_client_stub.call_count
+      end
+    end
+  end
+
   def test_import_user_events
     # Create test objects.
     client_result = ::Google::Longrunning::Operation.new
@@ -194,7 +259,7 @@ class ::Google::Cloud::DiscoveryEngine::V1::UserEventService::Rest::ClientTest <
     parent = "hello world"
     error_config = {}
 
-    import_user_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    import_user_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

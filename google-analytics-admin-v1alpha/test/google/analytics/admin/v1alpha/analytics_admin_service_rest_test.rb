@@ -33,24 +33,24 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_get_account
@@ -80,7 +88,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_account_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_account_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -136,7 +144,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_token = "hello world"
     show_deleted = true
 
-    list_accounts_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_accounts_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -190,7 +198,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_account_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_account_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -245,7 +253,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     account = {}
     update_mask = {}
 
-    update_account_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_account_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -300,7 +308,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     account = {}
     redirect_uri = "hello world"
 
-    provision_account_ticket_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    provision_account_ticket_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -355,7 +363,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_account_summaries_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_account_summaries_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -409,7 +417,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -466,7 +474,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_token = "hello world"
     show_deleted = true
 
-    list_properties_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_properties_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -520,7 +528,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     property = {}
 
-    create_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -574,7 +582,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -629,7 +637,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     property = {}
     update_mask = {}
 
-    update_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -684,7 +692,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     firebase_link = {}
 
-    create_firebase_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_firebase_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -738,7 +746,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_firebase_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_firebase_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -794,7 +802,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_firebase_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_firebase_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -848,7 +856,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_global_site_tag_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_global_site_tag_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -903,7 +911,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     google_ads_link = {}
 
-    create_google_ads_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_google_ads_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -958,7 +966,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     google_ads_link = {}
     update_mask = {}
 
-    update_google_ads_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_google_ads_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1012,7 +1020,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_google_ads_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_google_ads_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1068,7 +1076,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_google_ads_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_google_ads_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1122,7 +1130,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_data_sharing_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_data_sharing_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1176,7 +1184,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_measurement_protocol_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_measurement_protocol_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1232,7 +1240,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_measurement_protocol_secrets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_measurement_protocol_secrets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1287,7 +1295,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     measurement_protocol_secret = {}
 
-    create_measurement_protocol_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_measurement_protocol_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1341,7 +1349,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_measurement_protocol_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_measurement_protocol_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1396,7 +1404,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     measurement_protocol_secret = {}
     update_mask = {}
 
-    update_measurement_protocol_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_measurement_protocol_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1451,7 +1459,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     property = "hello world"
     acknowledgement = "hello world"
 
-    acknowledge_user_data_collection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    acknowledge_user_data_collection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1505,7 +1513,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_sk_ad_network_conversion_value_schema_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_sk_ad_network_conversion_value_schema_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1560,7 +1568,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     skadnetwork_conversion_value_schema = {}
 
-    create_sk_ad_network_conversion_value_schema_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_sk_ad_network_conversion_value_schema_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1614,7 +1622,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_sk_ad_network_conversion_value_schema_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_sk_ad_network_conversion_value_schema_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1669,7 +1677,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     skadnetwork_conversion_value_schema = {}
     update_mask = {}
 
-    update_sk_ad_network_conversion_value_schema_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_sk_ad_network_conversion_value_schema_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1725,7 +1733,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_sk_ad_network_conversion_value_schemas_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_sk_ad_network_conversion_value_schemas_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1787,7 +1795,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    search_change_history_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    search_change_history_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1841,7 +1849,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_google_signals_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_google_signals_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1896,7 +1904,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     google_signals_settings = {}
     update_mask = {}
 
-    update_google_signals_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_google_signals_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1951,7 +1959,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     conversion_event = {}
     parent = "hello world"
 
-    create_conversion_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_conversion_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2006,7 +2014,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     conversion_event = {}
     update_mask = {}
 
-    update_conversion_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_conversion_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2060,7 +2068,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_conversion_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_conversion_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2114,7 +2122,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_conversion_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_conversion_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2170,7 +2178,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_conversion_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_conversion_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2214,6 +2222,280 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     end
   end
 
+  def test_create_key_event
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::KeyEvent.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    key_event = {}
+    parent = "hello world"
+
+    create_key_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_create_key_event_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, create_key_event_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.create_key_event({ key_event: key_event, parent: parent }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.create_key_event key_event: key_event, parent: parent do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.create_key_event ::Google::Analytics::Admin::V1alpha::CreateKeyEventRequest.new(key_event: key_event, parent: parent) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.create_key_event({ key_event: key_event, parent: parent }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.create_key_event(::Google::Analytics::Admin::V1alpha::CreateKeyEventRequest.new(key_event: key_event, parent: parent), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, create_key_event_client_stub.call_count
+      end
+    end
+  end
+
+  def test_update_key_event
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::KeyEvent.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    key_event = {}
+    update_mask = {}
+
+    update_key_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_update_key_event_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_key_event_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_key_event({ key_event: key_event, update_mask: update_mask }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_key_event key_event: key_event, update_mask: update_mask do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_key_event ::Google::Analytics::Admin::V1alpha::UpdateKeyEventRequest.new(key_event: key_event, update_mask: update_mask) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_key_event({ key_event: key_event, update_mask: update_mask }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_key_event(::Google::Analytics::Admin::V1alpha::UpdateKeyEventRequest.new(key_event: key_event, update_mask: update_mask), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_key_event_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_key_event
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::KeyEvent.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_key_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_get_key_event_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_key_event_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_key_event({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_key_event name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_key_event ::Google::Analytics::Admin::V1alpha::GetKeyEventRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_key_event({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_key_event(::Google::Analytics::Admin::V1alpha::GetKeyEventRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_key_event_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_key_event
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_key_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_delete_key_event_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_key_event_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_key_event({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_key_event name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_key_event ::Google::Analytics::Admin::V1alpha::DeleteKeyEventRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_key_event({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_key_event(::Google::Analytics::Admin::V1alpha::DeleteKeyEventRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_key_event_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_key_events
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::ListKeyEventsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_size = 42
+    page_token = "hello world"
+
+    list_key_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_list_key_events_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_key_events_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_key_events({ parent: parent, page_size: page_size, page_token: page_token }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_key_events parent: parent, page_size: page_size, page_token: page_token do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_key_events ::Google::Analytics::Admin::V1alpha::ListKeyEventsRequest.new(parent: parent, page_size: page_size, page_token: page_token) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_key_events({ parent: parent, page_size: page_size, page_token: page_token }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_key_events(::Google::Analytics::Admin::V1alpha::ListKeyEventsRequest.new(parent: parent, page_size: page_size, page_token: page_token), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_key_events_client_stub.call_count
+      end
+    end
+  end
+
   def test_get_display_video360_advertiser_link
     # Create test objects.
     client_result = ::Google::Analytics::Admin::V1alpha::DisplayVideo360AdvertiserLink.new
@@ -2224,7 +2506,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_display_video360_advertiser_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_display_video360_advertiser_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2280,7 +2562,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_display_video360_advertiser_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_display_video360_advertiser_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2335,7 +2617,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     display_video_360_advertiser_link = {}
 
-    create_display_video360_advertiser_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_display_video360_advertiser_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2389,7 +2671,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_display_video360_advertiser_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_display_video360_advertiser_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2444,7 +2726,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     display_video_360_advertiser_link = {}
     update_mask = {}
 
-    update_display_video360_advertiser_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_display_video360_advertiser_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2498,7 +2780,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2554,7 +2836,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_display_video360_advertiser_link_proposals_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_display_video360_advertiser_link_proposals_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2609,7 +2891,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     display_video_360_advertiser_link_proposal = {}
 
-    create_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2663,7 +2945,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2717,7 +2999,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    approve_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    approve_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2771,7 +3053,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    cancel_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    cancel_display_video360_advertiser_link_proposal_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2826,7 +3108,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     custom_dimension = {}
 
-    create_custom_dimension_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_custom_dimension_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2881,7 +3163,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     custom_dimension = {}
     update_mask = {}
 
-    update_custom_dimension_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_custom_dimension_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2937,7 +3219,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_custom_dimensions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_custom_dimensions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2991,7 +3273,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    archive_custom_dimension_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    archive_custom_dimension_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3045,7 +3327,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_custom_dimension_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_custom_dimension_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3100,7 +3382,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     custom_metric = {}
 
-    create_custom_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_custom_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3155,7 +3437,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     custom_metric = {}
     update_mask = {}
 
-    update_custom_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_custom_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3211,7 +3493,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_custom_metrics_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_custom_metrics_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3265,7 +3547,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    archive_custom_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    archive_custom_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3319,7 +3601,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_custom_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_custom_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3373,7 +3655,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_data_retention_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_data_retention_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3428,7 +3710,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     data_retention_settings = {}
     update_mask = {}
 
-    update_data_retention_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_data_retention_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3483,7 +3765,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     data_stream = {}
 
-    create_data_stream_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_data_stream_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3537,7 +3819,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_data_stream_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_data_stream_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3592,7 +3874,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     data_stream = {}
     update_mask = {}
 
-    update_data_stream_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_data_stream_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3648,7 +3930,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_data_streams_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_data_streams_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3702,7 +3984,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_data_stream_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_data_stream_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3756,7 +4038,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_audience_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_audience_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3812,7 +4094,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_audiences_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_audiences_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3867,7 +4149,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     audience = {}
 
-    create_audience_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_audience_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3922,7 +4204,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     audience = {}
     update_mask = {}
 
-    update_audience_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_audience_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -3976,7 +4258,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    archive_audience_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    archive_audience_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4030,7 +4312,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_search_ads360_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_search_ads360_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4086,7 +4368,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_search_ads360_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_search_ads360_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4141,7 +4423,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     search_ads_360_link = {}
 
-    create_search_ads360_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_search_ads360_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4195,7 +4477,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_search_ads360_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_search_ads360_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4250,7 +4532,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     search_ads_360_link = {}
     update_mask = {}
 
-    update_search_ads360_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_search_ads360_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4304,7 +4586,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_attribution_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_attribution_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4359,7 +4641,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     attribution_settings = {}
     update_mask = {}
 
-    update_attribution_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_attribution_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4425,7 +4707,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     include_all_users = true
     expand_groups = true
 
-    run_access_report_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    run_access_report_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4480,7 +4762,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     access_binding = {}
 
-    create_access_binding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_access_binding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4534,7 +4816,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_access_binding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_access_binding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4588,7 +4870,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     access_binding = {}
 
-    update_access_binding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_access_binding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4642,7 +4924,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_access_binding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_access_binding_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4698,7 +4980,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4753,7 +5035,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     requests = [{}]
 
-    batch_create_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_create_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4808,7 +5090,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     names = ["hello world"]
 
-    batch_get_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_get_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4863,7 +5145,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     requests = [{}]
 
-    batch_update_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_update_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4918,7 +5200,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     requests = [{}]
 
-    batch_delete_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_delete_access_bindings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -4972,7 +5254,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_expanded_data_set_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_expanded_data_set_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5028,7 +5310,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_expanded_data_sets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_expanded_data_sets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5083,7 +5365,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     expanded_data_set = {}
 
-    create_expanded_data_set_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_expanded_data_set_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5138,7 +5420,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     expanded_data_set = {}
     update_mask = {}
 
-    update_expanded_data_set_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_expanded_data_set_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5192,7 +5474,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_expanded_data_set_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_expanded_data_set_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5246,7 +5528,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_channel_group_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_channel_group_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5302,7 +5584,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_channel_groups_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_channel_groups_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5357,7 +5639,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     channel_group = {}
 
-    create_channel_group_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_channel_group_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5412,7 +5694,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     channel_group = {}
     update_mask = {}
 
-    update_channel_group_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_channel_group_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5466,7 +5748,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_channel_group_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_channel_group_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5521,7 +5803,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     property = "hello world"
     opt_out = true
 
-    set_automated_ga4_configuration_opt_out_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_automated_ga4_configuration_opt_out_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5575,7 +5857,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     property = "hello world"
 
-    fetch_automated_ga4_configuration_opt_out_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    fetch_automated_ga4_configuration_opt_out_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5619,6 +5901,61 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     end
   end
 
+  def test_create_big_query_link
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::BigQueryLink.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    bigquery_link = {}
+
+    create_big_query_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_create_big_query_link_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, create_big_query_link_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.create_big_query_link({ parent: parent, bigquery_link: bigquery_link }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.create_big_query_link parent: parent, bigquery_link: bigquery_link do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.create_big_query_link ::Google::Analytics::Admin::V1alpha::CreateBigQueryLinkRequest.new(parent: parent, bigquery_link: bigquery_link) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.create_big_query_link({ parent: parent, bigquery_link: bigquery_link }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.create_big_query_link(::Google::Analytics::Admin::V1alpha::CreateBigQueryLinkRequest.new(parent: parent, bigquery_link: bigquery_link), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, create_big_query_link_client_stub.call_count
+      end
+    end
+  end
+
   def test_get_big_query_link
     # Create test objects.
     client_result = ::Google::Analytics::Admin::V1alpha::BigQueryLink.new
@@ -5629,7 +5966,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_big_query_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_big_query_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5685,7 +6022,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_big_query_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_big_query_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5729,6 +6066,115 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     end
   end
 
+  def test_delete_big_query_link
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_big_query_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_delete_big_query_link_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_big_query_link_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_big_query_link({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_big_query_link name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_big_query_link ::Google::Analytics::Admin::V1alpha::DeleteBigQueryLinkRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_big_query_link({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_big_query_link(::Google::Analytics::Admin::V1alpha::DeleteBigQueryLinkRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_big_query_link_client_stub.call_count
+      end
+    end
+  end
+
+  def test_update_big_query_link
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::BigQueryLink.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    bigquery_link = {}
+    update_mask = {}
+
+    update_big_query_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_update_big_query_link_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_big_query_link_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_big_query_link({ bigquery_link: bigquery_link, update_mask: update_mask }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_big_query_link bigquery_link: bigquery_link, update_mask: update_mask do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_big_query_link ::Google::Analytics::Admin::V1alpha::UpdateBigQueryLinkRequest.new(bigquery_link: bigquery_link, update_mask: update_mask) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_big_query_link({ bigquery_link: bigquery_link, update_mask: update_mask }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_big_query_link(::Google::Analytics::Admin::V1alpha::UpdateBigQueryLinkRequest.new(bigquery_link: bigquery_link, update_mask: update_mask), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_big_query_link_client_stub.call_count
+      end
+    end
+  end
+
   def test_get_enhanced_measurement_settings
     # Create test objects.
     client_result = ::Google::Analytics::Admin::V1alpha::EnhancedMeasurementSettings.new
@@ -5739,7 +6185,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_enhanced_measurement_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_enhanced_measurement_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5794,7 +6240,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     enhanced_measurement_settings = {}
     update_mask = {}
 
-    update_enhanced_measurement_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_enhanced_measurement_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5849,7 +6295,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     property = "hello world"
     connected_site_tag = {}
 
-    create_connected_site_tag_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_connected_site_tag_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5904,7 +6350,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     property = "hello world"
     tag_id = "hello world"
 
-    delete_connected_site_tag_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_connected_site_tag_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -5958,7 +6404,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     property = "hello world"
 
-    list_connected_site_tags_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_connected_site_tags_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6012,7 +6458,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     property = "hello world"
 
-    fetch_connected_ga4_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    fetch_connected_ga4_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6066,7 +6512,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_ad_sense_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_ad_sense_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6121,7 +6567,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     adsense_link = {}
 
-    create_ad_sense_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_ad_sense_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6175,7 +6621,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_ad_sense_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_ad_sense_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6231,7 +6677,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_ad_sense_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_ad_sense_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6285,7 +6731,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_event_create_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_event_create_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6341,7 +6787,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_event_create_rules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_event_create_rules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6396,7 +6842,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     event_create_rule = {}
 
-    create_event_create_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_event_create_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6451,7 +6897,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     event_create_rule = {}
     update_mask = {}
 
-    update_event_create_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_event_create_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6505,7 +6951,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_event_create_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_event_create_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6549,6 +6995,335 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     end
   end
 
+  def test_get_event_edit_rule
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::EventEditRule.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_event_edit_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_get_event_edit_rule_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_event_edit_rule_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_event_edit_rule({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_event_edit_rule name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_event_edit_rule ::Google::Analytics::Admin::V1alpha::GetEventEditRuleRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_event_edit_rule({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_event_edit_rule(::Google::Analytics::Admin::V1alpha::GetEventEditRuleRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_event_edit_rule_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_event_edit_rules
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::ListEventEditRulesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_size = 42
+    page_token = "hello world"
+
+    list_event_edit_rules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_list_event_edit_rules_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_event_edit_rules_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_event_edit_rules({ parent: parent, page_size: page_size, page_token: page_token }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_event_edit_rules parent: parent, page_size: page_size, page_token: page_token do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_event_edit_rules ::Google::Analytics::Admin::V1alpha::ListEventEditRulesRequest.new(parent: parent, page_size: page_size, page_token: page_token) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_event_edit_rules({ parent: parent, page_size: page_size, page_token: page_token }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_event_edit_rules(::Google::Analytics::Admin::V1alpha::ListEventEditRulesRequest.new(parent: parent, page_size: page_size, page_token: page_token), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_event_edit_rules_client_stub.call_count
+      end
+    end
+  end
+
+  def test_create_event_edit_rule
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::EventEditRule.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    event_edit_rule = {}
+
+    create_event_edit_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_create_event_edit_rule_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, create_event_edit_rule_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.create_event_edit_rule({ parent: parent, event_edit_rule: event_edit_rule }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.create_event_edit_rule parent: parent, event_edit_rule: event_edit_rule do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.create_event_edit_rule ::Google::Analytics::Admin::V1alpha::CreateEventEditRuleRequest.new(parent: parent, event_edit_rule: event_edit_rule) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.create_event_edit_rule({ parent: parent, event_edit_rule: event_edit_rule }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.create_event_edit_rule(::Google::Analytics::Admin::V1alpha::CreateEventEditRuleRequest.new(parent: parent, event_edit_rule: event_edit_rule), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, create_event_edit_rule_client_stub.call_count
+      end
+    end
+  end
+
+  def test_update_event_edit_rule
+    # Create test objects.
+    client_result = ::Google::Analytics::Admin::V1alpha::EventEditRule.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    event_edit_rule = {}
+    update_mask = {}
+
+    update_event_edit_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_update_event_edit_rule_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_event_edit_rule_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_event_edit_rule({ event_edit_rule: event_edit_rule, update_mask: update_mask }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_event_edit_rule event_edit_rule: event_edit_rule, update_mask: update_mask do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_event_edit_rule ::Google::Analytics::Admin::V1alpha::UpdateEventEditRuleRequest.new(event_edit_rule: event_edit_rule, update_mask: update_mask) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_event_edit_rule({ event_edit_rule: event_edit_rule, update_mask: update_mask }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_event_edit_rule(::Google::Analytics::Admin::V1alpha::UpdateEventEditRuleRequest.new(event_edit_rule: event_edit_rule, update_mask: update_mask), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_event_edit_rule_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_event_edit_rule
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_event_edit_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_delete_event_edit_rule_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_event_edit_rule_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_event_edit_rule({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_event_edit_rule name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_event_edit_rule ::Google::Analytics::Admin::V1alpha::DeleteEventEditRuleRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_event_edit_rule({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_event_edit_rule(::Google::Analytics::Admin::V1alpha::DeleteEventEditRuleRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_event_edit_rule_client_stub.call_count
+      end
+    end
+  end
+
+  def test_reorder_event_edit_rules
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    event_edit_rules = ["hello world"]
+
+    reorder_event_edit_rules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_reorder_event_edit_rules_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, reorder_event_edit_rules_client_stub do
+        # Create client
+        client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.reorder_event_edit_rules({ parent: parent, event_edit_rules: event_edit_rules }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.reorder_event_edit_rules parent: parent, event_edit_rules: event_edit_rules do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.reorder_event_edit_rules ::Google::Analytics::Admin::V1alpha::ReorderEventEditRulesRequest.new(parent: parent, event_edit_rules: event_edit_rules) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.reorder_event_edit_rules({ parent: parent, event_edit_rules: event_edit_rules }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.reorder_event_edit_rules(::Google::Analytics::Admin::V1alpha::ReorderEventEditRulesRequest.new(parent: parent, event_edit_rules: event_edit_rules), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, reorder_event_edit_rules_client_stub.call_count
+      end
+    end
+  end
+
   def test_update_data_redaction_settings
     # Create test objects.
     client_result = ::Google::Analytics::Admin::V1alpha::DataRedactionSettings.new
@@ -6560,7 +7335,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     data_redaction_settings = {}
     update_mask = {}
 
-    update_data_redaction_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_data_redaction_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6614,7 +7389,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_data_redaction_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_data_redaction_settings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6668,7 +7443,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_calculated_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_calculated_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6724,7 +7499,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     calculated_metric_id = "hello world"
     calculated_metric = {}
 
-    create_calculated_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_calculated_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6780,7 +7555,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_calculated_metrics_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_calculated_metrics_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6835,7 +7610,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     calculated_metric = {}
     update_mask = {}
 
-    update_calculated_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_calculated_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6889,7 +7664,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_calculated_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_calculated_metric_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6944,7 +7719,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     rollup_property = {}
     source_properties = ["hello world"]
 
-    create_rollup_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_rollup_property_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -6998,7 +7773,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_rollup_property_source_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_rollup_property_source_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -7054,7 +7829,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_rollup_property_source_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_rollup_property_source_links_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -7109,7 +7884,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     rollup_property_source_link = {}
 
-    create_rollup_property_source_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_rollup_property_source_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -7163,7 +7938,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_rollup_property_source_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_rollup_property_source_link_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -7207,58 +7982,57 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     end
   end
 
-  def test_create_subproperty
+  def test_provision_subproperty
     # Create test objects.
-    client_result = ::Google::Analytics::Admin::V1alpha::CreateSubpropertyResponse.new
+    client_result = ::Google::Analytics::Admin::V1alpha::ProvisionSubpropertyResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
 
     # Create request parameters for a unary method.
-    parent = "hello world"
     subproperty = {}
     subproperty_event_filter = {}
 
-    create_subproperty_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    provision_subproperty_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
     end
 
-    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_create_subproperty_request, ["", "", {}] do
-      Gapic::Rest::ClientStub.stub :new, create_subproperty_client_stub do
+    ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ServiceStub.stub :transcode_provision_subproperty_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, provision_subproperty_client_stub do
         # Create client
         client = ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::Client.new do |config|
           config.credentials = :dummy_value
         end
 
         # Use hash object
-        client.create_subproperty({ parent: parent, subproperty: subproperty, subproperty_event_filter: subproperty_event_filter }) do |_result, response|
+        client.provision_subproperty({ subproperty: subproperty, subproperty_event_filter: subproperty_event_filter }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.create_subproperty parent: parent, subproperty: subproperty, subproperty_event_filter: subproperty_event_filter do |_result, response|
+        client.provision_subproperty subproperty: subproperty, subproperty_event_filter: subproperty_event_filter do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.create_subproperty ::Google::Analytics::Admin::V1alpha::CreateSubpropertyRequest.new(parent: parent, subproperty: subproperty, subproperty_event_filter: subproperty_event_filter) do |_result, response|
+        client.provision_subproperty ::Google::Analytics::Admin::V1alpha::ProvisionSubpropertyRequest.new(subproperty: subproperty, subproperty_event_filter: subproperty_event_filter) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.create_subproperty({ parent: parent, subproperty: subproperty, subproperty_event_filter: subproperty_event_filter }, call_options) do |_result, response|
+        client.provision_subproperty({ subproperty: subproperty, subproperty_event_filter: subproperty_event_filter }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.create_subproperty(::Google::Analytics::Admin::V1alpha::CreateSubpropertyRequest.new(parent: parent, subproperty: subproperty, subproperty_event_filter: subproperty_event_filter), call_options) do |_result, response|
+        client.provision_subproperty(::Google::Analytics::Admin::V1alpha::ProvisionSubpropertyRequest.new(subproperty: subproperty, subproperty_event_filter: subproperty_event_filter), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Verify method calls
-        assert_equal 5, create_subproperty_client_stub.call_count
+        assert_equal 5, provision_subproperty_client_stub.call_count
       end
     end
   end
@@ -7274,7 +8048,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     parent = "hello world"
     subproperty_event_filter = {}
 
-    create_subproperty_event_filter_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_subproperty_event_filter_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -7328,7 +8102,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_subproperty_event_filter_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_subproperty_event_filter_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -7384,7 +8158,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     page_size = 42
     page_token = "hello world"
 
-    list_subproperty_event_filters_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_subproperty_event_filters_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -7439,7 +8213,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     subproperty_event_filter = {}
     update_mask = {}
 
-    update_subproperty_event_filter_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_subproperty_event_filter_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -7493,7 +8267,7 @@ class ::Google::Analytics::Admin::V1alpha::AnalyticsAdminService::Rest::ClientTe
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_subproperty_event_filter_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_subproperty_event_filter_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

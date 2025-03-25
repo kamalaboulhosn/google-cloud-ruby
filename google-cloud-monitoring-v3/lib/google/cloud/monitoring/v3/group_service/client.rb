@@ -195,8 +195,28 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @group_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @group_service_stub.logger
             end
 
             # Service calls
@@ -232,6 +252,8 @@ module Google
             #
             #     Returns groups whose `parent_name` field contains the group
             #     name.  If no groups have this parent, the results are empty.
+            #
+            #     Note: The following fields are mutually exclusive: `children_of_group`, `ancestors_of_group`, `descendants_of_group`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param ancestors_of_group [::String]
             #     A group name. The format is:
             #
@@ -241,6 +263,8 @@ module Google
             #     The groups are returned in order, starting with the immediate parent and
             #     ending with the most distant ancestor.  If the specified group has no
             #     immediate parent, the results are empty.
+            #
+            #     Note: The following fields are mutually exclusive: `ancestors_of_group`, `children_of_group`, `descendants_of_group`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param descendants_of_group [::String]
             #     A group name. The format is:
             #
@@ -249,6 +273,8 @@ module Google
             #     Returns the descendants of the specified group.  This is a superset of
             #     the results returned by the `children_of_group` filter, and includes
             #     children-of-children, and so forth.
+            #
+            #     Note: The following fields are mutually exclusive: `descendants_of_group`, `children_of_group`, `ancestors_of_group`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param page_size [::Integer]
             #     A positive number that is the maximum number of results to return.
             #   @param page_token [::String]
@@ -320,7 +346,7 @@ module Google
               @group_service_stub.call_rpc :list_groups, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @group_service_stub, :list_groups, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -408,7 +434,6 @@ module Google
 
               @group_service_stub.call_rpc :get_group, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -503,7 +528,6 @@ module Google
 
               @group_service_stub.call_rpc :create_group, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -594,7 +618,6 @@ module Google
 
               @group_service_stub.call_rpc :update_group, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -686,7 +709,6 @@ module Google
 
               @group_service_stub.call_rpc :delete_group, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -799,7 +821,7 @@ module Google
               @group_service_stub.call_rpc :list_group_members, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @group_service_stub, :list_group_members, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -849,6 +871,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -888,6 +917,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -912,6 +946,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

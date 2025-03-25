@@ -1,5 +1,64 @@
 # Changelog
 
+### 1.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28823](https://github.com/googleapis/google-cloud-ruby/issues/28823))
+
+#### Features
+
+* Bump version to 1.0.0 ([#28941](https://github.com/googleapis/google-cloud-ruby/issues/28941)) 
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28823](https://github.com/googleapis/google-cloud-ruby/issues/28823)) 
+
+### 0.12.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.11.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.10.0 (2024-10-25)
+
+#### Features
+
+* add more observability options on the Instance level 
+* add new API to execute SQL statements 
+* add new API to list the databases in a project and location 
+* add new API to perform a promotion or switchover on secondary instances 
+* add new PSC instance configuration setting and output the PSC DNS name ([#27460](https://github.com/googleapis/google-cloud-ruby/issues/27460)) 
+* add optional field to keep extra roles on a user if it already exists 
+* add support for Free Trials 
+* add support to schedule maintenance 
+* additional field to set tags on a backup or cluster 
+* support for obtaining the public ip addresses of an instance and enabling either inbound or outbound public ip 
+#### Documentation
+
+* various typo fixes, correcting the formatting, and clarifications on the request_id and validate_only fields in API requests and on the page_size when listing the database 
+
+### 0.9.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27002](https://github.com/googleapis/google-cloud-ruby/issues/27002)) 
+
+### 0.9.1 (2024-08-09)
+
+#### Documentation
+
+* Formatting updates ([#26623](https://github.com/googleapis/google-cloud-ruby/issues/26623)) 
+
 ### 0.9.0 (2024-02-26)
 
 #### Features

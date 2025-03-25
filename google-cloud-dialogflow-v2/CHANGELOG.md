@@ -1,5 +1,112 @@
 # Release History
 
+### 1.9.0 (2025-03-11)
+
+#### Features
+
+* Add new RPC IngestContextReferences, GenerateSuggestions ([#29300](https://github.com/googleapis/google-cloud-ruby/issues/29300)) 
+
+### 1.8.0 (2025-03-05)
+
+#### Features
+
+* Support for ControlPoint 
+* Support for conversation summarization agent assistant 
+* Support for country code in a conversation phone number 
+* Support for telephony connection information 
+* Support for the audio_input parameter to analyze_content 
+* The streaming_analyze_content RPC returns the name of the cloud speech model used for speech recognition 
+
+### 1.7.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.6.0 (2025-01-08)
+
+#### Features
+
+* Support for delivering intermediate transcriptions through PubSub ([#28112](https://github.com/googleapis/google-cloud-ruby/issues/28112)) 
+
+### 1.5.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.4.1 (2024-12-05)
+
+#### Documentation
+
+* various documentation and linking updates ([#27721](https://github.com/googleapis/google-cloud-ruby/issues/27721)) 
+
+### 1.4.0 (2024-11-14)
+
+#### Features
+
+* add options of query_source, search_config, end_user_metadata and exact_search ([#27597](https://github.com/googleapis/google-cloud-ruby/issues/27597)) 
+* expose metadata in AnswerSource 
+
+### 1.3.0 (2024-11-13)
+
+#### Features
+
+* add options of query_source, search_config and context_size 
+* added support for ALAW encoding 
+
+### 1.2.0 (2024-09-30)
+
+#### Features
+
+* Support for PCMU/a-law 
+* Support for Zone Isolation and Zone Separation compliance status 
+
+### 1.1.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.1.0 (2024-08-05)
+
+#### Features
+
+* Add GenerateStatelessSuggestion related endpoints and types 
+* Add Generator related services and types 
+* Add Proactive Generative Knowledge Assist endpoints and types ([#26573](https://github.com/googleapis/google-cloud-ruby/issues/26573)) 
+#### Bug Fixes
+
+* Changed field behavior for an existing field `parent` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` 
+* Changed field behavior for an existing field `session_id` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` 
+#### Documentation
+
+* A comment for field `assist_query_params` in message `.google.cloud.dialogflow.v2.SuggestConversationSummaryRequest` is changed 
+* A comment for field `audio` in message `.google.cloud.dialogflow.v2.AudioInput` is changed 
+* A comment for field `context_size` in message `.google.cloud.dialogflow.v2.SuggestConversationSummaryRequest` is changed 
+* A comment for field `conversation_stage` in message `.google.cloud.dialogflow.v2.Conversation` is changed 
+* A comment for field `conversation` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` is changed 
+* A comment for field `filter` in message `.google.cloud.dialogflow.v2.ListConversationsRequest` is changed 
+* A comment for field `latest_message` in message `.google.cloud.dialogflow.v2.GenerateStatelessSummaryRequest` is changed 
+* A comment for field `latest_message` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` is changed 
+* A comment for field `latest_message` in message `.google.cloud.dialogflow.v2.SuggestConversationSummaryRequest` is changed 
+* A comment for field `live_person_config` in message `.google.cloud.dialogflow.v2.HumanAgentHandoffConfig` is changed 
+* A comment for field `max_context_size` in message `.google.cloud.dialogflow.v2.GenerateStatelessSummaryRequest` is changed 
+* A comment for field `name` in message `.google.cloud.dialogflow.v2.Conversation` is changed 
+* A comment for field `parent` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` is changed 
+* A comment for field `session_id` in message `.google.cloud.dialogflow.v2.SearchKnowledgeRequest` is changed 
+* A comment for message `HumanAgentHandoffConfig` is changed 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.34.0 (2024-03-14)
 
 #### Features

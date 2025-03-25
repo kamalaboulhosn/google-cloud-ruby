@@ -1,5 +1,64 @@
 # Release History
 
+### 0.45.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Fixed an incorrect link ([#28757](https://github.com/googleapis/google-cloud-ruby/issues/28757)) 
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.44.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.43.0 (2024-08-30)
+
+#### Features
+
+* add `EXTENDED` enum value for `ReleaseChannel.Channel` ([#27024](https://github.com/googleapis/google-cloud-ruby/issues/27024)) 
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 0.42.1 (2024-08-09)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26626](https://github.com/googleapis/google-cloud-ruby/issues/26626)) 
+
+### 0.42.0 (2024-08-05)
+
+#### Features
+
+* Support for Ray Clusters ([#26481](https://github.com/googleapis/google-cloud-ruby/issues/26481)) 
+#### Documentation
+
+* Mark a number of fields as read-only (i.e. only for output) ([#26524](https://github.com/googleapis/google-cloud-ruby/issues/26524)) 
+
+### 0.41.0 (2024-07-10)
+
+#### Features
+
+* add DCGM enum in monitoring config ([#26378](https://github.com/googleapis/google-cloud-ruby/issues/26378)) 
+
+### 0.40.1 (2024-07-08)
+
+#### Documentation
+
+* Deprecated the CHANNEL_EXPERIMENTAL option for the Gateway API ([#26259](https://github.com/googleapis/google-cloud-ruby/issues/26259)) 
+
+### 0.40.0 (2024-05-29)
+
+#### Features
+
+* Various changes to cluster service ([#25969](https://github.com/googleapis/google-cloud-ruby/issues/25969)) 
+
 ### 0.39.0 (2024-04-15)
 
 #### Features

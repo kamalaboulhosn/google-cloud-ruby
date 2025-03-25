@@ -52,7 +52,7 @@ module Google
           #     method.
           #     {::Google::Cloud::Dialogflow::CX::V3::Agents::Client#create_agent Agents.CreateAgent}
           #     populates the name automatically.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] display_name
           #   @return [::String]
           #     Required. The human-readable name of the agent, unique within the location.
@@ -91,15 +91,14 @@ module Google
           #   @return [::String]
           #     Immutable. Name of the start flow in this agent. A start flow will be
           #     automatically created when the agent is created, and can only be deleted by
-          #     deleting the agent. Format: `projects/<Project ID>/locations/<Location
-          #     ID>/agents/<Agent ID>/flows/<Flow ID>`. Currently only the default start
-          #     flow with id "00000000-0000-0000-0000-000000000000" is allowed.
+          #     deleting the agent. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
           # @!attribute [rw] security_settings
           #   @return [::String]
           #     Name of the
           #     {::Google::Cloud::Dialogflow::CX::V3::SecuritySettings SecuritySettings}
-          #     reference for the agent. Format: `projects/<Project ID>/locations/<Location
-          #     ID>/securitySettings/<Security Settings ID>`.
+          #     reference for the agent. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/securitySettings/<SecuritySettingsID>`.
           # @!attribute [rw] enable_stackdriver_logging
           #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::Boolean]
@@ -111,6 +110,10 @@ module Google
           #   @return [::Boolean]
           #     Indicates if automatic spell correction is enabled in detect intent
           #     requests.
+          # @!attribute [rw] enable_multi_language_training
+          #   @return [::Boolean]
+          #     Optional. Enable training multi-lingual models for this agent. These models
+          #     will be trained on all the languages supported by the agent.
           # @!attribute [rw] locked
           #   @return [::Boolean]
           #     Indicates whether the agent is locked for changes. If the agent is locked,
@@ -132,6 +135,20 @@ module Google
           # @!attribute [rw] answer_feedback_settings
           #   @return [::Google::Cloud::Dialogflow::CX::V3::Agent::AnswerFeedbackSettings]
           #     Optional. Answer feedback collection settings.
+          # @!attribute [rw] personalization_settings
+          #   @return [::Google::Cloud::Dialogflow::CX::V3::Agent::PersonalizationSettings]
+          #     Optional. Settings for end user personalization.
+          # @!attribute [rw] client_certificate_settings
+          #   @return [::Google::Cloud::Dialogflow::CX::V3::Agent::ClientCertificateSettings]
+          #     Optional. Settings for custom client certificates.
+          # @!attribute [r] satisfies_pzs
+          #   @return [::Boolean]
+          #     Optional. Output only. A read only boolean field reflecting Zone Separation
+          #     status of the agent.
+          # @!attribute [r] satisfies_pzi
+          #   @return [::Boolean]
+          #     Optional. Output only. A read only boolean field reflecting Zone Isolation
+          #     status of the agent.
           class Agent
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -189,6 +206,43 @@ module Google
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end
+
+            # Settings for end user personalization.
+            # @!attribute [rw] default_end_user_metadata
+            #   @return [::Google::Protobuf::Struct]
+            #     Optional. Default end user metadata, used when processing DetectIntent
+            #     requests. Recommended to be filled as a template instead of hard-coded
+            #     value, for example { "age": "$session.params.age" }. The data will be
+            #     merged with the
+            #     {::Google::Cloud::Dialogflow::CX::V3::QueryParameters#end_user_metadata QueryParameters.end_user_metadata}
+            #     in
+            #     {::Google::Cloud::Dialogflow::CX::V3::DetectIntentRequest#query_params DetectIntentRequest.query_params}
+            #     during query processing.
+            class PersonalizationSettings
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Settings for custom client certificates.
+            # @!attribute [rw] ssl_certificate
+            #   @return [::String]
+            #     Required. The ssl certificate encoded in PEM format. This string must
+            #     include the begin header and end footer lines.
+            # @!attribute [rw] private_key
+            #   @return [::String]
+            #     Required. The name of the SecretManager secret version resource storing
+            #     the private key encoded in PEM format. Format:
+            #     `projects/{project}/secrets/{secret}/versions/{version}`
+            # @!attribute [rw] passphrase
+            #   @return [::String]
+            #     Optional. The name of the SecretManager secret version resource storing
+            #     the passphrase. 'passphrase' should be left unset if the private key is
+            #     not encrypted.
+            #     Format: `projects/{project}/secrets/{secret}/versions/{version}`
+            class ClientCertificateSettings
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
           end
 
           # The request message for
@@ -196,7 +250,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The location to list all agents for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>`.
           # @!attribute [rw] page_size
           #   @return [::Integer]
           #     The maximum number of items to return in a single page. By default 100 and
@@ -229,7 +283,7 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the agent.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           class GetAgentRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -240,7 +294,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The location to create a agent for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>`.
           # @!attribute [rw] agent
           #   @return [::Google::Cloud::Dialogflow::CX::V3::Agent]
           #     Required. The agent to create.
@@ -268,7 +322,7 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the agent to delete.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           class DeleteAgentRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -279,7 +333,7 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the agent to export.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] agent_uri
           #   @return [::String]
           #     Optional. The [Google Cloud
@@ -299,8 +353,8 @@ module Google
           # @!attribute [rw] environment
           #   @return [::String]
           #     Optional. Environment name. If not set, draft environment is assumed.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>`.
           # @!attribute [rw] git_destination
           #   @return [::Google::Cloud::Dialogflow::CX::V3::ExportAgentRequest::GitDestination]
           #     Optional. The Git branch to export the agent to.
@@ -343,16 +397,22 @@ module Google
           #     The URI to a file containing the exported agent. This field is populated
           #     if `agent_uri` is specified in
           #     {::Google::Cloud::Dialogflow::CX::V3::ExportAgentRequest ExportAgentRequest}.
+          #
+          #     Note: The following fields are mutually exclusive: `agent_uri`, `agent_content`, `commit_sha`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] agent_content
           #   @return [::String]
           #     Uncompressed raw byte content for agent. This field is populated
           #     if none of `agent_uri` and `git_destination` are specified in
           #     {::Google::Cloud::Dialogflow::CX::V3::ExportAgentRequest ExportAgentRequest}.
+          #
+          #     Note: The following fields are mutually exclusive: `agent_content`, `agent_uri`, `commit_sha`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] commit_sha
           #   @return [::String]
           #     Commit SHA of the git push. This field is populated if
           #     `git_destination` is specified in
           #     {::Google::Cloud::Dialogflow::CX::V3::ExportAgentRequest ExportAgentRequest}.
+          #
+          #     Note: The following fields are mutually exclusive: `commit_sha`, `agent_uri`, `agent_content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class ExportAgentResponse
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -363,7 +423,7 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the agent to restore into.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] agent_uri
           #   @return [::String]
           #     The [Google Cloud Storage](https://cloud.google.com/storage/docs/) URI
@@ -375,12 +435,18 @@ module Google
           #     have read permissions for the object. For more information, see
           #     [Dialogflow access
           #     control](https://cloud.google.com/dialogflow/cx/docs/concept/access-control#storage).
+          #
+          #     Note: The following fields are mutually exclusive: `agent_uri`, `agent_content`, `git_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] agent_content
           #   @return [::String]
           #     Uncompressed raw byte content for agent.
+          #
+          #     Note: The following fields are mutually exclusive: `agent_content`, `agent_uri`, `git_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] git_source
           #   @return [::Google::Cloud::Dialogflow::CX::V3::RestoreAgentRequest::GitSource]
           #     Setting for restoring from a git branch
+          #
+          #     Note: The following fields are mutually exclusive: `git_source`, `agent_uri`, `agent_content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] restore_option
           #   @return [::Google::Cloud::Dialogflow::CX::V3::RestoreAgentRequest::RestoreOption]
           #     Agent restore mode. If not specified, `KEEP` is assumed.
@@ -418,7 +484,7 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The agent to validate.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] language_code
           #   @return [::String]
           #     If not specified, the agent's default language is used.
@@ -432,8 +498,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The agent name.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/validationResult`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/validationResult`.
           # @!attribute [rw] language_code
           #   @return [::String]
           #     If not specified, the agent's default language is used.
@@ -447,8 +513,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     The unique identifier of the agent validation result.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/validationResult`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/validationResult`.
           # @!attribute [rw] flow_validation_results
           #   @return [::Array<::Google::Cloud::Dialogflow::CX::V3::FlowValidationResult>]
           #     Contains all flow validation results.
@@ -462,8 +528,8 @@ module Google
           # RPC.
           # @!attribute [rw] name
           #   @return [::String]
-          #     Required. Format: `projects/<Project ID>/locations/<Location
-          #     ID>/agents/<Agent ID>/generativeSettings`.
+          #     Required. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/generativeSettings`.
           # @!attribute [rw] language_code
           #   @return [::String]
           #     Required. Language code of the generative settings.

@@ -105,8 +105,9 @@ module Google
         #   @return [::String]
         #     Required. The ID to use for the backup policy.
         #     The ID must be unique within the specified location.
-        #     This value must start with a lowercase letter followed by up to 62
-        #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
+        #     Must contain only letters, numbers and hyphen, with the first
+        #     character a letter, the last a letter or a
+        #     number, and a 63 character maximum.
         class CreateBackupPolicyRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

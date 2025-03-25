@@ -175,9 +175,13 @@ module Google
         # @!attribute [rw] universal_two_factor
         #   @return [::Google::Cloud::OsLogin::V1beta::UniversalTwoFactor]
         #     The U2F protocol type.
+        #
+        #     Note: The following fields are mutually exclusive: `universal_two_factor`, `web_authn`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] web_authn
         #   @return [::Google::Cloud::OsLogin::V1beta::WebAuthn]
         #     The Web Authentication protocol type.
+        #
+        #     Note: The following fields are mutually exclusive: `web_authn`, `universal_two_factor`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] device_nickname
         #   @return [::String]
         #     The security key nickname explicitly set by the user.
@@ -209,10 +213,7 @@ module Google
         #     The SSH public key to sign.
         # @!attribute [rw] parent
         #   @return [::String]
-        #     The parent project and zone for the signing request. This is needed to
-        #     properly ensure per-organization ISS processing and potentially to provide
-        #     for the possibility of zone-specific certificates used in the signing
-        #     process.
+        #     The parent project and region for the signing request.
         class SignSshPublicKeyRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

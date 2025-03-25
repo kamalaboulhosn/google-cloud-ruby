@@ -31,9 +31,18 @@ class Google::Cloud::Orchestration::Airflow::Service::ClientConstructionMinitest
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_environments_grpc
+    skip unless Google::Cloud::Orchestration::Airflow::Service.environments_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Orchestration::Airflow::Service.environments transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Cloud::Orchestration::Airflow::Service::ClientConstructionMinitest
   end
 
   def test_environments_rest
+    skip unless Google::Cloud::Orchestration::Airflow::Service.environments_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Orchestration::Airflow::Service.environments transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -53,6 +63,7 @@ class Google::Cloud::Orchestration::Airflow::Service::ClientConstructionMinitest
   end
 
   def test_image_versions_grpc
+    skip unless Google::Cloud::Orchestration::Airflow::Service.image_versions_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Orchestration::Airflow::Service.image_versions transport: :grpc do |config|
@@ -63,6 +74,7 @@ class Google::Cloud::Orchestration::Airflow::Service::ClientConstructionMinitest
   end
 
   def test_image_versions_rest
+    skip unless Google::Cloud::Orchestration::Airflow::Service.image_versions_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Orchestration::Airflow::Service.image_versions transport: :rest do |config|
         config.credentials = :dummy_credentials

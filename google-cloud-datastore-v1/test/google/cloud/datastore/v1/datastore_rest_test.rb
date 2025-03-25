@@ -33,24 +33,24 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_lookup
@@ -82,8 +90,9 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     database_id = "hello world"
     read_options = {}
     keys = [{}]
+    property_mask = {}
 
-    lookup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    lookup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -97,27 +106,27 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
         end
 
         # Use hash object
-        client.lookup({ project_id: project_id, database_id: database_id, read_options: read_options, keys: keys }) do |_result, response|
+        client.lookup({ project_id: project_id, database_id: database_id, read_options: read_options, keys: keys, property_mask: property_mask }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.lookup project_id: project_id, database_id: database_id, read_options: read_options, keys: keys do |_result, response|
+        client.lookup project_id: project_id, database_id: database_id, read_options: read_options, keys: keys, property_mask: property_mask do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.lookup ::Google::Cloud::Datastore::V1::LookupRequest.new(project_id: project_id, database_id: database_id, read_options: read_options, keys: keys) do |_result, response|
+        client.lookup ::Google::Cloud::Datastore::V1::LookupRequest.new(project_id: project_id, database_id: database_id, read_options: read_options, keys: keys, property_mask: property_mask) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.lookup({ project_id: project_id, database_id: database_id, read_options: read_options, keys: keys }, call_options) do |_result, response|
+        client.lookup({ project_id: project_id, database_id: database_id, read_options: read_options, keys: keys, property_mask: property_mask }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.lookup(::Google::Cloud::Datastore::V1::LookupRequest.new(project_id: project_id, database_id: database_id, read_options: read_options, keys: keys), call_options) do |_result, response|
+        client.lookup(::Google::Cloud::Datastore::V1::LookupRequest.new(project_id: project_id, database_id: database_id, read_options: read_options, keys: keys, property_mask: property_mask), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -140,9 +149,10 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     partition_id = {}
     read_options = {}
     query = {}
+    property_mask = {}
     explain_options = {}
 
-    run_query_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    run_query_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -156,27 +166,27 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
         end
 
         # Use hash object
-        client.run_query({ project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, explain_options: explain_options }) do |_result, response|
+        client.run_query({ project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, property_mask: property_mask, explain_options: explain_options }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.run_query project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, explain_options: explain_options do |_result, response|
+        client.run_query project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, property_mask: property_mask, explain_options: explain_options do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.run_query ::Google::Cloud::Datastore::V1::RunQueryRequest.new(project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, explain_options: explain_options) do |_result, response|
+        client.run_query ::Google::Cloud::Datastore::V1::RunQueryRequest.new(project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, property_mask: property_mask, explain_options: explain_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.run_query({ project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, explain_options: explain_options }, call_options) do |_result, response|
+        client.run_query({ project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, property_mask: property_mask, explain_options: explain_options }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.run_query(::Google::Cloud::Datastore::V1::RunQueryRequest.new(project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, explain_options: explain_options), call_options) do |_result, response|
+        client.run_query(::Google::Cloud::Datastore::V1::RunQueryRequest.new(project_id: project_id, database_id: database_id, partition_id: partition_id, read_options: read_options, query: query, property_mask: property_mask, explain_options: explain_options), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -201,7 +211,7 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     aggregation_query = {}
     explain_options = {}
 
-    run_aggregation_query_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    run_aggregation_query_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -257,7 +267,7 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     database_id = "hello world"
     transaction_options = {}
 
-    begin_transaction_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    begin_transaction_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -315,7 +325,7 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     transaction = "hello world"
     mutations = [{}]
 
-    commit_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    commit_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -371,7 +381,7 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     database_id = "hello world"
     transaction = "hello world"
 
-    rollback_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    rollback_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -427,7 +437,7 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     database_id = "hello world"
     keys = [{}]
 
-    allocate_ids_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    allocate_ids_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -483,7 +493,7 @@ class ::Google::Cloud::Datastore::V1::Datastore::Rest::ClientTest < Minitest::Te
     database_id = "hello world"
     keys = [{}]
 
-    reserve_ids_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    reserve_ids_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

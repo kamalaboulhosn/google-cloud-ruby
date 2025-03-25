@@ -157,8 +157,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @conversations_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -166,6 +177,7 @@ module Google
                   config.endpoint = @conversations_stub.endpoint
                   config.universe_domain = @conversations_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @conversations_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -175,6 +187,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @conversations_stub.logger
+              end
 
               # Service calls
 
@@ -226,9 +247,9 @@ module Google
               #     Google. Only set it if you cannot wait for the response to return a
               #     auto-generated one to you.
               #
-              #     The conversation ID must be compliant with the regression fomula
+              #     The conversation ID must be compliant with the regression formula
               #     `[a-zA-Z][a-zA-Z0-9_-]*` with the characters length in range of [3,64].
-              #     If the field is provided, the caller is resposible for
+              #     If the field is provided, the caller is responsible for
               #     1. the uniqueness of the ID, otherwise the request will be rejected.
               #     2. the consistency for whether to use custom ID or not under a project to
               #     better ensure uniqueness.
@@ -285,7 +306,6 @@ module Google
 
                 @conversations_stub.create_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -318,18 +338,9 @@ module Google
               #   @param page_token [::String]
               #     Optional. The next_page_token value returned from a previous list request.
               #   @param filter [::String]
-              #     A filter expression that filters conversations listed in the response. In
-              #     general, the expression must specify the field name, a comparison operator,
-              #     and the value to use for filtering:
-              #     <ul>
-              #       <li>The value must be a string, a number, or a boolean.</li>
-              #       <li>The comparison operator must be either `=`,`!=`, `>`, or `<`.</li>
-              #       <li>To filter on multiple expressions, separate the
-              #           expressions with `AND` or `OR` (omitting both implies `AND`).</li>
-              #       <li>For clarity, expressions can be enclosed in parentheses.</li>
-              #     </ul>
-              #     Only `lifecycle_state` can be filtered on in this way. For example,
-              #     the following expression only returns `COMPLETED` conversations:
+              #     Optional. A filter expression that filters conversations listed in the
+              #     response. Only `lifecycle_state` can be filtered on in this way. For
+              #     example, the following expression only returns `COMPLETED` conversations:
               #
               #     `lifecycle_state = "COMPLETED"`
               #
@@ -393,7 +404,7 @@ module Google
                 @conversations_stub.list_conversations request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @conversations_stub, :list_conversations, "conversations", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -474,7 +485,6 @@ module Google
 
                 @conversations_stub.get_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -556,7 +566,92 @@ module Google
 
                 @conversations_stub.complete_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Data ingestion API.
+              # Ingests context references for an existing conversation.
+              #
+              # @overload ingest_context_references(request, options = nil)
+              #   Pass arguments to `ingest_context_references` via a request object, either of type
+              #   {::Google::Cloud::Dialogflow::V2::IngestContextReferencesRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dialogflow::V2::IngestContextReferencesRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload ingest_context_references(conversation: nil, context_references: nil)
+              #   Pass arguments to `ingest_context_references` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param conversation [::String]
+              #     Required. Resource identifier of the conversation to ingest context
+              #     information for. Format: `projects/<Project ID>/locations/<Location
+              #     ID>/conversations/<Conversation ID>`.
+              #   @param context_references [::Hash{::String => ::Google::Cloud::Dialogflow::V2::Conversation::ContextReference, ::Hash}]
+              #     Required. The context references to ingest. The key is the name of the
+              #     context reference and the value contains the contents of the context
+              #     reference. The key is used to incorporate ingested context references to
+              #     enhance the generator.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dialogflow::V2::IngestContextReferencesResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dialogflow::V2::IngestContextReferencesResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dialogflow/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dialogflow::V2::Conversations::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dialogflow::V2::IngestContextReferencesRequest.new
+              #
+              #   # Call the ingest_context_references method.
+              #   result = client.ingest_context_references request
+              #
+              #   # The returned object is of type Google::Cloud::Dialogflow::V2::IngestContextReferencesResponse.
+              #   p result
+              #
+              def ingest_context_references request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dialogflow::V2::IngestContextReferencesRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.ingest_context_references.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dialogflow::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.ingest_context_references.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.ingest_context_references.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversations_stub.ingest_context_references request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -660,7 +755,7 @@ module Google
                 @conversations_stub.list_messages request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @conversations_stub, :list_messages, "messages", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -691,18 +786,19 @@ module Google
               #     Format: `projects/<Project ID>/locations/<Location
               #     ID>/conversations/<Conversation ID>`.
               #   @param latest_message [::String]
-              #     The name of the latest conversation message used as context for
+              #     Optional. The name of the latest conversation message used as context for
               #     compiling suggestion. If empty, the latest message of the conversation will
               #     be used.
               #
               #     Format: `projects/<Project ID>/locations/<Location
               #     ID>/conversations/<Conversation ID>/messages/<Message ID>`.
               #   @param context_size [::Integer]
-              #     Max number of messages prior to and including
+              #     Optional. Max number of messages prior to and including
               #     [latest_message] to use as context when compiling the
               #     suggestion. By default 500 and at most 1000.
               #   @param assist_query_params [::Google::Cloud::Dialogflow::V2::AssistQueryParameters, ::Hash]
-              #     Parameters for a human assist query. Only used for POC/demo purpose.
+              #     Optional. Parameters for a human assist query. Only used for POC/demo
+              #     purpose.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Dialogflow::V2::SuggestConversationSummaryResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -756,7 +852,6 @@ module Google
 
                 @conversations_stub.suggest_conversation_summary request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -789,12 +884,12 @@ module Google
               #     Required fields: \\{language_code, security_settings}
               #     Optional fields: \\{agent_assistant_config}
               #   @param latest_message [::String]
-              #     The name of the latest conversation message used as context for
+              #     Optional. The name of the latest conversation message used as context for
               #     generating a Summary. If empty, the latest message of the conversation will
               #     be used. The format is specific to the user and the names of the messages
               #     provided.
               #   @param max_context_size [::Integer]
-              #     Max number of messages prior to and including
+              #     Optional. Max number of messages prior to and including
               #     [latest_message] to use as context when compiling the
               #     suggestion. By default 500 and at most 1000.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -850,7 +945,106 @@ module Google
 
                 @conversations_stub.generate_stateless_summary request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Generates and returns a suggestion for a conversation that does not have a
+              # resource created for it.
+              #
+              # @overload generate_stateless_suggestion(request, options = nil)
+              #   Pass arguments to `generate_stateless_suggestion` via a request object, either of type
+              #   {::Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload generate_stateless_suggestion(parent: nil, generator: nil, generator_name: nil, context_references: nil, conversation_context: nil, trigger_events: nil)
+              #   Pass arguments to `generate_stateless_suggestion` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The parent resource to charge for the Suggestion's generation.
+              #     Format: `projects/<Project ID>/locations/<Location ID>`.
+              #   @param generator [::Google::Cloud::Dialogflow::V2::Generator, ::Hash]
+              #     Uncreated generator. It should be a complete generator that includes all
+              #     information about the generator.
+              #
+              #     Note: The following fields are mutually exclusive: `generator`, `generator_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param generator_name [::String]
+              #     The resource name of the existing created generator. Format:
+              #     `projects/<Project ID>/locations/<Location ID>/generators/<Generator ID>`
+              #
+              #     Note: The following fields are mutually exclusive: `generator_name`, `generator`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param context_references [::Hash{::String => ::Google::Cloud::Dialogflow::V2::Conversation::ContextReference, ::Hash}]
+              #     Optional. A section of ingested context information. The key is the name of
+              #     the context reference and the value contains the contents of the context
+              #     reference. The key is used to incorporate ingested context references to
+              #     enhance the generator.
+              #   @param conversation_context [::Google::Cloud::Dialogflow::V2::ConversationContext, ::Hash]
+              #     Optional. Context of the conversation, including transcripts.
+              #   @param trigger_events [::Array<::Google::Cloud::Dialogflow::V2::TriggerEvent>]
+              #     Optional. A list of trigger events. Generator will be triggered only if
+              #     it's trigger event is included here.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dialogflow/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dialogflow::V2::Conversations::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionRequest.new
+              #
+              #   # Call the generate_stateless_suggestion method.
+              #   result = client.generate_stateless_suggestion request
+              #
+              #   # The returned object is of type Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionResponse.
+              #   p result
+              #
+              def generate_stateless_suggestion request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.generate_stateless_suggestion.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dialogflow::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.generate_stateless_suggestion.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.generate_stateless_suggestion.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversations_stub.generate_stateless_suggestion request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -869,13 +1063,13 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload search_knowledge(parent: nil, query: nil, conversation_profile: nil, session_id: nil, conversation: nil, latest_message: nil)
+              # @overload search_knowledge(parent: nil, query: nil, conversation_profile: nil, session_id: nil, conversation: nil, latest_message: nil, query_source: nil, end_user_metadata: nil, search_config: nil, exact_search: nil)
               #   Pass arguments to `search_knowledge` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param parent [::String]
-              #     The parent resource contains the conversation profile
+              #     Required. The parent resource contains the conversation profile
               #     Format: 'projects/<Project ID>' or `projects/<Project
               #     ID>/locations/<Location ID>`.
               #   @param query [::Google::Cloud::Dialogflow::V2::TextInput, ::Hash]
@@ -885,7 +1079,7 @@ module Google
               #     Format: `projects/<Project ID>/locations/<Location
               #     ID>/conversationProfiles/<Conversation Profile ID>`.
               #   @param session_id [::String]
-              #     The ID of the search session.
+              #     Required. The ID of the search session.
               #     The session_id can be combined with Dialogflow V3 Agent ID retrieved from
               #     conversation profile or on its own to identify a search session. The search
               #     history of the same session will impact the search result. It's up to the
@@ -893,14 +1087,38 @@ module Google
               #     or some type of session identifiers (preferably hashed). The length must
               #     not exceed 36 characters.
               #   @param conversation [::String]
-              #     The conversation (between human agent and end user) where the search
-              #     request is triggered. Format: `projects/<Project ID>/locations/<Location
-              #     ID>/conversations/<Conversation ID>`.
+              #     Optional. The conversation (between human agent and end user) where the
+              #     search request is triggered. Format: `projects/<Project
+              #     ID>/locations/<Location ID>/conversations/<Conversation ID>`.
               #   @param latest_message [::String]
-              #     The name of the latest conversation message when the request is
+              #     Optional. The name of the latest conversation message when the request is
               #     triggered.
               #     Format: `projects/<Project ID>/locations/<Location
               #     ID>/conversations/<Conversation ID>/messages/<Message ID>`.
+              #   @param query_source [::Google::Cloud::Dialogflow::V2::SearchKnowledgeRequest::QuerySource]
+              #     Optional. The source of the query in the request.
+              #   @param end_user_metadata [::Google::Protobuf::Struct, ::Hash]
+              #     Optional. Information about the end-user to improve the relevance and
+              #     accuracy of generative answers.
+              #
+              #     This will be interpreted and used by a language model, so, for good
+              #     results, the data should be self-descriptive, and in a simple structure.
+              #
+              #     Example:
+              #
+              #     ```json
+              #     {
+              #       "subscription plan": "Business Premium Plus",
+              #       "devices owned": [
+              #         \\{"model": "Google Pixel 7"},
+              #         \\{"model": "Google Pixel Tablet"}
+              #       ]
+              #     }
+              #     ```
+              #   @param search_config [::Google::Cloud::Dialogflow::V2::SearchKnowledgeRequest::SearchConfig, ::Hash]
+              #     Optional. Configuration specific to search queries with data stores.
+              #   @param exact_search [::Boolean]
+              #     Optional. Whether to search the query exactly without query rewrite.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Dialogflow::V2::SearchKnowledgeResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -954,7 +1172,98 @@ module Google
 
                 @conversations_stub.search_knowledge request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Generates all the suggestions using generators configured in the
+              # conversation profile. A generator is used only if its trigger event is
+              # matched.
+              #
+              # @overload generate_suggestions(request, options = nil)
+              #   Pass arguments to `generate_suggestions` via a request object, either of type
+              #   {::Google::Cloud::Dialogflow::V2::GenerateSuggestionsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dialogflow::V2::GenerateSuggestionsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload generate_suggestions(conversation: nil, latest_message: nil, trigger_events: nil)
+              #   Pass arguments to `generate_suggestions` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param conversation [::String]
+              #     Required. The conversation for which the suggestions are generated. Format:
+              #     `projects/<Project ID>/locations/<Location
+              #     ID>/conversations/<Conversation ID>`.
+              #
+              #     The conversation must be created with a conversation profile which has
+              #     generators configured in it to be able to get suggestions.
+              #   @param latest_message [::String]
+              #     Optional. The name of the latest conversation message for which the request
+              #     is triggered. Format: `projects/<Project ID>/locations/<Location
+              #     ID>/conversations/<Conversation ID>/messages/<Message ID>`.
+              #   @param trigger_events [::Array<::Google::Cloud::Dialogflow::V2::TriggerEvent>]
+              #     Optional. A list of trigger events. Only generators configured in the
+              #     conversation_profile whose trigger_event is listed here will be triggered.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dialogflow::V2::GenerateSuggestionsResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dialogflow::V2::GenerateSuggestionsResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dialogflow/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dialogflow::V2::Conversations::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dialogflow::V2::GenerateSuggestionsRequest.new
+              #
+              #   # Call the generate_suggestions method.
+              #   result = client.generate_suggestions request
+              #
+              #   # The returned object is of type Google::Cloud::Dialogflow::V2::GenerateSuggestionsResponse.
+              #   p result
+              #
+              def generate_suggestions request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dialogflow::V2::GenerateSuggestionsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.generate_suggestions.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dialogflow::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.generate_suggestions.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.generate_suggestions.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversations_stub.generate_suggestions request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1002,6 +1311,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1034,6 +1350,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1062,6 +1383,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -1121,6 +1443,11 @@ module Google
                   #
                   attr_reader :complete_conversation
                   ##
+                  # RPC-specific configuration for `ingest_context_references`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :ingest_context_references
+                  ##
                   # RPC-specific configuration for `list_messages`
                   # @return [::Gapic::Config::Method]
                   #
@@ -1136,10 +1463,20 @@ module Google
                   #
                   attr_reader :generate_stateless_summary
                   ##
+                  # RPC-specific configuration for `generate_stateless_suggestion`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :generate_stateless_suggestion
+                  ##
                   # RPC-specific configuration for `search_knowledge`
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :search_knowledge
+                  ##
+                  # RPC-specific configuration for `generate_suggestions`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :generate_suggestions
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -1151,14 +1488,20 @@ module Google
                     @get_conversation = ::Gapic::Config::Method.new get_conversation_config
                     complete_conversation_config = parent_rpcs.complete_conversation if parent_rpcs.respond_to? :complete_conversation
                     @complete_conversation = ::Gapic::Config::Method.new complete_conversation_config
+                    ingest_context_references_config = parent_rpcs.ingest_context_references if parent_rpcs.respond_to? :ingest_context_references
+                    @ingest_context_references = ::Gapic::Config::Method.new ingest_context_references_config
                     list_messages_config = parent_rpcs.list_messages if parent_rpcs.respond_to? :list_messages
                     @list_messages = ::Gapic::Config::Method.new list_messages_config
                     suggest_conversation_summary_config = parent_rpcs.suggest_conversation_summary if parent_rpcs.respond_to? :suggest_conversation_summary
                     @suggest_conversation_summary = ::Gapic::Config::Method.new suggest_conversation_summary_config
                     generate_stateless_summary_config = parent_rpcs.generate_stateless_summary if parent_rpcs.respond_to? :generate_stateless_summary
                     @generate_stateless_summary = ::Gapic::Config::Method.new generate_stateless_summary_config
+                    generate_stateless_suggestion_config = parent_rpcs.generate_stateless_suggestion if parent_rpcs.respond_to? :generate_stateless_suggestion
+                    @generate_stateless_suggestion = ::Gapic::Config::Method.new generate_stateless_suggestion_config
                     search_knowledge_config = parent_rpcs.search_knowledge if parent_rpcs.respond_to? :search_knowledge
                     @search_knowledge = ::Gapic::Config::Method.new search_knowledge_config
+                    generate_suggestions_config = parent_rpcs.generate_suggestions if parent_rpcs.respond_to? :generate_suggestions
+                    @generate_suggestions = ::Gapic::Config::Method.new generate_suggestions_config
 
                     yield self if block_given?
                   end

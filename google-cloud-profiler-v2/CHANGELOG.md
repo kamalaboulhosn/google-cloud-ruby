@@ -1,5 +1,38 @@
 # Release History
 
+### 1.2.0 (2025-01-29)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Include note about validating externally-provided credentials 
+
+### 1.1.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27011](https://github.com/googleapis/google-cloud-ruby/issues/27011)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.10.1 (2024-05-31)
+
+#### Documentation
+
+* Update URL for profiler docs ([#26011](https://github.com/googleapis/google-cloud-ruby/issues/26011)) 
+
 ### 0.10.0 (2024-02-26)
 
 #### Features

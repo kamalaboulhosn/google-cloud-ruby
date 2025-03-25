@@ -123,13 +123,19 @@ module Google
         # @!attribute [rw] lower_case
         #   @return [::Google::Analytics::Data::V1beta::DimensionExpression::CaseExpression]
         #     Used to convert a dimension value to lower case.
+        #
+        #     Note: The following fields are mutually exclusive: `lower_case`, `upper_case`, `concatenate`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] upper_case
         #   @return [::Google::Analytics::Data::V1beta::DimensionExpression::CaseExpression]
         #     Used to convert a dimension value to upper case.
+        #
+        #     Note: The following fields are mutually exclusive: `upper_case`, `lower_case`, `concatenate`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] concatenate
         #   @return [::Google::Analytics::Data::V1beta::DimensionExpression::ConcatenateExpression]
         #     Used to combine dimension values to a single dimension.
         #     For example, dimension "country, city": concatenate(country, ", ", city).
+        #
+        #     Note: The following fields are mutually exclusive: `concatenate`, `lower_case`, `upper_case`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class DimensionExpression
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -204,21 +210,52 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Defines an individual comparison. Most requests will include multiple
+        # comparisons so that the report compares between the comparisons.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Each comparison produces separate rows in the response. In the response,
+        #     this comparison is identified by this name. If name is unspecified, we will
+        #     use the saved comparisons display name.
+        # @!attribute [rw] dimension_filter
+        #   @return [::Google::Analytics::Data::V1beta::FilterExpression]
+        #     A basic comparison.
+        #
+        #     Note: The following fields are mutually exclusive: `dimension_filter`, `comparison`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] comparison
+        #   @return [::String]
+        #     A saved comparison identified by the comparison's resource name.
+        #     For example, 'comparisons/1234'.
+        #
+        #     Note: The following fields are mutually exclusive: `comparison`, `dimension_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        class Comparison
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # To express dimension or metric filters. The fields in the same
         # FilterExpression need to be either all dimensions or all metrics.
         # @!attribute [rw] and_group
         #   @return [::Google::Analytics::Data::V1beta::FilterExpressionList]
         #     The FilterExpressions in and_group have an AND relationship.
+        #
+        #     Note: The following fields are mutually exclusive: `and_group`, `or_group`, `not_expression`, `filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] or_group
         #   @return [::Google::Analytics::Data::V1beta::FilterExpressionList]
         #     The FilterExpressions in or_group have an OR relationship.
+        #
+        #     Note: The following fields are mutually exclusive: `or_group`, `and_group`, `not_expression`, `filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] not_expression
         #   @return [::Google::Analytics::Data::V1beta::FilterExpression]
         #     The FilterExpression is NOT of not_expression.
+        #
+        #     Note: The following fields are mutually exclusive: `not_expression`, `and_group`, `or_group`, `filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] filter
         #   @return [::Google::Analytics::Data::V1beta::Filter]
         #     A primitive filter. In the same FilterExpression, all of the filter's
         #     field names need to be either all dimensions or all metrics.
+        #
+        #     Note: The following fields are mutually exclusive: `filter`, `and_group`, `or_group`, `not_expression`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class FilterExpression
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -245,15 +282,28 @@ module Google
         # @!attribute [rw] string_filter
         #   @return [::Google::Analytics::Data::V1beta::Filter::StringFilter]
         #     Strings related filter.
+        #
+        #     Note: The following fields are mutually exclusive: `string_filter`, `in_list_filter`, `numeric_filter`, `between_filter`, `empty_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] in_list_filter
         #   @return [::Google::Analytics::Data::V1beta::Filter::InListFilter]
         #     A filter for in list values.
+        #
+        #     Note: The following fields are mutually exclusive: `in_list_filter`, `string_filter`, `numeric_filter`, `between_filter`, `empty_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] numeric_filter
         #   @return [::Google::Analytics::Data::V1beta::Filter::NumericFilter]
         #     A filter for numeric or date values.
+        #
+        #     Note: The following fields are mutually exclusive: `numeric_filter`, `string_filter`, `in_list_filter`, `between_filter`, `empty_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] between_filter
         #   @return [::Google::Analytics::Data::V1beta::Filter::BetweenFilter]
         #     A filter for two values.
+        #
+        #     Note: The following fields are mutually exclusive: `between_filter`, `string_filter`, `in_list_filter`, `numeric_filter`, `empty_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] empty_filter
+        #   @return [::Google::Analytics::Data::V1beta::Filter::EmptyFilter]
+        #     A filter for empty values such as "(not set)" and "" values.
+        #
+        #     Note: The following fields are mutually exclusive: `empty_filter`, `string_filter`, `in_list_filter`, `numeric_filter`, `between_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class Filter
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -354,6 +404,12 @@ module Google
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
+
+          # Filter for empty values.
+          class EmptyFilter
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
         end
 
         # Order bys define how rows will be sorted in the response. For example,
@@ -362,12 +418,18 @@ module Google
         # @!attribute [rw] metric
         #   @return [::Google::Analytics::Data::V1beta::OrderBy::MetricOrderBy]
         #     Sorts results by a metric's values.
+        #
+        #     Note: The following fields are mutually exclusive: `metric`, `dimension`, `pivot`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] dimension
         #   @return [::Google::Analytics::Data::V1beta::OrderBy::DimensionOrderBy]
         #     Sorts results by a dimension's values.
+        #
+        #     Note: The following fields are mutually exclusive: `dimension`, `metric`, `pivot`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] pivot
         #   @return [::Google::Analytics::Data::V1beta::OrderBy::PivotOrderBy]
         #     Sorts results by a metric's values within a pivot column group.
+        #
+        #     Note: The following fields are mutually exclusive: `pivot`, `metric`, `dimension`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] desc
         #   @return [::Boolean]
         #     If true, sorts by descending order.
@@ -873,9 +935,13 @@ module Google
         # @!attribute [rw] int64_value
         #   @return [::Integer]
         #     Integer value
+        #
+        #     Note: The following fields are mutually exclusive: `int64_value`, `double_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] double_value
         #   @return [::Float]
         #     Double value
+        #
+        #     Note: The following fields are mutually exclusive: `double_value`, `int64_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class NumericValue
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -955,7 +1021,11 @@ module Google
         #     available only by `apiName`.
         # @!attribute [rw] custom_definition
         #   @return [::Boolean]
-        #     True if the dimension is a custom dimension for this property.
+        #     True if the dimension is custom to this property. This includes user,
+        #     event, & item scoped custom dimensions; to learn more about custom
+        #     dimensions, see https://support.google.com/analytics/answer/14240153. This
+        #     also include custom channel groups; to learn more about custom channel
+        #     groups, see https://support.google.com/analytics/answer/13051316.
         # @!attribute [rw] category
         #   @return [::String]
         #     The display name of the category that this dimension belongs to. Similar
@@ -1025,6 +1095,22 @@ module Google
             # property, and this metric is cost related.
             NO_COST_METRICS = 2
           end
+        end
+
+        # The metadata for a single comparison.
+        # @!attribute [rw] api_name
+        #   @return [::String]
+        #     This comparison's resource name. Useable in [Comparison](#Comparison)'s
+        #     `comparison` field. For example, 'comparisons/1234'.
+        # @!attribute [rw] ui_name
+        #   @return [::String]
+        #     This comparison's name within the Google Analytics user interface.
+        # @!attribute [rw] description
+        #   @return [::String]
+        #     This comparison's description.
+        class ComparisonMetadata
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
         # The compatibility for a single dimension.
@@ -1117,8 +1203,8 @@ module Google
           TYPE_KILOMETERS = 13
         end
 
-        # Categories of data that you may be restricted from viewing on certain GA4
-        # properties.
+        # Categories of data that you may be restricted from viewing on certain
+        # Google Analytics properties.
         module RestrictedMetricType
           # Unspecified type.
           RESTRICTED_METRIC_TYPE_UNSPECIFIED = 0

@@ -31,9 +31,18 @@ class Google::Identity::AccessContextManager::ClientConstructionMinitest < Minit
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_access_context_manager_grpc
+    skip unless Google::Identity::AccessContextManager.access_context_manager_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Identity::AccessContextManager.access_context_manager transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Identity::AccessContextManager::ClientConstructionMinitest < Minit
   end
 
   def test_access_context_manager_rest
+    skip unless Google::Identity::AccessContextManager.access_context_manager_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Identity::AccessContextManager.access_context_manager transport: :rest do |config|
         config.credentials = :dummy_credentials

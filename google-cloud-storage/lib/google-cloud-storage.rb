@@ -79,11 +79,11 @@ module Google
     def storage scope: nil, retries: nil, timeout: nil, open_timeout: nil, read_timeout: nil, send_timeout: nil,
                 max_elapsed_time: nil, base_interval: nil, max_interval: nil, multiplier: nil, upload_chunk_size: nil
       Google::Cloud.storage @project, @keyfile, scope: scope,
-                                                retries: (retries || @retries),
-                                                timeout: (timeout || @timeout),
-                                                open_timeout: (open_timeout || timeout),
-                                                read_timeout: (read_timeout || timeout),
-                                                send_timeout: (send_timeout || timeout),
+                                                retries: retries || @retries,
+                                                timeout: timeout || @timeout,
+                                                open_timeout: open_timeout || timeout,
+                                                read_timeout: read_timeout || timeout,
+                                                send_timeout: send_timeout || timeout,
                                                 max_elapsed_time: max_elapsed_time,
                                                 base_interval: base_interval,
                                                 max_interval: max_interval,
@@ -149,9 +149,9 @@ module Google
                                  scope: scope,
                                  retries: retries,
                                  timeout: timeout,
-                                 open_timeout: (open_timeout || timeout),
-                                 read_timeout: (read_timeout || timeout),
-                                 send_timeout: (send_timeout || timeout),
+                                 open_timeout: open_timeout || timeout,
+                                 read_timeout: read_timeout || timeout,
+                                 send_timeout: send_timeout || timeout,
                                  max_elapsed_time: max_elapsed_time,
                                  base_interval: base_interval,
                                  max_interval: max_interval,
@@ -162,7 +162,6 @@ module Google
 end
 
 # Set the default storage configuration
-# rubocop:disable Metrics/BlockLength
 Google::Cloud.configure.add_config! :storage do |config|
   default_project = Google::Cloud::Config.deferred do
     ENV["STORAGE_PROJECT"]
@@ -195,4 +194,3 @@ Google::Cloud.configure.add_config! :storage do |config|
   config.add_field! :endpoint, nil, match: String, allow_nil: true
   config.add_field! :universe_domain, nil, match: String, allow_nil: true
 end
-# rubocop:enable Metrics/BlockLength

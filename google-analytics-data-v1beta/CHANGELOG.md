@@ -1,5 +1,45 @@
 # Changelog
 
+### 0.16.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.15.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.14.0 (2024-12-04)
+
+#### Features
+
+* Filters now support empty values ([#27653](https://github.com/googleapis/google-cloud-ruby/issues/27653)) 
+
+### 0.13.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27002](https://github.com/googleapis/google-cloud-ruby/issues/27002)) 
+
+### 0.13.0 (2024-08-05)
+
+#### Features
+
+* add the `Comparison` type 
+* add the `ComparisonMetadata` type 
+* add the `comparisons` field to the `Metadata` resource ([#26569](https://github.com/googleapis/google-cloud-ruby/issues/26569)) 
+* add the `comparisons` field to the `RunReportRequest`, `RunPivotReportRequest` resources 
+#### Documentation
+
+* a comment for field `custom_definition` in message `DimensionMetadata` is changed 
+
 ### 0.12.0 (2024-02-26)
 
 #### Features

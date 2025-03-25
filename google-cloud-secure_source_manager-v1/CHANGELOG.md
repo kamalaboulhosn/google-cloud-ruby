@@ -1,5 +1,64 @@
 # Changelog
 
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28826](https://github.com/googleapis/google-cloud-ruby/issues/28826))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28826](https://github.com/googleapis/google-cloud-ruby/issues/28826)) 
+
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-10-28)
+
+#### Features
+
+* Add branch rule APIs ([#27453](https://github.com/googleapis/google-cloud-ruby/issues/27453)) 
+* Add field `instance` to message `.google.cloud.securesourcemanager.v1.ListRepositoriesRequest` 
+* Add field `psc_allowed_projects` to message `.google.cloud.securesourcemanager.v1.Instance` 
+#### Documentation
+
+* A comment for field `instance` in message `.google.cloud.securesourcemanager.v1.Repository` is changed 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27012](https://github.com/googleapis/google-cloud-ruby/issues/27012)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.4.0 (2024-07-10)
+
+#### Features
+
+* add constant `UNKNOWN` to field `State` in message `.google.cloud.securesourcemanager.v1.Instance` 
+* add field `private_config` to message `.google.cloud.securesourcemanager.v1.Instance` ([#26374](https://github.com/googleapis/google-cloud-ruby/issues/26374)) 
+#### Documentation
+
+* A comment for field `instance` in message `.google.cloud.securesourcemanager.v1.Repository` is updated to include data plane vs control plane behavior. 
+
 ### 0.3.0 (2024-02-26)
 
 #### Features

@@ -57,6 +57,9 @@ module Google
         # @!attribute [r] generated_uri_pattern
         #   @return [::String]
         #     Output only. This is system-generated based on the provided_uri_pattern.
+        # @!attribute [r] root_domain_uri
+        #   @return [::String]
+        #     Output only. Root domain of the provided_uri_pattern.
         # @!attribute [r] site_verification_info
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::SiteVerificationInfo]
         #     Output only. Site ownership and validity verification status.
@@ -153,6 +156,23 @@ module Google
             # Site exempt from verification, e.g., a public website that opens to all.
             EXEMPTED = 3
           end
+        end
+
+        # A sitemap for the SiteSearchEngine.
+        # @!attribute [rw] uri
+        #   @return [::String]
+        #     Public URI for the sitemap, e.g. `www.example.com/sitemap.xml`.
+        # @!attribute [r] name
+        #   @return [::String]
+        #     Output only. The fully qualified resource name of the sitemap.
+        #     `projects/*/locations/*/collections/*/dataStores/*/siteSearchEngine/sitemaps/*`
+        #     The `sitemap_id` suffix is system-generated.
+        # @!attribute [r] create_time
+        #   @return [::Google::Protobuf::Timestamp]
+        #     Output only. The sitemap's creation time.
+        class Sitemap
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
         end
       end
     end

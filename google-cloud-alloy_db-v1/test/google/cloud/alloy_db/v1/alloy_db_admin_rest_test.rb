@@ -33,24 +33,24 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_list_clusters
@@ -84,7 +92,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     filter = "hello world"
     order_by = "hello world"
 
-    list_clusters_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_clusters_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -139,7 +147,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     name = "hello world"
     view = :CLUSTER_VIEW_UNSPECIFIED
 
-    get_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -197,7 +205,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    create_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -255,7 +263,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     validate_only = true
     allow_missing = true
 
-    update_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -313,7 +321,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     validate_only = true
     force = true
 
-    delete_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -370,7 +378,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     etag = "hello world"
     validate_only = true
 
-    promote_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    promote_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -414,6 +422,62 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     end
   end
 
+  def test_switchover_cluster
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    request_id = "hello world"
+    validate_only = true
+
+    switchover_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ServiceStub.stub :transcode_switchover_cluster_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, switchover_cluster_client_stub do
+        # Create client
+        client = ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.switchover_cluster({ name: name, request_id: request_id, validate_only: validate_only }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.switchover_cluster name: name, request_id: request_id, validate_only: validate_only do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.switchover_cluster ::Google::Cloud::AlloyDB::V1::SwitchoverClusterRequest.new(name: name, request_id: request_id, validate_only: validate_only) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.switchover_cluster({ name: name, request_id: request_id, validate_only: validate_only }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.switchover_cluster(::Google::Cloud::AlloyDB::V1::SwitchoverClusterRequest.new(name: name, request_id: request_id, validate_only: validate_only), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, switchover_cluster_client_stub.call_count
+      end
+    end
+  end
+
   def test_restore_cluster
     # Create test objects.
     client_result = ::Google::Longrunning::Operation.new
@@ -429,7 +493,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    restore_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    restore_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -487,7 +551,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    create_secondary_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_secondary_cluster_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -545,7 +609,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     filter = "hello world"
     order_by = "hello world"
 
-    list_instances_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_instances_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -600,7 +664,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     name = "hello world"
     view = :INSTANCE_VIEW_UNSPECIFIED
 
-    get_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -658,7 +722,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    create_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -716,7 +780,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    create_secondary_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_secondary_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -772,7 +836,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     requests = {}
     request_id = "hello world"
 
-    batch_create_instances_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_create_instances_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -830,7 +894,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     validate_only = true
     allow_missing = true
 
-    update_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -887,7 +951,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     etag = "hello world"
     validate_only = true
 
-    delete_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -943,7 +1007,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    failover_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    failover_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1000,7 +1064,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    inject_fault_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    inject_fault_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1055,8 +1119,9 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     name = "hello world"
     request_id = "hello world"
     validate_only = true
+    node_ids = ["hello world"]
 
-    restart_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    restart_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1070,32 +1135,90 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
         end
 
         # Use hash object
-        client.restart_instance({ name: name, request_id: request_id, validate_only: validate_only }) do |_result, response|
+        client.restart_instance({ name: name, request_id: request_id, validate_only: validate_only, node_ids: node_ids }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.restart_instance name: name, request_id: request_id, validate_only: validate_only do |_result, response|
+        client.restart_instance name: name, request_id: request_id, validate_only: validate_only, node_ids: node_ids do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.restart_instance ::Google::Cloud::AlloyDB::V1::RestartInstanceRequest.new(name: name, request_id: request_id, validate_only: validate_only) do |_result, response|
+        client.restart_instance ::Google::Cloud::AlloyDB::V1::RestartInstanceRequest.new(name: name, request_id: request_id, validate_only: validate_only, node_ids: node_ids) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.restart_instance({ name: name, request_id: request_id, validate_only: validate_only }, call_options) do |_result, response|
+        client.restart_instance({ name: name, request_id: request_id, validate_only: validate_only, node_ids: node_ids }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.restart_instance(::Google::Cloud::AlloyDB::V1::RestartInstanceRequest.new(name: name, request_id: request_id, validate_only: validate_only), call_options) do |_result, response|
+        client.restart_instance(::Google::Cloud::AlloyDB::V1::RestartInstanceRequest.new(name: name, request_id: request_id, validate_only: validate_only, node_ids: node_ids), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Verify method calls
         assert_equal 5, restart_instance_client_stub.call_count
+      end
+    end
+  end
+
+  def test_execute_sql
+    # Create test objects.
+    client_result = ::Google::Cloud::AlloyDB::V1::ExecuteSqlResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    password = "hello world"
+    instance = "hello world"
+    database = "hello world"
+    user = "hello world"
+    sql_statement = "hello world"
+
+    execute_sql_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ServiceStub.stub :transcode_execute_sql_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, execute_sql_client_stub do
+        # Create client
+        client = ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.execute_sql({ password: password, instance: instance, database: database, user: user, sql_statement: sql_statement }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.execute_sql password: password, instance: instance, database: database, user: user, sql_statement: sql_statement do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.execute_sql ::Google::Cloud::AlloyDB::V1::ExecuteSqlRequest.new(password: password, instance: instance, database: database, user: user, sql_statement: sql_statement) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.execute_sql({ password: password, instance: instance, database: database, user: user, sql_statement: sql_statement }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.execute_sql(::Google::Cloud::AlloyDB::V1::ExecuteSqlRequest.new(password: password, instance: instance, database: database, user: user, sql_statement: sql_statement), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, execute_sql_client_stub.call_count
       end
     end
   end
@@ -1114,7 +1237,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     filter = "hello world"
     order_by = "hello world"
 
-    list_backups_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_backups_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1168,7 +1291,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1226,7 +1349,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    create_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1284,7 +1407,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     validate_only = true
     allow_missing = true
 
-    update_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1341,7 +1464,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     validate_only = true
     etag = "hello world"
 
-    delete_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_backup_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1397,7 +1520,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     page_size = 42
     page_token = "hello world"
 
-    list_supported_database_flags_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_supported_database_flags_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1455,7 +1578,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     public_key = "hello world"
     use_metadata_exchange = true
 
-    generate_client_certificate_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    generate_client_certificate_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1510,7 +1633,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     parent = "hello world"
     request_id = "hello world"
 
-    get_connection_info_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_connection_info_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1568,7 +1691,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     filter = "hello world"
     order_by = "hello world"
 
-    list_users_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_users_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1622,7 +1745,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_user_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_user_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1680,7 +1803,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    create_user_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_user_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1738,7 +1861,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     validate_only = true
     allow_missing = true
 
-    update_user_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_user_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1794,7 +1917,7 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
     request_id = "hello world"
     validate_only = true
 
-    delete_user_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_user_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1834,6 +1957,63 @@ class ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ClientTest < Minitest::T
 
         # Verify method calls
         assert_equal 5, delete_user_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_databases
+    # Create test objects.
+    client_result = ::Google::Cloud::AlloyDB::V1::ListDatabasesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_size = 42
+    page_token = "hello world"
+    filter = "hello world"
+
+    list_databases_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::ServiceStub.stub :transcode_list_databases_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_databases_client_stub do
+        # Create client
+        client = ::Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_databases({ parent: parent, page_size: page_size, page_token: page_token, filter: filter }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_databases parent: parent, page_size: page_size, page_token: page_token, filter: filter do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_databases ::Google::Cloud::AlloyDB::V1::ListDatabasesRequest.new(parent: parent, page_size: page_size, page_token: page_token, filter: filter) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_databases({ parent: parent, page_size: page_size, page_token: page_token, filter: filter }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_databases(::Google::Cloud::AlloyDB::V1::ListDatabasesRequest.new(parent: parent, page_size: page_size, page_token: page_token, filter: filter), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_databases_client_stub.call_count
       end
     end
   end

@@ -175,8 +175,19 @@ module Google
                   universe_domain: @config.universe_domain,
                   channel_args: @config.channel_args,
                   interceptors: @config.interceptors,
-                  channel_pool_config: @config.channel_pool
+                  channel_pool_config: @config.channel_pool,
+                  logger: @config.logger
                 )
+
+                @analytics_hub_service_stub.stub_logger&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
               end
 
               ##
@@ -185,6 +196,15 @@ module Google
               # @return [::Google::Cloud::Bigquery::AnalyticsHub::V1::AnalyticsHubService::Operations]
               #
               attr_reader :operations_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @analytics_hub_service_stub.logger
+              end
 
               # Service calls
 
@@ -280,7 +300,7 @@ module Google
                 @analytics_hub_service_stub.call_rpc :list_data_exchanges, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @analytics_hub_service_stub, :list_data_exchanges, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -379,7 +399,7 @@ module Google
                 @analytics_hub_service_stub.call_rpc :list_org_data_exchanges, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @analytics_hub_service_stub, :list_org_data_exchanges, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -466,7 +486,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :get_data_exchange, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -561,7 +580,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :create_data_exchange, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -651,7 +669,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :update_data_exchange, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -738,7 +755,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :delete_data_exchange, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -836,7 +852,7 @@ module Google
                 @analytics_hub_service_stub.call_rpc :list_listings, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @analytics_hub_service_stub, :list_listings, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -923,7 +939,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :get_listing, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1018,7 +1033,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :create_listing, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1108,7 +1122,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :update_listing, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1195,7 +1208,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :delete_listing, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1225,7 +1237,7 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param destination_dataset [::Google::Cloud::Bigquery::AnalyticsHub::V1::DestinationDataset, ::Hash]
-              #     BigQuery destination dataset to create for the subscriber.
+              #     Input only. BigQuery destination dataset to create for the subscriber.
               #   @param name [::String]
               #     Required. Resource name of the listing that you want to subscribe to.
               #     e.g. `projects/myproject/locations/US/dataExchanges/123/listings/456`.
@@ -1289,7 +1301,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :subscribe_listing, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1393,7 +1404,7 @@ module Google
                 @analytics_hub_service_stub.call_rpc :subscribe_data_exchange, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1490,7 +1501,7 @@ module Google
                 @analytics_hub_service_stub.call_rpc :refresh_subscription, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1577,7 +1588,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :get_subscription, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1605,7 +1615,21 @@ module Google
               #     Required. The parent resource path of the subscription.
               #     e.g. projects/myproject/locations/US
               #   @param filter [::String]
-              #     The filter expression may be used to filter by Data Exchange or Listing.
+              #     An expression for filtering the results of the request. Eligible
+              #     fields for filtering are:
+              #
+              #      * `listing`
+              #      * `data_exchange`
+              #
+              #     Alternatively, a literal wrapped in double quotes may be provided.
+              #     This will be checked for an exact match against both fields above.
+              #
+              #     In all cases, the full Data Exchange or Listing resource name must
+              #     be provided. Some example of using filters:
+              #
+              #      * data_exchange="projects/myproject/locations/us/dataExchanges/123"
+              #      * listing="projects/123/locations/us/dataExchanges/456/listings/789"
+              #      * "projects/myproject/locations/us/dataExchanges/123"
               #   @param page_size [::Integer]
               #     The maximum number of results to return in a single response page.
               #   @param page_token [::String]
@@ -1675,7 +1699,7 @@ module Google
                 @analytics_hub_service_stub.call_rpc :list_subscriptions, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @analytics_hub_service_stub, :list_subscriptions, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1776,7 +1800,7 @@ module Google
                 @analytics_hub_service_stub.call_rpc :list_shared_resource_subscriptions, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @analytics_hub_service_stub, :list_shared_resource_subscriptions, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1863,7 +1887,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :revoke_subscription, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1958,7 +1981,7 @@ module Google
                 @analytics_hub_service_stub.call_rpc :delete_subscription, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2048,7 +2071,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :get_iam_policy, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2146,7 +2168,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :set_iam_policy, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2238,7 +2259,6 @@ module Google
 
                 @analytics_hub_service_stub.call_rpc :test_iam_permissions, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2288,6 +2308,13 @@ module Google
               #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
               #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -2327,6 +2354,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -2351,6 +2383,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

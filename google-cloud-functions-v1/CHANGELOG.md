@@ -1,5 +1,57 @@
 # Release History
 
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824)) 
+
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.1.0 (2024-08-08)
+
+#### Features
+
+* Added `build_service_account` field to CloudFunction ([#26620](https://github.com/googleapis/google-cloud-ruby/issues/26620)) 
+#### Documentation
+
+* A comment for field `automatic_update_policy` in message `.google.cloud.functions.v1.CloudFunction` is changed 
+* A comment for field `docker_repository` in message `.google.cloud.functions.v1.CloudFunction` is changed 
+* A comment for field `on_deploy_update_policy` in message `.google.cloud.functions.v1.CloudFunction` is changed 
+* A comment for field `runtime_version` in message `.google.cloud.functions.v1.CloudFunction` is changed 
+* A comment for field `url` in message `.google.cloud.functions.v1.HttpsTrigger` is changed 
+* A comment for field `url` in message `.google.cloud.functions.v1.SourceRepository` is changed 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.15.0 (2024-02-26)
 
 #### Features

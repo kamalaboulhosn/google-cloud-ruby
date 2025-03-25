@@ -1,5 +1,93 @@
 # Release History
 
+### 1.8.0 (2025-03-11)
+
+#### Features
+
+* add MaterializedViews and LogicalViews APIs ([#29316](https://github.com/googleapis/google-cloud-ruby/issues/29316)) 
+* Included logical and materialized view resources 
+* Support for OrderedCodeBytes encoding for Int64 
+* Support for table row key schema 
+* Support for the ignore_warnings parameter to the update_table RPC 
+* Support for timestamp and struct encoding 
+#### Bug Fixes
+
+* Removed useless state parameter from update_instance 
+
+### 1.7.0 (2025-01-30)
+
+#### Features
+
+* Support wait_for_replication convenience method ([#28252](https://github.com/googleapis/google-cloud-ruby/issues/28252)) 
+
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Provide GcRule convenience constructors, and warn if more than one field is set ([#28210](https://github.com/googleapis/google-cloud-ruby/issues/28210)) 
+* Update Ruby version requirement to 3.0 
+#### Bug Fixes
+
+* Extend default check_consistency timeout to 1 hour ([#28246](https://github.com/googleapis/google-cloud-ruby/issues/28246)) 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.4.0 (2024-09-30)
+
+#### Features
+
+* Support for cluster node scaling factor ([#27353](https://github.com/googleapis/google-cloud-ruby/issues/27353)) 
+
+### 1.3.0 (2024-09-11)
+
+#### Features
+
+* Support for row affinity in app profiles ([#27307](https://github.com/googleapis/google-cloud-ruby/issues/27307)) 
+
+### 1.2.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27004](https://github.com/googleapis/google-cloud-ruby/issues/27004)) 
+
+### 1.2.0 (2024-08-05)
+
+#### Features
+
+* add fields and the BackupType proto for Hot Backups ([#26568](https://github.com/googleapis/google-cloud-ruby/issues/26568)) 
+#### Documentation
+
+* clarify comments and fix typos 
+
+### 1.1.0 (2024-07-23)
+
+#### Features
+
+* Add min, max, hll aggregators and more types ([#26490](https://github.com/googleapis/google-cloud-ruby/issues/26490)) 
+#### Documentation
+
+* Correct various documentation types 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.27.0 (2024-05-29)
+
+#### Features
+
+* Add String type with Utf8Raw encoding to Bigtable API ([#25947](https://github.com/googleapis/google-cloud-ruby/issues/25947)) 
+
 ### 0.26.0 (2024-04-19)
 
 #### Features

@@ -46,6 +46,7 @@ module Google
           #     Required. The `DeliveryVehicle` entity to create. When creating a new
           #     delivery vehicle, you may set the following optional fields:
           #
+          #     * type
           #     * last_location
           #     * attributes
           #
@@ -67,6 +68,21 @@ module Google
           #     The `provider` must be the Google Cloud Project ID. For example,
           #     `sample-cloud-project`.
           class GetDeliveryVehicleRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # DeleteDeliveryVehicle request message.
+          # @!attribute [rw] header
+          #   @return [::Google::Maps::FleetEngine::Delivery::V1::DeliveryRequestHeader]
+          #     Optional. The standard Delivery API request header.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. Must be in the format
+          #     `providers/{provider}/deliveryVehicles/{delivery_vehicle}`.
+          #     The `provider` must be the Google Cloud Project ID. For example,
+          #     `sample-cloud-project`.
+          class DeleteDeliveryVehicleRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
@@ -227,6 +243,12 @@ module Google
           #     * `planned_location` (optional for `UNAVAILABLE` tasks)
           #     * `task_duration`
           #
+          #     The following fields can be optionally set:
+          #
+          #     * `target_time_window`
+          #     * `task_tracking_view_config`
+          #     * `attributes`
+          #
           #     Note: The Task's `name` field is ignored. All other Task fields must not be
           #     set; otherwise, an error is returned.
           class CreateTaskRequest
@@ -244,6 +266,20 @@ module Google
           #     `provider` must be the Google Cloud Project ID. For example,
           #     `sample-cloud-project`.
           class GetTaskRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # DeleteTask request message.
+          # @!attribute [rw] header
+          #   @return [::Google::Maps::FleetEngine::Delivery::V1::DeliveryRequestHeader]
+          #     Optional. The standard Delivery API request header.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Required. Must be in the format `providers/{provider}/tasks/{task}`. The
+          #     `provider` must be the Google Cloud Project ID. For example,
+          #     `sample-cloud-project`.
+          class DeleteTaskRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
@@ -309,7 +345,7 @@ module Google
           #     http://aip.dev/160 for examples of filter syntax. If you don't specify a
           #     value, or if you filter on an empty string, then all Tasks are returned.
           #     For information about the Task properties that you can filter on, see [List
-          #     tasks](https://developers.google.com/maps/documentation/transportation-logistics/last-mile-fleet-solution/fleet-performance/fleet-engine/deliveries_api#list-tasks).
+          #     tasks](https://developers.google.com/maps/documentation/mobility/fleet-engine/journeys/tasks/find-tasks#filter_listed_tasks).
           class ListTasksRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

@@ -144,10 +144,11 @@ module Google
         #
         #     Updatable fields:
         #
-        #       * `big_query_source`
-        #       * `bigtable`
         #       * `labels`
-        #       * `sync_config`
+        #       * `description`
+        #       * `bigtable`
+        #       * `bigtable.auto_scaling`
+        #       * `bigtable.enable_multi_region_replica`
         class UpdateFeatureOnlineStoreRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -305,13 +306,22 @@ module Google
         #     Updatable fields:
         #
         #       * `labels`
-        #       * `serviceAgentType`
+        #       * `service_agent_type`
+        #       * `big_query_source`
+        #       * `big_query_source.uri`
+        #       * `big_query_source.entity_id_columns`
+        #       * `feature_registry_source`
+        #       * `feature_registry_source.feature_groups`
+        #       * `sync_config`
+        #       * `sync_config.cron`
+        #       * `optimized_config.automatic_resources`
         class UpdateFeatureViewRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Request message for [FeatureOnlineStoreAdminService.DeleteFeatureViews][].
+        # Request message for
+        # {::Google::Cloud::AIPlatform::V1::FeatureOnlineStoreAdminService::Client#delete_feature_view FeatureOnlineStoreAdminService.DeleteFeatureView}.
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The name of the FeatureView to be deleted.
@@ -369,7 +379,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Respose message for
+        # Response message for
         # {::Google::Cloud::AIPlatform::V1::FeatureOnlineStoreAdminService::Client#sync_feature_view FeatureOnlineStoreAdminService.SyncFeatureView}.
         # @!attribute [rw] feature_view_sync
         #   @return [::String]

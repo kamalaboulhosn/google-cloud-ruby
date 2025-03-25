@@ -159,8 +159,19 @@ module Google
                       endpoint: @config.endpoint,
                       endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                       universe_domain: @config.universe_domain,
-                      credentials: credentials
+                      credentials: credentials,
+                      logger: @config.logger
                     )
+
+                    @environments_stub.logger(stub: true)&.info do |entry|
+                      entry.set_system_name
+                      entry.set_service
+                      entry.message = "Created client for #{entry.service}"
+                      entry.set_credentials_fields credentials
+                      entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                      entry.set "defaultTimeout", @config.timeout if @config.timeout
+                      entry.set "quotaProject", @quota_project_id if @quota_project_id
+                    end
                   end
 
                   ##
@@ -169,6 +180,15 @@ module Google
                   # @return [::Google::Cloud::Orchestration::Airflow::Service::V1::Environments::Rest::Operations]
                   #
                   attr_reader :operations_client
+
+                  ##
+                  # The logger used for request/response debug logging.
+                  #
+                  # @return [Logger]
+                  #
+                  def logger
+                    @environments_stub.logger
+                  end
 
                   # Service calls
 
@@ -256,7 +276,7 @@ module Google
                     @environments_stub.create_environment request, options do |result, operation|
                       result = ::Gapic::Operation.new result, @operations_client, options: options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -336,7 +356,6 @@ module Google
 
                     @environments_stub.get_environment request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -425,7 +444,7 @@ module Google
                     @environments_stub.list_environments request, options do |result, operation|
                       result = ::Gapic::Rest::PagedEnumerable.new @environments_stub, :list_environments, "environments", request, result, options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -640,7 +659,7 @@ module Google
                     @environments_stub.update_environment request, options do |result, operation|
                       result = ::Gapic::Operation.new result, @operations_client, options: options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -728,7 +747,7 @@ module Google
                     @environments_stub.delete_environment request, options do |result, operation|
                       result = ::Gapic::Operation.new result, @operations_client, options: options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -817,7 +836,6 @@ module Google
 
                     @environments_stub.execute_airflow_command request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -906,7 +924,6 @@ module Google
 
                     @environments_stub.stop_airflow_command request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -994,7 +1011,6 @@ module Google
 
                     @environments_stub.poll_airflow_command request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1005,7 +1021,7 @@ module Google
                   # runs a single Composer component.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-2.*.*-airflow-*.*.* and newer.
                   #
                   # @overload list_workloads(request, options = nil)
                   #   Pass arguments to `list_workloads` via a request object, either of type
@@ -1095,7 +1111,123 @@ module Google
                     @environments_stub.list_workloads request, options do |result, operation|
                       result = ::Gapic::Rest::PagedEnumerable.new @environments_stub, :list_workloads, "workloads", request, result, options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
+                    end
+                  rescue ::Gapic::Rest::Error => e
+                    raise ::Google::Cloud::Error.from_error(e)
+                  end
+
+                  ##
+                  # Check if an upgrade operation on the environment will succeed.
+                  #
+                  # In case of problems detailed info can be found in the returned Operation.
+                  #
+                  # @overload check_upgrade(request, options = nil)
+                  #   Pass arguments to `check_upgrade` via a request object, either of type
+                  #   {::Google::Cloud::Orchestration::Airflow::Service::V1::CheckUpgradeRequest} or an equivalent Hash.
+                  #
+                  #   @param request [::Google::Cloud::Orchestration::Airflow::Service::V1::CheckUpgradeRequest, ::Hash]
+                  #     A request object representing the call parameters. Required. To specify no
+                  #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                  #   @param options [::Gapic::CallOptions, ::Hash]
+                  #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                  #
+                  # @overload check_upgrade(environment: nil, image_version: nil)
+                  #   Pass arguments to `check_upgrade` via keyword arguments. Note that at
+                  #   least one keyword argument is required. To specify no parameters, or to keep all
+                  #   the default parameter values, pass an empty Hash as a request object (see above).
+                  #
+                  #   @param environment [::String]
+                  #     Required. The resource name of the environment to check upgrade for, in the
+                  #     form:
+                  #     "projects/\\{projectId}/locations/\\{locationId}/environments/\\{environmentId}"
+                  #   @param image_version [::String]
+                  #     Optional. The version of the software running in the environment.
+                  #     This encapsulates both the version of Cloud Composer functionality and the
+                  #     version of Apache Airflow. It must match the regular expression
+                  #     `composer-([0-9]+(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-([0-9]+(\.[0-9]+(\.[0-9]+)?)?)`.
+                  #     When used as input, the server also checks if the provided version is
+                  #     supported and denies the request for an unsupported version.
+                  #
+                  #     The Cloud Composer portion of the image version is a full
+                  #     [semantic version](https://semver.org), or an alias in the form of major
+                  #     version number or `latest`. When an alias is provided, the server replaces
+                  #     it with the current Cloud Composer version that satisfies the alias.
+                  #
+                  #     The Apache Airflow portion of the image version is a full semantic version
+                  #     that points to one of the supported Apache Airflow versions, or an alias in
+                  #     the form of only major or major.minor versions specified. When an alias is
+                  #     provided, the server replaces it with the latest Apache Airflow version
+                  #     that satisfies the alias and is supported in the given Cloud Composer
+                  #     version.
+                  #
+                  #     In all cases, the resolved image version is stored in the same field.
+                  #
+                  #     See also [version
+                  #     list](/composer/docs/concepts/versioning/composer-versions) and [versioning
+                  #     overview](/composer/docs/concepts/versioning/composer-versioning-overview).
+                  # @yield [result, operation] Access the result along with the TransportOperation object
+                  # @yieldparam result [::Gapic::Operation]
+                  # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                  #
+                  # @return [::Gapic::Operation]
+                  #
+                  # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                  #
+                  # @example Basic example
+                  #   require "google/cloud/orchestration/airflow/service/v1"
+                  #
+                  #   # Create a client object. The client can be reused for multiple calls.
+                  #   client = Google::Cloud::Orchestration::Airflow::Service::V1::Environments::Rest::Client.new
+                  #
+                  #   # Create a request. To set request fields, pass in keyword arguments.
+                  #   request = Google::Cloud::Orchestration::Airflow::Service::V1::CheckUpgradeRequest.new
+                  #
+                  #   # Call the check_upgrade method.
+                  #   result = client.check_upgrade request
+                  #
+                  #   # The returned object is of type Gapic::Operation. You can use it to
+                  #   # check the status of an operation, cancel it, or wait for results.
+                  #   # Here is how to wait for a response.
+                  #   result.wait_until_done! timeout: 60
+                  #   if result.response?
+                  #     p result.response
+                  #   else
+                  #     puts "No response received."
+                  #   end
+                  #
+                  def check_upgrade request, options = nil
+                    raise ::ArgumentError, "request must be provided" if request.nil?
+
+                    request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Orchestration::Airflow::Service::V1::CheckUpgradeRequest
+
+                    # Converts hash and nil to an options object
+                    options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                    # Customize the options with defaults
+                    call_metadata = @config.rpcs.check_upgrade.metadata.to_h
+
+                    # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                    call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                      lib_name: @config.lib_name, lib_version: @config.lib_version,
+                      gapic_version: ::Google::Cloud::Orchestration::Airflow::Service::V1::VERSION,
+                      transports_version_send: [:rest]
+
+                    call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                    call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                    options.apply_defaults timeout:      @config.rpcs.check_upgrade.timeout,
+                                           metadata:     call_metadata,
+                                           retry_policy: @config.rpcs.check_upgrade.retry_policy
+
+                    options.apply_defaults timeout:      @config.timeout,
+                                           metadata:     @config.metadata,
+                                           retry_policy: @config.retry_policy
+
+                    @environments_stub.check_upgrade request, options do |result, operation|
+                      result = ::Gapic::Operation.new result, @operations_client, options: options
+                      yield result, operation if block_given?
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1105,7 +1237,7 @@ module Google
                   # Creates a user workloads Secret.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload create_user_workloads_secret(request, options = nil)
                   #   Pass arguments to `create_user_workloads_secret` via a request object, either of type
@@ -1180,7 +1312,6 @@ module Google
 
                     @environments_stub.create_user_workloads_secret request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1191,7 +1322,7 @@ module Google
                   # Values of the "data" field in the response are cleared.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload get_user_workloads_secret(request, options = nil)
                   #   Pass arguments to `get_user_workloads_secret` via a request object, either of type
@@ -1264,7 +1395,6 @@ module Google
 
                     @environments_stub.get_user_workloads_secret request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1274,7 +1404,7 @@ module Google
                   # Lists user workloads Secrets.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload list_user_workloads_secrets(request, options = nil)
                   #   Pass arguments to `list_user_workloads_secrets` via a request object, either of type
@@ -1357,7 +1487,7 @@ module Google
                     @environments_stub.list_user_workloads_secrets request, options do |result, operation|
                       result = ::Gapic::Rest::PagedEnumerable.new @environments_stub, :list_user_workloads_secrets, "user_workloads_secrets", request, result, options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1367,7 +1497,7 @@ module Google
                   # Updates a user workloads Secret.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload update_user_workloads_secret(request, options = nil)
                   #   Pass arguments to `update_user_workloads_secret` via a request object, either of type
@@ -1439,7 +1569,6 @@ module Google
 
                     @environments_stub.update_user_workloads_secret request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1449,7 +1578,7 @@ module Google
                   # Deletes a user workloads Secret.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload delete_user_workloads_secret(request, options = nil)
                   #   Pass arguments to `delete_user_workloads_secret` via a request object, either of type
@@ -1522,7 +1651,6 @@ module Google
 
                     @environments_stub.delete_user_workloads_secret request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1532,7 +1660,7 @@ module Google
                   # Creates a user workloads ConfigMap.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload create_user_workloads_config_map(request, options = nil)
                   #   Pass arguments to `create_user_workloads_config_map` via a request object, either of type
@@ -1607,7 +1735,6 @@ module Google
 
                     @environments_stub.create_user_workloads_config_map request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1617,7 +1744,7 @@ module Google
                   # Gets an existing user workloads ConfigMap.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload get_user_workloads_config_map(request, options = nil)
                   #   Pass arguments to `get_user_workloads_config_map` via a request object, either of type
@@ -1690,7 +1817,6 @@ module Google
 
                     @environments_stub.get_user_workloads_config_map request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1700,7 +1826,7 @@ module Google
                   # Lists user workloads ConfigMaps.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload list_user_workloads_config_maps(request, options = nil)
                   #   Pass arguments to `list_user_workloads_config_maps` via a request object, either of type
@@ -1783,7 +1909,7 @@ module Google
                     @environments_stub.list_user_workloads_config_maps request, options do |result, operation|
                       result = ::Gapic::Rest::PagedEnumerable.new @environments_stub, :list_user_workloads_config_maps, "user_workloads_config_maps", request, result, options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1793,7 +1919,7 @@ module Google
                   # Updates a user workloads ConfigMap.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload update_user_workloads_config_map(request, options = nil)
                   #   Pass arguments to `update_user_workloads_config_map` via a request object, either of type
@@ -1865,7 +1991,6 @@ module Google
 
                     @environments_stub.update_user_workloads_config_map request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -1875,7 +2000,7 @@ module Google
                   # Deletes a user workloads ConfigMap.
                   #
                   # This method is supported for Cloud Composer environments in versions
-                  # composer-3.*.*-airflow-*.*.* and newer.
+                  # composer-3-airflow-*.*.*-build.* and newer.
                   #
                   # @overload delete_user_workloads_config_map(request, options = nil)
                   #   Pass arguments to `delete_user_workloads_config_map` via a request object, either of type
@@ -1948,7 +2073,6 @@ module Google
 
                     @environments_stub.delete_user_workloads_config_map request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -2042,7 +2166,7 @@ module Google
                     @environments_stub.save_snapshot request, options do |result, operation|
                       result = ::Gapic::Operation.new result, @operations_client, options: options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -2148,7 +2272,7 @@ module Google
                     @environments_stub.load_snapshot request, options do |result, operation|
                       result = ::Gapic::Operation.new result, @operations_client, options: options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -2236,7 +2360,7 @@ module Google
                     @environments_stub.database_failover request, options do |result, operation|
                       result = ::Gapic::Operation.new result, @operations_client, options: options
                       yield result, operation if block_given?
-                      return result
+                      throw :response, result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -2316,7 +2440,6 @@ module Google
 
                     @environments_stub.fetch_database_properties request, options do |result, operation|
                       yield result, operation if block_given?
-                      return result
                     end
                   rescue ::Gapic::Rest::Error => e
                     raise ::Google::Cloud::Error.from_error(e)
@@ -2364,6 +2487,13 @@ module Google
                   #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
                   #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
                   #    *  (`nil`) indicating no credentials
+                  #
+                  #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                  #   external source for authentication to Google Cloud, you must validate it before
+                  #   providing it to a Google API client library. Providing an unvalidated credential
+                  #   configuration to Google APIs can compromise the security of your systems and data.
+                  #   For more information, refer to [Validate credential configurations from external
+                  #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                   #   @return [::Object]
                   # @!attribute [rw] scope
                   #   The OAuth scopes
@@ -2396,6 +2526,11 @@ module Google
                   #   default endpoint URL. The default value of nil uses the environment
                   #   universe (usually the default "googleapis.com" universe).
                   #   @return [::String,nil]
+                  # @!attribute [rw] logger
+                  #   A custom logger to use for request/response debug logging, or the value
+                  #   `:default` (the default) to construct a default logger, or `nil` to
+                  #   explicitly disable logging.
+                  #   @return [::Logger,:default,nil]
                   #
                   class Configuration
                     extend ::Gapic::Config
@@ -2417,6 +2552,7 @@ module Google
                     config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                     config_attr :quota_project, nil, ::String, nil
                     config_attr :universe_domain, nil, ::String, nil
+                    config_attr :logger, :default, ::Logger, nil, :default
 
                     # @private
                     def initialize parent_config = nil
@@ -2500,6 +2636,11 @@ module Google
                       # @return [::Gapic::Config::Method]
                       #
                       attr_reader :list_workloads
+                      ##
+                      # RPC-specific configuration for `check_upgrade`
+                      # @return [::Gapic::Config::Method]
+                      #
+                      attr_reader :check_upgrade
                       ##
                       # RPC-specific configuration for `create_user_workloads_secret`
                       # @return [::Gapic::Config::Method]
@@ -2591,6 +2732,8 @@ module Google
                         @poll_airflow_command = ::Gapic::Config::Method.new poll_airflow_command_config
                         list_workloads_config = parent_rpcs.list_workloads if parent_rpcs.respond_to? :list_workloads
                         @list_workloads = ::Gapic::Config::Method.new list_workloads_config
+                        check_upgrade_config = parent_rpcs.check_upgrade if parent_rpcs.respond_to? :check_upgrade
+                        @check_upgrade = ::Gapic::Config::Method.new check_upgrade_config
                         create_user_workloads_secret_config = parent_rpcs.create_user_workloads_secret if parent_rpcs.respond_to? :create_user_workloads_secret
                         @create_user_workloads_secret = ::Gapic::Config::Method.new create_user_workloads_secret_config
                         get_user_workloads_secret_config = parent_rpcs.get_user_workloads_secret if parent_rpcs.respond_to? :get_user_workloads_secret

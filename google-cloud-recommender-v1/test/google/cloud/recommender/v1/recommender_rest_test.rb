@@ -33,24 +33,24 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_list_insights
@@ -83,7 +91,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     page_token = "hello world"
     filter = "hello world"
 
-    list_insights_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_insights_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -137,7 +145,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_insight_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_insight_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -193,7 +201,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     state_metadata = {}
     etag = "hello world"
 
-    mark_insight_accepted_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    mark_insight_accepted_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -250,7 +258,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     page_token = "hello world"
     filter = "hello world"
 
-    list_recommendations_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_recommendations_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -304,7 +312,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_recommendation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_recommendation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -359,7 +367,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     name = "hello world"
     etag = "hello world"
 
-    mark_recommendation_dismissed_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    mark_recommendation_dismissed_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -415,7 +423,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     state_metadata = {}
     etag = "hello world"
 
-    mark_recommendation_claimed_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    mark_recommendation_claimed_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -471,7 +479,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     state_metadata = {}
     etag = "hello world"
 
-    mark_recommendation_succeeded_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    mark_recommendation_succeeded_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -527,7 +535,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     state_metadata = {}
     etag = "hello world"
 
-    mark_recommendation_failed_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    mark_recommendation_failed_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -581,7 +589,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_recommender_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_recommender_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -637,7 +645,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     update_mask = {}
     validate_only = true
 
-    update_recommender_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_recommender_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -691,7 +699,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_insight_type_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_insight_type_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -747,7 +755,7 @@ class ::Google::Cloud::Recommender::V1::Recommender::Rest::ClientTest < Minitest
     update_mask = {}
     validate_only = true
 
-    update_insight_type_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_insight_type_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

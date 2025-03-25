@@ -29,7 +29,8 @@ module Google
           ##
           # Client for the Autokey service.
           #
-          # Provides interfaces for using Cloud KMS Autokey to provision new
+          # Provides interfaces for using [Cloud KMS
+          # Autokey](https://cloud.google.com/kms/help/autokey) to provision new
           # {::Google::Cloud::Kms::V1::CryptoKey CryptoKeys}, ready for Customer Managed
           # Encryption Key (CMEK) use, on-demand. To support certain client tooling, this
           # feature is modeled around a {::Google::Cloud::Kms::V1::KeyHandle KeyHandle}
@@ -194,14 +195,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @autokey_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @autokey_stub.endpoint
                 config.universe_domain = @autokey_stub.universe_domain
+                config.logger = @autokey_stub.logger if config.respond_to? :logger=
               end
 
               @iam_policy_client = Google::Iam::V1::IAMPolicy::Client.new do |config|
@@ -209,6 +222,7 @@ module Google
                 config.quota_project = @quota_project_id
                 config.endpoint = @autokey_stub.endpoint
                 config.universe_domain = @autokey_stub.universe_domain
+                config.logger = @autokey_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -233,15 +247,24 @@ module Google
             #
             attr_reader :iam_policy_client
 
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @autokey_stub.logger
+            end
+
             # Service calls
 
             ##
             # Creates a new {::Google::Cloud::Kms::V1::KeyHandle KeyHandle}, triggering the
             # provisioning of a new {::Google::Cloud::Kms::V1::CryptoKey CryptoKey} for CMEK
             # use with the given resource type in the configured key project and the same
-            # location. [GetOperation][Operations.GetOperation] should be used to resolve
-            # the resulting long-running operation and get the resulting
-            # {::Google::Cloud::Kms::V1::KeyHandle KeyHandle} and
+            # location. GetOperation should
+            # be used to resolve the resulting long-running operation and get the
+            # resulting {::Google::Cloud::Kms::V1::KeyHandle KeyHandle} and
             # {::Google::Cloud::Kms::V1::CryptoKey CryptoKey}.
             #
             # @overload create_key_handle(request, options = nil)
@@ -337,7 +360,7 @@ module Google
               @autokey_stub.call_rpc :create_key_handle, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -425,7 +448,6 @@ module Google
 
               @autokey_stub.call_rpc :get_key_handle, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -444,7 +466,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload list_key_handles(parent: nil, filter: nil)
+            # @overload list_key_handles(parent: nil, page_size: nil, page_token: nil, filter: nil)
             #   Pass arguments to `list_key_handles` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -453,16 +475,28 @@ module Google
             #     Required. Name of the resource project and location from which to list
             #     {::Google::Cloud::Kms::V1::KeyHandle KeyHandles}, e.g.
             #     `projects/{PROJECT_ID}/locations/{LOCATION}`.
+            #   @param page_size [::Integer]
+            #     Optional. Optional limit on the number of
+            #     {::Google::Cloud::Kms::V1::KeyHandle KeyHandles} to include in the response. The
+            #     service may return fewer than this value. Further
+            #     {::Google::Cloud::Kms::V1::KeyHandle KeyHandles} can subsequently be obtained by
+            #     including the
+            #     {::Google::Cloud::Kms::V1::ListKeyHandlesResponse#next_page_token ListKeyHandlesResponse.next_page_token}
+            #     in a subsequent request.  If unspecified, at most 100
+            #     {::Google::Cloud::Kms::V1::KeyHandle KeyHandles} will be returned.
+            #   @param page_token [::String]
+            #     Optional. Optional pagination token, returned earlier via
+            #     {::Google::Cloud::Kms::V1::ListKeyHandlesResponse#next_page_token ListKeyHandlesResponse.next_page_token}.
             #   @param filter [::String]
             #     Optional. Filter to apply when listing
             #     {::Google::Cloud::Kms::V1::KeyHandle KeyHandles}, e.g.
             #     `resource_type_selector="{SERVICE}.googleapis.com/{TYPE}"`.
             #
             # @yield [response, operation] Access the result along with the RPC operation
-            # @yieldparam response [::Google::Cloud::Kms::V1::ListKeyHandlesResponse]
+            # @yieldparam response [::Gapic::PagedEnumerable<::Google::Cloud::Kms::V1::KeyHandle>]
             # @yieldparam operation [::GRPC::ActiveCall::Operation]
             #
-            # @return [::Google::Cloud::Kms::V1::ListKeyHandlesResponse]
+            # @return [::Gapic::PagedEnumerable<::Google::Cloud::Kms::V1::KeyHandle>]
             #
             # @raise [::Google::Cloud::Error] if the RPC is aborted.
             #
@@ -478,8 +512,12 @@ module Google
             #   # Call the list_key_handles method.
             #   result = client.list_key_handles request
             #
-            #   # The returned object is of type Google::Cloud::Kms::V1::ListKeyHandlesResponse.
-            #   p result
+            #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+            #   # over elements, and API calls will be issued to fetch pages as needed.
+            #   result.each do |item|
+            #     # Each element is of type ::Google::Cloud::Kms::V1::KeyHandle.
+            #     p item
+            #   end
             #
             def list_key_handles request, options = nil
               raise ::ArgumentError, "request must be provided" if request.nil?
@@ -516,8 +554,9 @@ module Google
                                      retry_policy: @config.retry_policy
 
               @autokey_stub.call_rpc :list_key_handles, request, options: options do |response, operation|
+                response = ::Gapic::PagedEnumerable.new @autokey_stub, :list_key_handles, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -567,6 +606,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -606,6 +652,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -630,6 +681,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

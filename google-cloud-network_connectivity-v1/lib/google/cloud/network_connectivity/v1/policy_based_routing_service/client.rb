@@ -176,14 +176,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @policy_based_routing_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @policy_based_routing_service_stub.endpoint
                 config.universe_domain = @policy_based_routing_service_stub.universe_domain
+                config.logger = @policy_based_routing_service_stub.logger if config.respond_to? :logger=
               end
 
               @iam_policy_client = Google::Iam::V1::IAMPolicy::Client.new do |config|
@@ -191,6 +203,7 @@ module Google
                 config.quota_project = @quota_project_id
                 config.endpoint = @policy_based_routing_service_stub.endpoint
                 config.universe_domain = @policy_based_routing_service_stub.universe_domain
+                config.logger = @policy_based_routing_service_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -215,10 +228,19 @@ module Google
             #
             attr_reader :iam_policy_client
 
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @policy_based_routing_service_stub.logger
+            end
+
             # Service calls
 
             ##
-            # Lists PolicyBasedRoutes in a given project and location.
+            # Lists policy-based routes in a given project and location.
             #
             # @overload list_policy_based_routes(request, options = nil)
             #   Pass arguments to `list_policy_based_routes` via a request object, either of type
@@ -310,14 +332,14 @@ module Google
               @policy_based_routing_service_stub.call_rpc :list_policy_based_routes, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @policy_based_routing_service_stub, :list_policy_based_routes, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Gets details of a single PolicyBasedRoute.
+            # Gets details of a single policy-based route.
             #
             # @overload get_policy_based_route(request, options = nil)
             #   Pass arguments to `get_policy_based_route` via a request object, either of type
@@ -396,14 +418,13 @@ module Google
 
               @policy_based_routing_service_stub.call_rpc :get_policy_based_route, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Creates a new PolicyBasedRoute in a given project and location.
+            # Creates a new policy-based route in a given project and location.
             #
             # @overload create_policy_based_route(request, options = nil)
             #   Pass arguments to `create_policy_based_route` via a request object, either of type
@@ -423,20 +444,27 @@ module Google
             #   @param parent [::String]
             #     Required. The parent resource's name of the PolicyBasedRoute.
             #   @param policy_based_route_id [::String]
-            #     Required. Unique id for the Policy Based Route to create.
+            #     Required. Unique id for the policy-based route to create. Provided by the
+            #     client when the resource is created. The name must comply with
+            #     https://google.aip.dev/122#resource-id-segments. Specifically, the name
+            #     must be 1-63 characters long and match the regular expression
+            #     [a-z]([a-z0-9-]*[a-z0-9])?. The first character must be a lowercase letter,
+            #     and all following characters (except for the last character) must be a
+            #     dash, lowercase letter, or digit. The last character must be a lowercase
+            #     letter or digit.
             #   @param policy_based_route [::Google::Cloud::NetworkConnectivity::V1::PolicyBasedRoute, ::Hash]
-            #     Required. Initial values for a new Policy Based Route.
+            #     Required. Initial values for a new policy-based route.
             #   @param request_id [::String]
             #     Optional. An optional request ID to identify requests. Specify a unique
-            #     request ID so that if you must retry your request, the server will know to
-            #     ignore the request if it has already been completed. The server will
-            #     guarantee that for at least 60 minutes since the first request.
+            #     request ID so that if you must retry your request, the server knows to
+            #     ignore the request if it has already been completed. The server guarantees
+            #     that for at least 60 minutes since the first request.
             #
             #     For example, consider a situation where you make an initial request and
             #     the request times out. If you make the request again with the same request
             #     ID, the server can check if original operation with the same request ID
-            #     was received, and if so, will ignore the second request. This prevents
-            #     clients from accidentally creating duplicate commitments.
+            #     was received, and if so, ignores the second request. This prevents clients
+            #     from accidentally creating duplicate commitments.
             #
             #     The request ID must be a valid UUID with the exception that zero UUID is
             #     not supported (00000000-0000-0000-0000-000000000000).
@@ -508,14 +536,14 @@ module Google
               @policy_based_routing_service_stub.call_rpc :create_policy_based_route, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Deletes a single PolicyBasedRoute.
+            # Deletes a single policy-based route.
             #
             # @overload delete_policy_based_route(request, options = nil)
             #   Pass arguments to `delete_policy_based_route` via a request object, either of type
@@ -533,18 +561,18 @@ module Google
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param name [::String]
-            #     Required. Name of the PolicyBasedRoute resource to delete.
+            #     Required. Name of the policy-based route resource to delete.
             #   @param request_id [::String]
             #     Optional. An optional request ID to identify requests. Specify a unique
-            #     request ID so that if you must retry your request, the server will know to
-            #     ignore the request if it has already been completed. The server will
-            #     guarantee that for at least 60 minutes after the first request.
+            #     request ID so that if you must retry your request, the server knows to
+            #     ignore the request if it has already been completed. The server guarantees
+            #     that for at least 60 minutes after the first request.
             #
             #     For example, consider a situation where you make an initial request and
             #     the request times out. If you make the request again with the same request
             #     ID, the server can check if original operation with the same request ID
-            #     was received, and if so, will ignore the second request. This prevents
-            #     clients from accidentally creating duplicate commitments.
+            #     was received, and if so, ignores the second request. This prevents clients
+            #     from accidentally creating duplicate commitments.
             #
             #     The request ID must be a valid UUID with the exception that zero UUID is
             #     not supported (00000000-0000-0000-0000-000000000000).
@@ -616,7 +644,7 @@ module Google
               @policy_based_routing_service_stub.call_rpc :delete_policy_based_route, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -666,6 +694,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -705,6 +740,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -729,6 +769,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

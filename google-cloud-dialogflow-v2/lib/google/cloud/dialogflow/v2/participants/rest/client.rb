@@ -161,8 +161,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @participants_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -170,6 +181,7 @@ module Google
                   config.endpoint = @participants_stub.endpoint
                   config.universe_domain = @participants_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @participants_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -179,6 +191,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @participants_stub.logger
+              end
 
               # Service calls
 
@@ -259,7 +280,6 @@ module Google
 
                 @participants_stub.create_participant request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -340,7 +360,6 @@ module Google
 
                 @participants_stub.get_participant request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -431,7 +450,7 @@ module Google
                 @participants_stub.list_participants request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @participants_stub, :list_participants, "participants", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -512,7 +531,6 @@ module Google
 
                 @participants_stub.update_participant request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -536,7 +554,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload analyze_content(participant: nil, text_input: nil, event_input: nil, suggestion_input: nil, reply_audio_config: nil, query_params: nil, assist_query_params: nil, cx_parameters: nil, request_id: nil)
+              # @overload analyze_content(participant: nil, text_input: nil, audio_input: nil, event_input: nil, suggestion_input: nil, reply_audio_config: nil, query_params: nil, assist_query_params: nil, cx_parameters: nil, request_id: nil)
               #   Pass arguments to `analyze_content` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -547,10 +565,20 @@ module Google
               #     ID>/conversations/<Conversation ID>/participants/<Participant ID>`.
               #   @param text_input [::Google::Cloud::Dialogflow::V2::TextInput, ::Hash]
               #     The natural language text to be processed.
+              #
+              #     Note: The following fields are mutually exclusive: `text_input`, `audio_input`, `event_input`, `suggestion_input`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param audio_input [::Google::Cloud::Dialogflow::V2::AudioInput, ::Hash]
+              #     The natural language speech audio to be processed.
+              #
+              #     Note: The following fields are mutually exclusive: `audio_input`, `text_input`, `event_input`, `suggestion_input`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param event_input [::Google::Cloud::Dialogflow::V2::EventInput, ::Hash]
               #     An input event to send to Dialogflow.
+              #
+              #     Note: The following fields are mutually exclusive: `event_input`, `text_input`, `audio_input`, `suggestion_input`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param suggestion_input [::Google::Cloud::Dialogflow::V2::SuggestionInput, ::Hash]
               #     An input representing the selection of a suggestion.
+              #
+              #     Note: The following fields are mutually exclusive: `suggestion_input`, `text_input`, `audio_input`, `event_input`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param reply_audio_config [::Google::Cloud::Dialogflow::V2::OutputAudioConfig, ::Hash]
               #     Speech synthesis configuration.
               #     The speech synthesis settings for a virtual agent that may be configured
@@ -625,7 +653,6 @@ module Google
 
                 @participants_stub.analyze_content request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -720,7 +747,6 @@ module Google
 
                 @participants_stub.suggest_articles request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -814,7 +840,6 @@ module Google
 
                 @participants_stub.suggest_faq_answers request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -910,7 +935,101 @@ module Google
 
                 @participants_stub.suggest_smart_replies request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets knowledge assist suggestions based on historical messages.
+              #
+              # @overload suggest_knowledge_assist(request, options = nil)
+              #   Pass arguments to `suggest_knowledge_assist` via a request object, either of type
+              #   {::Google::Cloud::Dialogflow::V2::SuggestKnowledgeAssistRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dialogflow::V2::SuggestKnowledgeAssistRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload suggest_knowledge_assist(parent: nil, latest_message: nil, context_size: nil, previous_suggested_query: nil)
+              #   Pass arguments to `suggest_knowledge_assist` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The name of the participant to fetch suggestions for.
+              #     Format: `projects/<Project ID>/locations/<Location
+              #     ID>/conversations/<Conversation ID>/participants/<Participant ID>`.
+              #   @param latest_message [::String]
+              #     Optional. The name of the latest conversation message to compile
+              #     suggestions for. If empty, it will be the latest message of the
+              #     conversation. Format: `projects/<Project ID>/locations/<Location
+              #     ID>/conversations/<Conversation ID>/messages/<Message ID>`.
+              #   @param context_size [::Integer]
+              #     Optional. Max number of messages prior to and including
+              #     {::Google::Cloud::Dialogflow::V2::SuggestKnowledgeAssistRequest#latest_message latest_message}
+              #     to use as context when compiling the suggestion. The context size is by
+              #     default 100 and at most 100.
+              #   @param previous_suggested_query [::String]
+              #     Optional. The previously suggested query for the given conversation. This
+              #     helps identify whether the next suggestion we generate is reasonably
+              #     different from the previous one. This is useful to avoid similar
+              #     suggestions within the conversation.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dialogflow::V2::SuggestKnowledgeAssistResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dialogflow::V2::SuggestKnowledgeAssistResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dialogflow/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dialogflow::V2::Participants::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dialogflow::V2::SuggestKnowledgeAssistRequest.new
+              #
+              #   # Call the suggest_knowledge_assist method.
+              #   result = client.suggest_knowledge_assist request
+              #
+              #   # The returned object is of type Google::Cloud::Dialogflow::V2::SuggestKnowledgeAssistResponse.
+              #   p result
+              #
+              def suggest_knowledge_assist request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dialogflow::V2::SuggestKnowledgeAssistRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.suggest_knowledge_assist.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dialogflow::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.suggest_knowledge_assist.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.suggest_knowledge_assist.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @participants_stub.suggest_knowledge_assist request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -958,6 +1077,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -990,6 +1116,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1018,6 +1149,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -1096,6 +1228,11 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :suggest_smart_replies
+                  ##
+                  # RPC-specific configuration for `suggest_knowledge_assist`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :suggest_knowledge_assist
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -1115,6 +1252,8 @@ module Google
                     @suggest_faq_answers = ::Gapic::Config::Method.new suggest_faq_answers_config
                     suggest_smart_replies_config = parent_rpcs.suggest_smart_replies if parent_rpcs.respond_to? :suggest_smart_replies
                     @suggest_smart_replies = ::Gapic::Config::Method.new suggest_smart_replies_config
+                    suggest_knowledge_assist_config = parent_rpcs.suggest_knowledge_assist if parent_rpcs.respond_to? :suggest_knowledge_assist
+                    @suggest_knowledge_assist = ::Gapic::Config::Method.new suggest_knowledge_assist_config
 
                     yield self if block_given?
                   end

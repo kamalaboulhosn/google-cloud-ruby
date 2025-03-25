@@ -118,8 +118,9 @@ module Google
         #     Output only. The ManagementServer state.
         # @!attribute [rw] networks
         #   @return [::Array<::Google::Cloud::BackupDR::V1::NetworkConfig>]
-        #     Required. VPC networks to which the ManagementServer instance is connected.
-        #     For this version, only a single network is supported.
+        #     Optional. VPC networks to which the ManagementServer instance is connected.
+        #     For this version, only a single network is supported. This field is
+        #     optional if MS is created without PSA
         # @!attribute [rw] etag
         #   @return [::String]
         #     Optional. Server specified ETag for the ManagementServer resource to
@@ -128,7 +129,7 @@ module Google
         #   @return [::String]
         #     Output only. The OAuth 2.0 client id is required to make API calls to the
         #     BackupDR instance API of this ManagementServer. This is the value that
-        #     should be provided in the ‘aud’ field of the OIDC ID Token (see openid
+        #     should be provided in the 'aud' field of the OIDC ID Token (see openid
         #     specification
         #     https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
         # @!attribute [r] workforce_identity_based_oauth2_client_id
@@ -138,6 +139,12 @@ module Google
         #   @return [::Array<::String>]
         #     Output only. The hostname or ip address of the exposed AGM endpoints, used
         #     by BAs to connect to BA proxy.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Google::Protobuf::BoolValue]
+        #     Output only. Reserved for future use.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
         class ManagementServer
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -195,10 +202,11 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The project and location for which to retrieve management servers
-        #     information, in the format `projects/{project_id}/locations/{location}`. In
-        #     Cloud BackupDR, locations map to GCP regions, for example **us-central1**.
-        #     To retrieve management servers for all locations, use "-" for the
-        #     `{location}` value.
+        #     information, in the format 'projects/\\{project_id}/locations/\\{location}'. In
+        #     Cloud BackupDR, locations map to Google Cloud regions, for example
+        #     **us-central1**. To retrieve management servers for all locations, use "-"
+        #     for the
+        #     '\\{location}' value.
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     Optional. Requested page size. Server may return fewer items than
@@ -223,7 +231,7 @@ module Google
         #     The list of ManagementServer instances in the project for the specified
         #     location.
         #
-        #     If the `{location}` value in the request is "-", the response contains a
+        #     If the '\\{location}' value in the request is "-", the response contains a
         #     list of instances from all locations. In case any location is unreachable,
         #     the response will only return management servers in reachable locations and
         #     the 'unreachable' field will be populated with a list of unreachable
@@ -243,7 +251,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. Name of the management server resource name, in the format
-        #     `projects/{project_id}/locations/{location}/managementServers/{resource_name}`
+        #     'projects/\\{project_id}/locations/\\{location}/managementServers/\\{resource_name}'
         class GetManagementServerRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -253,8 +261,8 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The management server project and location in the format
-        #     `projects/{project_id}/locations/{location}`. In Cloud Backup and DR
-        #     locations map to GCP regions, for example **us-central1**.
+        #     'projects/\\{project_id}/locations/\\{location}'. In Cloud Backup and DR
+        #     locations map to Google Cloud regions, for example **us-central1**.
         # @!attribute [rw] management_server_id
         #   @return [::String]
         #     Required. The name of the management server to create. The name must be
@@ -307,6 +315,53 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Request message for initializing the service.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. The resource name of the serviceConfig used to initialize the
+        #     service. Format:
+        #     `projects/{project_id}/locations/{location}/serviceConfig`.
+        # @!attribute [rw] resource_type
+        #   @return [::String]
+        #     Required. The resource type to which the default service config will be
+        #     applied. Examples include, "compute.googleapis.com/Instance" and
+        #     "storage.googleapis.com/Bucket".
+        # @!attribute [rw] request_id
+        #   @return [::String]
+        #     Optional. An optional request ID to identify requests. Specify a unique
+        #     request ID so that if you must retry your request, the server will know to
+        #     ignore the request if it has already been completed. The server will
+        #     guarantee that for at least 60 minutes since the first request.
+        #
+        #     For example, consider a situation where you make an initial request and t
+        #     he request times out. If you make the request again with the same request
+        #     ID, the server can check if original operation with the same request ID
+        #     was received, and if so, will ignore the second request. This prevents
+        #     clients from accidentally creating duplicate commitments.
+        #
+        #     The request ID must be a valid UUID with the exception that zero UUID is
+        #     not supported (00000000-0000-0000-0000-000000000000).
+        class InitializeServiceRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Response message for initializing the service.
+        # @!attribute [rw] backup_vault_name
+        #   @return [::String]
+        #     The resource name of the default `BackupVault` created.
+        #     Format:
+        #     `projects/{project_id}/locations/{location}/backupVaults/{backup_vault_id}`.
+        # @!attribute [rw] backup_plan_name
+        #   @return [::String]
+        #     The resource name of the default `BackupPlan` created.
+        #     Format:
+        #     `projects/{project_id}/locations/{location}/backupPlans/{backup_plan_id}`.
+        class InitializeServiceResponse
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # Represents the metadata of the long-running operation.
         # @!attribute [r] create_time
         #   @return [::Google::Protobuf::Timestamp]
@@ -327,9 +382,10 @@ module Google
         #   @return [::Boolean]
         #     Output only. Identifies whether the user has requested cancellation
         #     of the operation. Operations that have successfully been cancelled
-        #     have [Operation.error][] value with a
-        #     {::Google::Rpc::Status#code google.rpc.Status.code} of 1, corresponding to
-        #     `Code.CANCELLED`.
+        #     have
+        #     {::Google::Longrunning::Operation#error google.longrunning.Operation.error}
+        #     value with a {::Google::Rpc::Status#code google.rpc.Status.code} of 1,
+        #     corresponding to 'Code.CANCELLED'.
         # @!attribute [r] api_version
         #   @return [::String]
         #     Output only. API version used to start the operation.

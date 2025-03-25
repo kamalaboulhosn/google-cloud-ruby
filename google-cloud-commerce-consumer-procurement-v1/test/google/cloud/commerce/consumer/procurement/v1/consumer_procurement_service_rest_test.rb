@@ -33,24 +33,24 @@ class ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementS
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementS
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_place_order
@@ -83,7 +91,7 @@ class ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementS
     line_item_info = [{}]
     request_id = "hello world"
 
-    place_order_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    place_order_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -137,7 +145,7 @@ class ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementS
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_order_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_order_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -194,7 +202,7 @@ class ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementS
     page_token = "hello world"
     filter = "hello world"
 
-    list_orders_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_orders_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -234,6 +242,119 @@ class ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementS
 
         # Verify method calls
         assert_equal 5, list_orders_client_stub.call_count
+      end
+    end
+  end
+
+  def test_modify_order
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    modifications = [{}]
+    display_name = "hello world"
+    etag = "hello world"
+
+    modify_order_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementService::Rest::ServiceStub.stub :transcode_modify_order_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, modify_order_client_stub do
+        # Create client
+        client = ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.modify_order({ name: name, modifications: modifications, display_name: display_name, etag: etag }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.modify_order name: name, modifications: modifications, display_name: display_name, etag: etag do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.modify_order ::Google::Cloud::Commerce::Consumer::Procurement::V1::ModifyOrderRequest.new(name: name, modifications: modifications, display_name: display_name, etag: etag) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.modify_order({ name: name, modifications: modifications, display_name: display_name, etag: etag }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.modify_order(::Google::Cloud::Commerce::Consumer::Procurement::V1::ModifyOrderRequest.new(name: name, modifications: modifications, display_name: display_name, etag: etag), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, modify_order_client_stub.call_count
+      end
+    end
+  end
+
+  def test_cancel_order
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    etag = "hello world"
+    cancellation_policy = :CANCELLATION_POLICY_UNSPECIFIED
+
+    cancel_order_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementService::Rest::ServiceStub.stub :transcode_cancel_order_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, cancel_order_client_stub do
+        # Create client
+        client = ::Google::Cloud::Commerce::Consumer::Procurement::V1::ConsumerProcurementService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.cancel_order({ name: name, etag: etag, cancellation_policy: cancellation_policy }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.cancel_order name: name, etag: etag, cancellation_policy: cancellation_policy do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.cancel_order ::Google::Cloud::Commerce::Consumer::Procurement::V1::CancelOrderRequest.new(name: name, etag: etag, cancellation_policy: cancellation_policy) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.cancel_order({ name: name, etag: etag, cancellation_policy: cancellation_policy }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.cancel_order(::Google::Cloud::Commerce::Consumer::Procurement::V1::CancelOrderRequest.new(name: name, etag: etag, cancellation_policy: cancellation_policy), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, cancel_order_client_stub.call_count
       end
     end
   end

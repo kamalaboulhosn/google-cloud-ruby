@@ -1,7 +1,7 @@
 {
   "client_library": {
     "name": "google-cloud-orchestration-airflow-service-v1",
-    "version": "0.11.0",
+    "version": "1.3.2",
     "language": "RUBY",
     "apis": [
       {
@@ -367,6 +367,46 @@
         {
           "start": 20,
           "end": 50,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "composer_v1_generated_Environments_CheckUpgrade_sync",
+      "title": "Snippet for the check_upgrade call in the Environments service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::Orchestration::Airflow::Service::V1::Environments::Client#check_upgrade.",
+      "file": "environments/check_upgrade.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "check_upgrade",
+        "full_name": "::Google::Cloud::Orchestration::Airflow::Service::V1::Environments::Client#check_upgrade",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::Orchestration::Airflow::Service::V1::CheckUpgradeRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "Environments::Client",
+          "full_name": "::Google::Cloud::Orchestration::Airflow::Service::V1::Environments::Client"
+        },
+        "method": {
+          "short_name": "CheckUpgrade",
+          "full_name": "google.cloud.orchestration.airflow.service.v1.Environments.CheckUpgrade",
+          "service": {
+            "short_name": "Environments",
+            "full_name": "google.cloud.orchestration.airflow.service.v1.Environments"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
           "type": "FULL"
         }
       ]

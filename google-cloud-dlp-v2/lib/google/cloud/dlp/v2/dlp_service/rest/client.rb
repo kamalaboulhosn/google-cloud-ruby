@@ -30,13 +30,9 @@ module Google
             ##
             # REST client for the DlpService service.
             #
-            # The Cloud Data Loss Prevention (DLP) API is a service that allows clients
-            # to detect the presence of Personally Identifiable Information (PII) and other
-            # privacy-sensitive data in user-supplied, unstructured data streams, like text
-            # blocks or images.
-            # The service also includes methods for sensitive data redaction and
-            # scheduling of data scans on Google Cloud Platform based data sets.
-            #
+            # Sensitive Data Protection provides access to a powerful sensitive data
+            # inspection, classification, and de-identification platform that works
+            # on text, images, and Google Cloud storage repositories.
             # To learn more about concepts and find how-to guides see
             # https://cloud.google.com/sensitive-data-protection/docs/.
             #
@@ -244,6 +240,21 @@ module Google
                     initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
                   }
 
+                  default_config.rpcs.list_file_store_data_profiles.timeout = 300.0
+                  default_config.rpcs.list_file_store_data_profiles.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
+                  default_config.rpcs.get_file_store_data_profile.timeout = 300.0
+                  default_config.rpcs.get_file_store_data_profile.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
+                  default_config.rpcs.delete_file_store_data_profile.timeout = 300.0
+                  default_config.rpcs.delete_file_store_data_profile.retry_policy = {
+                    initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
+                  }
+
                   default_config.rpcs.get_table_data_profile.timeout = 300.0
                   default_config.rpcs.get_table_data_profile.retry_policy = {
                     initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [14, 4]
@@ -336,14 +347,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @dlp_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @dlp_service_stub.endpoint
                   config.universe_domain = @dlp_service_stub.universe_domain
+                  config.logger = @dlp_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -353,6 +376,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @dlp_service_stub.logger
+              end
 
               # Service calls
 
@@ -391,10 +423,10 @@ module Google
               #     processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -467,7 +499,6 @@ module Google
 
                 @dlp_service_stub.inspect_content request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -483,6 +514,9 @@ module Google
               # When no InfoTypes or CustomInfoTypes are specified in this request, the
               # system will automatically choose what detectors to run. By default this may
               # be all types, but may change over time as detectors are updated.
+              #
+              # Only the first frame of each multiframe image is redacted. Metadata and
+              # other frames are omitted in the response.
               #
               # @overload redact_image(request, options = nil)
               #   Pass arguments to `redact_image` via a request object, either of type
@@ -506,10 +540,10 @@ module Google
               #     processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -580,7 +614,6 @@ module Google
 
                 @dlp_service_stub.redact_image request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -619,10 +652,10 @@ module Google
               #     processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -713,7 +746,6 @@ module Google
 
                 @dlp_service_stub.deidentify_content request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -747,10 +779,10 @@ module Google
               #     processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -841,14 +873,13 @@ module Google
 
                 @dlp_service_stub.reidentify_content request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
               end
 
               ##
-              # Returns a list of the sensitive information types that DLP API
+              # Returns a list of the sensitive information types that the DLP API
               # supports. See
               # https://cloud.google.com/sensitive-data-protection/docs/infotypes-reference
               # to learn more.
@@ -873,7 +904,7 @@ module Google
               #
               #     The format of this value is as follows:
               #
-              #         locations/<var>LOCATION_ID</var>
+              #         `locations/{location_id}`
               #   @param language_code [::String]
               #     BCP-47 language code for localized infoType friendly
               #     names. If omitted, or if localized strings are not available,
@@ -936,7 +967,6 @@ module Google
 
                 @dlp_service_stub.list_info_types request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -971,14 +1001,14 @@ module Google
               #     (project or organization) and whether you have [specified a processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
-              #     + Organizations scope, location specified:<br/>
-              #       `organizations/`<var>ORG_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Organizations scope, no location specified (defaults to global):<br/>
-              #       `organizations/`<var>ORG_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
+              #     + Organizations scope, location specified:
+              #       `organizations/{org_id}/locations/{location_id}`
+              #     + Organizations scope, no location specified (defaults to global):
+              #       `organizations/{org_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -1047,7 +1077,6 @@ module Google
 
                 @dlp_service_stub.create_inspect_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1135,7 +1164,6 @@ module Google
 
                 @dlp_service_stub.update_inspect_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1219,7 +1247,6 @@ module Google
 
                 @dlp_service_stub.get_inspect_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1253,14 +1280,14 @@ module Google
               #     (project or organization) and whether you have [specified a processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
-              #     + Organizations scope, location specified:<br/>
-              #       `organizations/`<var>ORG_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Organizations scope, no location specified (defaults to global):<br/>
-              #       `organizations/`<var>ORG_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
+              #     + Organizations scope, location specified:
+              #       `organizations/{org_id}/locations/{location_id}`
+              #     + Organizations scope, no location specified (defaults to global):
+              #       `organizations/{org_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -1274,7 +1301,7 @@ module Google
               #     Size of the page. This value can be limited by the server. If zero server
               #     returns a page of max size 100.
               #   @param order_by [::String]
-              #     Comma separated list of fields to order by,
+              #     Comma-separated list of fields to order by,
               #     followed by `asc` or `desc` postfix. This list is case insensitive. The
               #     default sorting order is ascending. Redundant space characters are
               #     insignificant.
@@ -1347,7 +1374,7 @@ module Google
                 @dlp_service_stub.list_inspect_templates request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_inspect_templates, "inspect_templates", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1431,7 +1458,6 @@ module Google
 
                 @dlp_service_stub.delete_inspect_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1466,14 +1492,14 @@ module Google
               #     (project or organization) and whether you have [specified a processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
-              #     + Organizations scope, location specified:<br/>
-              #       `organizations/`<var>ORG_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Organizations scope, no location specified (defaults to global):<br/>
-              #       `organizations/`<var>ORG_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
+              #     + Organizations scope, location specified:
+              #       `organizations/{org_id}/locations/{location_id}`
+              #     + Organizations scope, no location specified (defaults to global):
+              #       `organizations/{org_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -1542,7 +1568,6 @@ module Google
 
                 @dlp_service_stub.create_deidentify_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1631,7 +1656,6 @@ module Google
 
                 @dlp_service_stub.update_deidentify_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1715,7 +1739,6 @@ module Google
 
                 @dlp_service_stub.get_deidentify_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1749,14 +1772,14 @@ module Google
               #     (project or organization) and whether you have [specified a processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
-              #     + Organizations scope, location specified:<br/>
-              #       `organizations/`<var>ORG_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Organizations scope, no location specified (defaults to global):<br/>
-              #       `organizations/`<var>ORG_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
+              #     + Organizations scope, location specified:
+              #       `organizations/{org_id}/locations/{location_id}`
+              #     + Organizations scope, no location specified (defaults to global):
+              #       `organizations/{org_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -1770,7 +1793,7 @@ module Google
               #     Size of the page. This value can be limited by the server. If zero server
               #     returns a page of max size 100.
               #   @param order_by [::String]
-              #     Comma separated list of fields to order by,
+              #     Comma-separated list of fields to order by,
               #     followed by `asc` or `desc` postfix. This list is case insensitive. The
               #     default sorting order is ascending. Redundant space characters are
               #     insignificant.
@@ -1843,7 +1866,7 @@ module Google
                 @dlp_service_stub.list_deidentify_templates request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_deidentify_templates, "deidentify_templates", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1928,7 +1951,6 @@ module Google
 
                 @dlp_service_stub.delete_deidentify_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1963,10 +1985,10 @@ module Google
               #     processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -2035,7 +2057,6 @@ module Google
 
                 @dlp_service_stub.create_job_trigger request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2122,7 +2143,6 @@ module Google
 
                 @dlp_service_stub.update_job_trigger request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2206,7 +2226,6 @@ module Google
 
                 @dlp_service_stub.hybrid_inspect_job_trigger request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2289,7 +2308,6 @@ module Google
 
                 @dlp_service_stub.get_job_trigger request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2323,10 +2341,10 @@ module Google
               #     processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -2340,7 +2358,7 @@ module Google
               #   @param page_size [::Integer]
               #     Size of the page. This value can be limited by a server.
               #   @param order_by [::String]
-              #     Comma separated list of triggeredJob fields to order by,
+              #     Comma-separated list of triggeredJob fields to order by,
               #     followed by `asc` or `desc` postfix. This list is case insensitive. The
               #     default sorting order is ascending. Redundant space characters are
               #     insignificant.
@@ -2442,7 +2460,7 @@ module Google
                 @dlp_service_stub.list_job_triggers request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_job_triggers, "job_triggers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2525,7 +2543,6 @@ module Google
 
                 @dlp_service_stub.delete_job_trigger request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2606,7 +2623,6 @@ module Google
 
                 @dlp_service_stub.activate_job_trigger request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2633,8 +2649,13 @@ module Google
               #   @param parent [::String]
               #     Required. Parent resource name.
               #
-              #     The format of this value is as follows:
-              #     `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
+              #     The format of this value varies depending on the scope of the request
+              #     (project or organization):
+              #
+              #     + Projects scope:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Organizations scope:
+              #       `organizations/{org_id}/locations/{location_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -2701,7 +2722,6 @@ module Google
 
                 @dlp_service_stub.create_discovery_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2785,7 +2805,6 @@ module Google
 
                 @dlp_service_stub.update_discovery_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2865,7 +2884,6 @@ module Google
 
                 @dlp_service_stub.get_discovery_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2893,7 +2911,7 @@ module Google
               #     Required. Parent resource name.
               #
               #     The format of this value is as follows:
-              #     `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
+              #     `projects/{project_id}/locations/{location_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -2907,7 +2925,7 @@ module Google
               #   @param page_size [::Integer]
               #     Size of the page. This value can be limited by a server.
               #   @param order_by [::String]
-              #     Comma separated list of config fields to order by,
+              #     Comma-separated list of config fields to order by,
               #     followed by `asc` or `desc` postfix. This list is case insensitive. The
               #     default sorting order is ascending. Redundant space characters are
               #     insignificant.
@@ -2977,7 +2995,7 @@ module Google
                 @dlp_service_stub.list_discovery_configs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_discovery_configs, "discovery_configs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3057,7 +3075,6 @@ module Google
 
                 @dlp_service_stub.delete_discovery_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3097,10 +3114,10 @@ module Google
               #     processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -3109,9 +3126,13 @@ module Google
               #         parent=projects/example-project/locations/europe-west3
               #   @param inspect_job [::Google::Cloud::Dlp::V2::InspectJobConfig, ::Hash]
               #     An inspection job scans a storage repository for InfoTypes.
+              #
+              #     Note: The following fields are mutually exclusive: `inspect_job`, `risk_job`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param risk_job [::Google::Cloud::Dlp::V2::RiskAnalysisJobConfig, ::Hash]
               #     A risk analysis job calculates re-identification risk metrics for a
               #     BigQuery table.
+              #
+              #     Note: The following fields are mutually exclusive: `risk_job`, `inspect_job`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param job_id [::String]
               #     The job id can contain uppercase and lowercase letters,
               #     numbers, and hyphens; that is, it must match the regular
@@ -3172,7 +3193,6 @@ module Google
 
                 @dlp_service_stub.create_dlp_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3208,10 +3228,10 @@ module Google
               #     processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -3254,7 +3274,7 @@ module Google
               #   @param type [::Google::Cloud::Dlp::V2::DlpJobType]
               #     The type of job. Defaults to `DlpJobType.INSPECT`
               #   @param order_by [::String]
-              #     Comma separated list of fields to order by,
+              #     Comma-separated list of fields to order by,
               #     followed by `asc` or `desc` postfix. This list is case insensitive. The
               #     default sorting order is ascending. Redundant space characters are
               #     insignificant.
@@ -3327,7 +3347,7 @@ module Google
                 @dlp_service_stub.list_dlp_jobs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_dlp_jobs, "jobs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3411,7 +3431,6 @@ module Google
 
                 @dlp_service_stub.get_dlp_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3497,7 +3516,6 @@ module Google
 
                 @dlp_service_stub.delete_dlp_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3583,7 +3601,6 @@ module Google
 
                 @dlp_service_stub.cancel_dlp_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3617,14 +3634,14 @@ module Google
               #     (project or organization) and whether you have [specified a processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
-              #     + Organizations scope, location specified:<br/>
-              #       `organizations/`<var>ORG_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Organizations scope, no location specified (defaults to global):<br/>
-              #       `organizations/`<var>ORG_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
+              #     + Organizations scope, location specified:
+              #       `organizations/{org_id}/locations/{location_id}`
+              #     + Organizations scope, no location specified (defaults to global):
+              #       `organizations/{org_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -3693,7 +3710,6 @@ module Google
 
                 @dlp_service_stub.create_stored_info_type request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3784,7 +3800,6 @@ module Google
 
                 @dlp_service_stub.update_stored_info_type request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3868,7 +3883,6 @@ module Google
 
                 @dlp_service_stub.get_stored_info_type request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3902,10 +3916,10 @@ module Google
               #     (project or organization) and whether you have [specified a processing
               #     location](https://cloud.google.com/sensitive-data-protection/docs/specifying-location):
               #
-              #     + Projects scope, location specified:<br/>
-              #       `projects/`<var>PROJECT_ID</var>`/locations/`<var>LOCATION_ID</var>
-              #     + Projects scope, no location specified (defaults to global):<br/>
-              #       `projects/`<var>PROJECT_ID</var>
+              #     + Projects scope, location specified:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Projects scope, no location specified (defaults to global):
+              #       `projects/{project_id}`
               #
               #     The following example `parent` string specifies a parent project with the
               #     identifier `example-project`, and specifies the `europe-west3` location
@@ -3919,7 +3933,7 @@ module Google
               #     Size of the page. This value can be limited by the server. If zero server
               #     returns a page of max size 100.
               #   @param order_by [::String]
-              #     Comma separated list of fields to order by,
+              #     Comma-separated list of fields to order by,
               #     followed by `asc` or `desc` postfix. This list is case insensitive. The
               #     default sorting order is ascending. Redundant space characters are
               #     insignificant.
@@ -3993,7 +4007,7 @@ module Google
                 @dlp_service_stub.list_stored_info_types request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_stored_info_types, "stored_info_types", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4077,7 +4091,6 @@ module Google
 
                 @dlp_service_stub.delete_stored_info_type request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4109,7 +4122,7 @@ module Google
               #     Size of the page. This value can be limited by the server. If zero, server
               #     returns a page of max size 100.
               #   @param order_by [::String]
-              #     Comma separated list of fields to order by, followed by `asc` or `desc`
+              #     Comma-separated list of fields to order by, followed by `asc` or `desc`
               #     postfix. This list is case insensitive. The default sorting order is
               #     ascending. Redundant space characters are insignificant. Only one order
               #     field at a time is allowed.
@@ -4205,7 +4218,7 @@ module Google
                 @dlp_service_stub.list_project_data_profiles request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_project_data_profiles, "project_data_profiles", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4239,7 +4252,7 @@ module Google
               #     Size of the page. This value can be limited by the server. If zero, server
               #     returns a page of max size 100.
               #   @param order_by [::String]
-              #     Comma separated list of fields to order by, followed by `asc` or `desc`
+              #     Comma-separated list of fields to order by, followed by `asc` or `desc`
               #     postfix. This list is case insensitive. The default sorting order is
               #     ascending. Redundant space characters are insignificant. Only one order
               #     field at a time is allowed.
@@ -4346,7 +4359,7 @@ module Google
                 @dlp_service_stub.list_table_data_profiles request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_table_data_profiles, "table_data_profiles", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4380,12 +4393,13 @@ module Google
               #     Size of the page. This value can be limited by the server. If zero, server
               #     returns a page of max size 100.
               #   @param order_by [::String]
-              #     Comma separated list of fields to order by, followed by `asc` or `desc`
+              #     Comma-separated list of fields to order by, followed by `asc` or `desc`
               #     postfix. This list is case insensitive. The default sorting order is
               #     ascending. Redundant space characters are insignificant. Only one order
               #     field at a time is allowed.
               #
               #     Examples:
+              #
               #     * `project_id asc`
               #     * `table_id`
               #     * `sensitivity_level desc`
@@ -4488,7 +4502,7 @@ module Google
                 @dlp_service_stub.list_column_data_profiles request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_column_data_profiles, "column_data_profiles", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4568,7 +4582,310 @@ module Google
 
                 @dlp_service_stub.get_project_data_profile request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists file store data profiles for an organization.
+              #
+              # @overload list_file_store_data_profiles(request, options = nil)
+              #   Pass arguments to `list_file_store_data_profiles` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::ListFileStoreDataProfilesRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::ListFileStoreDataProfilesRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_file_store_data_profiles(parent: nil, page_token: nil, page_size: nil, order_by: nil, filter: nil)
+              #   Pass arguments to `list_file_store_data_profiles` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Resource name of the organization or project, for
+              #     example `organizations/433245324/locations/europe` or
+              #     `projects/project-id/locations/asia`.
+              #   @param page_token [::String]
+              #     Optional. Page token to continue retrieval.
+              #   @param page_size [::Integer]
+              #     Optional. Size of the page. This value can be limited by the server. If
+              #     zero, server returns a page of max size 100.
+              #   @param order_by [::String]
+              #     Optional. Comma-separated list of fields to order by, followed by `asc` or
+              #     `desc` postfix. This list is case insensitive. The default sorting order is
+              #     ascending. Redundant space characters are insignificant. Only one order
+              #     field at a time is allowed.
+              #
+              #     Examples:
+              #
+              #     * `project_id asc`
+              #     * `name`
+              #     * `sensitivity_level desc`
+              #
+              #     Supported fields are:
+              #
+              #     - `project_id`: The Google Cloud project ID.
+              #     - `sensitivity_level`: How sensitive the data in a table is, at most.
+              #     - `data_risk_level`: How much risk is associated with this data.
+              #     - `profile_last_generated`: When the profile was last updated in epoch
+              #     seconds.
+              #     - `last_modified`: The last time the resource was modified.
+              #     - `resource_visibility`: Visibility restriction for this resource.
+              #     - `name`: The name of the profile.
+              #     - `create_time`: The time the file store was first created.
+              #   @param filter [::String]
+              #     Optional. Allows filtering.
+              #
+              #     Supported syntax:
+              #
+              #     * Filter expressions are made up of one or more restrictions.
+              #     * Restrictions can be combined by `AND` or `OR` logical operators. A
+              #     sequence of restrictions implicitly uses `AND`.
+              #     * A restriction has the form of `{field} {operator} {value}`.
+              #     * Supported fields/values:
+              #         - `project_id` - The Google Cloud project ID.
+              #         - `account_id` - The AWS account ID.
+              #         - `file_store_path` - The path like "gs://bucket".
+              #         - `data_source_type` - The profile's data source type, like
+              #         "google/storage/bucket".
+              #         - `data_storage_location` - The location where the file store's data is
+              #         stored, like "us-central1".
+              #         - `sensitivity_level` - HIGH|MODERATE|LOW
+              #         - `data_risk_level` - HIGH|MODERATE|LOW
+              #         - `resource_visibility`: PUBLIC|RESTRICTED
+              #         - `status_code` - an RPC status code as defined in
+              #         https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+              #     * The operator must be `=` or `!=`.
+              #
+              #     Examples:
+              #
+              #     * `project_id = 12345 AND status_code = 1`
+              #     * `project_id = 12345 AND sensitivity_level = HIGH`
+              #     * `project_id = 12345 AND resource_visibility = PUBLIC`
+              #     * `file_store_path = "gs://mybucket"`
+              #
+              #     The length of this field should be no more than 500 characters.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::FileStoreDataProfile>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::FileStoreDataProfile>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::ListFileStoreDataProfilesRequest.new
+              #
+              #   # Call the list_file_store_data_profiles method.
+              #   result = client.list_file_store_data_profiles request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Dlp::V2::FileStoreDataProfile.
+              #     p item
+              #   end
+              #
+              def list_file_store_data_profiles request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::ListFileStoreDataProfilesRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_file_store_data_profiles.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_file_store_data_profiles.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_file_store_data_profiles.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.list_file_store_data_profiles request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_file_store_data_profiles, "file_store_data_profiles", request, result, options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets a file store data profile.
+              #
+              # @overload get_file_store_data_profile(request, options = nil)
+              #   Pass arguments to `get_file_store_data_profile` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::GetFileStoreDataProfileRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::GetFileStoreDataProfileRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_file_store_data_profile(name: nil)
+              #   Pass arguments to `get_file_store_data_profile` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name, for example
+              #     `organizations/12345/locations/us/fileStoreDataProfiles/53234423`.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dlp::V2::FileStoreDataProfile]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dlp::V2::FileStoreDataProfile]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::GetFileStoreDataProfileRequest.new
+              #
+              #   # Call the get_file_store_data_profile method.
+              #   result = client.get_file_store_data_profile request
+              #
+              #   # The returned object is of type Google::Cloud::Dlp::V2::FileStoreDataProfile.
+              #   p result
+              #
+              def get_file_store_data_profile request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::GetFileStoreDataProfileRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_file_store_data_profile.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_file_store_data_profile.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_file_store_data_profile.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.get_file_store_data_profile request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Delete a FileStoreDataProfile. Will not prevent the profile from being
+              # regenerated if the resource is still included in a discovery configuration.
+              #
+              # @overload delete_file_store_data_profile(request, options = nil)
+              #   Pass arguments to `delete_file_store_data_profile` via a request object, either of type
+              #   {::Google::Cloud::Dlp::V2::DeleteFileStoreDataProfileRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dlp::V2::DeleteFileStoreDataProfileRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_file_store_data_profile(name: nil)
+              #   Pass arguments to `delete_file_store_data_profile` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Resource name of the file store data profile.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Protobuf::Empty]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dlp/v2"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dlp::V2::DlpService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dlp::V2::DeleteFileStoreDataProfileRequest.new
+              #
+              #   # Call the delete_file_store_data_profile method.
+              #   result = client.delete_file_store_data_profile request
+              #
+              #   # The returned object is of type Google::Protobuf::Empty.
+              #   p result
+              #
+              def delete_file_store_data_profile request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dlp::V2::DeleteFileStoreDataProfileRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_file_store_data_profile.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dlp::V2::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_file_store_data_profile.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_file_store_data_profile.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dlp_service_stub.delete_file_store_data_profile request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4648,7 +4965,6 @@ module Google
 
                 @dlp_service_stub.get_table_data_profile request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4728,7 +5044,6 @@ module Google
 
                 @dlp_service_stub.get_column_data_profile request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4808,7 +5123,6 @@ module Google
 
                 @dlp_service_stub.delete_table_data_profile request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4892,7 +5206,6 @@ module Google
 
                 @dlp_service_stub.hybrid_inspect_dlp_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4972,7 +5285,6 @@ module Google
 
                 @dlp_service_stub.finish_dlp_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4997,8 +5309,15 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param parent [::String]
-              #     Required. Parent resource name in the format:
-              #     `projects/{project}/locations/{location}`.
+              #     Required. Parent resource name.
+              #
+              #     The format of this value varies depending on the scope of the request
+              #     (project or organization):
+              #
+              #     + Projects scope:
+              #       `projects/{project_id}/locations/{location_id}`
+              #     + Organizations scope:
+              #       `organizations/{org_id}/locations/{location_id}`
               #   @param connection [::Google::Cloud::Dlp::V2::Connection, ::Hash]
               #     Required. The connection resource.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -5054,7 +5373,6 @@ module Google
 
                 @dlp_service_stub.create_connection request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5134,14 +5452,14 @@ module Google
 
                 @dlp_service_stub.get_connection request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
               end
 
               ##
-              # Lists Connections in a parent.
+              # Lists Connections in a parent. Use SearchConnections to see all connections
+              # within an organization.
               #
               # @overload list_connections(request, options = nil)
               #   Pass arguments to `list_connections` via a request object, either of type
@@ -5159,16 +5477,16 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param parent [::String]
-              #     Required. Parent name, for example:
-              #     `projects/project-id/locations/global`.
+              #     Required. Resource name of the organization or project, for
+              #     example, `organizations/433245324/locations/europe` or
+              #     `projects/project-id/locations/asia`.
               #   @param page_size [::Integer]
               #     Optional. Number of results per page, max 1000.
               #   @param page_token [::String]
               #     Optional. Page token from a previous page to return the next set of
               #     results. If set, all other request fields must match the original request.
               #   @param filter [::String]
-              #     Optional. * Supported fields/values
-              #         - `state` - MISSING|AVAILABLE|ERROR
+              #     Optional. Supported field/value: `state` - MISSING|AVAILABLE|ERROR
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::Connection>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -5227,7 +5545,7 @@ module Google
                 @dlp_service_stub.list_connections request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :list_connections, "connections", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5252,16 +5570,16 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param parent [::String]
-              #     Required. Parent name, typically an organization, without location.
-              #     For example: `organizations/12345678`.
+              #     Required. Resource name of the organization or project with a wildcard
+              #     location, for example, `organizations/433245324/locations/-` or
+              #     `projects/project-id/locations/-`.
               #   @param page_size [::Integer]
               #     Optional. Number of results per page, max 1000.
               #   @param page_token [::String]
               #     Optional. Page token from a previous page to return the next set of
               #     results. If set, all other request fields must match the original request.
               #   @param filter [::String]
-              #     Optional. * Supported fields/values
-              #         - `state` - MISSING|AVAILABLE|ERROR
+              #     Optional. Supported field/value: - `state` - MISSING|AVAILABLE|ERROR
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dlp::V2::Connection>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -5320,7 +5638,7 @@ module Google
                 @dlp_service_stub.search_connections request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dlp_service_stub, :search_connections, "connections", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5400,7 +5718,6 @@ module Google
 
                 @dlp_service_stub.delete_connection request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5484,7 +5801,6 @@ module Google
 
                 @dlp_service_stub.update_connection request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5532,6 +5848,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -5564,6 +5887,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -5585,6 +5913,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -5829,6 +6158,21 @@ module Google
                   #
                   attr_reader :get_project_data_profile
                   ##
+                  # RPC-specific configuration for `list_file_store_data_profiles`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_file_store_data_profiles
+                  ##
+                  # RPC-specific configuration for `get_file_store_data_profile`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_file_store_data_profile
+                  ##
+                  # RPC-specific configuration for `delete_file_store_data_profile`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_file_store_data_profile
+                  ##
                   # RPC-specific configuration for `get_table_data_profile`
                   # @return [::Gapic::Config::Method]
                   #
@@ -5968,6 +6312,12 @@ module Google
                     @list_column_data_profiles = ::Gapic::Config::Method.new list_column_data_profiles_config
                     get_project_data_profile_config = parent_rpcs.get_project_data_profile if parent_rpcs.respond_to? :get_project_data_profile
                     @get_project_data_profile = ::Gapic::Config::Method.new get_project_data_profile_config
+                    list_file_store_data_profiles_config = parent_rpcs.list_file_store_data_profiles if parent_rpcs.respond_to? :list_file_store_data_profiles
+                    @list_file_store_data_profiles = ::Gapic::Config::Method.new list_file_store_data_profiles_config
+                    get_file_store_data_profile_config = parent_rpcs.get_file_store_data_profile if parent_rpcs.respond_to? :get_file_store_data_profile
+                    @get_file_store_data_profile = ::Gapic::Config::Method.new get_file_store_data_profile_config
+                    delete_file_store_data_profile_config = parent_rpcs.delete_file_store_data_profile if parent_rpcs.respond_to? :delete_file_store_data_profile
+                    @delete_file_store_data_profile = ::Gapic::Config::Method.new delete_file_store_data_profile_config
                     get_table_data_profile_config = parent_rpcs.get_table_data_profile if parent_rpcs.respond_to? :get_table_data_profile
                     @get_table_data_profile = ::Gapic::Config::Method.new get_table_data_profile_config
                     get_column_data_profile_config = parent_rpcs.get_column_data_profile if parent_rpcs.respond_to? :get_column_data_profile

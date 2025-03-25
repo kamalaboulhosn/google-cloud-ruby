@@ -60,6 +60,9 @@ at_most_one desc: "Source" do
     default(ENV["GOOGLEAPIS_GEN_GITHUB_TOKEN"] || ENV["GITHUB_TOKEN"])
     desc "GitHub token for cloning the googleapis-gen repository."
   end
+  flag :pull_googleapis, "--pull-googleapis[=COMMIT]" do
+    desc "Generate by pulling googleapis/googleapis and running Bazel from the protos there"
+  end
   flag :source_path, "--source-path=PATH" do
     desc "Path to the googleapis-gen source repo."
   end
@@ -75,6 +78,9 @@ flag :combined_prs do
 end
 flag :enable_tests, "--test" do
   desc "Run CI on each library"
+end
+flag :enable_bazelisk, "--bazelisk" do
+  desc "Enable running bazel commands with bazelisk"
 end
 
 OWLBOT_CONFIG_FILE_NAME = ".OwlBot.yaml"
@@ -96,9 +102,10 @@ def run
   gems = choose_gems
   cd context_directory
   setup_git
-  gem_info = collect_gem_info gems
-
   pull_images
+  maybe_pull_googleapis
+
+  gem_info = collect_gem_info gems
   if piper_client || protos_path
     set :source_path, run_bazel(gem_info)
   else
@@ -160,6 +167,24 @@ def pull_images
   exec ["docker", "pull", "#{POSTPROCESSOR_IMAGE}:#{postprocessor_tag}"]
 end
 
+def maybe_pull_googleapis
+  return unless pull_googleapis
+  commit = pull_googleapis
+  commit = "HEAD" if commit == true
+  googleapis_dir = File.join context_directory, "tmp", "googleapis"
+  rm_rf googleapis_dir
+  mkdir_p googleapis_dir
+  at_exit { FileUtils.rm_rf googleapis_dir }
+  cd googleapis_dir do
+    exec ["git", "init"]
+    exec ["git", "remote", "add", "origin", "https://github.com/googleapis/googleapis.git"]
+    exec ["git", "fetch", "--depth=1", "origin", commit]
+    exec ["git", "branch", "github-head", "FETCH_HEAD"]
+    exec ["git", "switch", "github-head"]
+  end
+  set :protos_path, googleapis_dir
+end
+
 def collect_gem_info gems
   gem_info = {}
   gems.each do |name|
@@ -199,15 +224,17 @@ def determine_bazel_target library_path
 end
 
 def run_bazel gem_info
+  bazel_alias = enable_bazelisk ? "bazelisk" : "bazel"
   gem_info.each_value do |info|
     info[:bazel_targets].each do |library_path, bazel_target|
-      exec ["bazel", "build", "//#{library_path}:#{bazel_target}"], chdir: bazel_base_dir
+      exec [bazel_alias, "build", "--verbose_failures", "//#{library_path}:#{bazel_target}"], chdir: bazel_base_dir
     end
   end
+  source_dir = capture([bazel_alias, "info", "bazel-bin"], chdir: bazel_base_dir).chomp
   temp_dir = Dir.mktmpdir
   at_exit { FileUtils.rm_rf temp_dir }
   results_dir = File.join temp_dir, "bazel-bin"
-  cp_r File.join(bazel_base_dir, "bazel-bin"), results_dir
+  cp_r source_dir, results_dir
   results_dir
 end
 
@@ -321,10 +348,7 @@ def process_single_gem name, temp_staging_dir
   return unless enable_tests
   cd name do
     exec ["bundle", "install"]
-    # The MT_COMPAT environment variable is a temporary hack to allow
-    # minitest-rg 5.2.0 to work in minitest 5.19 or later. This should be
-    # removed if we have a better solution or decide to drop rg.
-    exec ["bundle", "exec", "rake", "ci"], env: { "MT_COMPAT" => "true" }
+    exec ["toys", "ci", "--rubocop", "--yard", "--test"]
   end
 end
 

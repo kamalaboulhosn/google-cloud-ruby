@@ -33,24 +33,24 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SearchTuningService::Rest::Clien
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SearchTuningService::Rest::Clien
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_train_custom_model
@@ -82,8 +90,9 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SearchTuningService::Rest::Clien
     data_store = "hello world"
     model_type = "hello world"
     error_config = {}
+    model_id = "hello world"
 
-    train_custom_model_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    train_custom_model_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -97,32 +106,86 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::SearchTuningService::Rest::Clien
         end
 
         # Use hash object
-        client.train_custom_model({ gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config }) do |_result, response|
+        client.train_custom_model({ gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config, model_id: model_id }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.train_custom_model gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config do |_result, response|
+        client.train_custom_model gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config, model_id: model_id do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.train_custom_model ::Google::Cloud::DiscoveryEngine::V1beta::TrainCustomModelRequest.new(gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config) do |_result, response|
+        client.train_custom_model ::Google::Cloud::DiscoveryEngine::V1beta::TrainCustomModelRequest.new(gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config, model_id: model_id) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.train_custom_model({ gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config }, call_options) do |_result, response|
+        client.train_custom_model({ gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config, model_id: model_id }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.train_custom_model(::Google::Cloud::DiscoveryEngine::V1beta::TrainCustomModelRequest.new(gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config), call_options) do |_result, response|
+        client.train_custom_model(::Google::Cloud::DiscoveryEngine::V1beta::TrainCustomModelRequest.new(gcs_training_input: gcs_training_input, data_store: data_store, model_type: model_type, error_config: error_config, model_id: model_id), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Verify method calls
         assert_equal 5, train_custom_model_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_custom_models
+    # Create test objects.
+    client_result = ::Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    data_store = "hello world"
+
+    list_custom_models_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::DiscoveryEngine::V1beta::SearchTuningService::Rest::ServiceStub.stub :transcode_list_custom_models_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_custom_models_client_stub do
+        # Create client
+        client = ::Google::Cloud::DiscoveryEngine::V1beta::SearchTuningService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_custom_models({ data_store: data_store }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_custom_models data_store: data_store do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_custom_models ::Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsRequest.new(data_store: data_store) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_custom_models({ data_store: data_store }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_custom_models(::Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsRequest.new(data_store: data_store), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_custom_models_client_stub.call_count
       end
     end
   end

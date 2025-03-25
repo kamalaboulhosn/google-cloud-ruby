@@ -1,5 +1,77 @@
 # Changelog
 
+### 0.22.0 (2025-02-05)
+
+#### Features
+
+* Added the build_config field to the Service resource 
+* Added the creator field to the Execution resource 
+* Support for Container base image URI and build info 
+* Support for project descriptor files ([#28918](https://github.com/googleapis/google-cloud-ruby/issues/28918)) 
+
+### 0.21.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.20.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.19.0 (2024-12-04)
+
+#### Features
+
+* Support for manual instance count ([#27649](https://github.com/googleapis/google-cloud-ruby/issues/27649)) 
+
+### 0.18.0 (2024-11-13)
+
+#### Features
+
+* Add EncryptionKeyRevocationAction and shutdown duration configuration to Services ([#27604](https://github.com/googleapis/google-cloud-ruby/issues/27604)) 
+* support advanced configurations options for cloud storage volumes by setting `mount_options` in the GCSVolumeSource configuration ([#27583](https://github.com/googleapis/google-cloud-ruby/issues/27583)) 
+#### Documentation
+
+* A comment for field `max_instance_request_concurrency` in message `.google.cloud.run.v2.RevisionTemplate` is changed 
+* For field `invoker_iam_disabled` in message `.google.cloud.run.v2.Service`, clarify that feature is available by invitation only 
+* formatting updates 
+* Update docs for field `value` in message `.google.cloud.run.v2.EnvVar` to reflect Cloud Run product capabilities 
+
+### 0.17.0 (2024-10-15)
+
+#### Features
+
+* Services now report all URLs serving traffic 
+* Support for disabling IAM permission check for invokers 
+* Support for revision node selector 
+* Support for service mesh connectivity 
+* Support for service scaling modes 
+* Support for the Builds service and submit_build RPC 
+
+### 0.16.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27011](https://github.com/googleapis/google-cloud-ruby/issues/27011)) 
+
+### 0.16.0 (2024-07-10)
+
+#### Features
+
+* add Job ExecutionReference.completion_status to show status of the most recent execution 
+* add Job start_execution_token and run_execution_token to execute jobs immediately on creation 
+* support update_mask in Cloud Run UpdateService ([#26373](https://github.com/googleapis/google-cloud-ruby/issues/26373)) 
+#### Documentation
+
+* clarify optional fields in Cloud Run requests 
+
 ### 0.15.0 (2024-03-06)
 
 #### Features

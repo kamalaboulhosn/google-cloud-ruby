@@ -43,8 +43,8 @@ module Google
           # @!attribute [rw] webhook
           #   @return [::String]
           #     The webhook to call.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/webhooks/<Webhook ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/webhooks/<WebhookID>`.
           # @!attribute [rw] return_partial_responses
           #   @return [::Boolean]
           #     Whether Dialogflow should return currently queued fulfillment response
@@ -129,9 +129,13 @@ module Google
                 # @!attribute [rw] message
                 #   @return [::Google::Cloud::Dialogflow::CX::V3::ResponseMessage]
                 #     Returned message.
+                #
+                #     Note: The following fields are mutually exclusive: `message`, `additional_cases`. If a field in that set is populated, all other fields in the set will automatically be cleared.
                 # @!attribute [rw] additional_cases
                 #   @return [::Google::Cloud::Dialogflow::CX::V3::Fulfillment::ConditionalCases]
                 #     Additional cases to be evaluated.
+                #
+                #     Note: The following fields are mutually exclusive: `additional_cases`, `message`. If a field in that set is populated, all other fields in the set will automatically be cleared.
                 class CaseContent
                   include ::Google::Protobuf::MessageExts
                   extend ::Google::Protobuf::MessageExts::ClassMethods

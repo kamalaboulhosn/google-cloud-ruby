@@ -26,18 +26,18 @@ module Google
         # @!attribute [rw] connector
         #   @return [::String]
         #     VPC Access connector name.
-        #     Format: projects/\\{project}/locations/\\{location}/connectors/\\{connector},
-        #     where \\{project} can be project id or number.
+        #     Format: `projects/{project}/locations/{location}/connectors/{connector}`,
+        #     where `{project}` can be project id or number.
         #     For more information on sending traffic to a VPC network via a connector,
         #     visit https://cloud.google.com/run/docs/configuring/vpc-connectors.
         # @!attribute [rw] egress
         #   @return [::Google::Cloud::Run::V2::VpcAccess::VpcEgress]
-        #     Traffic VPC egress settings. If not provided, it defaults to
+        #     Optional. Traffic VPC egress settings. If not provided, it defaults to
         #     PRIVATE_RANGES_ONLY.
         # @!attribute [rw] network_interfaces
         #   @return [::Array<::Google::Cloud::Run::V2::VpcAccess::NetworkInterface>]
-        #     Direct VPC egress settings. Currently only single network interface is
-        #     supported.
+        #     Optional. Direct VPC egress settings. Currently only single network
+        #     interface is supported.
         class VpcAccess
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -45,21 +45,21 @@ module Google
           # Direct VPC egress settings.
           # @!attribute [rw] network
           #   @return [::String]
-          #     The VPC network that the Cloud Run resource will be able to send traffic
-          #     to. At least one of network or subnetwork must be specified. If both
-          #     network and subnetwork are specified, the given VPC subnetwork must
-          #     belong to the given VPC network. If network is not specified, it will be
-          #     looked up from the subnetwork.
+          #     Optional. The VPC network that the Cloud Run resource will be able to
+          #     send traffic to. At least one of network or subnetwork must be specified.
+          #     If both network and subnetwork are specified, the given VPC subnetwork
+          #     must belong to the given VPC network. If network is not specified, it
+          #     will be looked up from the subnetwork.
           # @!attribute [rw] subnetwork
           #   @return [::String]
-          #     The VPC subnetwork that the Cloud Run resource will get IPs from. At
-          #     least one of network or subnetwork must be specified. If both
+          #     Optional. The VPC subnetwork that the Cloud Run resource will get IPs
+          #     from. At least one of network or subnetwork must be specified. If both
           #     network and subnetwork are specified, the given VPC subnetwork must
           #     belong to the given VPC network. If subnetwork is not specified, the
           #     subnetwork with the same name with the network will be used.
           # @!attribute [rw] tags
           #   @return [::Array<::String>]
-          #     Network tags applied to this Cloud Run resource.
+          #     Optional. Network tags applied to this Cloud Run resource.
           class NetworkInterface
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -81,11 +81,19 @@ module Google
         # Settings for Binary Authorization feature.
         # @!attribute [rw] use_default
         #   @return [::Boolean]
-        #     If True, indicates to use the default project's binary authorization
-        #     policy. If False, binary authorization will be disabled.
+        #     Optional. If True, indicates to use the default project's binary
+        #     authorization policy. If False, binary authorization will be disabled.
+        #
+        #     Note: The following fields are mutually exclusive: `use_default`, `policy`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] policy
+        #   @return [::String]
+        #     Optional. The path to a binary authorization policy.
+        #     Format: `projects/{project}/platforms/cloudRun/{policy-name}`
+        #
+        #     Note: The following fields are mutually exclusive: `policy`, `use_default`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] breakglass_justification
         #   @return [::String]
-        #     If present, indicates to use Breakglass using this justification.
+        #     Optional. If present, indicates to use Breakglass using this justification.
         #     If use_default is False, then it must be empty.
         #     For more information on breakglass, see
         #     https://cloud.google.com/binary-authorization/docs/using-breakglass
@@ -97,11 +105,27 @@ module Google
         # Settings for revision-level scaling settings.
         # @!attribute [rw] min_instance_count
         #   @return [::Integer]
-        #     Minimum number of serving instances that this resource should have.
+        #     Optional. Minimum number of serving instances that this resource should
+        #     have.
         # @!attribute [rw] max_instance_count
         #   @return [::Integer]
-        #     Maximum number of serving instances that this resource should have.
+        #     Optional. Maximum number of serving instances that this resource should
+        #     have. When unspecified, the field is set to the server default value of
+        #     100. For more information see
+        #     https://cloud.google.com/run/docs/configuring/max-instances
         class RevisionScaling
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Settings for Cloud Service Mesh. For more information see
+        # https://cloud.google.com/service-mesh/docs/overview.
+        # @!attribute [rw] mesh
+        #   @return [::String]
+        #     The Mesh resource name. Format:
+        #     `projects/{project}/locations/global/meshes/{mesh}`, where `{project}` can
+        #     be project id or number.
+        class ServiceMesh
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
@@ -110,12 +134,97 @@ module Google
         # at the revision level.
         # @!attribute [rw] min_instance_count
         #   @return [::Integer]
-        #     total min instances for the service. This number of instances is
+        #     Optional. total min instances for the service. This number of instances is
         #     divided among all revisions with specified traffic based on the percent
-        #     of traffic they are receiving. (BETA)
+        #     of traffic they are receiving.
+        # @!attribute [rw] scaling_mode
+        #   @return [::Google::Cloud::Run::V2::ServiceScaling::ScalingMode]
+        #     Optional. The scaling mode for the service.
+        # @!attribute [rw] manual_instance_count
+        #   @return [::Integer]
+        #     Optional. total instance count for the service in manual scaling mode. This
+        #     number of instances is divided among all revisions with specified traffic
+        #     based on the percent of traffic they are receiving.
         class ServiceScaling
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # The scaling mode for the service. If not provided, it defaults to
+          # AUTOMATIC.
+          module ScalingMode
+            # Unspecified.
+            SCALING_MODE_UNSPECIFIED = 0
+
+            # Scale based on traffic between min and max instances.
+            AUTOMATIC = 1
+
+            # Scale to exactly min instances and ignore max instances.
+            MANUAL = 2
+          end
+        end
+
+        # Hardware constraints configuration.
+        # @!attribute [rw] accelerator
+        #   @return [::String]
+        #     Required. GPU accelerator type to attach to an instance.
+        class NodeSelector
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Describes the Build step of the function that builds a container from the
+        # given source.
+        # @!attribute [r] name
+        #   @return [::String]
+        #     Output only. The Cloud Build name of the latest successful deployment of
+        #     the function.
+        # @!attribute [rw] source_location
+        #   @return [::String]
+        #     The Cloud Storage bucket URI where the function source code is located.
+        # @!attribute [rw] function_target
+        #   @return [::String]
+        #     Optional. The name of the function (as defined in source code) that will be
+        #     executed. Defaults to the resource name suffix, if not specified. For
+        #     backward compatibility, if function with given name is not found, then the
+        #     system will try to use function named "function".
+        # @!attribute [rw] image_uri
+        #   @return [::String]
+        #     Optional. Artifact Registry URI to store the built image.
+        # @!attribute [rw] base_image
+        #   @return [::String]
+        #     Optional. The base image used to build the function.
+        # @!attribute [rw] enable_automatic_updates
+        #   @return [::Boolean]
+        #     Optional. Sets whether the function will receive automatic base image
+        #     updates.
+        # @!attribute [rw] worker_pool
+        #   @return [::String]
+        #     Optional. Name of the Cloud Build Custom Worker Pool that should be used to
+        #     build the Cloud Run function. The format of this field is
+        #     `projects/{project}/locations/{region}/workerPools/{workerPool}` where
+        #     `{project}` and `{region}` are the project id and region respectively where
+        #     the worker pool is defined and `{workerPool}` is the short name of the
+        #     worker pool.
+        # @!attribute [rw] environment_variables
+        #   @return [::Google::Protobuf::Map{::String => ::String}]
+        #     Optional. User-provided build-time environment variables for the function
+        # @!attribute [rw] service_account
+        #   @return [::String]
+        #     Optional. Service account to be used for building the container. The format
+        #     of this field is
+        #     `projects/{projectId}/serviceAccounts/{serviceAccountEmail}`.
+        class BuildConfig
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # @!attribute [rw] key
+          #   @return [::String]
+          # @!attribute [rw] value
+          #   @return [::String]
+          class EnvironmentVariablesEntry
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
         end
 
         # Allowed ingress traffic for the Container.
@@ -131,6 +240,9 @@ module Google
 
           # Both internal and Google Cloud Load Balancer traffic is allowed.
           INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER = 3
+
+          # No ingress traffic is allowed.
+          INGRESS_TRAFFIC_NONE = 4
         end
 
         # Alternatives for execution environments.

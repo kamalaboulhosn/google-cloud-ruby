@@ -26,8 +26,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     The name of the experiment.
-          #     Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>/experiments/<Experiment ID>..
+          #     Format:
+          #     projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>/experiments/<ExperimentID>.
           # @!attribute [rw] display_name
           #   @return [::String]
           #     Required. The human-readable name of the experiment (unique in an
@@ -146,9 +146,13 @@ module Google
               # @!attribute [rw] ratio
               #   @return [::Float]
               #     Ratio value of a metric.
+              #
+              #     Note: The following fields are mutually exclusive: `ratio`, `count`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @!attribute [rw] count
               #   @return [::Float]
               #     Count value of a metric.
+              #
+              #     Note: The following fields are mutually exclusive: `count`, `ratio`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @!attribute [rw] confidence_interval
               #   @return [::Google::Cloud::Dialogflow::CX::V3::Experiment::Result::ConfidenceInterval]
               #     The probability that the treatment is better than all other treatments
@@ -162,8 +166,8 @@ module Google
               # @!attribute [rw] version
               #   @return [::String]
               #     The name of the flow {::Google::Cloud::Dialogflow::CX::V3::Version Version}.
-              #     Format: `projects/<Project ID>/locations/<Location
-              #     ID>/agents/<Agent ID>/flows/<Flow ID>/versions/<Version ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/versions/<VersionID>`.
               # @!attribute [rw] metrics
               #   @return [::Array<::Google::Cloud::Dialogflow::CX::V3::Experiment::Result::Metric>]
               #     The metrics and corresponding confidence intervals in the inference
@@ -245,8 +249,8 @@ module Google
             # @!attribute [rw] version
             #   @return [::String]
             #     The name of the flow version.
-            #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-            #     ID>/flows/<Flow ID>/versions/<Version ID>`.
+            #     Format:
+            #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/versions/<VersionID>`.
             # @!attribute [rw] traffic_allocation
             #   @return [::Float]
             #     Percentage of the traffic which should be routed to this
@@ -333,9 +337,8 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The {::Google::Cloud::Dialogflow::CX::V3::Environment Environment} to
-          #     list all environments for. Format: `projects/<Project
-          #     ID>/locations/<Location ID>/agents/<Agent ID>/environments/<Environment
-          #     ID>`.
+          #     list all environments for. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>`.
           # @!attribute [rw] page_size
           #   @return [::Integer]
           #     The maximum number of items to return in a single page. By default 20 and
@@ -371,8 +374,7 @@ module Google
           #   @return [::String]
           #     Required. The name of the
           #     {::Google::Cloud::Dialogflow::CX::V3::Environment Environment}. Format:
-          #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>/experiments/<Experiment ID>`.
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>/experiments/<ExperimentID>`.
           class GetExperimentRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -384,8 +386,7 @@ module Google
           #   @return [::String]
           #     Required. The {::Google::Cloud::Dialogflow::CX::V3::Agent Agent} to create an
           #     {::Google::Cloud::Dialogflow::CX::V3::Environment Environment} for. Format:
-          #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>`.
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>`.
           # @!attribute [rw] experiment
           #   @return [::Google::Cloud::Dialogflow::CX::V3::Experiment]
           #     Required. The experiment to create.
@@ -413,8 +414,7 @@ module Google
           #   @return [::String]
           #     Required. The name of the
           #     {::Google::Cloud::Dialogflow::CX::V3::Environment Environment} to delete. Format:
-          #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>/experiments/<Experiment ID>`.
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>/experiments/<ExperimentID>`.
           class DeleteExperimentRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -425,8 +425,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. Resource name of the experiment to start.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>/experiments/<Experiment ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>/experiments/<ExperimentID>`.
           class StartExperimentRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -437,8 +437,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. Resource name of the experiment to stop.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/environments/<Environment ID>/experiments/<Experiment ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>/experiments/<ExperimentID>`.
           class StopExperimentRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

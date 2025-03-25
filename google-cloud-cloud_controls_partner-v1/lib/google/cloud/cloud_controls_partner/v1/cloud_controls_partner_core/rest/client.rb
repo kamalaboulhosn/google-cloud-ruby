@@ -185,8 +185,28 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @cloud_controls_partner_core_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
+              end
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @cloud_controls_partner_core_stub.logger
               end
 
               # Service calls
@@ -265,7 +285,6 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_workload request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -304,10 +323,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1::ListWorkloadsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1::Workload>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::CloudControlsPartner::V1::ListWorkloadsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1::Workload>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -359,8 +378,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @cloud_controls_partner_core_stub.list_workloads request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @cloud_controls_partner_core_stub, :list_workloads, "workloads", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -440,7 +460,6 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_customer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -478,10 +497,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1::ListCustomersResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1::Customer>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::CloudControlsPartner::V1::ListCustomersResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1::Customer>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -533,8 +552,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @cloud_controls_partner_core_stub.list_customers request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @cloud_controls_partner_core_stub, :list_customers, "customers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -614,7 +634,6 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_ekm_connections request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -694,14 +713,14 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_partner_permissions request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
               end
 
               ##
-              # Lists access requests associated with a workload
+              # Deprecated: Only returns access approval requests directly associated with
+              # an assured workload folder.
               #
               # @overload list_access_approval_requests(request, options = nil)
               #   Pass arguments to `list_access_approval_requests` via a request object, either of type
@@ -735,10 +754,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1::ListAccessApprovalRequestsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1::AccessApprovalRequest>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::CloudControlsPartner::V1::ListAccessApprovalRequestsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1::AccessApprovalRequest>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -790,8 +809,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @cloud_controls_partner_core_stub.list_access_approval_requests request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @cloud_controls_partner_core_stub, :list_access_approval_requests, "access_approval_requests", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -871,7 +891,6 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_partner request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -919,6 +938,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -951,6 +977,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -972,6 +1003,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

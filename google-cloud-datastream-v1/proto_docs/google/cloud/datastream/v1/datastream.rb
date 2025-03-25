@@ -29,25 +29,44 @@ module Google
         # @!attribute [rw] connection_profile
         #   @return [::Google::Cloud::Datastream::V1::ConnectionProfile]
         #     An ad-hoc connection profile configuration.
+        #
+        #     Note: The following fields are mutually exclusive: `connection_profile`, `connection_profile_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] connection_profile_name
         #   @return [::String]
         #     A reference to an existing connection profile.
+        #
+        #     Note: The following fields are mutually exclusive: `connection_profile_name`, `connection_profile`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] full_hierarchy
         #   @return [::Boolean]
         #     Whether to retrieve the full hierarchy of data objects (TRUE) or only the
         #     current level (FALSE).
+        #
+        #     Note: The following fields are mutually exclusive: `full_hierarchy`, `hierarchy_depth`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] hierarchy_depth
         #   @return [::Integer]
         #     The number of hierarchy levels below the current level to be retrieved.
+        #
+        #     Note: The following fields are mutually exclusive: `hierarchy_depth`, `full_hierarchy`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] oracle_rdbms
         #   @return [::Google::Cloud::Datastream::V1::OracleRdbms]
         #     Oracle RDBMS to enrich with child data objects and metadata.
+        #
+        #     Note: The following fields are mutually exclusive: `oracle_rdbms`, `mysql_rdbms`, `postgresql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] mysql_rdbms
         #   @return [::Google::Cloud::Datastream::V1::MysqlRdbms]
         #     MySQL RDBMS to enrich with child data objects and metadata.
+        #
+        #     Note: The following fields are mutually exclusive: `mysql_rdbms`, `oracle_rdbms`, `postgresql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] postgresql_rdbms
         #   @return [::Google::Cloud::Datastream::V1::PostgresqlRdbms]
         #     PostgreSQL RDBMS to enrich with child data objects and metadata.
+        #
+        #     Note: The following fields are mutually exclusive: `postgresql_rdbms`, `oracle_rdbms`, `mysql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] sql_server_rdbms
+        #   @return [::Google::Cloud::Datastream::V1::SqlServerRdbms]
+        #     SQLServer RDBMS to enrich with child data objects and metadata.
+        #
+        #     Note: The following fields are mutually exclusive: `sql_server_rdbms`, `oracle_rdbms`, `mysql_rdbms`, `postgresql_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class DiscoverConnectionProfileRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -57,12 +76,23 @@ module Google
         # @!attribute [rw] oracle_rdbms
         #   @return [::Google::Cloud::Datastream::V1::OracleRdbms]
         #     Enriched Oracle RDBMS object.
+        #
+        #     Note: The following fields are mutually exclusive: `oracle_rdbms`, `mysql_rdbms`, `postgresql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] mysql_rdbms
         #   @return [::Google::Cloud::Datastream::V1::MysqlRdbms]
         #     Enriched MySQL RDBMS object.
+        #
+        #     Note: The following fields are mutually exclusive: `mysql_rdbms`, `oracle_rdbms`, `postgresql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] postgresql_rdbms
         #   @return [::Google::Cloud::Datastream::V1::PostgresqlRdbms]
         #     Enriched PostgreSQL RDBMS object.
+        #
+        #     Note: The following fields are mutually exclusive: `postgresql_rdbms`, `oracle_rdbms`, `mysql_rdbms`, `sql_server_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] sql_server_rdbms
+        #   @return [::Google::Cloud::Datastream::V1::SqlServerRdbms]
+        #     Enriched SQLServer RDBMS object.
+        #
+        #     Note: The following fields are mutually exclusive: `sql_server_rdbms`, `oracle_rdbms`, `mysql_rdbms`, `postgresql_rdbms`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class DiscoverConnectionProfileResponse
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -400,6 +430,23 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Request message for running a stream.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. Name of the stream resource to start, in the format:
+        #     projects/\\{project_id}/locations/\\{location}/streams/\\{stream_name}
+        # @!attribute [rw] cdc_strategy
+        #   @return [::Google::Cloud::Datastream::V1::CdcStrategy]
+        #     Optional. The CDC strategy of the stream. If not set, the system's default
+        #     value will be used.
+        # @!attribute [rw] force
+        #   @return [::Boolean]
+        #     Optional. Update the stream without validating it.
+        class RunStreamRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # Request for fetching a specific stream object.
         # @!attribute [rw] name
         #   @return [::String]
@@ -514,9 +561,10 @@ module Google
         #   @return [::Boolean]
         #     Output only. Identifies whether the user has requested cancellation
         #     of the operation. Operations that have successfully been cancelled
-        #     have [Operation.error][] value with a
-        #     {::Google::Rpc::Status#code google.rpc.Status.code} of 1, corresponding to
-        #     `Code.CANCELLED`.
+        #     have
+        #     {::Google::Longrunning::Operation#error google.longrunning.Operation.error}
+        #     value with a {::Google::Rpc::Status#code google.rpc.Status.code} of 1,
+        #     corresponding to `Code.CANCELLED`.
         # @!attribute [r] api_version
         #   @return [::String]
         #     Output only. API version used to start the operation.

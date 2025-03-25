@@ -176,8 +176,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @analytics_data_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
               end
 
               ##
@@ -186,6 +197,15 @@ module Google
               # @return [::Google::Analytics::Data::V1beta::AnalyticsData::Rest::Operations]
               #
               attr_reader :operations_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @analytics_data_stub.logger
+              end
 
               # Service calls
 
@@ -212,13 +232,13 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload run_report(property: nil, dimensions: nil, metrics: nil, date_ranges: nil, dimension_filter: nil, metric_filter: nil, offset: nil, limit: nil, metric_aggregations: nil, order_bys: nil, currency_code: nil, cohort_spec: nil, keep_empty_rows: nil, return_property_quota: nil)
+              # @overload run_report(property: nil, dimensions: nil, metrics: nil, date_ranges: nil, dimension_filter: nil, metric_filter: nil, offset: nil, limit: nil, metric_aggregations: nil, order_bys: nil, currency_code: nil, cohort_spec: nil, keep_empty_rows: nil, return_property_quota: nil, comparisons: nil)
               #   Pass arguments to `run_report` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param property [::String]
-              #     A Google Analytics GA4 property identifier whose events are tracked.
+              #     A Google Analytics property identifier whose events are tracked.
               #     Specified in the URL path and not the body. To learn more, see [where to
               #     find your Property
               #     ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
@@ -270,8 +290,12 @@ module Google
               #   @param metric_aggregations [::Array<::Google::Analytics::Data::V1beta::MetricAggregation>]
               #     Aggregation of metrics. Aggregated metric values will be shown in rows
               #     where the dimension_values are set to "RESERVED_(MetricAggregation)".
+              #     Aggregates including both comparisons and multiple date ranges will
+              #     be aggregated based on the date ranges.
               #   @param order_bys [::Array<::Google::Analytics::Data::V1beta::OrderBy, ::Hash>]
               #     Specifies how rows are ordered in the response.
+              #     Requests including both comparisons and multiple date ranges will
+              #     have order bys applied on the comparisons.
               #   @param currency_code [::String]
               #     A currency code in ISO4217 format, such as "AED", "USD", "JPY".
               #     If the field is empty, the report uses the property's default currency.
@@ -284,14 +308,18 @@ module Google
               #     removed by a filter.
               #
               #     Regardless of this `keep_empty_rows` setting, only data recorded by the
-              #     Google Analytics (GA4) property can be displayed in a report.
+              #     Google Analytics property can be displayed in a report.
               #
               #     For example if a property never logs a `purchase` event, then a query for
               #     the `eventName` dimension and  `eventCount` metric will not have a row
               #     eventName: "purchase" and eventCount: 0.
               #   @param return_property_quota [::Boolean]
-              #     Toggles whether to return the current state of this Analytics Property's
-              #     quota. Quota is returned in [PropertyQuota](#PropertyQuota).
+              #     Toggles whether to return the current state of this Google Analytics
+              #     property's quota. Quota is returned in [PropertyQuota](#PropertyQuota).
+              #   @param comparisons [::Array<::Google::Analytics::Data::V1beta::Comparison, ::Hash>]
+              #     Optional. The configuration of comparisons requested and displayed. The
+              #     request only requires a comparisons field in order to receive a comparison
+              #     column in the response.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Analytics::Data::V1beta::RunReportResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -345,7 +373,6 @@ module Google
 
                 @analytics_data_stub.run_report request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -368,13 +395,13 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload run_pivot_report(property: nil, dimensions: nil, metrics: nil, date_ranges: nil, pivots: nil, dimension_filter: nil, metric_filter: nil, currency_code: nil, cohort_spec: nil, keep_empty_rows: nil, return_property_quota: nil)
+              # @overload run_pivot_report(property: nil, dimensions: nil, metrics: nil, date_ranges: nil, pivots: nil, dimension_filter: nil, metric_filter: nil, currency_code: nil, cohort_spec: nil, keep_empty_rows: nil, return_property_quota: nil, comparisons: nil)
               #   Pass arguments to `run_pivot_report` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param property [::String]
-              #     A Google Analytics GA4 property identifier whose events are tracked.
+              #     A Google Analytics property identifier whose events are tracked.
               #     Specified in the URL path and not the body. To learn more, see [where to
               #     find your Property
               #     ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
@@ -419,14 +446,18 @@ module Google
               #     removed by a filter.
               #
               #     Regardless of this `keep_empty_rows` setting, only data recorded by the
-              #     Google Analytics (GA4) property can be displayed in a report.
+              #     Google Analytics property can be displayed in a report.
               #
               #     For example if a property never logs a `purchase` event, then a query for
               #     the `eventName` dimension and  `eventCount` metric will not have a row
               #     eventName: "purchase" and eventCount: 0.
               #   @param return_property_quota [::Boolean]
-              #     Toggles whether to return the current state of this Analytics Property's
-              #     quota. Quota is returned in [PropertyQuota](#PropertyQuota).
+              #     Toggles whether to return the current state of this Google Analytics
+              #     property's quota. Quota is returned in [PropertyQuota](#PropertyQuota).
+              #   @param comparisons [::Array<::Google::Analytics::Data::V1beta::Comparison, ::Hash>]
+              #     Optional. The configuration of comparisons requested and displayed. The
+              #     request requires both a comparisons field and a comparisons dimension to
+              #     receive a comparison column in the response.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Analytics::Data::V1beta::RunPivotReportResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -480,7 +511,6 @@ module Google
 
                 @analytics_data_stub.run_pivot_report request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -488,7 +518,7 @@ module Google
 
               ##
               # Returns multiple reports in a batch. All reports must be for the same
-              # GA4 Property.
+              # Google Analytics property.
               #
               # @overload batch_run_reports(request, options = nil)
               #   Pass arguments to `batch_run_reports` via a request object, either of type
@@ -506,7 +536,7 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param property [::String]
-              #     A Google Analytics GA4 property identifier whose events are tracked.
+              #     A Google Analytics property identifier whose events are tracked.
               #     Specified in the URL path and not the body. To learn more, see [where to
               #     find your Property
               #     ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
@@ -571,7 +601,6 @@ module Google
 
                 @analytics_data_stub.batch_run_reports request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -579,7 +608,7 @@ module Google
 
               ##
               # Returns multiple pivot reports in a batch. All reports must be for the same
-              # GA4 Property.
+              # Google Analytics property.
               #
               # @overload batch_run_pivot_reports(request, options = nil)
               #   Pass arguments to `batch_run_pivot_reports` via a request object, either of type
@@ -597,7 +626,7 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param property [::String]
-              #     A Google Analytics GA4 property identifier whose events are tracked.
+              #     A Google Analytics property identifier whose events are tracked.
               #     Specified in the URL path and not the body. To learn more, see [where to
               #     find your Property
               #     ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
@@ -662,7 +691,6 @@ module Google
 
                 @analytics_data_stub.batch_run_pivot_reports request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -671,7 +699,7 @@ module Google
               ##
               # Returns metadata for dimensions and metrics available in reporting methods.
               # Used to explore the dimensions and metrics. In this method, a Google
-              # Analytics GA4 Property Identifier is specified in the request, and
+              # Analytics property identifier is specified in the request, and
               # the metadata response includes Custom dimensions and metrics as well as
               # Universal metadata.
               #
@@ -698,7 +726,7 @@ module Google
               #   @param name [::String]
               #     Required. The resource name of the metadata to retrieve. This name field is
               #     specified in the URL path and not URL parameters. Property is a numeric
-              #     Google Analytics GA4 Property identifier. To learn more, see [where to find
+              #     Google Analytics property identifier. To learn more, see [where to find
               #     your Property
               #     ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
               #
@@ -760,7 +788,6 @@ module Google
 
                 @analytics_data_stub.get_metadata request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -793,7 +820,7 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param property [::String]
-              #     A Google Analytics GA4 property identifier whose events are tracked.
+              #     A Google Analytics property identifier whose events are tracked.
               #     Specified in the URL path and not the body. To learn more, see [where to
               #     find your Property
               #     ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
@@ -824,8 +851,9 @@ module Google
               #   @param order_bys [::Array<::Google::Analytics::Data::V1beta::OrderBy, ::Hash>]
               #     Specifies how rows are ordered in the response.
               #   @param return_property_quota [::Boolean]
-              #     Toggles whether to return the current state of this Analytics Property's
-              #     Realtime quota. Quota is returned in [PropertyQuota](#PropertyQuota).
+              #     Toggles whether to return the current state of this Google Analytics
+              #     property's Realtime quota. Quota is returned in
+              #     [PropertyQuota](#PropertyQuota).
               #   @param minute_ranges [::Array<::Google::Analytics::Data::V1beta::MinuteRange, ::Hash>]
               #     The minute ranges of event data to read. If unspecified, one minute range
               #     for the last 30 minutes will be used. If multiple minute ranges are
@@ -885,7 +913,6 @@ module Google
 
                 @analytics_data_stub.run_realtime_report request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -919,7 +946,7 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param property [::String]
-              #     A Google Analytics GA4 property identifier whose events are tracked. To
+              #     A Google Analytics property identifier whose events are tracked. To
               #     learn more, see [where to find your Property
               #     ID](https://developers.google.com/analytics/devguides/reporting/data/v1/property-id).
               #     `property` should be the same value as in your `runReport` request.
@@ -994,7 +1021,6 @@ module Google
 
                 @analytics_data_stub.check_compatibility request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1108,7 +1134,7 @@ module Google
                 @analytics_data_stub.create_audience_export request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1227,7 +1253,6 @@ module Google
 
                 @analytics_data_stub.query_audience_export request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1318,7 +1343,6 @@ module Google
 
                 @analytics_data_stub.get_audience_export request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1428,7 +1452,7 @@ module Google
                 @analytics_data_stub.list_audience_exports request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @analytics_data_stub, :list_audience_exports, "audience_exports", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1476,6 +1500,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1508,6 +1539,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1529,6 +1565,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

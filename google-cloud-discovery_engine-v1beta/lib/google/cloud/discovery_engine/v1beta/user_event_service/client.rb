@@ -175,14 +175,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @user_event_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @user_event_service_stub.endpoint
                 config.universe_domain = @user_event_service_stub.universe_domain
+                config.logger = @user_event_service_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -200,6 +212,15 @@ module Google
             #
             attr_reader :location_client
 
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @user_event_service_stub.logger
+            end
+
             # Service calls
 
             ##
@@ -215,16 +236,27 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload write_user_event(parent: nil, user_event: nil)
+            # @overload write_user_event(parent: nil, user_event: nil, write_async: nil)
             #   Pass arguments to `write_user_event` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param parent [::String]
-            #     Required. The parent DataStore resource name, such as
+            #     Required. The parent resource name.
+            #     If the write user event action is applied in
+            #     {::Google::Cloud::DiscoveryEngine::V1beta::DataStore DataStore} level, the
+            #     format is:
             #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}`.
+            #     If the write user event action is applied in [Location][] level, for
+            #     example, the event with
+            #     {::Google::Cloud::DiscoveryEngine::V1beta::Document Document} across multiple
+            #     {::Google::Cloud::DiscoveryEngine::V1beta::DataStore DataStore}, the format is:
+            #     `projects/{project}/locations/{location}`.
             #   @param user_event [::Google::Cloud::DiscoveryEngine::V1beta::UserEvent, ::Hash]
             #     Required. User event to write.
+            #   @param write_async [::Boolean]
+            #     If set to true, the user event is written asynchronously after
+            #     validation, and the API responds without waiting for the write.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::DiscoveryEngine::V1beta::UserEvent]
@@ -285,7 +317,6 @@ module Google
 
               @user_event_service_stub.call_rpc :write_user_event, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -388,14 +419,145 @@ module Google
 
               @user_event_service_stub.call_rpc :collect_user_event, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Bulk import of User events. Request processing might be
+            # Deletes permanently all user events specified by the filter provided.
+            # Depending on the number of events specified by the filter, this operation
+            # could take hours or days to complete. To test a filter, use the list
+            # command first.
+            #
+            # @overload purge_user_events(request, options = nil)
+            #   Pass arguments to `purge_user_events` via a request object, either of type
+            #   {::Google::Cloud::DiscoveryEngine::V1beta::PurgeUserEventsRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Cloud::DiscoveryEngine::V1beta::PurgeUserEventsRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload purge_user_events(parent: nil, filter: nil, force: nil)
+            #   Pass arguments to `purge_user_events` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param parent [::String]
+            #     Required. The resource name of the catalog under which the events are
+            #     created. The format is
+            #     `projects/{project}/locations/global/collections/{collection}/dataStores/{dataStore}`.
+            #   @param filter [::String]
+            #     Required. The filter string to specify the events to be deleted with a
+            #     length limit of 5,000 characters. The eligible fields for filtering are:
+            #
+            #     * `eventType`: Double quoted
+            #     {::Google::Cloud::DiscoveryEngine::V1beta::UserEvent#event_type UserEvent.event_type}
+            #     string.
+            #     * `eventTime`: in ISO 8601 "zulu" format.
+            #     * `userPseudoId`: Double quoted string. Specifying this will delete all
+            #       events associated with a visitor.
+            #     * `userId`: Double quoted string. Specifying this will delete all events
+            #       associated with a user.
+            #
+            #     Examples:
+            #
+            #     * Deleting all events in a time range:
+            #       `eventTime > "2012-04-23T18:25:43.511Z"
+            #       eventTime < "2012-04-23T18:30:43.511Z"`
+            #     * Deleting specific eventType:
+            #       `eventType = "search"`
+            #     * Deleting all events for a specific visitor:
+            #       `userPseudoId = "visitor1024"`
+            #     * Deleting all events inside a DataStore:
+            #       `*`
+            #
+            #     The filtering fields are assumed to have an implicit AND.
+            #   @param force [::Boolean]
+            #     The `force` field is currently not supported. Purge user event requests
+            #     will permanently delete all purgeable events. Once the development is
+            #     complete:
+            #     If `force` is set to false, the method will return the expected
+            #     purge count without deleting any user events. This field will default to
+            #     false if not included in the request.
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Gapic::Operation]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Gapic::Operation]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/cloud/discovery_engine/v1beta"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Cloud::DiscoveryEngine::V1beta::UserEventService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Cloud::DiscoveryEngine::V1beta::PurgeUserEventsRequest.new
+            #
+            #   # Call the purge_user_events method.
+            #   result = client.purge_user_events request
+            #
+            #   # The returned object is of type Gapic::Operation. You can use it to
+            #   # check the status of an operation, cancel it, or wait for results.
+            #   # Here is how to wait for a response.
+            #   result.wait_until_done! timeout: 60
+            #   if result.response?
+            #     p result.response
+            #   else
+            #     puts "No response received."
+            #   end
+            #
+            def purge_user_events request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1beta::PurgeUserEventsRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.purge_user_events.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.parent
+                header_params["parent"] = request.parent
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.purge_user_events.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.purge_user_events.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @user_event_service_stub.call_rpc :purge_user_events, request, options: options do |response, operation|
+                response = ::Gapic::Operation.new response, @operations_client, options: options
+                yield response, operation if block_given?
+                throw :response, response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Bulk import of user events. Request processing might be
             # synchronous. Events that already exist are skipped.
             # Use this method for backfilling historical user events.
             #
@@ -420,10 +582,16 @@ module Google
             #
             #   @param inline_source [::Google::Cloud::DiscoveryEngine::V1beta::ImportUserEventsRequest::InlineSource, ::Hash]
             #     The Inline source for the input content for UserEvents.
+            #
+            #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param gcs_source [::Google::Cloud::DiscoveryEngine::V1beta::GcsSource, ::Hash]
             #     Cloud Storage location for the input content.
+            #
+            #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param bigquery_source [::Google::Cloud::DiscoveryEngine::V1beta::BigQuerySource, ::Hash]
             #     BigQuery input source.
+            #
+            #     Note: The following fields are mutually exclusive: `bigquery_source`, `inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param parent [::String]
             #     Required. Parent DataStore resource name, of the form
             #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}`
@@ -498,7 +666,7 @@ module Google
               @user_event_service_stub.call_rpc :import_user_events, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -548,6 +716,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -587,6 +762,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -611,6 +791,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil
@@ -668,6 +849,11 @@ module Google
                 #
                 attr_reader :collect_user_event
                 ##
+                # RPC-specific configuration for `purge_user_events`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :purge_user_events
+                ##
                 # RPC-specific configuration for `import_user_events`
                 # @return [::Gapic::Config::Method]
                 #
@@ -679,6 +865,8 @@ module Google
                   @write_user_event = ::Gapic::Config::Method.new write_user_event_config
                   collect_user_event_config = parent_rpcs.collect_user_event if parent_rpcs.respond_to? :collect_user_event
                   @collect_user_event = ::Gapic::Config::Method.new collect_user_event_config
+                  purge_user_events_config = parent_rpcs.purge_user_events if parent_rpcs.respond_to? :purge_user_events
+                  @purge_user_events = ::Gapic::Config::Method.new purge_user_events_config
                   import_user_events_config = parent_rpcs.import_user_events if parent_rpcs.respond_to? :import_user_events
                   @import_user_events = ::Gapic::Config::Method.new import_user_events_config
 

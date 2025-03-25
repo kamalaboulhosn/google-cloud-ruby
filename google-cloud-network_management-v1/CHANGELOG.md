@@ -1,5 +1,96 @@
 # Changelog
 
+### 2.0.1 (2025-03-18)
+
+#### Documentation
+
+* Minor updates to reference documentation ([#29364](https://github.com/googleapis/google-cloud-ruby/issues/29364)) 
+
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28825](https://github.com/googleapis/google-cloud-ruby/issues/28825))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28825](https://github.com/googleapis/google-cloud-ruby/issues/28825)) 
+
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.0 (2025-01-23)
+
+#### Features
+
+* Support for VpcFlowLogsService ([#28231](https://github.com/googleapis/google-cloud-ruby/issues/28231)) 
+
+### 1.4.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.3.0 (2024-12-04)
+
+#### Features
+
+* add round-trip mode ([#27614](https://github.com/googleapis/google-cloud-ruby/issues/27614)) 
+
+### 1.2.0 (2024-11-13)
+
+#### Features
+
+* add DNS endpoint of Google Kubernetes Engine cluster control plane ([#27577](https://github.com/googleapis/google-cloud-ruby/issues/27577)) 
+* add more detailed drop causes to corresponding enum 
+#### Documentation
+
+* update outdated comments 
+
+### 1.1.0 (2024-10-28)
+
+#### Features
+
+* add fields related to advertised routes to the RouteInfo proto 
+* add firewall policy URI to the FirewallInfo proto 
+* add load balancer name to the ForwardingRuleInfo proto 
+* add messages and fields related to Redis Clusters 
+* add messages and fields related to Redis Instances ([#27447](https://github.com/googleapis/google-cloud-ruby/issues/27447)) 
+* add more detailed abort and drop causes to corresponding enums 
+* add PSC network attachment URI to the InstanceInfo proto 
+* add PSC target fields to the ForwardingRuleInfo proto 
+* add region name field to the RouteInfo proto 
+* add region name to the ForwardingRuleInfo proto 
+* add subnet URI and region name to the NetworkInfo proto 
+#### Documentation
+
+* update outdated comments in the FirewallInfo proto 
+
+### 1.0.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27010](https://github.com/googleapis/google-cloud-ruby/issues/27010)) 
+
+### 1.0.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26676](https://github.com/googleapis/google-cloud-ruby/issues/26676)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.14.0 (2024-04-15)
 
 #### Features

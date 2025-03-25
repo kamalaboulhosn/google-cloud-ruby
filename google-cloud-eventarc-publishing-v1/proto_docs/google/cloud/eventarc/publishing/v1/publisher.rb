@@ -75,6 +75,43 @@ module Google
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
+
+          # The request message for the Publish method.
+          # @!attribute [rw] message_bus
+          #   @return [::String]
+          #     Required. The full name of the message bus to publish events to. Format:
+          #     `projects/{project}/locations/{location}/messageBuses/{messageBus}`.
+          # @!attribute [rw] proto_message
+          #   @return [::Google::Cloud::Eventarc::Publishing::V1::CloudEvent]
+          #     The Protobuf format of the CloudEvent being published. Specification can
+          #     be found here:
+          #     https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md
+          #
+          #     Note: The following fields are mutually exclusive: `proto_message`, `json_message`, `avro_message`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] json_message
+          #   @return [::String]
+          #     The JSON format of the CloudEvent being published. Specification can be
+          #     found here:
+          #     https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md
+          #
+          #     Note: The following fields are mutually exclusive: `json_message`, `proto_message`, `avro_message`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] avro_message
+          #   @return [::String]
+          #     The Avro format of the CloudEvent being published. Specification can
+          #     be found here:
+          #     https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/avro-format.md
+          #
+          #     Note: The following fields are mutually exclusive: `avro_message`, `proto_message`, `json_message`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          class PublishRequest
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # The response message for the Publish method.
+          class PublishResponse
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
         end
       end
     end

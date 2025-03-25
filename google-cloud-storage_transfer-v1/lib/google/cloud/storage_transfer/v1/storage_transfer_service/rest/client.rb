@@ -166,8 +166,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @storage_transfer_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
               end
 
               ##
@@ -176,6 +187,15 @@ module Google
               # @return [::Google::Cloud::StorageTransfer::V1::StorageTransferService::Rest::Operations]
               #
               attr_reader :operations_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @storage_transfer_service_stub.logger
+              end
 
               # Service calls
 
@@ -260,7 +280,6 @@ module Google
 
                 @storage_transfer_service_stub.get_google_service_account request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -339,7 +358,6 @@ module Google
 
                 @storage_transfer_service_stub.create_transfer_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -453,7 +471,6 @@ module Google
 
                 @storage_transfer_service_stub.update_transfer_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -535,7 +552,6 @@ module Google
 
                 @storage_transfer_service_stub.get_transfer_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -561,17 +577,32 @@ module Google
               #
               #   @param filter [::String]
               #     Required. A list of query parameters specified as JSON text in the form of:
-              #     `{"projectId":"my_project_id",
-              #      "jobNames":["jobid1","jobid2",...],
-              #      "jobStatuses":["status1","status2",...]}`
               #
-              #     Since `jobNames` and `jobStatuses` support multiple values, their values
-              #     must be specified with array notation. `projectId` is required.
-              #     `jobNames` and `jobStatuses` are optional.  The valid values for
-              #     `jobStatuses` are case-insensitive:
-              #     {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::ENABLED ENABLED},
-              #     {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::DISABLED DISABLED}, and
-              #     {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::DELETED DELETED}.
+              #     ```
+              #     {
+              #       "projectId":"my_project_id",
+              #       "jobNames":["jobid1","jobid2",...],
+              #       "jobStatuses":["status1","status2",...],
+              #       "dataBackend":"QUERY_REPLICATION_CONFIGS",
+              #       "sourceBucket":"source-bucket-name",
+              #       "sinkBucket":"sink-bucket-name",
+              #     }
+              #     ```
+              #
+              #     The JSON formatting in the example is for display only; provide the
+              #     query parameters without spaces or line breaks.
+              #
+              #     * `projectId` is required.
+              #     * Since `jobNames` and `jobStatuses` support multiple values, their values
+              #       must be specified with array notation. `jobNames` and `jobStatuses` are
+              #       optional. Valid values are case-insensitive:
+              #         * {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::ENABLED ENABLED}
+              #         * {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::DISABLED DISABLED}
+              #         * {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::DELETED DELETED}
+              #     * Specify `"dataBackend":"QUERY_REPLICATION_CONFIGS"` to return a list of
+              #       cross-bucket replication jobs.
+              #     * Limit the results to jobs from a particular bucket with `sourceBucket`
+              #       and/or to a particular bucket with `sinkBucket`.
               #   @param page_size [::Integer]
               #     The list page size. The max allowed value is 256.
               #   @param page_token [::String]
@@ -634,7 +665,7 @@ module Google
                 @storage_transfer_service_stub.list_transfer_jobs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @storage_transfer_service_stub, :list_transfer_jobs, "transfer_jobs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -713,7 +744,6 @@ module Google
 
                 @storage_transfer_service_stub.pause_transfer_operation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -792,7 +822,6 @@ module Google
 
                 @storage_transfer_service_stub.resume_transfer_operation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -885,7 +914,7 @@ module Google
                 @storage_transfer_service_stub.run_transfer_job request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -968,7 +997,6 @@ module Google
 
                 @storage_transfer_service_stub.delete_transfer_job request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1064,7 +1092,6 @@ module Google
 
                 @storage_transfer_service_stub.create_agent_pool request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1161,7 +1188,6 @@ module Google
 
                 @storage_transfer_service_stub.update_agent_pool request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1240,7 +1266,6 @@ module Google
 
                 @storage_transfer_service_stub.get_agent_pool request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1337,7 +1362,7 @@ module Google
                 @storage_transfer_service_stub.list_agent_pools request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @storage_transfer_service_stub, :list_agent_pools, "agent_pools", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1416,7 +1441,6 @@ module Google
 
                 @storage_transfer_service_stub.delete_agent_pool request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1464,6 +1488,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1496,6 +1527,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1517,6 +1553,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

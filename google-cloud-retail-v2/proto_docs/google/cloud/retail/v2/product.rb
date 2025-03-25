@@ -25,23 +25,22 @@ module Google
         # searched.
         # @!attribute [rw] expire_time
         #   @return [::Google::Protobuf::Timestamp]
-        #     The timestamp when this product becomes unavailable for
-        #     {::Google::Cloud::Retail::V2::SearchService::Client#search SearchService.Search}. Note
-        #     that this is only applicable to
-        #     {::Google::Cloud::Retail::V2::Product::Type::PRIMARY Type.PRIMARY} and
-        #     {::Google::Cloud::Retail::V2::Product::Type::COLLECTION Type.COLLECTION}, and
-        #     ignored for {::Google::Cloud::Retail::V2::Product::Type::VARIANT Type.VARIANT}.
-        #     In general, we suggest the users to delete the stale products explicitly,
-        #     instead of using this field to determine staleness.
+        #     Note that this field is applied in the following ways:
         #
-        #     If it is set, the {::Google::Cloud::Retail::V2::Product Product} is not
-        #     available for
-        #     {::Google::Cloud::Retail::V2::SearchService::Client#search SearchService.Search} after
-        #     {::Google::Cloud::Retail::V2::Product#expire_time expire_time}. However, the
-        #     product can still be retrieved by
-        #     {::Google::Cloud::Retail::V2::ProductService::Client#get_product ProductService.GetProduct}
-        #     and
-        #     {::Google::Cloud::Retail::V2::ProductService::Client#list_products ProductService.ListProducts}.
+        #     * If the {::Google::Cloud::Retail::V2::Product Product} is already expired
+        #     when it is uploaded, this product
+        #       is not indexed for search.
+        #
+        #     * If the {::Google::Cloud::Retail::V2::Product Product} is not expired when it
+        #     is uploaded, only the
+        #       {::Google::Cloud::Retail::V2::Product::Type::PRIMARY Type.PRIMARY}'s and
+        #       {::Google::Cloud::Retail::V2::Product::Type::COLLECTION Type.COLLECTION}'s
+        #       expireTime is respected, and
+        #       {::Google::Cloud::Retail::V2::Product::Type::VARIANT Type.VARIANT}'s
+        #       expireTime is not used.
+        #
+        #     In general, we suggest the users to delete the stale
+        #     products explicitly, instead of using this field to determine staleness.
         #
         #     {::Google::Cloud::Retail::V2::Product#expire_time expire_time} must be later
         #     than {::Google::Cloud::Retail::V2::Product#available_time available_time} and
@@ -50,6 +49,8 @@ module Google
         #
         #     Corresponding properties: Google Merchant Center property
         #     [expiration_date](https://support.google.com/merchants/answer/6324499).
+        #
+        #     Note: The following fields are mutually exclusive: `expire_time`, `ttl`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] ttl
         #   @return [::Google::Protobuf::Duration]
         #     Input only. The TTL (time to live) of the product. Note that this is only
@@ -74,6 +75,8 @@ module Google
         #     {::Google::Cloud::Retail::V2::ProductService::Client#get_product ProductService.GetProduct}
         #     and
         #     {::Google::Cloud::Retail::V2::ProductService::Client#list_products ProductService.ListProducts}.
+        #
+        #     Note: The following fields are mutually exclusive: `ttl`, `expire_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] name
         #   @return [::String]
         #     Immutable. Full resource name of the product, such as
@@ -176,9 +179,10 @@ module Google
         #     error is returned.
         #
         #     At most 250 values are allowed per
-        #     {::Google::Cloud::Retail::V2::Product Product}. Empty values are not allowed.
-        #     Each value must be a UTF-8 encoded string with a length limit of 5,000
-        #     characters. Otherwise, an INVALID_ARGUMENT error is returned.
+        #     {::Google::Cloud::Retail::V2::Product Product} unless overridden through the
+        #     Google Cloud console. Empty values are not allowed. Each value must be a
+        #     UTF-8 encoded string with a length limit of 5,000 characters. Otherwise, an
+        #     INVALID_ARGUMENT error is returned.
         #
         #     Corresponding properties: Google Merchant Center property
         #     [google_product_category][mc_google_product_category]. Schema.org property
@@ -200,9 +204,10 @@ module Google
         #   @return [::Array<::String>]
         #     The brands of the product.
         #
-        #     A maximum of 30 brands are allowed. Each brand must be a UTF-8 encoded
-        #     string with a length limit of 1,000 characters. Otherwise, an
-        #     INVALID_ARGUMENT error is returned.
+        #     A maximum of 30 brands are allowed unless overridden through the Google
+        #     Cloud console. Each
+        #     brand must be a UTF-8 encoded string with a length limit of 1,000
+        #     characters. Otherwise, an INVALID_ARGUMENT error is returned.
         #
         #     Corresponding properties: Google Merchant Center property
         #     [brand](https://support.google.com/merchants/answer/6324351). Schema.org
@@ -298,6 +303,15 @@ module Google
         #     The online availability of the {::Google::Cloud::Retail::V2::Product Product}.
         #     Default to
         #     {::Google::Cloud::Retail::V2::Product::Availability::IN_STOCK Availability.IN_STOCK}.
+        #
+        #     For primary products with variants set the availability of the primary as
+        #     {::Google::Cloud::Retail::V2::Product::Availability::OUT_OF_STOCK Availability.OUT_OF_STOCK}
+        #     and set the true availability at the variant level. This way the primary
+        #     product will be considered "in stock" as long as it has at least one
+        #     variant in stock.
+        #
+        #     For primary products with no variants set the true availability at the
+        #     primary level.
         #
         #     Corresponding properties: Google Merchant Center property
         #     [availability](https://support.google.com/merchants/answer/6324448).
@@ -473,8 +487,6 @@ module Google
         #     * {::Google::Cloud::Retail::V2::Product#name name}
         #     * {::Google::Cloud::Retail::V2::Product#color_info color_info}
         #
-        #     The maximum number of paths is 30. Otherwise, an INVALID_ARGUMENT error is
-        #     returned.
         #
         #     Note: Returning more fields in
         #     {::Google::Cloud::Retail::V2::SearchResponse SearchResponse} can increase

@@ -91,6 +91,20 @@ module Google
         #   @return [::Google::Cloud::AIPlatform::V1::TuningDataStats]
         #     Output only. The tuning data statistics associated with this
         #     {::Google::Cloud::AIPlatform::V1::TuningJob TuningJob}.
+        # @!attribute [rw] encryption_spec
+        #   @return [::Google::Cloud::AIPlatform::V1::EncryptionSpec]
+        #     Customer-managed encryption key options for a TuningJob. If this is set,
+        #     then all resources created by the TuningJob will be encrypted with the
+        #     provided encryption key.
+        # @!attribute [rw] service_account
+        #   @return [::String]
+        #     The service account that the tuningJob workload runs as.
+        #     If not specified, the Vertex AI Secure Fine-Tuned Service Agent in the
+        #     project will be used. See
+        #     https://cloud.google.com/iam/docs/service-agents#vertex-ai-secure-fine-tuning-service-agent
+        #
+        #     Users starting the pipeline must have the `iam.serviceAccounts.actAs`
+        #     permission on this service account.
         class TuningJob
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -124,6 +138,9 @@ module Google
         # @!attribute [r] sum
         #   @return [::Integer]
         #     Output only. Sum of a given population of values.
+        # @!attribute [r] billable_sum
+        #   @return [::Integer]
+        #     Output only. Sum of a given population of values that are billable.
         # @!attribute [r] min
         #   @return [::Float]
         #     Output only. The minimum of the population values.
@@ -174,8 +191,12 @@ module Google
         #   @return [::Integer]
         #     Output only. Number of tuning characters in the tuning dataset.
         # @!attribute [r] total_billable_character_count
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Integer]
         #     Output only. Number of billable characters in the tuning dataset.
+        # @!attribute [r] total_billable_token_count
+        #   @return [::Integer]
+        #     Output only. Number of billable tokens in the tuning dataset.
         # @!attribute [r] tuning_step_count
         #   @return [::Integer]
         #     Output only. Number of tuning steps for this Tuning Job.
@@ -191,6 +212,14 @@ module Google
         # @!attribute [r] user_dataset_examples
         #   @return [::Array<::Google::Cloud::AIPlatform::V1::Content>]
         #     Output only. Sample user messages in the training dataset uri.
+        # @!attribute [rw] total_truncated_example_count
+        #   @return [::Integer]
+        #     The number of examples in the dataset that have been truncated by any
+        #     amount.
+        # @!attribute [rw] truncated_example_indices
+        #   @return [::Array<::Integer>]
+        #     A partial sample of the indices (starting from 1) of the truncated
+        #     examples.
         class SupervisedTuningDataStats
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -240,7 +269,7 @@ module Google
           end
         end
 
-        # Tuning Spec for Supervised Tuning.
+        # Tuning Spec for Supervised Tuning for first party models.
         # @!attribute [rw] training_dataset_uri
         #   @return [::String]
         #     Required. Cloud Storage path to file containing training dataset for
@@ -253,6 +282,29 @@ module Google
         #   @return [::Google::Cloud::AIPlatform::V1::SupervisedHyperParameters]
         #     Optional. Hyperparameters for SFT.
         class SupervisedTuningSpec
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # TunedModel Reference for legacy model migration.
+        # @!attribute [rw] tuned_model
+        #   @return [::String]
+        #     Support migration from model registry.
+        #
+        #     Note: The following fields are mutually exclusive: `tuned_model`, `tuning_job`, `pipeline_job`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] tuning_job
+        #   @return [::String]
+        #     Support migration from tuning job list page, from gemini-1.0-pro-002
+        #     to 1.5 and above.
+        #
+        #     Note: The following fields are mutually exclusive: `tuning_job`, `tuned_model`, `pipeline_job`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] pipeline_job
+        #   @return [::String]
+        #     Support migration from tuning job list page, from bison model to gemini
+        #     model.
+        #
+        #     Note: The following fields are mutually exclusive: `pipeline_job`, `tuned_model`, `tuning_job`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        class TunedModelRef
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end

@@ -26,9 +26,13 @@ module Google
         #   @return [::Google::Cloud::Batch::V1::NFS]
         #     A Network File System (NFS) volume. For example, a
         #     Filestore file share.
+        #
+        #     Note: The following fields are mutually exclusive: `nfs`, `gcs`, `device_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] gcs
         #   @return [::Google::Cloud::Batch::V1::GCS]
         #     A Google Cloud Storage (GCS) volume.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs`, `nfs`, `device_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] device_name
         #   @return [::String]
         #     Device name of an attached disk volume, which should align with a
@@ -36,20 +40,26 @@ module Google
         #     job.allocation_policy.instances[0].policy.disks[i].device_name or
         #     defined by the given instance template in
         #     job.allocation_policy.instances[0].instance_template.
+        #
+        #     Note: The following fields are mutually exclusive: `device_name`, `nfs`, `gcs`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] mount_path
         #   @return [::String]
         #     The mount path for the volume, e.g. /mnt/disks/share.
         # @!attribute [rw] mount_options
         #   @return [::Array<::String>]
-        #     For Google Cloud Storage (GCS), mount options are the options supported by
-        #     the gcsfuse tool (https://github.com/GoogleCloudPlatform/gcsfuse).
-        #     For existing persistent disks, mount options provided by the
-        #     mount command (https://man7.org/linux/man-pages/man8/mount.8.html) except
-        #     writing are supported. This is due to restrictions of multi-writer mode
-        #     (https://cloud.google.com/compute/docs/disks/sharing-disks-between-vms).
-        #     For other attached disks and Network File System (NFS), mount options are
-        #     these supported by the mount command
-        #     (https://man7.org/linux/man-pages/man8/mount.8.html).
+        #     Mount options vary based on the type of storage volume:
+        #
+        #     * For a Cloud Storage bucket, all the mount options provided
+        #     by
+        #       the [`gcsfuse` tool](https://cloud.google.com/storage/docs/gcsfuse-cli)
+        #       are supported.
+        #     * For an existing persistent disk, all mount options provided by the
+        #       [`mount` command](https://man7.org/linux/man-pages/man8/mount.8.html)
+        #       except writing are supported. This is due to restrictions of
+        #       [multi-writer
+        #       mode](https://cloud.google.com/compute/docs/disks/sharing-disks-between-vms).
+        #     * For any other disk or a Network File System (NFS), all the
+        #       mount options provided by the `mount` command are supported.
         class Volume
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

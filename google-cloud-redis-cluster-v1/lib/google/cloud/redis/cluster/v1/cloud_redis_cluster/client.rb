@@ -45,12 +45,6 @@ module Google
             # Note that location_id must be a GCP `region`; for example:
             # * `projects/redpepper-1290/locations/us-central1/clusters/my-redis`
             #
-            # We use API version selector for Flex APIs
-            # * The versioning strategy is release-based versioning
-            # * Our backend CLH only deals with the superset version (called v1main)
-            # * Existing backend for Redis Gen1 and MRR is not touched.
-            # * More details in go/redis-flex-api-versioning
-            #
             class Client
               # @private
               API_VERSION = ""
@@ -101,6 +95,24 @@ module Google
                   default_config.rpcs.delete_cluster.timeout = 600.0
 
                   default_config.rpcs.create_cluster.timeout = 600.0
+
+                  default_config.rpcs.get_cluster_certificate_authority.timeout = 600.0
+
+                  default_config.rpcs.reschedule_cluster_maintenance.timeout = 600.0
+
+                  default_config.rpcs.list_backup_collections.timeout = 600.0
+
+                  default_config.rpcs.get_backup_collection.timeout = 600.0
+
+                  default_config.rpcs.list_backups.timeout = 600.0
+
+                  default_config.rpcs.get_backup.timeout = 600.0
+
+                  default_config.rpcs.delete_backup.timeout = 600.0
+
+                  default_config.rpcs.export_backup.timeout = 600.0
+
+                  default_config.rpcs.backup_cluster.timeout = 600.0
 
                   default_config
                 end
@@ -196,14 +208,26 @@ module Google
                   universe_domain: @config.universe_domain,
                   channel_args: @config.channel_args,
                   interceptors: @config.interceptors,
-                  channel_pool_config: @config.channel_pool
+                  channel_pool_config: @config.channel_pool,
+                  logger: @config.logger
                 )
+
+                @cloud_redis_cluster_stub.stub_logger&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @cloud_redis_cluster_stub.endpoint
                   config.universe_domain = @cloud_redis_cluster_stub.universe_domain
+                  config.logger = @cloud_redis_cluster_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -220,6 +244,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @cloud_redis_cluster_stub.logger
+              end
 
               # Service calls
 
@@ -329,7 +362,7 @@ module Google
                 @cloud_redis_cluster_stub.call_rpc :list_clusters, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @cloud_redis_cluster_stub, :list_clusters, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -417,7 +450,6 @@ module Google
 
                 @cloud_redis_cluster_stub.call_rpc :get_cluster, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -525,7 +557,7 @@ module Google
                 @cloud_redis_cluster_stub.call_rpc :update_cluster, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -624,7 +656,7 @@ module Google
                 @cloud_redis_cluster_stub.call_rpc :delete_cluster, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -740,7 +772,889 @@ module Google
                 @cloud_redis_cluster_stub.call_rpc :create_cluster, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets the details of certificate authority information for Redis cluster.
+              #
+              # @overload get_cluster_certificate_authority(request, options = nil)
+              #   Pass arguments to `get_cluster_certificate_authority` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::GetClusterCertificateAuthorityRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::GetClusterCertificateAuthorityRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload get_cluster_certificate_authority(name: nil)
+              #   Pass arguments to `get_cluster_certificate_authority` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Redis cluster certificate authority resource name using the form:
+              #         `projects/{project_id}/locations/{location_id}/clusters/{cluster_id}/certificateAuthority`
+              #     where `location_id` refers to a GCP region.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Google::Cloud::Redis::Cluster::V1::CertificateAuthority]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Google::Cloud::Redis::Cluster::V1::CertificateAuthority]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::GetClusterCertificateAuthorityRequest.new
+              #
+              #   # Call the get_cluster_certificate_authority method.
+              #   result = client.get_cluster_certificate_authority request
+              #
+              #   # The returned object is of type Google::Cloud::Redis::Cluster::V1::CertificateAuthority.
+              #   p result
+              #
+              def get_cluster_certificate_authority request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::GetClusterCertificateAuthorityRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.get_cluster_certificate_authority.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.name
+                  header_params["name"] = request.name
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.get_cluster_certificate_authority.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.get_cluster_certificate_authority.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :get_cluster_certificate_authority, request, options: options do |response, operation|
+                  yield response, operation if block_given?
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Reschedules upcoming maintenance event.
+              #
+              # @overload reschedule_cluster_maintenance(request, options = nil)
+              #   Pass arguments to `reschedule_cluster_maintenance` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::RescheduleClusterMaintenanceRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::RescheduleClusterMaintenanceRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload reschedule_cluster_maintenance(name: nil, reschedule_type: nil, schedule_time: nil)
+              #   Pass arguments to `reschedule_cluster_maintenance` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Redis Cluster instance resource name using the form:
+              #         `projects/{project_id}/locations/{location_id}/clusters/{cluster_id}`
+              #     where `location_id` refers to a GCP region.
+              #   @param reschedule_type [::Google::Cloud::Redis::Cluster::V1::RescheduleClusterMaintenanceRequest::RescheduleType]
+              #     Required. If reschedule type is SPECIFIC_TIME, must set up schedule_time as
+              #     well.
+              #   @param schedule_time [::Google::Protobuf::Timestamp, ::Hash]
+              #     Optional. Timestamp when the maintenance shall be rescheduled to if
+              #     reschedule_type=SPECIFIC_TIME, in RFC 3339 format, for
+              #     example `2012-11-15T16:19:00.094Z`.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Gapic::Operation]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::RescheduleClusterMaintenanceRequest.new
+              #
+              #   # Call the reschedule_cluster_maintenance method.
+              #   result = client.reschedule_cluster_maintenance request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def reschedule_cluster_maintenance request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::RescheduleClusterMaintenanceRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.reschedule_cluster_maintenance.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.name
+                  header_params["name"] = request.name
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.reschedule_cluster_maintenance.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.reschedule_cluster_maintenance.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :reschedule_cluster_maintenance, request, options: options do |response, operation|
+                  response = ::Gapic::Operation.new response, @operations_client, options: options
+                  yield response, operation if block_given?
+                  throw :response, response
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists all backup collections owned by a consumer project in either the
+              # specified location (region) or all locations.
+              #
+              # If `location_id` is specified as `-` (wildcard), then all regions
+              # available to the project are queried, and the results are aggregated.
+              #
+              # @overload list_backup_collections(request, options = nil)
+              #   Pass arguments to `list_backup_collections` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::ListBackupCollectionsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::ListBackupCollectionsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload list_backup_collections(parent: nil, page_size: nil, page_token: nil)
+              #   Pass arguments to `list_backup_collections` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The resource name of the backupCollection location using the
+              #     form:
+              #         `projects/{project_id}/locations/{location_id}`
+              #     where `location_id` refers to a GCP region.
+              #   @param page_size [::Integer]
+              #     Optional. The maximum number of items to return.
+              #
+              #     If not specified, a default value of 1000 will be used by the service.
+              #     Regardless of the page_size value, the response may include a partial list
+              #     and a caller should only rely on response's
+              #     {::Google::Cloud::Redis::Cluster::V1::ListBackupCollectionsResponse#next_page_token `next_page_token`}
+              #     to determine if there are more clusters left to be queried.
+              #   @param page_token [::String]
+              #     Optional. The `next_page_token` value returned from a previous
+              #     [ListBackupCollections] request, if any.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Gapic::PagedEnumerable<::Google::Cloud::Redis::Cluster::V1::BackupCollection>]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Gapic::PagedEnumerable<::Google::Cloud::Redis::Cluster::V1::BackupCollection>]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::ListBackupCollectionsRequest.new
+              #
+              #   # Call the list_backup_collections method.
+              #   result = client.list_backup_collections request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Redis::Cluster::V1::BackupCollection.
+              #     p item
+              #   end
+              #
+              def list_backup_collections request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::ListBackupCollectionsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.list_backup_collections.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.parent
+                  header_params["parent"] = request.parent
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.list_backup_collections.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.list_backup_collections.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :list_backup_collections, request, options: options do |response, operation|
+                  response = ::Gapic::PagedEnumerable.new @cloud_redis_cluster_stub, :list_backup_collections, request, response, operation, options
+                  yield response, operation if block_given?
+                  throw :response, response
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Get a backup collection.
+              #
+              # @overload get_backup_collection(request, options = nil)
+              #   Pass arguments to `get_backup_collection` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::GetBackupCollectionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::GetBackupCollectionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload get_backup_collection(name: nil)
+              #   Pass arguments to `get_backup_collection` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Redis backupCollection resource name using the form:
+              #         `projects/{project_id}/locations/{location_id}/backupCollections/{backup_collection_id}`
+              #     where `location_id` refers to a GCP region.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Google::Cloud::Redis::Cluster::V1::BackupCollection]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Google::Cloud::Redis::Cluster::V1::BackupCollection]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::GetBackupCollectionRequest.new
+              #
+              #   # Call the get_backup_collection method.
+              #   result = client.get_backup_collection request
+              #
+              #   # The returned object is of type Google::Cloud::Redis::Cluster::V1::BackupCollection.
+              #   p result
+              #
+              def get_backup_collection request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::GetBackupCollectionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.get_backup_collection.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.name
+                  header_params["name"] = request.name
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.get_backup_collection.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.get_backup_collection.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :get_backup_collection, request, options: options do |response, operation|
+                  yield response, operation if block_given?
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists all backups owned by a backup collection.
+              #
+              # @overload list_backups(request, options = nil)
+              #   Pass arguments to `list_backups` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::ListBackupsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::ListBackupsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload list_backups(parent: nil, page_size: nil, page_token: nil)
+              #   Pass arguments to `list_backups` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The resource name of the backupCollection using the form:
+              #     `projects/{project_id}/locations/{location_id}/backupCollections/{backup_collection_id}`
+              #   @param page_size [::Integer]
+              #     Optional. The maximum number of items to return.
+              #
+              #     If not specified, a default value of 1000 will be used by the service.
+              #     Regardless of the page_size value, the response may include a partial list
+              #     and a caller should only rely on response's
+              #     {::Google::Cloud::Redis::Cluster::V1::ListBackupsResponse#next_page_token `next_page_token`}
+              #     to determine if there are more clusters left to be queried.
+              #   @param page_token [::String]
+              #     Optional. The `next_page_token` value returned from a previous
+              #     [ListBackupCollections] request, if any.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Gapic::PagedEnumerable<::Google::Cloud::Redis::Cluster::V1::Backup>]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Gapic::PagedEnumerable<::Google::Cloud::Redis::Cluster::V1::Backup>]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::ListBackupsRequest.new
+              #
+              #   # Call the list_backups method.
+              #   result = client.list_backups request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Redis::Cluster::V1::Backup.
+              #     p item
+              #   end
+              #
+              def list_backups request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::ListBackupsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.list_backups.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.parent
+                  header_params["parent"] = request.parent
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.list_backups.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.list_backups.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :list_backups, request, options: options do |response, operation|
+                  response = ::Gapic::PagedEnumerable.new @cloud_redis_cluster_stub, :list_backups, request, response, operation, options
+                  yield response, operation if block_given?
+                  throw :response, response
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets the details of a specific backup.
+              #
+              # @overload get_backup(request, options = nil)
+              #   Pass arguments to `get_backup` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::GetBackupRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::GetBackupRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload get_backup(name: nil)
+              #   Pass arguments to `get_backup` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Redis backup resource name using the form:
+              #     `projects/{project_id}/locations/{location_id}/backupCollections/{backup_collection_id}/backups/{backup_id}`
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Google::Cloud::Redis::Cluster::V1::Backup]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Google::Cloud::Redis::Cluster::V1::Backup]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::GetBackupRequest.new
+              #
+              #   # Call the get_backup method.
+              #   result = client.get_backup request
+              #
+              #   # The returned object is of type Google::Cloud::Redis::Cluster::V1::Backup.
+              #   p result
+              #
+              def get_backup request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::GetBackupRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.get_backup.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.name
+                  header_params["name"] = request.name
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.get_backup.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.get_backup.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :get_backup, request, options: options do |response, operation|
+                  yield response, operation if block_given?
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Deletes a specific backup.
+              #
+              # @overload delete_backup(request, options = nil)
+              #   Pass arguments to `delete_backup` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::DeleteBackupRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::DeleteBackupRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload delete_backup(name: nil, request_id: nil)
+              #   Pass arguments to `delete_backup` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Redis backup resource name using the form:
+              #     `projects/{project_id}/locations/{location_id}/backupCollections/{backup_collection_id}/backups/{backup_id}`
+              #   @param request_id [::String]
+              #     Optional. Idempotent request UUID.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Gapic::Operation]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::DeleteBackupRequest.new
+              #
+              #   # Call the delete_backup method.
+              #   result = client.delete_backup request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def delete_backup request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::DeleteBackupRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.delete_backup.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.name
+                  header_params["name"] = request.name
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.delete_backup.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.delete_backup.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :delete_backup, request, options: options do |response, operation|
+                  response = ::Gapic::Operation.new response, @operations_client, options: options
+                  yield response, operation if block_given?
+                  throw :response, response
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Exports a specific backup to a customer target Cloud Storage URI.
+              #
+              # @overload export_backup(request, options = nil)
+              #   Pass arguments to `export_backup` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::ExportBackupRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::ExportBackupRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload export_backup(gcs_bucket: nil, name: nil)
+              #   Pass arguments to `export_backup` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param gcs_bucket [::String]
+              #     Google Cloud Storage bucket, like "my-bucket".
+              #   @param name [::String]
+              #     Required. Redis backup resource name using the form:
+              #     `projects/{project_id}/locations/{location_id}/backupCollections/{backup_collection_id}/backups/{backup_id}`
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Gapic::Operation]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::ExportBackupRequest.new
+              #
+              #   # Call the export_backup method.
+              #   result = client.export_backup request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def export_backup request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::ExportBackupRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.export_backup.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.name
+                  header_params["name"] = request.name
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.export_backup.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.export_backup.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :export_backup, request, options: options do |response, operation|
+                  response = ::Gapic::Operation.new response, @operations_client, options: options
+                  yield response, operation if block_given?
+                  throw :response, response
+                end
+              rescue ::GRPC::BadStatus => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Backup Redis Cluster.
+              # If this is the first time a backup is being created, a backup collection
+              # will be created at the backend, and this backup belongs to this collection.
+              # Both collection and backup will have a resource name. Backup will be
+              # executed for each shard. A replica (primary if nonHA) will be selected to
+              # perform the execution. Backup call will be rejected if there is an ongoing
+              # backup or update operation. Be aware that during preview, if the cluster's
+              # internal software version is too old, critical update will be performed
+              # before actual backup. Once the internal software version is updated to the
+              # minimum version required by the backup feature, subsequent backups will not
+              # require critical update. After preview, there will be no critical update
+              # needed for backup.
+              #
+              # @overload backup_cluster(request, options = nil)
+              #   Pass arguments to `backup_cluster` via a request object, either of type
+              #   {::Google::Cloud::Redis::Cluster::V1::BackupClusterRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Redis::Cluster::V1::BackupClusterRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+              #
+              # @overload backup_cluster(name: nil, ttl: nil, backup_id: nil)
+              #   Pass arguments to `backup_cluster` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Redis cluster resource name using the form:
+              #      `projects/{project_id}/locations/{location_id}/clusters/{cluster_id}`
+              #     where `location_id` refers to a GCP region.
+              #   @param ttl [::Google::Protobuf::Duration, ::Hash]
+              #     Optional. TTL for the backup to expire. Value range is 1 day to 100 years.
+              #     If not specified, the default value is 100 years.
+              #   @param backup_id [::String]
+              #     Optional. The id of the backup to be created. If not specified, the
+              #     default value ([YYYYMMDDHHMMSS]_[Shortened Cluster UID] is used.
+              #
+              # @yield [response, operation] Access the result along with the RPC operation
+              # @yieldparam response [::Gapic::Operation]
+              # @yieldparam operation [::GRPC::ActiveCall::Operation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the RPC is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/redis/cluster/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Redis::Cluster::V1::CloudRedisCluster::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Redis::Cluster::V1::BackupClusterRequest.new
+              #
+              #   # Call the backup_cluster method.
+              #   result = client.backup_cluster request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def backup_cluster request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Redis::Cluster::V1::BackupClusterRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                metadata = @config.rpcs.backup_cluster.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Redis::Cluster::V1::VERSION
+                metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                header_params = {}
+                if request.name
+                  header_params["name"] = request.name
+                end
+
+                request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                metadata[:"x-goog-request-params"] ||= request_params_header
+
+                options.apply_defaults timeout:      @config.rpcs.backup_cluster.timeout,
+                                       metadata:     metadata,
+                                       retry_policy: @config.rpcs.backup_cluster.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_redis_cluster_stub.call_rpc :backup_cluster, request, options: options do |response, operation|
+                  response = ::Gapic::Operation.new response, @operations_client, options: options
+                  yield response, operation if block_given?
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -790,6 +1704,13 @@ module Google
               #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
               #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -829,6 +1750,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -853,6 +1779,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -924,6 +1851,51 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :create_cluster
+                  ##
+                  # RPC-specific configuration for `get_cluster_certificate_authority`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_cluster_certificate_authority
+                  ##
+                  # RPC-specific configuration for `reschedule_cluster_maintenance`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :reschedule_cluster_maintenance
+                  ##
+                  # RPC-specific configuration for `list_backup_collections`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_backup_collections
+                  ##
+                  # RPC-specific configuration for `get_backup_collection`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_backup_collection
+                  ##
+                  # RPC-specific configuration for `list_backups`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_backups
+                  ##
+                  # RPC-specific configuration for `get_backup`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_backup
+                  ##
+                  # RPC-specific configuration for `delete_backup`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_backup
+                  ##
+                  # RPC-specific configuration for `export_backup`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :export_backup
+                  ##
+                  # RPC-specific configuration for `backup_cluster`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :backup_cluster
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -937,6 +1909,24 @@ module Google
                     @delete_cluster = ::Gapic::Config::Method.new delete_cluster_config
                     create_cluster_config = parent_rpcs.create_cluster if parent_rpcs.respond_to? :create_cluster
                     @create_cluster = ::Gapic::Config::Method.new create_cluster_config
+                    get_cluster_certificate_authority_config = parent_rpcs.get_cluster_certificate_authority if parent_rpcs.respond_to? :get_cluster_certificate_authority
+                    @get_cluster_certificate_authority = ::Gapic::Config::Method.new get_cluster_certificate_authority_config
+                    reschedule_cluster_maintenance_config = parent_rpcs.reschedule_cluster_maintenance if parent_rpcs.respond_to? :reschedule_cluster_maintenance
+                    @reschedule_cluster_maintenance = ::Gapic::Config::Method.new reschedule_cluster_maintenance_config
+                    list_backup_collections_config = parent_rpcs.list_backup_collections if parent_rpcs.respond_to? :list_backup_collections
+                    @list_backup_collections = ::Gapic::Config::Method.new list_backup_collections_config
+                    get_backup_collection_config = parent_rpcs.get_backup_collection if parent_rpcs.respond_to? :get_backup_collection
+                    @get_backup_collection = ::Gapic::Config::Method.new get_backup_collection_config
+                    list_backups_config = parent_rpcs.list_backups if parent_rpcs.respond_to? :list_backups
+                    @list_backups = ::Gapic::Config::Method.new list_backups_config
+                    get_backup_config = parent_rpcs.get_backup if parent_rpcs.respond_to? :get_backup
+                    @get_backup = ::Gapic::Config::Method.new get_backup_config
+                    delete_backup_config = parent_rpcs.delete_backup if parent_rpcs.respond_to? :delete_backup
+                    @delete_backup = ::Gapic::Config::Method.new delete_backup_config
+                    export_backup_config = parent_rpcs.export_backup if parent_rpcs.respond_to? :export_backup
+                    @export_backup = ::Gapic::Config::Method.new export_backup_config
+                    backup_cluster_config = parent_rpcs.backup_cluster if parent_rpcs.respond_to? :backup_cluster
+                    @backup_cluster = ::Gapic::Config::Method.new backup_cluster_config
 
                     yield self if block_given?
                   end

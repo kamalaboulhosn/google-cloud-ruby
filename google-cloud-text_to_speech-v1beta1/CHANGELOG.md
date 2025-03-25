@@ -1,5 +1,63 @@
 # Release History
 
+### 0.20.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.19.0 (2025-01-08)
+
+#### Features
+
+* Support for Linear PCM encoding 
+* Support for streaming audio config 
+
+### 0.18.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.17.0 (2024-10-25)
+
+#### Features
+
+* add brand voice lite 
+* add multi-speaker markup, which allows generating dialogue between multiple speakers ([#27454](https://github.com/googleapis/google-cloud-ruby/issues/27454)) 
+
+### 0.16.0 (2024-10-15)
+
+#### Features
+
+* Support for low-latency journey synthesis 
+* Support for pronunciation customizations 
+
+### 0.15.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27031](https://github.com/googleapis/google-cloud-ruby/issues/27031)) 
+
+### 0.15.1 (2024-08-28)
+
+#### Documentation
+
+* update Long Audio capabilities to include SSML ([#27000](https://github.com/googleapis/google-cloud-ruby/issues/27000)) 
+
+### 0.15.0 (2024-08-22)
+
+#### Features
+
+* Support for bidirectional streaming speech synthesis ([#26967](https://github.com/googleapis/google-cloud-ruby/issues/26967)) 
+#### Documentation
+
+* Updates to comments in VoiceSelectionParams 
+
 ### 0.14.0 (2024-02-26)
 
 #### Features

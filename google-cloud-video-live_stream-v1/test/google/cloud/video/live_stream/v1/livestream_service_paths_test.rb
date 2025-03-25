@@ -31,6 +31,14 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::ClientPathsTest
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_asset_path
@@ -54,6 +62,18 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::ClientPathsTest
 
       path = client.channel_path project: "value0", location: "value1", channel: "value2"
       assert_equal "projects/value0/locations/value1/channels/value2", path
+    end
+  end
+
+  def test_clip_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.clip_path project: "value0", location: "value1", channel: "value2", clip: "value3"
+      assert_equal "projects/value0/locations/value1/channels/value2/clips/value3", path
     end
   end
 

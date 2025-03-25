@@ -25,7 +25,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Identifier. Format:
-        #     organizations/\\{organization}/locations/\\{location}/customers/\\{customer}/workloads/\\{workload}/partnerPermissions
+        #     `organizations/{organization}/locations/{location}/customers/{customer}/workloads/{workload}/partnerPermissions`
         # @!attribute [rw] partner_permissions
         #   @return [::Array<::Google::Cloud::CloudControlsPartner::V1beta::PartnerPermissions::Permission>]
         #     The partner permissions granted for the workload
@@ -48,6 +48,9 @@ module Google
 
             # Permission for External Key Manager connection status
             ASSURED_WORKLOADS_EKM_CONNECTION_STATUS = 4
+
+            # Permission for support case details for Access Transparency log entries
+            ACCESS_TRANSPARENCY_LOGS_SUPPORT_CASE_VIEWER = 5
           end
         end
 
@@ -55,7 +58,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. Name of the resource to get in the format:
-        #     organizations/\\{organization}/locations/\\{location}/customers/\\{customer}/workloads/\\{workload}/partnerPermissions
+        #     `organizations/{organization}/locations/{location}/customers/{customer}/workloads/{workload}/partnerPermissions`
         class GetPartnerPermissionsRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

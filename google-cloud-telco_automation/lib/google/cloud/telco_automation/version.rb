@@ -20,7 +20,7 @@
 module Google
   module Cloud
     module TelcoAutomation
-      VERSION = "0.4.0"
+      VERSION = "2.0.0"
     end
   end
 end

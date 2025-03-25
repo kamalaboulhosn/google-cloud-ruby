@@ -142,6 +142,9 @@ module Google
         #     Records additional information about the mute operation, for example, the
         #     [mute configuration](/security-command-center/docs/how-to-mute-findings)
         #     that muted the finding and the user who muted the finding.
+        # @!attribute [r] mute_info
+        #   @return [::Google::Cloud::SecurityCenter::V1::Finding::MuteInfo]
+        #     Output only. The mute information regarding this finding.
         # @!attribute [rw] processes
         #   @return [::Array<::Google::Cloud::SecurityCenter::V1::Process>]
         #     Represents operating system processes associated with the Finding.
@@ -199,6 +202,9 @@ module Google
         # @!attribute [rw] database
         #   @return [::Google::Cloud::SecurityCenter::V1::Database]
         #     Database associated with the finding.
+        # @!attribute [rw] attack_exposure
+        #   @return [::Google::Cloud::SecurityCenter::V1::AttackExposure]
+        #     The results of an attack path simulation relevant to this finding.
         # @!attribute [rw] files
         #   @return [::Array<::Google::Cloud::SecurityCenter::V1::File>]
         #     File associated with the finding.
@@ -236,9 +242,65 @@ module Google
         # @!attribute [rw] notebook
         #   @return [::Google::Cloud::SecurityCenter::V1::Notebook]
         #     Notebook associated with the finding.
+        # @!attribute [rw] toxic_combination
+        #   @return [::Google::Cloud::SecurityCenter::V1::ToxicCombination]
+        #     Contains details about a group of security issues that, when the issues
+        #     occur together, represent a greater risk than when the issues occur
+        #     independently. A group of such issues is referred to as a toxic
+        #     combination.
+        #     This field cannot be updated. Its value is ignored in all update requests.
+        # @!attribute [rw] group_memberships
+        #   @return [::Array<::Google::Cloud::SecurityCenter::V1::GroupMembership>]
+        #     Contains details about groups of which this finding is a member. A group is
+        #     a collection of findings that are related in some way.
+        #     This field cannot be updated. Its value is ignored in all update requests.
         class Finding
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Mute information about the finding, including whether the finding has a
+          # static mute or any matching dynamic mute rules.
+          # @!attribute [rw] static_mute
+          #   @return [::Google::Cloud::SecurityCenter::V1::Finding::MuteInfo::StaticMute]
+          #     If set, the static mute applied to this finding. Static mutes override
+          #     dynamic mutes. If unset, there is no static mute.
+          # @!attribute [rw] dynamic_mute_records
+          #   @return [::Array<::Google::Cloud::SecurityCenter::V1::Finding::MuteInfo::DynamicMuteRecord>]
+          #     The list of dynamic mute rules that currently match the finding.
+          class MuteInfo
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Information about the static mute state. A static mute state overrides
+            # any dynamic mute rules that apply to this finding. The static mute state
+            # can be set by a static mute rule or by muting the finding directly.
+            # @!attribute [rw] state
+            #   @return [::Google::Cloud::SecurityCenter::V1::Finding::Mute]
+            #     The static mute state. If the value is `MUTED` or `UNMUTED`, then the
+            #     finding's overall mute state will have the same value.
+            # @!attribute [rw] apply_time
+            #   @return [::Google::Protobuf::Timestamp]
+            #     When the static mute was applied.
+            class StaticMute
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # The record of a dynamic mute rule that matches the finding.
+            # @!attribute [rw] mute_config
+            #   @return [::String]
+            #     The relative resource name of the mute rule, represented by a mute
+            #     config, that created this record, for example
+            #     `organizations/123/muteConfigs/mymuteconfig` or
+            #     `organizations/123/locations/global/muteConfigs/mymuteconfig`.
+            # @!attribute [rw] match_time
+            #   @return [::Google::Protobuf::Timestamp]
+            #     When the dynamic mute rule first matched the finding.
+            class DynamicMuteRecord
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+          end
 
           # @!attribute [rw] key
           #   @return [::String]
@@ -380,6 +442,12 @@ module Google
             # Describes a potential security risk due to a change in the security
             # posture.
             POSTURE_VIOLATION = 6
+
+            # Describes a group of security issues that, when the issues
+            # occur together, represent a greater risk than when the issues occur
+            # independently. A group of such issues is referred to as a toxic
+            # combination.
+            TOXIC_COMBINATION = 7
           end
         end
       end

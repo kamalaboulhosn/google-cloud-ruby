@@ -98,7 +98,7 @@ module Google
                     initial_delay: 1.0, max_delay: 60.0, multiplier: 2, retry_codes: [14, 4]
                   }
 
-                  default_config.rpcs.check_consistency.timeout = 60.0
+                  default_config.rpcs.check_consistency.timeout = 3600.0
                   default_config.rpcs.check_consistency.retry_policy = {
                     initial_delay: 1.0, max_delay: 60.0, multiplier: 2, retry_codes: [14, 4]
                   }
@@ -239,8 +239,19 @@ module Google
                   universe_domain: @config.universe_domain,
                   channel_args: @config.channel_args,
                   interceptors: @config.interceptors,
-                  channel_pool_config: @config.channel_pool
+                  channel_pool_config: @config.channel_pool,
+                  logger: @config.logger
                 )
+
+                @bigtable_table_admin_stub.stub_logger&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
               end
 
               ##
@@ -249,6 +260,15 @@ module Google
               # @return [::Google::Cloud::Bigtable::Admin::V2::BigtableTableAdmin::Operations]
               #
               attr_reader :operations_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @bigtable_table_admin_stub.logger
+              end
 
               # Service calls
 
@@ -358,7 +378,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :create_table, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -468,7 +487,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :create_table_from_snapshot, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -575,7 +594,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :list_tables, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @bigtable_table_admin_stub, :list_tables, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -666,7 +685,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :get_table, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -685,7 +703,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
               #
-              # @overload update_table(table: nil, update_mask: nil)
+              # @overload update_table(table: nil, update_mask: nil, ignore_warnings: nil)
               #   Pass arguments to `update_table` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -703,9 +721,12 @@ module Google
               #     * `change_stream_config`
               #     * `change_stream_config.retention_period`
               #     * `deletion_protection`
+              #     * `row_key_schema`
               #
               #     If `column_families` is set in `update_mask`, it will return an
               #     UNIMPLEMENTED error.
+              #   @param ignore_warnings [::Boolean]
+              #     Optional. If true, ignore safety checks when updating the table.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Gapic::Operation]
@@ -774,7 +795,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :update_table, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -862,7 +883,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :delete_table, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -958,7 +978,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :undelete_table, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1061,7 +1081,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :create_authorized_view, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1169,7 +1189,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :list_authorized_views, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @bigtable_table_admin_stub, :list_authorized_views, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1260,7 +1280,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :get_authorized_view, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1368,7 +1387,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :update_authorized_view, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1461,7 +1480,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :delete_authorized_view, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1559,7 +1577,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :modify_column_families, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1592,8 +1609,12 @@ module Google
               #   @param row_key_prefix [::String]
               #     Delete all rows that start with this row key prefix. Prefix cannot be
               #     zero length.
+              #
+              #     Note: The following fields are mutually exclusive: `row_key_prefix`, `delete_all_data_from_table`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param delete_all_data_from_table [::Boolean]
               #     Delete all rows in the table. Setting this to false is a no-op.
+              #
+              #     Note: The following fields are mutually exclusive: `delete_all_data_from_table`, `row_key_prefix`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Google::Protobuf::Empty]
@@ -1654,7 +1675,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :drop_row_range, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1745,7 +1765,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :generate_consistency_token, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1781,10 +1800,14 @@ module Google
               #     Checks that reads using an app profile with `StandardIsolation` can
               #     see all writes committed before the token was created, even if the
               #     read and write target different clusters.
+              #
+              #     Note: The following fields are mutually exclusive: `standard_read_remote_writes`, `data_boost_read_local_writes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param data_boost_read_local_writes [::Google::Cloud::Bigtable::Admin::V2::DataBoostReadLocalWrites, ::Hash]
               #     Checks that reads using an app profile with `DataBoostIsolationReadOnly`
               #     can see all writes committed before the token was created, but only if
               #     the read and write target the same cluster.
+              #
+              #     Note: The following fields are mutually exclusive: `data_boost_read_local_writes`, `standard_read_remote_writes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Google::Cloud::Bigtable::Admin::V2::CheckConsistencyResponse]
@@ -1845,7 +1868,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :check_consistency, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1964,7 +1986,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :snapshot_table, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2058,7 +2080,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :get_snapshot, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2164,7 +2185,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :list_snapshots, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @bigtable_table_admin_stub, :list_snapshots, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2258,7 +2279,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :delete_snapshot, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2370,7 +2390,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :create_backup, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2458,7 +2478,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :get_backup, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2554,7 +2573,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :update_backup, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2642,7 +2660,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :delete_backup, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2803,7 +2820,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :list_backups, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @bigtable_table_admin_stub, :list_backups, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2814,7 +2831,7 @@ module Google
               # returned table {::Google::Longrunning::Operation long-running operation} can
               # be used to track the progress of the operation, and to cancel it.  The
               # {::Google::Longrunning::Operation#metadata metadata} field type is
-              # [RestoreTableMetadata][google.bigtable.admin.RestoreTableMetadata].  The
+              # {::Google::Cloud::Bigtable::Admin::V2::RestoreTableMetadata RestoreTableMetadata}.  The
               # {::Google::Longrunning::Operation#response response} type is
               # {::Google::Cloud::Bigtable::Admin::V2::Table Table}, if successful.
               #
@@ -2912,7 +2929,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :restore_table, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2939,7 +2956,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The name of the destination cluster that will contain the backup
-              #     copy. The cluster must already exists. Values are of the form:
+              #     copy. The cluster must already exist. Values are of the form:
               #     `projects/{project}/instances/{instance}/clusters/{cluster}`.
               #   @param backup_id [::String]
               #     Required. The id of the new backup. The `backup_id` along with `parent`
@@ -3030,7 +3047,7 @@ module Google
                 @bigtable_table_admin_stub.call_rpc :copy_backup, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3122,7 +3139,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :get_iam_policy, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3221,7 +3237,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :set_iam_policy, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3314,7 +3329,6 @@ module Google
 
                 @bigtable_table_admin_stub.call_rpc :test_iam_permissions, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3364,6 +3378,13 @@ module Google
               #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
               #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -3403,6 +3424,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -3427,6 +3453,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

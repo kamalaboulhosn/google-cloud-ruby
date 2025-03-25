@@ -87,7 +87,7 @@ module Google
         #     - The field cannot be updated, including changing its presence
         # @!attribute [rw] service_account
         #   @return [::String]
-        #     Optional. User-specified Service Account (SA) credentials to be used when
+        #     Required. User-specified Service Account (SA) credentials to be used when
         #     actuating resources.
         #     Format: `projects/{projectID}/serviceAccounts/{serviceAccount}`
         # @!attribute [rw] import_existing_resources
@@ -234,14 +234,18 @@ module Google
         # describes the resources and configs to be deployed.
         # @!attribute [rw] gcs_source
         #   @return [::String]
-        #     Required. URI of an object in Google Cloud Storage.
+        #     URI of an object in Google Cloud Storage.
         #     Format: `gs://{bucket}/{object}`
         #
         #     URI may also specify an object version for zipped objects.
         #     Format: `gs://{bucket}/{object}#{version}`
+        #
+        #     Note: The following fields are mutually exclusive: `gcs_source`, `git_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] git_source
         #   @return [::Google::Cloud::ConfigService::V1::GitSource]
-        #     Required. URI of a public Git repo.
+        #     URI of a public Git repo.
+        #
+        #     Note: The following fields are mutually exclusive: `git_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] input_values
         #   @return [::Google::Protobuf::Map{::String => ::Google::Cloud::ConfigService::V1::TerraformVariable}]
         #     Input variable values for the Terraform blueprint.
@@ -565,9 +569,13 @@ module Google
         # @!attribute [r] deployment_metadata
         #   @return [::Google::Cloud::ConfigService::V1::DeploymentOperationMetadata]
         #     Output only. Metadata about the deployment operation state.
+        #
+        #     Note: The following fields are mutually exclusive: `deployment_metadata`, `preview_metadata`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] preview_metadata
         #   @return [::Google::Cloud::ConfigService::V1::PreviewOperationMetadata]
         #     Output only. Metadata about the preview operation state.
+        #
+        #     Note: The following fields are mutually exclusive: `preview_metadata`, `deployment_metadata`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] create_time
         #   @return [::Google::Protobuf::Timestamp]
         #     Output only. Time when the operation was created.
@@ -587,9 +595,9 @@ module Google
         #   @return [::Boolean]
         #     Output only. Identifies whether the user has requested cancellation of the
         #     operation. Operations that have successfully been cancelled have
-        #     [Operation.error][] value with a
-        #     {::Google::Rpc::Status#code google.rpc.Status.code} of 1, corresponding to
-        #     `Code.CANCELLED`.
+        #     {::Google::Longrunning::Operation#error google.longrunning.Operation.error}
+        #     value with a {::Google::Rpc::Status#code google.rpc.Status.code} of `1`,
+        #     corresponding to `Code.CANCELLED`.
         # @!attribute [r] api_version
         #   @return [::String]
         #     Output only. API version used to start the operation.
@@ -994,7 +1002,7 @@ module Google
         # A response to a 'ListResources' call. Contains a list of Resources.
         # @!attribute [rw] resources
         #   @return [::Array<::Google::Cloud::ConfigService::V1::Resource>]
-        #     List of [Resources][]s.
+        #     List of {::Google::Cloud::ConfigService::V1::Resource Resources}.
         # @!attribute [rw] next_page_token
         #   @return [::String]
         #     A token to request the next page of resources from the 'ListResources'
@@ -1167,7 +1175,7 @@ module Google
         #     Optional. Current mode of preview.
         # @!attribute [rw] service_account
         #   @return [::String]
-        #     Optional. User-specified Service Account (SA) credentials to be used when
+        #     Required. User-specified Service Account (SA) credentials to be used when
         #     previewing resources.
         #     Format: `projects/{projectID}/serviceAccounts/{serviceAccount}`
         # @!attribute [rw] artifacts_gcs_bucket
@@ -1222,6 +1230,12 @@ module Google
         #   @return [::String]
         #     Optional. The user-specified Terraform version constraint.
         #     Example: "=1.3.10".
+        # @!attribute [rw] annotations
+        #   @return [::Google::Protobuf::Map{::String => ::String}]
+        #     Optional. Arbitrary key-value metadata storage e.g. to help client tools
+        #     identifiy preview during automation. See
+        #     https://google.aip.dev/148#annotations for details on format and size
+        #     limitations.
         class Preview
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1231,6 +1245,15 @@ module Google
           # @!attribute [rw] value
           #   @return [::String]
           class LabelsEntry
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # @!attribute [rw] key
+          #   @return [::String]
+          # @!attribute [rw] value
+          #   @return [::String]
+          class AnnotationsEntry
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
@@ -1460,7 +1483,7 @@ module Google
         # A response to a `ListPreviews` call. Contains a list of Previews.
         # @!attribute [rw] previews
         #   @return [::Array<::Google::Cloud::ConfigService::V1::Preview>]
-        #     List of [Previews][]s.
+        #     List of {::Google::Cloud::ConfigService::V1::Preview Previews}.
         # @!attribute [rw] next_page_token
         #   @return [::String]
         #     Token to be supplied to the next ListPreviews request via `page_token`

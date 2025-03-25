@@ -31,6 +31,14 @@ class ::Google::Cloud::AIPlatform::V1::JobService::ClientPathsTest < Minitest::T
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_batch_prediction_job_path
@@ -213,6 +221,18 @@ class ::Google::Cloud::AIPlatform::V1::JobService::ClientPathsTest < Minitest::T
 
       path = client.persistent_resource_path project: "value0", location: "value1", persistent_resource: "value2"
       assert_equal "projects/value0/locations/value1/persistentResources/value2", path
+    end
+  end
+
+  def test_reservation_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::AIPlatform::V1::JobService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.reservation_path project_id_or_number: "value0", zone: "value1", reservation_name: "value2"
+      assert_equal "projects/value0/zones/value1/reservations/value2", path
     end
   end
 

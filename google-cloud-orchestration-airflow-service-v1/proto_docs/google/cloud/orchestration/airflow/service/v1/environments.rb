@@ -490,6 +490,13 @@ module Google
             #     pairs, which can contain sensitive values such as a password, a token, or a
             #     key. The values for all keys have to be base64-encoded strings. For details
             #     see: https://kubernetes.io/docs/concepts/configuration/secret/
+            #
+            #     Example:
+            #
+            #     {
+            #       "example": "ZXhhbXBsZV92YWx1ZQ==",
+            #       "another-example": "YW5vdGhlcl9leGFtcGxlX3ZhbHVl"
+            #     }
             class UserWorkloadsSecret
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -527,6 +534,13 @@ module Google
             #     Optional. The "data" field of Kubernetes ConfigMap, organized in key-value
             #     pairs. For details see:
             #     https://kubernetes.io/docs/concepts/configuration/configmap/
+            #
+            #     Example:
+            #
+            #     {
+            #       "example_key": "example_value",
+            #       "another_key": "another_value"
+            #     }
             class UserWorkloadsConfigMap
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -811,13 +825,14 @@ module Google
             #     composer-1.*.*-airflow-*.*.*.
             # @!attribute [rw] software_config
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::SoftwareConfig]
-            #     The configuration settings for software inside the environment.
+            #     Optional. The configuration settings for software inside the environment.
             # @!attribute [rw] node_config
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::NodeConfig]
-            #     The configuration used for the Kubernetes Engine cluster.
+            #     Optional. The configuration used for the Kubernetes Engine cluster.
             # @!attribute [rw] private_environment_config
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::PrivateEnvironmentConfig]
-            #     The configuration used for the Private IP Cloud Composer environment.
+            #     Optional. The configuration used for the Private IP Cloud Composer
+            #     environment.
             # @!attribute [rw] web_server_network_access_control
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::WebServerNetworkAccessControl]
             #     Optional. The network-level access control policy for the Airflow web
@@ -849,8 +864,9 @@ module Google
             #     This may be split into multiple chunks, each with a size of
             #     at least 4 hours.
             #
-            #     If this value is omitted, the default value for maintenance window will be
-            #     applied. The default value is Saturday and Sunday 00-06 GMT.
+            #     If this value is omitted, the default value for maintenance window is
+            #     applied. By default, maintenance windows are from 00:00:00 to 04:00:00
+            #     (GMT) on Friday, Saturday, and Sunday every week.
             # @!attribute [rw] workloads_config
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::WorkloadsConfig]
             #     Optional. The workloads configuration settings for the GKE cluster
@@ -1043,7 +1059,7 @@ module Google
             # Specifies the selection and configuration of software inside the environment.
             # @!attribute [rw] image_version
             #   @return [::String]
-            #     The version of the software running in the environment.
+            #     Optional. The version of the software running in the environment.
             #     This encapsulates both the version of Cloud Composer functionality and the
             #     version of Apache Airflow. It must match the regular expression
             #     `composer-([0-9]+(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-([0-9]+(\.[0-9]+(\.[0-9]+)?)?)`.
@@ -1144,7 +1160,7 @@ module Google
             #     If unspecified, the field defaults to `PLUGINS_ENABLED`.
             #
             #     This field is supported for Cloud Composer environments in versions
-            #     composer-3.*.*-airflow-*.*.* and newer.
+            #     composer-3-airflow-*.*.*-build.* and newer.
             class SoftwareConfig
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1206,6 +1222,8 @@ module Google
             #
             #     For Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*,
             #     this field is applicable only when `use_ip_aliases` is true.
+            #
+            #     Note: The following fields are mutually exclusive: `cluster_secondary_range_name`, `cluster_ipv4_cidr_block`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] cluster_ipv4_cidr_block
             #   @return [::String]
             #     Optional. The IP address range used to allocate IP addresses to pods in
@@ -1224,6 +1242,8 @@ module Google
             #     notation (e.g. `10.96.0.0/14`) from the RFC-1918 private networks (e.g.
             #     `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) to pick a specific range
             #     to use.
+            #
+            #     Note: The following fields are mutually exclusive: `cluster_ipv4_cidr_block`, `cluster_secondary_range_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] services_secondary_range_name
             #   @return [::String]
             #     Optional. The name of the services' secondary range used to allocate
@@ -1231,6 +1251,8 @@ module Google
             #
             #     For Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*,
             #     this field is applicable only when `use_ip_aliases` is true.
+            #
+            #     Note: The following fields are mutually exclusive: `services_secondary_range_name`, `services_ipv4_cidr_block`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] services_ipv4_cidr_block
             #   @return [::String]
             #     Optional. The IP address range of the services IP addresses in this
@@ -1249,6 +1271,8 @@ module Google
             #     notation (e.g. `10.96.0.0/14`) from the RFC-1918 private networks (e.g.
             #     `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) to pick a specific range
             #     to use.
+            #
+            #     Note: The following fields are mutually exclusive: `services_ipv4_cidr_block`, `services_secondary_range_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             class IPAllocationPolicy
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1375,7 +1399,7 @@ module Google
             #     projects/\\{project}/regions/\\{region}/networkAttachments/\\{networkAttachment}.
             #
             #     This field is supported for Cloud Composer environments in versions
-            #     composer-3.*.*-airflow-*.*.* and newer.
+            #     composer-3-airflow-*.*.*-build.* and newer.
             # @!attribute [rw] composer_internal_ipv4_cidr_block
             #   @return [::String]
             #     Optional. The IP range in CIDR notation to use internally by Cloud
@@ -1385,7 +1409,7 @@ module Google
             #     If not specified, the default value of '100.64.128.0/20' is used.
             #
             #     This field is supported for Cloud Composer environments in versions
-            #     composer-3.*.*-airflow-*.*.* and newer.
+            #     composer-3-airflow-*.*.*-build.* and newer.
             class NodeConfig
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1417,7 +1441,7 @@ module Google
             # environment.
             # @!attribute [rw] connection_type
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::NetworkingConfig::ConnectionType]
-            #     Optional. Indicates the user requested specifc connection type between
+            #     Optional. Indicates the user requested specific connection type between
             #     Tenant and Customer projects. You cannot set networking connection type in
             #     public IP environment.
             class NetworkingConfig
@@ -1460,7 +1484,7 @@ module Google
             #     internet.
             #
             #     This field is supported for Cloud Composer environments in versions
-            #     composer-3.*.*-airflow-*.*.* and newer.
+            #     composer-3-airflow-*.*.*-build.* and newer.
             # @!attribute [rw] private_cluster_config
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::PrivateClusterConfig]
             #     Optional. Configuration for the private GKE cluster for a Private IP
@@ -1541,7 +1565,7 @@ module Google
             #     Optional. Resources used by Airflow DAG processors.
             #
             #     This field is supported for Cloud Composer environments in versions
-            #     composer-3.*.*-airflow-*.*.* and newer.
+            #     composer-3-airflow-*.*.*-build.* and newer.
             class WorkloadsConfig
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1621,6 +1645,9 @@ module Google
               end
 
               # Configuration for resources used by Airflow DAG processors.
+              #
+              # This field is supported for Cloud Composer environments in versions
+              # composer-3-airflow-*.*.*-build.* and newer.
               # @!attribute [rw] cpu
               #   @return [::Float]
               #     Optional. CPU request and limit for a single Airflow DAG processor
@@ -1714,14 +1741,14 @@ module Google
             # An environment for running orchestration tasks.
             # @!attribute [rw] name
             #   @return [::String]
-            #     The resource name of the environment, in the form:
+            #     Identifier. The resource name of the environment, in the form:
             #     "projects/\\{projectId}/locations/\\{locationId}/environments/\\{environmentId}"
             #
             #     EnvironmentId must start with a lowercase letter followed by up to 63
             #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
             # @!attribute [rw] config
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::EnvironmentConfig]
-            #     Configuration parameters for this environment.
+            #     Optional. Configuration parameters for this environment.
             # @!attribute [rw] uuid
             #   @return [::String]
             #     Output only. The UUID (Universally Unique IDentifier) associated with this
@@ -1746,6 +1773,9 @@ module Google
             #     * Both keys and values are additionally constrained to be <= 128 bytes in
             #     size.
             # @!attribute [r] satisfies_pzs
+            #   @return [::Boolean]
+            #     Output only. Reserved for future use.
+            # @!attribute [r] satisfies_pzi
             #   @return [::Boolean]
             #     Output only. Reserved for future use.
             # @!attribute [rw] storage_config
@@ -1785,6 +1815,43 @@ module Google
                 # The environment has encountered an error and cannot be used.
                 ERROR = 5
               end
+            end
+
+            # Request to check whether image upgrade will succeed.
+            # @!attribute [rw] environment
+            #   @return [::String]
+            #     Required. The resource name of the environment to check upgrade for, in the
+            #     form:
+            #     "projects/\\{projectId}/locations/\\{locationId}/environments/\\{environmentId}"
+            # @!attribute [rw] image_version
+            #   @return [::String]
+            #     Optional. The version of the software running in the environment.
+            #     This encapsulates both the version of Cloud Composer functionality and the
+            #     version of Apache Airflow. It must match the regular expression
+            #     `composer-([0-9]+(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-([0-9]+(\.[0-9]+(\.[0-9]+)?)?)`.
+            #     When used as input, the server also checks if the provided version is
+            #     supported and denies the request for an unsupported version.
+            #
+            #     The Cloud Composer portion of the image version is a full
+            #     [semantic version](https://semver.org), or an alias in the form of major
+            #     version number or `latest`. When an alias is provided, the server replaces
+            #     it with the current Cloud Composer version that satisfies the alias.
+            #
+            #     The Apache Airflow portion of the image version is a full semantic version
+            #     that points to one of the supported Apache Airflow versions, or an alias in
+            #     the form of only major or major.minor versions specified. When an alias is
+            #     provided, the server replaces it with the latest Apache Airflow version
+            #     that satisfies the alias and is supported in the given Cloud Composer
+            #     version.
+            #
+            #     In all cases, the resolved image version is stored in the same field.
+            #
+            #     See also [version
+            #     list](/composer/docs/concepts/versioning/composer-versions) and [versioning
+            #     overview](/composer/docs/concepts/versioning/composer-versioning-overview).
+            class CheckUpgradeRequest
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
             end
 
             # Message containing information about the result of an upgrade check
@@ -1833,6 +1900,9 @@ module Google
             end
 
             # The configuration setting for Airflow database data retention mechanism.
+            # @!attribute [rw] airflow_metadata_retention_config
+            #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::AirflowMetadataRetentionPolicyConfig]
+            #     Optional. The retention policy for airflow metadata database.
             # @!attribute [rw] task_logs_retention_config
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::TaskLogsRetentionConfig]
             #     Optional. The configuration settings for task logs retention
@@ -1844,8 +1914,7 @@ module Google
             # The configuration setting for Task Logs.
             # @!attribute [rw] storage_mode
             #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::TaskLogsRetentionConfig::TaskLogsStorageMode]
-            #     Optional. The mode of storage for Airflow workers task logs. For details,
-            #     see go/composer-store-task-logs-in-cloud-logging-only-design-doc
+            #     Optional. The mode of storage for Airflow workers task logs.
             class TaskLogsRetentionConfig
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1861,6 +1930,30 @@ module Google
 
                 # Store task logs in Cloud Logging only.
                 CLOUD_LOGGING_ONLY = 2
+              end
+            end
+
+            # The policy for airflow metadata database retention.
+            # @!attribute [rw] retention_mode
+            #   @return [::Google::Cloud::Orchestration::Airflow::Service::V1::AirflowMetadataRetentionPolicyConfig::RetentionMode]
+            #     Optional. Retention can be either enabled or disabled.
+            # @!attribute [rw] retention_days
+            #   @return [::Integer]
+            #     Optional. How many days data should be retained for.
+            class AirflowMetadataRetentionPolicyConfig
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Describes retention policy.
+              module RetentionMode
+                # Default mode doesn't change environment parameters.
+                RETENTION_MODE_UNSPECIFIED = 0
+
+                # Retention policy is enabled.
+                RETENTION_MODE_ENABLED = 1
+
+                # Retention policy is disabled.
+                RETENTION_MODE_DISABLED = 2
               end
             end
           end

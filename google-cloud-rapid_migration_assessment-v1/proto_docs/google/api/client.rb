@@ -28,6 +28,9 @@ module Google
     # @!attribute [rw] destinations
     #   @return [::Array<::Google::Api::ClientLibraryDestination>]
     #     The destination where API teams want this client library to be published.
+    # @!attribute [rw] selective_gapic_generation
+    #   @return [::Google::Api::SelectiveGapicGeneration]
+    #     Configuration for which RPCs should be generated in the GAPIC client.
     class CommonLanguageSettings
       include ::Google::Protobuf::MessageExts
       extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -196,9 +199,38 @@ module Google
     # @!attribute [rw] common
     #   @return [::Google::Api::CommonLanguageSettings]
     #     Some settings.
+    # @!attribute [rw] experimental_features
+    #   @return [::Google::Api::PythonSettings::ExperimentalFeatures]
+    #     Experimental features to be included during client library generation.
     class PythonSettings
       include ::Google::Protobuf::MessageExts
       extend ::Google::Protobuf::MessageExts::ClassMethods
+
+      # Experimental features to be included during client library generation.
+      # These fields will be deprecated once the feature graduates and is enabled
+      # by default.
+      # @!attribute [rw] rest_async_io_enabled
+      #   @return [::Boolean]
+      #     Enables generation of asynchronous REST clients if `rest` transport is
+      #     enabled. By default, asynchronous REST clients will not be generated.
+      #     This feature will be enabled by default 1 month after launching the
+      #     feature in preview packages.
+      # @!attribute [rw] protobuf_pythonic_types_enabled
+      #   @return [::Boolean]
+      #     Enables generation of protobuf code using new types that are more
+      #     Pythonic which are included in `protobuf>=5.29.x`. This feature will be
+      #     enabled by default 1 month after launching the feature in preview
+      #     packages.
+      # @!attribute [rw] unversioned_package_disabled
+      #   @return [::Boolean]
+      #     Disables generation of an unversioned Python package for this client
+      #     library. This means that the module names will need to be versioned in
+      #     import statements. For example `import google.cloud.library_v2` instead
+      #     of `import google.cloud.library`.
+      class ExperimentalFeatures
+        include ::Google::Protobuf::MessageExts
+        extend ::Google::Protobuf::MessageExts::ClassMethods
+      end
     end
 
     # Settings for Node client libraries.
@@ -280,9 +312,28 @@ module Google
     # @!attribute [rw] common
     #   @return [::Google::Api::CommonLanguageSettings]
     #     Some settings.
+    # @!attribute [rw] renamed_services
+    #   @return [::Google::Protobuf::Map{::String => ::String}]
+    #     Map of service names to renamed services. Keys are the package relative
+    #     service names and values are the name to be used for the service client
+    #     and call options.
+    #
+    #     publishing:
+    #       go_settings:
+    #         renamed_services:
+    #           Publisher: TopicAdmin
     class GoSettings
       include ::Google::Protobuf::MessageExts
       extend ::Google::Protobuf::MessageExts::ClassMethods
+
+      # @!attribute [rw] key
+      #   @return [::String]
+      # @!attribute [rw] value
+      #   @return [::String]
+      class RenamedServicesEntry
+        include ::Google::Protobuf::MessageExts
+        extend ::Google::Protobuf::MessageExts::ClassMethods
+      end
     end
 
     # Describes the generator configuration for a method.
@@ -290,6 +341,13 @@ module Google
     #   @return [::String]
     #     The fully qualified name of the method, for which the options below apply.
     #     This is used to find the method to apply the options.
+    #
+    #     Example:
+    #
+    #        publishing:
+    #          method_settings:
+    #          - selector: google.storage.control.v2.StorageControl.CreateFolder
+    #            # method settings for CreateFolder...
     # @!attribute [rw] long_running
     #   @return [::Google::Api::MethodSettings::LongRunning]
     #     Describes settings to use for long-running operations when generating
@@ -298,17 +356,14 @@ module Google
     #
     #     Example of a YAML configuration::
     #
-    #      publishing:
-    #        method_settings:
+    #        publishing:
+    #          method_settings:
     #          - selector: google.cloud.speech.v2.Speech.BatchRecognize
     #            long_running:
-    #              initial_poll_delay:
-    #                seconds: 60 # 1 minute
+    #              initial_poll_delay: 60s # 1 minute
     #              poll_delay_multiplier: 1.5
-    #              max_poll_delay:
-    #                seconds: 360 # 6 minutes
-    #              total_poll_timeout:
-    #                 seconds: 54000 # 90 minutes
+    #              max_poll_delay: 360s # 6 minutes
+    #              total_poll_timeout: 54000s # 90 minutes
     # @!attribute [rw] auto_populated_fields
     #   @return [::Array<::String>]
     #     List of top-level fields of the request message, that should be
@@ -317,8 +372,8 @@ module Google
     #
     #     Example of a YAML configuration:
     #
-    #      publishing:
-    #        method_settings:
+    #        publishing:
+    #          method_settings:
     #          - selector: google.example.v1.ExampleService.CreateExample
     #            auto_populated_fields:
     #            - request_id
@@ -352,6 +407,25 @@ module Google
         include ::Google::Protobuf::MessageExts
         extend ::Google::Protobuf::MessageExts::ClassMethods
       end
+    end
+
+    # This message is used to configure the generation of a subset of the RPCs in
+    # a service for client libraries.
+    # @!attribute [rw] methods
+    #   @return [::Array<::String>]
+    #     An allowlist of the fully qualified names of RPCs that should be included
+    #     on public client surfaces.
+    # @!attribute [rw] generate_omitted_as_internal
+    #   @return [::Boolean]
+    #     Setting this to true indicates to the client generators that methods
+    #     that would be excluded from the generation should instead be generated
+    #     in a way that indicates these methods should not be consumed by
+    #     end users. How this is expressed is up to individual language
+    #     implementations to decide. Some examples may be: added annotations,
+    #     obfuscated identifiers, or other language idiomatic patterns.
+    class SelectiveGapicGeneration
+      include ::Google::Protobuf::MessageExts
+      extend ::Google::Protobuf::MessageExts::ClassMethods
     end
 
     # The organization for which the client libraries are being published.

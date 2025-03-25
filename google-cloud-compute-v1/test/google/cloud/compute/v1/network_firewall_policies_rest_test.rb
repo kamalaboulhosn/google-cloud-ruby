@@ -33,24 +33,24 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_add_association
@@ -84,7 +92,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     replace_existing_association = true
     request_id = "hello world"
 
-    add_association_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    add_association_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -128,6 +136,65 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     end
   end
 
+  def test_add_packet_mirroring_rule
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    firewall_policy = "hello world"
+    firewall_policy_rule_resource = {}
+    max_priority = 42
+    min_priority = 42
+    project = "hello world"
+    request_id = "hello world"
+
+    add_packet_mirroring_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ServiceStub.stub :transcode_add_packet_mirroring_rule_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, add_packet_mirroring_rule_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.add_packet_mirroring_rule({ firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, max_priority: max_priority, min_priority: min_priority, project: project, request_id: request_id }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.add_packet_mirroring_rule firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, max_priority: max_priority, min_priority: min_priority, project: project, request_id: request_id do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.add_packet_mirroring_rule ::Google::Cloud::Compute::V1::AddPacketMirroringRuleNetworkFirewallPolicyRequest.new(firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, max_priority: max_priority, min_priority: min_priority, project: project, request_id: request_id) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.add_packet_mirroring_rule({ firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, max_priority: max_priority, min_priority: min_priority, project: project, request_id: request_id }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.add_packet_mirroring_rule(::Google::Cloud::Compute::V1::AddPacketMirroringRuleNetworkFirewallPolicyRequest.new(firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, max_priority: max_priority, min_priority: min_priority, project: project, request_id: request_id), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, add_packet_mirroring_rule_client_stub.call_count
+      end
+    end
+  end
+
   def test_add_rule
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::Operation.new
@@ -143,7 +210,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     request_id = "hello world"
 
-    add_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    add_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -187,6 +254,67 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     end
   end
 
+  def test_aggregated_list
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::NetworkFirewallPolicyAggregatedList.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    filter = "hello world"
+    include_all_scopes = true
+    max_results = 42
+    order_by = "hello world"
+    page_token = "hello world"
+    project = "hello world"
+    return_partial_success = true
+    service_project_number = 42
+
+    aggregated_list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ServiceStub.stub :transcode_aggregated_list_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, aggregated_list_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.aggregated_list({ filter: filter, include_all_scopes: include_all_scopes, max_results: max_results, order_by: order_by, page_token: page_token, project: project, return_partial_success: return_partial_success, service_project_number: service_project_number }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.aggregated_list filter: filter, include_all_scopes: include_all_scopes, max_results: max_results, order_by: order_by, page_token: page_token, project: project, return_partial_success: return_partial_success, service_project_number: service_project_number do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.aggregated_list ::Google::Cloud::Compute::V1::AggregatedListNetworkFirewallPoliciesRequest.new(filter: filter, include_all_scopes: include_all_scopes, max_results: max_results, order_by: order_by, page_token: page_token, project: project, return_partial_success: return_partial_success, service_project_number: service_project_number) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.aggregated_list({ filter: filter, include_all_scopes: include_all_scopes, max_results: max_results, order_by: order_by, page_token: page_token, project: project, return_partial_success: return_partial_success, service_project_number: service_project_number }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.aggregated_list(::Google::Cloud::Compute::V1::AggregatedListNetworkFirewallPoliciesRequest.new(filter: filter, include_all_scopes: include_all_scopes, max_results: max_results, order_by: order_by, page_token: page_token, project: project, return_partial_success: return_partial_success, service_project_number: service_project_number), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, aggregated_list_client_stub.call_count
+      end
+    end
+  end
+
   def test_clone_rules
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::Operation.new
@@ -200,7 +328,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     request_id = "hello world"
     source_firewall_policy = "hello world"
 
-    clone_rules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    clone_rules_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -256,7 +384,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     request_id = "hello world"
 
-    delete_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -311,7 +439,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     firewall_policy = "hello world"
     project = "hello world"
 
-    get_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -367,7 +495,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     name = "hello world"
     project = "hello world"
 
-    get_association_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_association_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -423,7 +551,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     resource = "hello world"
 
-    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -467,6 +595,62 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     end
   end
 
+  def test_get_packet_mirroring_rule
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::FirewallPolicyRule.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    firewall_policy = "hello world"
+    priority = 42
+    project = "hello world"
+
+    get_packet_mirroring_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ServiceStub.stub :transcode_get_packet_mirroring_rule_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_packet_mirroring_rule_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_packet_mirroring_rule({ firewall_policy: firewall_policy, priority: priority, project: project }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_packet_mirroring_rule firewall_policy: firewall_policy, priority: priority, project: project do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_packet_mirroring_rule ::Google::Cloud::Compute::V1::GetPacketMirroringRuleNetworkFirewallPolicyRequest.new(firewall_policy: firewall_policy, priority: priority, project: project) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_packet_mirroring_rule({ firewall_policy: firewall_policy, priority: priority, project: project }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_packet_mirroring_rule(::Google::Cloud::Compute::V1::GetPacketMirroringRuleNetworkFirewallPolicyRequest.new(firewall_policy: firewall_policy, priority: priority, project: project), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_packet_mirroring_rule_client_stub.call_count
+      end
+    end
+  end
+
   def test_get_rule
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::FirewallPolicyRule.new
@@ -479,7 +663,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     priority = 42
     project = "hello world"
 
-    get_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -535,7 +719,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     request_id = "hello world"
 
-    insert_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    insert_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -594,7 +778,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     return_partial_success = true
 
-    list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -651,7 +835,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     request_id = "hello world"
 
-    patch_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    patch_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -695,6 +879,64 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     end
   end
 
+  def test_patch_packet_mirroring_rule
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    firewall_policy = "hello world"
+    firewall_policy_rule_resource = {}
+    priority = 42
+    project = "hello world"
+    request_id = "hello world"
+
+    patch_packet_mirroring_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ServiceStub.stub :transcode_patch_packet_mirroring_rule_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, patch_packet_mirroring_rule_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.patch_packet_mirroring_rule({ firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, priority: priority, project: project, request_id: request_id }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.patch_packet_mirroring_rule firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, priority: priority, project: project, request_id: request_id do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.patch_packet_mirroring_rule ::Google::Cloud::Compute::V1::PatchPacketMirroringRuleNetworkFirewallPolicyRequest.new(firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, priority: priority, project: project, request_id: request_id) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.patch_packet_mirroring_rule({ firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, priority: priority, project: project, request_id: request_id }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.patch_packet_mirroring_rule(::Google::Cloud::Compute::V1::PatchPacketMirroringRuleNetworkFirewallPolicyRequest.new(firewall_policy: firewall_policy, firewall_policy_rule_resource: firewall_policy_rule_resource, priority: priority, project: project, request_id: request_id), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, patch_packet_mirroring_rule_client_stub.call_count
+      end
+    end
+  end
+
   def test_patch_rule
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::Operation.new
@@ -709,7 +951,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     request_id = "hello world"
 
-    patch_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    patch_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -766,7 +1008,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     request_id = "hello world"
 
-    remove_association_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    remove_association_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -810,6 +1052,63 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     end
   end
 
+  def test_remove_packet_mirroring_rule
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    firewall_policy = "hello world"
+    priority = 42
+    project = "hello world"
+    request_id = "hello world"
+
+    remove_packet_mirroring_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ServiceStub.stub :transcode_remove_packet_mirroring_rule_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, remove_packet_mirroring_rule_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.remove_packet_mirroring_rule({ firewall_policy: firewall_policy, priority: priority, project: project, request_id: request_id }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.remove_packet_mirroring_rule firewall_policy: firewall_policy, priority: priority, project: project, request_id: request_id do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.remove_packet_mirroring_rule ::Google::Cloud::Compute::V1::RemovePacketMirroringRuleNetworkFirewallPolicyRequest.new(firewall_policy: firewall_policy, priority: priority, project: project, request_id: request_id) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.remove_packet_mirroring_rule({ firewall_policy: firewall_policy, priority: priority, project: project, request_id: request_id }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.remove_packet_mirroring_rule(::Google::Cloud::Compute::V1::RemovePacketMirroringRuleNetworkFirewallPolicyRequest.new(firewall_policy: firewall_policy, priority: priority, project: project, request_id: request_id), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, remove_packet_mirroring_rule_client_stub.call_count
+      end
+    end
+  end
+
   def test_remove_rule
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::Operation.new
@@ -823,7 +1122,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     request_id = "hello world"
 
-    remove_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    remove_rule_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -879,7 +1178,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     project = "hello world"
     resource = "hello world"
 
-    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -935,7 +1234,7 @@ class ::Google::Cloud::Compute::V1::NetworkFirewallPolicies::Rest::ClientTest < 
     resource = "hello world"
     test_permissions_request_resource = {}
 
-    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

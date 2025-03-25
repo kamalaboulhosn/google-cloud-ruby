@@ -64,17 +64,25 @@ module Google
           # @!attribute [rw] uri
           #   @return [::String]
           #     The URI of the resource.
+          #
+          #     Note: The following fields are mutually exclusive: `uri`, `resource_name`, `use_case`, `description`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] resource_name
           #   @return [::String]
           #     The resource name of the Google Cloud resource.
+          #
+          #     Note: The following fields are mutually exclusive: `resource_name`, `uri`, `use_case`, `description`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] use_case
           #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::String]
           #     Use case (CUJ) of the resource.
+          #
+          #     Note: The following fields are mutually exclusive: `use_case`, `uri`, `resource_name`, `description`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] description
           #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::String]
           #     Description of the resource.
+          #
+          #     Note: The following fields are mutually exclusive: `description`, `uri`, `resource_name`, `use_case`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class ResourceReference
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -204,15 +212,21 @@ module Google
             #   @return [::Google::Cloud::AIPlatform::V1::DedicatedResources]
             #     A description of resources that are dedicated to the DeployedModel,
             #     and that need a higher degree of manual configuration.
+            #
+            #     Note: The following fields are mutually exclusive: `dedicated_resources`, `automatic_resources`, `shared_resources`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] automatic_resources
             #   @return [::Google::Cloud::AIPlatform::V1::AutomaticResources]
             #     A description of resources that to large degree are decided by Vertex
             #     AI, and require only a modest additional configuration.
+            #
+            #     Note: The following fields are mutually exclusive: `automatic_resources`, `dedicated_resources`, `shared_resources`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] shared_resources
             #   @return [::String]
             #     The resource name of the shared DeploymentResourcePool to deploy on.
             #     Format:
             #     `projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}`
+            #
+            #     Note: The following fields are mutually exclusive: `shared_resources`, `dedicated_resources`, `automatic_resources`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] model_display_name
             #   @return [::String]
             #     Optional. Default model display name.
@@ -232,6 +246,9 @@ module Google
             #   @return [::String]
             #     Optional. The name of the deploy task (e.g., "text to image
             #     generation").
+            # @!attribute [rw] deploy_metadata
+            #   @return [::Google::Cloud::AIPlatform::V1::PublisherModel::CallToAction::Deploy::DeployMetadata]
+            #     Optional. Metadata information about this deployment config.
             # @!attribute [rw] title
             #   @return [::String]
             #     Required. The title of the regional resource reference.
@@ -242,6 +259,29 @@ module Google
             class Deploy
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Metadata information about the deployment for managing deployment
+              # config.
+              # @!attribute [rw] labels
+              #   @return [::Google::Protobuf::Map{::String => ::String}]
+              #     Optional. Labels for the deployment. For managing deployment config
+              #     like verifying, source of deployment config, etc.
+              # @!attribute [rw] sample_request
+              #   @return [::String]
+              #     Optional. Sample request for deployed endpoint.
+              class DeployMetadata
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+
+                # @!attribute [rw] key
+                #   @return [::String]
+                # @!attribute [rw] value
+                #   @return [::String]
+                class LabelsEntry
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
+              end
             end
 
             # Configurations for PublisherModel GKE deployment

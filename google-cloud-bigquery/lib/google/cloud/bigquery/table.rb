@@ -2747,7 +2747,8 @@ module Google
                                           rows,
                                           skip_invalid: skip_invalid,
                                           ignore_unknown: ignore_unknown,
-                                          insert_ids: insert_ids
+                                          insert_ids: insert_ids,
+                                          project_id: project_id
           InsertResponse.from_gapi rows, gapi
         end
 
@@ -3061,10 +3062,6 @@ module Google
           patch_gapi = Google::Apis::BigqueryV2::Table.new(**patch_args)
           patch_gapi.etag = etag if etag
           @gapi = service.patch_table dataset_id, table_id, patch_gapi
-
-          # TODO: restore original impl after acceptance test indicates that
-          # service etag bug is fixed
-          reload!
         end
 
         def ensure_job_succeeded! job
@@ -3085,7 +3082,7 @@ module Google
             configuration: Google::Apis::BigqueryV2::JobConfiguration.new(
               load:    Google::Apis::BigqueryV2::JobConfigurationLoad.new(
                 destination_table: Google::Apis::BigqueryV2::TableReference.new(
-                  project_id: @service.project,
+                  project_id: project_id,
                   dataset_id: dataset_id,
                   table_id:   table_id
                 )

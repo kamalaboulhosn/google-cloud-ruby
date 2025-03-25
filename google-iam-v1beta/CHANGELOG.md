@@ -1,5 +1,33 @@
 # Release History
 
+### 0.10.0 (2025-01-29)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.9.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.8.2 (2024-12-05)
+
+#### Documentation
+
+* Documentation improvements related to long-running operations ([#27633](https://github.com/googleapis/google-cloud-ruby/issues/27633)) 
+
+### 0.8.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
 ### 0.8.0 (2024-02-26)
 
 #### Features

@@ -36,7 +36,7 @@ module Google
         #     Required. The ID to use for this FeatureGroup, which will become the final
         #     component of the FeatureGroup's resource name.
         #
-        #     This value may be up to 60 characters, and valid characters are
+        #     This value may be up to 128 characters, and valid characters are
         #     `[a-z0-9_]`. The first character cannot be a number.
         #
         #     The value must be unique within the project and location.
@@ -90,12 +90,12 @@ module Google
         # @!attribute [rw] page_token
         #   @return [::String]
         #     A page token, received from a previous
-        #     [FeatureGroupAdminService.ListFeatureGroups][] call.
-        #     Provide this to retrieve the subsequent page.
+        #     {::Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client#list_feature_groups FeatureRegistryService.ListFeatureGroups}
+        #     call. Provide this to retrieve the subsequent page.
         #
         #     When paginating, all other parameters provided to
-        #     [FeatureGroupAdminService.ListFeatureGroups][] must
-        #     match the call that provided the page token.
+        #     {::Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client#list_feature_groups FeatureRegistryService.ListFeatureGroups}
+        #     must match the call that provided the page token.
         # @!attribute [rw] order_by
         #   @return [::String]
         #     A comma-separated list of fields to order by, sorted in ascending order.
@@ -145,6 +145,9 @@ module Google
         #     Updatable fields:
         #
         #       * `labels`
+        #       * `description`
+        #       * `big_query`
+        #       * `big_query.entity_id_columns`
         class UpdateFeatureGroupRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

@@ -1,5 +1,64 @@
 # Release History
 
+### 1.6.0 (2025-03-11)
+
+#### Features
+
+* add MaterializedViewName to ReadRows and SampleRowKeys ([#29309](https://github.com/googleapis/google-cloud-ruby/issues/29309)) 
+#### Bug Fixes
+
+* Configure timeout and retry for execute_query ([#29290](https://github.com/googleapis/google-cloud-ruby/issues/29290)) 
+
+### 1.5.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.4.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.3.0 (2024-11-07)
+
+#### Features
+
+* Add feature flags proto for Direct Access ([#27523](https://github.com/googleapis/google-cloud-ruby/issues/27523)) 
+
+### 1.2.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27004](https://github.com/googleapis/google-cloud-ruby/issues/27004)) 
+
+### 1.2.0 (2024-07-24)
+
+#### Features
+
+* Include ProtoRows message class, needed to parse ExecuteQuery responses 
+* Support merging accumulated state to an `Aggregate` cell ([#26491](https://github.com/googleapis/google-cloud-ruby/issues/26491)) 
+#### Documentation
+
+* Minor updates to reference documentation 
+
+### 1.1.0 (2024-07-10)
+
+#### Features
+
+* publish the Cloud Bigtable ExecuteQuery API ([#26362](https://github.com/googleapis/google-cloud-ruby/issues/26362)) 
+
+### 1.0.0 (2024-07-09)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.21.0 (2024-04-19)
 
 #### Features

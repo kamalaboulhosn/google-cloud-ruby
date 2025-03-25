@@ -251,11 +251,15 @@ module Google
         #     true and all replicas are exhausted without finding a healthy replica,
         #     Spanner will wait for a replica in the list to become available, requests
         #     may fail due to `DEADLINE_EXCEEDED` errors.
+        #
+        #     Note: The following fields are mutually exclusive: `include_replicas`, `exclude_replicas`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] exclude_replicas
         #   @return [::Google::Cloud::Spanner::V1::DirectedReadOptions::ExcludeReplicas]
         #     Exclude_replicas indicates that specified replicas should be excluded
         #     from serving requests. Spanner will not route requests to the replicas
         #     in this list.
+        #
+        #     Note: The following fields are mutually exclusive: `exclude_replicas`, `include_replicas`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class DirectedReadOptions
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -423,6 +427,17 @@ module Google
         #
         #     If the field is set to `true` but the request does not set
         #     `partition_token`, the API returns an `INVALID_ARGUMENT` error.
+        # @!attribute [rw] last_statement
+        #   @return [::Boolean]
+        #     Optional. If set to true, this statement marks the end of the transaction.
+        #     The transaction should be committed or aborted after this statement
+        #     executes, and attempts to execute any other requests against this
+        #     transaction (including reads and queries) will be rejected.
+        #
+        #     For DML statements, setting this option may cause some error reporting to
+        #     be deferred until commit time (e.g. validation of unique constraints).
+        #     Given this, successful execution of a DML statement should not be assumed
+        #     until a subsequent Commit call completes successfully.
         class ExecuteSqlRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -501,9 +516,19 @@ module Google
             # execution statistics information.
             PLAN = 1
 
-            # This mode returns both the query plan and the execution statistics along
-            # with the results.
+            # This mode returns the query plan, overall execution statistics,
+            # operator level execution statistics along with the results. This has a
+            # performance overhead compared to the other modes. It is not recommended
+            # to use this mode for production traffic.
             PROFILE = 2
+
+            # This mode returns the overall (but not operator-level) execution
+            # statistics along with the results.
+            WITH_STATS = 3
+
+            # This mode returns the query plan, overall (but not operator-level)
+            # execution statistics along with the results.
+            WITH_PLAN_AND_STATS = 4
           end
         end
 
@@ -539,6 +564,17 @@ module Google
         # @!attribute [rw] request_options
         #   @return [::Google::Cloud::Spanner::V1::RequestOptions]
         #     Common options for this request.
+        # @!attribute [rw] last_statements
+        #   @return [::Boolean]
+        #     Optional. If set to true, this request marks the end of the transaction.
+        #     The transaction should be committed or aborted after these statements
+        #     execute, and attempts to execute any other requests against this
+        #     transaction (including reads and queries) will be rejected.
+        #
+        #     Setting this option may cause some error reporting to be deferred until
+        #     commit time (e.g. validation of unique constraints). Given this, successful
+        #     execution of statements should not be assumed until a subsequent Commit
+        #     call completes successfully.
         class ExecuteBatchDmlRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -634,6 +670,15 @@ module Google
         #   @return [::Google::Rpc::Status]
         #     If all DML statements are executed successfully, the status is `OK`.
         #     Otherwise, the error status of the first failed statement.
+        # @!attribute [rw] precommit_token
+        #   @return [::Google::Cloud::Spanner::V1::MultiplexedSessionPrecommitToken]
+        #     Optional. A precommit token will be included if the read-write transaction
+        #     is on a multiplexed session.
+        #     The precommit token with the highest sequence number from this transaction
+        #     attempt should be passed to the
+        #     {::Google::Cloud::Spanner::V1::Spanner::Client#commit Commit} request for this transaction.
+        #     This feature is not yet supported and will result in an UNIMPLEMENTED
+        #     error.
         class ExecuteBatchDmlResponse
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -870,9 +915,87 @@ module Google
         #
         #     If the field is set to `true` but the request does not set
         #     `partition_token`, the API returns an `INVALID_ARGUMENT` error.
+        # @!attribute [rw] order_by
+        #   @return [::Google::Cloud::Spanner::V1::ReadRequest::OrderBy]
+        #     Optional. Order for the returned rows.
+        #
+        #     By default, Spanner will return result rows in primary key order except for
+        #     PartitionRead requests. For applications that do not require rows to be
+        #     returned in primary key (`ORDER_BY_PRIMARY_KEY`) order, setting
+        #     `ORDER_BY_NO_ORDER` option allows Spanner to optimize row retrieval,
+        #     resulting in lower latencies in certain cases (e.g. bulk point lookups).
+        # @!attribute [rw] lock_hint
+        #   @return [::Google::Cloud::Spanner::V1::ReadRequest::LockHint]
+        #     Optional. Lock Hint for the request, it can only be used with read-write
+        #     transactions.
         class ReadRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # An option to control the order in which rows are returned from a read.
+          module OrderBy
+            # Default value.
+            #
+            # ORDER_BY_UNSPECIFIED is equivalent to ORDER_BY_PRIMARY_KEY.
+            ORDER_BY_UNSPECIFIED = 0
+
+            # Read rows are returned in primary key order.
+            #
+            # In the event that this option is used in conjunction with the
+            # `partition_token` field, the API will return an `INVALID_ARGUMENT` error.
+            ORDER_BY_PRIMARY_KEY = 1
+
+            # Read rows are returned in any order.
+            ORDER_BY_NO_ORDER = 2
+          end
+
+          # A lock hint mechanism for reads done within a transaction.
+          module LockHint
+            # Default value.
+            #
+            # LOCK_HINT_UNSPECIFIED is equivalent to LOCK_HINT_SHARED.
+            LOCK_HINT_UNSPECIFIED = 0
+
+            # Acquire shared locks.
+            #
+            # By default when you perform a read as part of a read-write transaction,
+            # Spanner acquires shared read locks, which allows other reads to still
+            # access the data until your transaction is ready to commit. When your
+            # transaction is committing and writes are being applied, the transaction
+            # attempts to upgrade to an exclusive lock for any data you are writing.
+            # For more information about locks, see [Lock
+            # modes](https://cloud.google.com/spanner/docs/introspection/lock-statistics#explain-lock-modes).
+            LOCK_HINT_SHARED = 1
+
+            # Acquire exclusive locks.
+            #
+            # Requesting exclusive locks is beneficial if you observe high write
+            # contention, which means you notice that multiple transactions are
+            # concurrently trying to read and write to the same data, resulting in a
+            # large number of aborts. This problem occurs when two transactions
+            # initially acquire shared locks and then both try to upgrade to exclusive
+            # locks at the same time. In this situation both transactions are waiting
+            # for the other to give up their lock, resulting in a deadlocked situation.
+            # Spanner is able to detect this occurring and force one of the
+            # transactions to abort. However, this is a slow and expensive operation
+            # and results in lower performance. In this case it makes sense to acquire
+            # exclusive locks at the start of the transaction because then when
+            # multiple transactions try to act on the same data, they automatically get
+            # serialized. Each transaction waits its turn to acquire the lock and
+            # avoids getting into deadlock situations.
+            #
+            # Because the exclusive lock hint is just a hint, it should not be
+            # considered equivalent to a mutex. In other words, you should not use
+            # Spanner exclusive locks as a mutual exclusion mechanism for the execution
+            # of code outside of Spanner.
+            #
+            # **Note:** Request exclusive locks judiciously because they block others
+            # from reading that data for the entire transaction, rather than just when
+            # the writes are being performed. Unless you observe high write contention,
+            # you should use the default of shared read locks so you don't prematurely
+            # block other clients from reading the data that you're writing to.
+            LOCK_HINT_EXCLUSIVE = 2
+          end
         end
 
         # The request for
@@ -890,6 +1013,14 @@ module Google
         #     request_options struct will not do anything. To set the priority for a
         #     transaction, set it on the reads and writes that are part of this
         #     transaction instead.
+        # @!attribute [rw] mutation_key
+        #   @return [::Google::Cloud::Spanner::V1::Mutation]
+        #     Optional. Required for read-write transactions on a multiplexed session
+        #     that commit mutations but do not perform any reads or queries. Clients
+        #     should randomly select one of the mutations from the mutation set and send
+        #     it as a part of this request.
+        #     This feature is not yet supported and will result in an UNIMPLEMENTED
+        #     error.
         class BeginTransactionRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -902,6 +1033,8 @@ module Google
         # @!attribute [rw] transaction_id
         #   @return [::String]
         #     Commit a previously-started transaction.
+        #
+        #     Note: The following fields are mutually exclusive: `transaction_id`, `single_use_transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] single_use_transaction
         #   @return [::Google::Cloud::Spanner::V1::TransactionOptions]
         #     Execute mutations in a temporary transaction. Note that unlike
@@ -913,6 +1046,8 @@ module Google
         #     executed more than once. If this is undesirable, use
         #     {::Google::Cloud::Spanner::V1::Spanner::Client#begin_transaction BeginTransaction} and
         #     {::Google::Cloud::Spanner::V1::Spanner::Client#commit Commit} instead.
+        #
+        #     Note: The following fields are mutually exclusive: `single_use_transaction`, `transaction_id`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] mutations
         #   @return [::Array<::Google::Cloud::Spanner::V1::Mutation>]
         #     The mutations to be executed when this transaction commits. All
@@ -933,6 +1068,14 @@ module Google
         # @!attribute [rw] request_options
         #   @return [::Google::Cloud::Spanner::V1::RequestOptions]
         #     Common options for this request.
+        # @!attribute [rw] precommit_token
+        #   @return [::Google::Cloud::Spanner::V1::MultiplexedSessionPrecommitToken]
+        #     Optional. If the read-write transaction was executed on a multiplexed
+        #     session, the precommit token with the highest sequence number received in
+        #     this transaction attempt, should be included here. Failing to do so will
+        #     result in a FailedPrecondition error.
+        #     This feature is not yet supported and will result in an UNIMPLEMENTED
+        #     error.
         class CommitRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

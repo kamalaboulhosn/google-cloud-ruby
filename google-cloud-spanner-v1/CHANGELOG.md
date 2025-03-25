@@ -1,5 +1,81 @@
 # Release History
 
+### 1.7.0 (2025-02-25)
+
+#### Features
+
+* Support for the "last" field in PartialResultSet ([#29194](https://github.com/googleapis/google-cloud-ruby/issues/29194)) 
+* Support for transaction isolation level ([#29176](https://github.com/googleapis/google-cloud-ruby/issues/29176)) 
+
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.0 (2024-12-11)
+
+#### Features
+
+* Support for the UUID type ([#28087](https://github.com/googleapis/google-cloud-ruby/issues/28087)) 
+
+### 1.4.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.3.0 (2024-12-04)
+
+#### Features
+
+* Support for signaling the end of a transaction in SQL execution RPCs ([#27657](https://github.com/googleapis/google-cloud-ruby/issues/27657)) 
+
+### 1.2.0 (2024-10-15)
+
+#### Features
+
+* Support for read/write transactions on multiplexed sessions ([#27426](https://github.com/googleapis/google-cloud-ruby/issues/27426)) 
+
+### 1.1.0 (2024-10-01)
+
+#### Features
+
+* add INTERVAL API 
+* add new QueryMode enum values (WITH_STATS, WITH_PLAN_AND_STATS) 
+#### Documentation
+
+* update comment for PROFILE QueryMode ([#27385](https://github.com/googleapis/google-cloud-ruby/issues/27385)) 
+
+### 1.0.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27012](https://github.com/googleapis/google-cloud-ruby/issues/27012)) 
+
+### 1.0.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26668](https://github.com/googleapis/google-cloud-ruby/issues/26668)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.27.0 (2024-05-29)
+
+#### Features
+
+* add field lock_hint in spanner.proto 
+* add field order_by in spanner.proto ([#25950](https://github.com/googleapis/google-cloud-ruby/issues/25950)) 
+
 ### 0.26.0 (2024-04-29)
 
 #### Features

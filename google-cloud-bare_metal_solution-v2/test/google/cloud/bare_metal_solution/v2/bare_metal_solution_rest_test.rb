@@ -33,24 +33,24 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_list_instances
@@ -83,7 +91,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_token = "hello world"
     filter = "hello world"
 
-    list_instances_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_instances_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -137,7 +145,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -192,7 +200,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     instance = {}
     update_mask = {}
 
-    update_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -247,7 +255,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     name = "hello world"
     new_instance_id = "hello world"
 
-    rename_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    rename_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -301,7 +309,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    reset_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    reset_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -355,7 +363,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    start_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    start_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -409,7 +417,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    stop_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    stop_instance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -463,7 +471,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    enable_interactive_serial_console_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    enable_interactive_serial_console_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -517,7 +525,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    disable_interactive_serial_console_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    disable_interactive_serial_console_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -573,7 +581,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     lun = "hello world"
     skip_reboot = true
 
-    detach_lun_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    detach_lun_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -629,7 +637,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_size = 42
     page_token = "hello world"
 
-    list_ssh_keys_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_ssh_keys_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -685,7 +693,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     ssh_key = {}
     ssh_key_id = "hello world"
 
-    create_ssh_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_ssh_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -739,7 +747,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_ssh_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_ssh_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -796,7 +804,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_token = "hello world"
     filter = "hello world"
 
-    list_volumes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_volumes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -850,7 +858,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -905,7 +913,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     volume = {}
     update_mask = {}
 
-    update_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -960,7 +968,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     name = "hello world"
     new_volume_id = "hello world"
 
-    rename_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    rename_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1014,7 +1022,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    evict_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    evict_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1069,7 +1077,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     volume = "hello world"
     size_gib = 42
 
-    resize_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    resize_volume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1126,7 +1134,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_token = "hello world"
     filter = "hello world"
 
-    list_networks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_networks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1180,7 +1188,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     location = "hello world"
 
-    list_network_usage_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_network_usage_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1234,7 +1242,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_network_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_network_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1289,7 +1297,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     network = {}
     update_mask = {}
 
-    update_network_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_network_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1344,7 +1352,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     parent = "hello world"
     volume_snapshot = {}
 
-    create_volume_snapshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_volume_snapshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1398,7 +1406,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     volume_snapshot = "hello world"
 
-    restore_volume_snapshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    restore_volume_snapshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1452,7 +1460,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_volume_snapshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_volume_snapshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1506,7 +1514,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_volume_snapshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_volume_snapshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1562,7 +1570,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_size = 42
     page_token = "hello world"
 
-    list_volume_snapshots_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_volume_snapshots_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1616,7 +1624,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_lun_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_lun_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1672,7 +1680,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_size = 42
     page_token = "hello world"
 
-    list_luns_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_luns_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1726,7 +1734,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    evict_lun_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    evict_lun_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1780,7 +1788,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1837,7 +1845,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_token = "hello world"
     filter = "hello world"
 
-    list_nfs_shares_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_nfs_shares_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1892,7 +1900,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     nfs_share = {}
     update_mask = {}
 
-    update_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1947,7 +1955,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     parent = "hello world"
     nfs_share = {}
 
-    create_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2002,7 +2010,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     name = "hello world"
     new_nfsshare_id = "hello world"
 
-    rename_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    rename_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2056,7 +2064,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_nfs_share_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2112,7 +2120,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_size = 42
     page_token = "hello world"
 
-    list_provisioning_quotas_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_provisioning_quotas_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2168,7 +2176,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     provisioning_config = {}
     email = "hello world"
 
-    submit_provisioning_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    submit_provisioning_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2222,7 +2230,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_provisioning_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_provisioning_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2278,7 +2286,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     provisioning_config = {}
     email = "hello world"
 
-    create_provisioning_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_provisioning_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2334,7 +2342,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     update_mask = {}
     email = "hello world"
 
-    update_provisioning_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_provisioning_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2389,7 +2397,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     name = "hello world"
     new_network_id = "hello world"
 
-    rename_network_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    rename_network_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2445,7 +2453,7 @@ class ::Google::Cloud::BareMetalSolution::V2::BareMetalSolution::Rest::ClientTes
     page_size = 42
     page_token = "hello world"
 
-    list_os_images_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_os_images_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

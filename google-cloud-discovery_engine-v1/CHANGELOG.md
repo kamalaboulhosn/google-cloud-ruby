@@ -1,5 +1,112 @@
 # Changelog
 
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824)) 
+
+### 1.5.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.4.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.3.0 (2024-10-28)
+
+#### Features
+
+* add lite search API to allow public website search with API key ([#27495](https://github.com/googleapis/google-cloud-ruby/issues/27495)) 
+* add LOW_GROUNDED_ANSWER in answer skip reasons 
+* support query regex in control match rules 
+#### Documentation
+
+* keep the API doc up-to-date with recent changes 
+
+### 1.2.0 (2024-10-15)
+
+#### Features
+
+* Support for generate_grounded_content and stream_generate_grounded_content RPCs 
+* Support for setting a site credential in the recrawl_uris RPC 
+* Support for setting the maximum number of OneBox results when searching 
+#### Bug Fixes
+
+* Fixed identityMappingStores resource URLs 
+
+### 1.1.0 (2024-09-11)
+
+#### Features
+
+* Support for Document index status 
+* Support for jail-breaking queries 
+* Support for Reference#structured_document_info 
+* Support for the batch_get_documents_metadata RPC 
+* Support for the gcs_source, inline_source, and error_config parameters to the purge_documents RPC 
+* Support for the purge_user_events RPC 
+* Support for the SearchTuningService 
+* Support for the skip_default_schema_creation parameter to the create_data_store RPC 
+* Support for UnstructuredDocumentInfo::ChunkContent#relevance_score 
+
+### 1.0.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26627](https://github.com/googleapis/google-cloud-ruby/issues/26627)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.9.0 (2024-07-08)
+
+#### Features
+
+* add Chunk resource in the search response ([#26276](https://github.com/googleapis/google-cloud-ruby/issues/26276)) 
+* add NO_RELEVANT_CONTENT to Answer API 
+* support AlloyDB Connector 
+#### Documentation
+
+* keep the API doc up-to-date with recent changes 
+
+### 0.8.0 (2024-05-29)
+
+#### Features
+
+* add control service APIs 
+* promote answer APIs to v1 GA 
+* promote grounding check APIs to v1 GA 
+* promote grounding check APIs to v1 GA ([#25966](https://github.com/googleapis/google-cloud-ruby/issues/25966)) 
+* promote ranking APIs to v1 GA 
+* support cancelling import operations 
+* Support multiple parent patterns for controls ([#25973](https://github.com/googleapis/google-cloud-ruby/issues/25973)) 
+* support writing user events for blended engines 
+#### Documentation
+
+* keep the API doc up-to-date with recent changes 
+
 ### 0.7.0 (2024-04-19)
 
 #### Features

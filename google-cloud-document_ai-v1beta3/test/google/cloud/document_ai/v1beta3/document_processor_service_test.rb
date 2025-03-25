@@ -41,9 +41,10 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::ClientTest
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::ClientTest
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -70,6 +79,7 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::ClientTest
     field_mask = {}
     process_options = {}
     labels = {}
+    imageless_mode = true
 
     process_document_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :process_document, name
@@ -82,6 +92,7 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::ClientTest
       assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Protobuf::FieldMask), request["field_mask"]
       assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Cloud::DocumentAI::V1beta3::ProcessOptions), request["process_options"]
       assert_equal({}, request["labels"].to_h)
+      assert_equal true, request["imageless_mode"]
       refute_nil options
     end
 
@@ -92,31 +103,31 @@ class ::Google::Cloud::DocumentAI::V1beta3::DocumentProcessorService::ClientTest
       end
 
       # Use hash object
-      client.process_document({ inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels }) do |response, operation|
+      client.process_document({ inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels, imageless_mode: imageless_mode }) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.process_document inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels do |response, operation|
+      client.process_document inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels, imageless_mode: imageless_mode do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.process_document ::Google::Cloud::DocumentAI::V1beta3::ProcessRequest.new(inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels) do |response, operation|
+      client.process_document ::Google::Cloud::DocumentAI::V1beta3::ProcessRequest.new(inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels, imageless_mode: imageless_mode) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.process_document({ inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels }, grpc_options) do |response, operation|
+      client.process_document({ inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels, imageless_mode: imageless_mode }, grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.process_document(::Google::Cloud::DocumentAI::V1beta3::ProcessRequest.new(inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels), grpc_options) do |response, operation|
+      client.process_document(::Google::Cloud::DocumentAI::V1beta3::ProcessRequest.new(inline_document: inline_document, name: name, document: document, skip_human_review: skip_human_review, field_mask: field_mask, process_options: process_options, labels: labels, imageless_mode: imageless_mode), grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end

@@ -982,7 +982,7 @@ module Google
         #
         def uniform_bucket_level_access= new_uniform_bucket_level_access
           @gapi.iam_configuration ||= API::Bucket::IamConfiguration.new
-          @gapi.iam_configuration.uniform_bucket_level_access ||= \
+          @gapi.iam_configuration.uniform_bucket_level_access ||=
             API::Bucket::IamConfiguration::UniformBucketLevelAccess.new
           @gapi.iam_configuration.uniform_bucket_level_access.enabled = new_uniform_bucket_level_access
           patch_gapi! :iam_configuration
@@ -1251,6 +1251,62 @@ module Google
         def soft_delete_policy= new_soft_delete_policy
           @gapi.soft_delete_policy = new_soft_delete_policy || {}
           patch_gapi! :soft_delete_policy
+        end
+
+        ##
+        # The bucket's hierarchical namespace (Folders) configuration.
+        # This value can be modified by calling {#hierarchical_namespace=}.
+        #
+        # @return [Google::Apis::StorageV1::Bucket::HierarchicalNamespace]
+        #
+        # @example
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #
+        #   bucket = storage.bucket "my-bucket"
+        #
+        #   bucket.hierarchical_namespace
+        #
+        def hierarchical_namespace
+          @gapi.hierarchical_namespace
+        end
+
+        ##
+        # Sets the value of Hierarchical Namespace (Folders) for the bucket.
+        # This can only be enabled at bucket create time. If this is enabled,
+        # Uniform Bucket-Level Access must also be enabled.
+        # This value can be queried by calling {#hierarchical_namespace}.
+        #
+        # @param [Google::Apis::StorageV1::Bucket::HierarchicalNamespace,
+        #         Hash(String => String)] new_hierarchical_namespace The
+        #         bucket's new Hierarchical Namespace Configuration.
+        #
+        # @example Enabled Hierarchical Namespace using HierarchicalNamespace class:
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #
+        #   bucket = storage.bucket "my-bucket"
+        #
+        #   hierarchical_namespace = Google::Apis::StorageV1::Bucket::HierarchicalNamespace.new
+        #   hierarchical_namespace.enabled = true
+        #
+        #   bucket.hierarchical_namespace = hierarchical_namespace
+        #
+        # @example Disable Hierarchical Namespace using Hash:
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #
+        #   bucket = storage.bucket "my-bucket"
+        #
+        #   hierarchical_namespace = { enabled: false }
+        #   bucket.hierarchical_namespace = hierarchical_namespace
+        #
+        def hierarchical_namespace= new_hierarchical_namespace
+          @gapi.hierarchical_namespace = new_hierarchical_namespace || {}
+          patch_gapi! :hierarchical_namespace
         end
 
         ##
@@ -2224,6 +2280,31 @@ module Google
           end
         end
 
+        # Fetches generation of the bucket
+        # @example
+        #   require "google/cloud/storage"
+        #   storage = Google::Cloud::Storage.new
+        #   bucket = storage.bucket "my-bucket"
+        #   generation= bucket.generation
+        def generation
+          @gapi.generation
+        end
+
+        # Fetches soft_delete_time of a soft deleted bucket
+        # @example
+        #   bucket.delete
+        #   bucket.soft_delete_time
+        def soft_delete_time
+          @gapi.soft_delete_time
+        end
+
+        # Fetches hard_delete_time of a soft deleted bucket
+        # @example
+        #   bucket.hard_delete_time
+        def hard_delete_time
+          @gapi.hard_delete_time
+        end
+
         ##
         # Generate a PostObject that includes the fields and URL to
         # upload objects via HTML forms.
@@ -3131,9 +3212,9 @@ module Google
           attributes.flatten!
           return if attributes.empty?
           ensure_service!
-          patch_args = Hash[attributes.map do |attr|
+          patch_args = attributes.to_h do |attr|
             [attr, @gapi.send(attr)]
-          end]
+          end
           patch_gapi = API::Bucket.new(**patch_args)
           @gapi = service.patch_bucket name,
                                        patch_gapi,
@@ -3151,9 +3232,9 @@ module Google
           attributes.flatten!
           return if attributes.empty?
           ensure_service!
-          update_args = Hash[attributes.map do |attr|
+          update_args = attributes.to_h do |attr|
             [attr, @gapi.send(attr)]
-          end]
+          end
           update_gapi = API::Bucket.new(**update_args)
           @gapi = service.update_bucket name,
                                         update_gapi,

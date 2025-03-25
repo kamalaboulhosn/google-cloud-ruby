@@ -31,9 +31,18 @@ class Google::Cloud::Channel::ClientConstructionMinitest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_cloud_channel_reports_service_grpc
+    skip unless Google::Cloud::Channel.cloud_channel_reports_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Channel.cloud_channel_reports_service transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Cloud::Channel::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_cloud_channel_reports_service_rest
+    skip unless Google::Cloud::Channel.cloud_channel_reports_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Channel.cloud_channel_reports_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -53,6 +63,7 @@ class Google::Cloud::Channel::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_cloud_channel_service_grpc
+    skip unless Google::Cloud::Channel.cloud_channel_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Channel.cloud_channel_service transport: :grpc do |config|
@@ -63,6 +74,7 @@ class Google::Cloud::Channel::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_cloud_channel_service_rest
+    skip unless Google::Cloud::Channel.cloud_channel_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Channel.cloud_channel_service transport: :rest do |config|
         config.credentials = :dummy_credentials

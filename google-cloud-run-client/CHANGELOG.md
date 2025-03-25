@@ -1,5 +1,24 @@
 # Changelog
 
+### 1.4.0 (2025-01-29)
+
+#### Features
+
+* Provide methods to determine whether services are available with the currently installed versioned client ([#28532](https://github.com/googleapis/google-cloud-ruby/issues/28532)) 
+* Update Ruby version requirement to 3.0 
+
+### 1.3.0 (2024-10-24)
+
+#### Features
+
+* Support for the Builds service ([#27403](https://github.com/googleapis/google-cloud-ruby/issues/27403)) 
+
+### 1.2.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26630](https://github.com/googleapis/google-cloud-ruby/issues/26630)) 
+
 ### 1.2.0 (2024-02-26)
 
 #### Features

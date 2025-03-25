@@ -46,7 +46,7 @@ module Google
             rpc :DeleteDocument, ::Google::Cloud::DiscoveryEngine::V1::DeleteDocumentRequest, ::Google::Protobuf::Empty
             # Bulk import of multiple
             # [Document][google.cloud.discoveryengine.v1.Document]s. Request processing
-            # may be synchronous. Non-existing items will be created.
+            # may be synchronous. Non-existing items are created.
             #
             # Note: It is possible for a subset of the
             # [Document][google.cloud.discoveryengine.v1.Document]s to be successfully
@@ -69,6 +69,10 @@ module Google
             # [PurgeDocumentsRequest.force][google.cloud.discoveryengine.v1.PurgeDocumentsRequest.force]
             # to false.
             rpc :PurgeDocuments, ::Google::Cloud::DiscoveryEngine::V1::PurgeDocumentsRequest, ::Google::Longrunning::Operation
+            # Gets index freshness metadata for
+            # [Document][google.cloud.discoveryengine.v1.Document]s. Supported for
+            # website search only.
+            rpc :BatchGetDocumentsMetadata, ::Google::Cloud::DiscoveryEngine::V1::BatchGetDocumentsMetadataRequest, ::Google::Cloud::DiscoveryEngine::V1::BatchGetDocumentsMetadataResponse
           end
 
           Stub = Service.rpc_stub_class

@@ -1,5 +1,44 @@
 # Changelog
 
+### 1.2.0 (2025-01-29)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.1.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27031](https://github.com/googleapis/google-cloud-ruby/issues/27031)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.10.0 (2024-05-30)
+
+#### Features
+
+* Add adtracking to Livesession 
+* add apis for Create, Read, Update, Delete for VODConfigs ([#25943](https://github.com/googleapis/google-cloud-ruby/issues/25943)) 
+* Add fetchoptions with custom headers for Live and VODConfigs 
+* Add targeting parameter support to Livesession 
+* Add token config for MediaCdnKey 
+* Allow usage for VODConfigs in VODSession 
+
 ### 0.9.0 (2024-02-26)
 
 #### Features

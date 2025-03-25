@@ -33,24 +33,24 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::Rest::ClientTest < Min
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::Rest::ClientTest < Min
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_count_tokens
@@ -82,8 +90,11 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::Rest::ClientTest < Min
     model = "hello world"
     instances = [{}]
     contents = [{}]
+    system_instruction = {}
+    tools = [{}]
+    generation_config = {}
 
-    count_tokens_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    count_tokens_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -97,27 +108,27 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::Rest::ClientTest < Min
         end
 
         # Use hash object
-        client.count_tokens({ endpoint: endpoint, model: model, instances: instances, contents: contents }) do |_result, response|
+        client.count_tokens({ endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.count_tokens endpoint: endpoint, model: model, instances: instances, contents: contents do |_result, response|
+        client.count_tokens endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.count_tokens ::Google::Cloud::AIPlatform::V1::CountTokensRequest.new(endpoint: endpoint, model: model, instances: instances, contents: contents) do |_result, response|
+        client.count_tokens ::Google::Cloud::AIPlatform::V1::CountTokensRequest.new(endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.count_tokens({ endpoint: endpoint, model: model, instances: instances, contents: contents }, call_options) do |_result, response|
+        client.count_tokens({ endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.count_tokens(::Google::Cloud::AIPlatform::V1::CountTokensRequest.new(endpoint: endpoint, model: model, instances: instances, contents: contents), call_options) do |_result, response|
+        client.count_tokens(::Google::Cloud::AIPlatform::V1::CountTokensRequest.new(endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -137,8 +148,10 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::Rest::ClientTest < Min
     # Create request parameters for a unary method.
     endpoint = "hello world"
     instances = [{}]
+    model = "hello world"
+    contents = [{}]
 
-    compute_tokens_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    compute_tokens_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -152,27 +165,27 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::Rest::ClientTest < Min
         end
 
         # Use hash object
-        client.compute_tokens({ endpoint: endpoint, instances: instances }) do |_result, response|
+        client.compute_tokens({ endpoint: endpoint, instances: instances, model: model, contents: contents }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.compute_tokens endpoint: endpoint, instances: instances do |_result, response|
+        client.compute_tokens endpoint: endpoint, instances: instances, model: model, contents: contents do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.compute_tokens ::Google::Cloud::AIPlatform::V1::ComputeTokensRequest.new(endpoint: endpoint, instances: instances) do |_result, response|
+        client.compute_tokens ::Google::Cloud::AIPlatform::V1::ComputeTokensRequest.new(endpoint: endpoint, instances: instances, model: model, contents: contents) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.compute_tokens({ endpoint: endpoint, instances: instances }, call_options) do |_result, response|
+        client.compute_tokens({ endpoint: endpoint, instances: instances, model: model, contents: contents }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.compute_tokens(::Google::Cloud::AIPlatform::V1::ComputeTokensRequest.new(endpoint: endpoint, instances: instances), call_options) do |_result, response|
+        client.compute_tokens(::Google::Cloud::AIPlatform::V1::ComputeTokensRequest.new(endpoint: endpoint, instances: instances, model: model, contents: contents), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 

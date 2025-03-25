@@ -33,24 +33,24 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -67,6 +67,14 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -85,7 +93,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    add_access_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    add_access_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -143,7 +151,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    add_resource_policies_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    add_resource_policies_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -204,7 +212,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     return_partial_success = true
     service_project_number = 42
 
-    aggregated_list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    aggregated_list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -263,7 +271,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    attach_disk_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    attach_disk_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -320,7 +328,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    bulk_insert_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    bulk_insert_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -377,7 +385,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    delete_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -436,7 +444,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    delete_access_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_access_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -494,7 +502,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    detach_disk_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    detach_disk_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -550,7 +558,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     project = "hello world"
     zone = "hello world"
 
-    get_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -607,7 +615,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     project = "hello world"
     zone = "hello world"
 
-    get_effective_firewalls_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_effective_firewalls_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -665,7 +673,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     variable_key = "hello world"
     zone = "hello world"
 
-    get_guest_attributes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_guest_attributes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -722,7 +730,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     resource = "hello world"
     zone = "hello world"
 
-    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -778,7 +786,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     project = "hello world"
     zone = "hello world"
 
-    get_screenshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_screenshot_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -836,7 +844,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     start = 42
     zone = "hello world"
 
-    get_serial_port_output_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_serial_port_output_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -892,7 +900,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     project = "hello world"
     zone = "hello world"
 
-    get_shielded_instance_identity_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_shielded_instance_identity_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -951,7 +959,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     source_machine_image = "hello world"
     zone = "hello world"
 
-    insert_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    insert_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1011,7 +1019,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     return_partial_success = true
     zone = "hello world"
 
-    list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1072,7 +1080,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     return_partial_success = true
     zone = "hello world"
 
-    list_referrers_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_referrers_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1129,7 +1137,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    perform_maintenance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    perform_maintenance_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1187,7 +1195,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    remove_resource_policies_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    remove_resource_policies_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1231,6 +1239,64 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     end
   end
 
+  def test_report_host_as_faulty
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    instance = "hello world"
+    instances_report_host_as_faulty_request_resource = {}
+    project = "hello world"
+    request_id = "hello world"
+    zone = "hello world"
+
+    report_host_as_faulty_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::Instances::Rest::ServiceStub.stub :transcode_report_host_as_faulty_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, report_host_as_faulty_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::Instances::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.report_host_as_faulty({ instance: instance, instances_report_host_as_faulty_request_resource: instances_report_host_as_faulty_request_resource, project: project, request_id: request_id, zone: zone }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.report_host_as_faulty instance: instance, instances_report_host_as_faulty_request_resource: instances_report_host_as_faulty_request_resource, project: project, request_id: request_id, zone: zone do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.report_host_as_faulty ::Google::Cloud::Compute::V1::ReportHostAsFaultyInstanceRequest.new(instance: instance, instances_report_host_as_faulty_request_resource: instances_report_host_as_faulty_request_resource, project: project, request_id: request_id, zone: zone) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.report_host_as_faulty({ instance: instance, instances_report_host_as_faulty_request_resource: instances_report_host_as_faulty_request_resource, project: project, request_id: request_id, zone: zone }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.report_host_as_faulty(::Google::Cloud::Compute::V1::ReportHostAsFaultyInstanceRequest.new(instance: instance, instances_report_host_as_faulty_request_resource: instances_report_host_as_faulty_request_resource, project: project, request_id: request_id, zone: zone), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, report_host_as_faulty_client_stub.call_count
+      end
+    end
+  end
+
   def test_reset
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::Operation.new
@@ -1244,7 +1310,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    reset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    reset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1301,7 +1367,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    resume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    resume_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1357,7 +1423,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     project = "hello world"
     zone = "hello world"
 
-    send_diagnostic_interrupt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    send_diagnostic_interrupt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1415,7 +1481,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     resource = "hello world"
     zone = "hello world"
 
-    set_deletion_protection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_deletion_protection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1474,7 +1540,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_disk_auto_delete_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_disk_auto_delete_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1531,7 +1597,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     zone = "hello world"
     zone_set_policy_request_resource = {}
 
-    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1589,7 +1655,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_labels_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_labels_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1647,7 +1713,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_machine_resources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_machine_resources_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1705,7 +1771,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_machine_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_machine_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1763,7 +1829,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_metadata_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_metadata_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1821,7 +1887,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_min_cpu_platform_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_min_cpu_platform_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1879,7 +1945,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_name_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_name_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1937,7 +2003,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     scheduling_resource = {}
     zone = "hello world"
 
-    set_scheduling_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_scheduling_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1995,7 +2061,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_security_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_security_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2053,7 +2119,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    set_service_account_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_service_account_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2111,7 +2177,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     shielded_instance_integrity_policy_resource = {}
     zone = "hello world"
 
-    set_shielded_instance_integrity_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_shielded_instance_integrity_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2169,7 +2235,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     tags_resource = {}
     zone = "hello world"
 
-    set_tags_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_tags_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2227,7 +2293,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     with_extended_notifications = true
     zone = "hello world"
 
-    simulate_maintenance_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    simulate_maintenance_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2284,7 +2350,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    start_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    start_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2342,7 +2408,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    start_with_encryption_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    start_with_encryption_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2400,7 +2466,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    stop_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    stop_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2458,7 +2524,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    suspend_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    suspend_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2515,7 +2581,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     test_permissions_request_resource = {}
     zone = "hello world"
 
-    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2575,7 +2641,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    update_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2634,7 +2700,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    update_access_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_access_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2692,7 +2758,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    update_display_device_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_display_device_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2751,7 +2817,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     zone = "hello world"
 
-    update_network_interface_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_network_interface_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2809,7 +2875,7 @@ class ::Google::Cloud::Compute::V1::Instances::Rest::ClientTest < Minitest::Test
     shielded_instance_config_resource = {}
     zone = "hello world"
 
-    update_shielded_instance_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_shielded_instance_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

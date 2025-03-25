@@ -1,5 +1,50 @@
 # Release History
 
+### 0.33.0 (2025-03-05)
+
+#### Features
+
+* Support for key events in change history ([#29285](https://github.com/googleapis/google-cloud-ruby/issues/29285)) 
+
+### 0.32.1 (2025-01-30)
+
+#### Documentation
+
+* Update the API name 
+* Various other documentation enhancements 
+
+### 0.32.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.31.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.30.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27002](https://github.com/googleapis/google-cloud-ruby/issues/27002)) 
+
+### 0.30.0 (2024-08-02)
+
+#### Features
+
+* Support for several additional resource fields 
+* Support KeyEvent resource management calls 
+#### Documentation
+
+* Deprecated calls related to ConversionEvent resources 
+
 ### 0.29.0 (2024-02-26)
 
 #### Features

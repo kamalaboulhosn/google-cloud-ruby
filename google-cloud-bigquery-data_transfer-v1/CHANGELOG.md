@@ -1,5 +1,57 @@
 # Release History
 
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-10-15)
+
+#### Features
+
+* Added updated schedule options and error details to TransferConfig ([#27387](https://github.com/googleapis/google-cloud-ruby/issues/27387)) 
+
+### 1.0.3 (2024-09-11)
+
+#### Documentation
+
+* Clarify documentation for transfer configuration updates 
+
+### 1.0.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.1 (2024-08-22)
+
+#### Documentation
+
+* deprecate `authorization_code` ([#26974](https://github.com/googleapis/google-cloud-ruby/issues/26974)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.14.2 (2024-05-29)
+
+#### Documentation
+
+* update OAuth links in `CreateTransferConfigRequest` and `UpdateTransferConfigRequest` ([#25968](https://github.com/googleapis/google-cloud-ruby/issues/25968)) 
+
 ### 0.14.1 (2024-04-25)
 
 #### Documentation

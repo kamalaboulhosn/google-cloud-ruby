@@ -34,8 +34,10 @@ module Google
         # @!attribute [rw] row_filter
         #   @return [::String]
         #     Optional. A filter applied to all rows in a single DataScan job.
-        #     The filter needs to be a valid SQL expression for a WHERE clause in
-        #     BigQuery standard SQL syntax.
+        #     The filter needs to be a valid SQL expression for a [WHERE clause in
+        #     GoogleSQL
+        #     syntax](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#where_clause).
+        #
         #     Example: col1 >= 0 AND col2 < 10
         # @!attribute [rw] post_scan_actions
         #   @return [::Google::Cloud::Dataplex::V1::DataProfileSpec::PostScanActions]
@@ -151,24 +153,30 @@ module Google
               # @!attribute [rw] distinct_ratio
               #   @return [::Float]
               #     Ratio of rows with distinct values against total scanned rows.
-              #     Not available for complex non-groupable field type RECORD and fields
-              #     with REPEATABLE mode.
+              #     Not available for complex non-groupable field type, including RECORD,
+              #     ARRAY, GEOGRAPHY, and JSON, as well as fields with REPEATABLE mode.
               # @!attribute [rw] top_n_values
               #   @return [::Array<::Google::Cloud::Dataplex::V1::DataProfileResult::Profile::Field::ProfileInfo::TopNValue>]
               #     The list of top N non-null values, frequency and ratio with which
               #     they occur in the scanned data. N is 10 or equal to the number of
               #     distinct values in the field, whichever is smaller. Not available for
-              #     complex non-groupable field type RECORD and fields with REPEATABLE
-              #     mode.
+              #     complex non-groupable field type, including RECORD, ARRAY, GEOGRAPHY,
+              #     and JSON, as well as fields with REPEATABLE mode.
               # @!attribute [rw] string_profile
               #   @return [::Google::Cloud::Dataplex::V1::DataProfileResult::Profile::Field::ProfileInfo::StringFieldInfo]
               #     String type field information.
+              #
+              #     Note: The following fields are mutually exclusive: `string_profile`, `integer_profile`, `double_profile`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @!attribute [rw] integer_profile
               #   @return [::Google::Cloud::Dataplex::V1::DataProfileResult::Profile::Field::ProfileInfo::IntegerFieldInfo]
               #     Integer type field information.
+              #
+              #     Note: The following fields are mutually exclusive: `integer_profile`, `string_profile`, `double_profile`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @!attribute [rw] double_profile
               #   @return [::Google::Cloud::Dataplex::V1::DataProfileResult::Profile::Field::ProfileInfo::DoubleFieldInfo]
               #     Double type field information.
+              #
+              #     Note: The following fields are mutually exclusive: `double_profile`, `string_profile`, `integer_profile`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               class ProfileInfo
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods

@@ -1,5 +1,54 @@
 # Changelog
 
+### 1.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28826](https://github.com/googleapis/google-cloud-ruby/issues/28826))
+
+#### Features
+
+* Bump version to 1.0.0 ([#28941](https://github.com/googleapis/google-cloud-ruby/issues/28941)) 
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28826](https://github.com/googleapis/google-cloud-ruby/issues/28826)) 
+
+### 0.11.0 (2025-01-29)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.10.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.9.2 (2024-12-05)
+
+#### Documentation
+
+* Documentation improvements related to long-running operations ([#27633](https://github.com/googleapis/google-cloud-ruby/issues/27633)) 
+
+### 0.9.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 0.9.0 (2024-07-22)
+
+#### Features
+
+* Support for Cluster autoscaling settings 
+* Support for the ACTIVATING state of the HCX Cloud Manager appliance 
+* Support for TLS, SSL, and RELP protocols for the logging server 
+
 ### 0.8.0 (2024-02-26)
 
 #### Features

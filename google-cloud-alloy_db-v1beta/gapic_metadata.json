@@ -30,6 +30,16 @@
                 "update_cluster"
               ]
             },
+            "ExportCluster": {
+              "methods": [
+                "export_cluster"
+              ]
+            },
+            "UpgradeCluster": {
+              "methods": [
+                "upgrade_cluster"
+              ]
+            },
             "DeleteCluster": {
               "methods": [
                 "delete_cluster"
@@ -38,6 +48,11 @@
             "PromoteCluster": {
               "methods": [
                 "promote_cluster"
+              ]
+            },
+            "SwitchoverCluster": {
+              "methods": [
+                "switchover_cluster"
               ]
             },
             "RestoreCluster": {
@@ -98,6 +113,11 @@
             "RestartInstance": {
               "methods": [
                 "restart_instance"
+              ]
+            },
+            "ExecuteSql": {
+              "methods": [
+                "execute_sql"
               ]
             },
             "ListBackups": {

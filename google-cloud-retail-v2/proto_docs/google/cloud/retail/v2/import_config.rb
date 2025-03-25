@@ -176,7 +176,8 @@ module Google
         # @!attribute [rw] update_mask
         #   @return [::Google::Protobuf::FieldMask]
         #     Indicates which fields in the provided imported `products` to update. If
-        #     not set, all fields are updated.
+        #     not set, all fields are updated. If provided, only the existing product
+        #     fields are updated. Missing products will not be created.
         # @!attribute [rw] reconciliation_mode
         #   @return [::Google::Cloud::Retail::V2::ImportProductsRequest::ReconciliationMode]
         #     The mode of reconciliation between existing products and the products to be
@@ -192,9 +193,14 @@ module Google
         #     Format of the Pub/Sub topic is `projects/{project}/topics/{topic}`. It has
         #     to be within the same project as
         #     {::Google::Cloud::Retail::V2::ImportProductsRequest#parent ImportProductsRequest.parent}.
-        #     Make sure that `service-<project
-        #     number>@gcp-sa-retail.iam.gserviceaccount.com` has the
-        #     `pubsub.topics.publish` IAM permission on the topic.
+        #     Make sure that both
+        #     `cloud-retail-customer-data-access@system.gserviceaccount.com` and
+        #     `service-<project number>@gcp-sa-retail.iam.gserviceaccount.com`
+        #     have the `pubsub.topics.publish` IAM permission on the topic.
+        #
+        #     Only supported when
+        #     {::Google::Cloud::Retail::V2::ImportProductsRequest#reconciliation_mode ImportProductsRequest.reconciliation_mode}
+        #     is set to `FULL`.
         class ImportProductsRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -255,12 +261,18 @@ module Google
         # @!attribute [rw] product_inline_source
         #   @return [::Google::Cloud::Retail::V2::ProductInlineSource]
         #     The Inline source for the input content for products.
+        #
+        #     Note: The following fields are mutually exclusive: `product_inline_source`, `gcs_source`, `big_query_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] gcs_source
         #   @return [::Google::Cloud::Retail::V2::GcsSource]
         #     Google Cloud Storage location for the input content.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs_source`, `product_inline_source`, `big_query_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] big_query_source
         #   @return [::Google::Cloud::Retail::V2::BigQuerySource]
         #     BigQuery input source.
+        #
+        #     Note: The following fields are mutually exclusive: `big_query_source`, `product_inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class ProductInputConfig
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -270,12 +282,18 @@ module Google
         # @!attribute [rw] user_event_inline_source
         #   @return [::Google::Cloud::Retail::V2::UserEventInlineSource]
         #     Required. The Inline source for the input content for UserEvents.
+        #
+        #     Note: The following fields are mutually exclusive: `user_event_inline_source`, `gcs_source`, `big_query_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] gcs_source
         #   @return [::Google::Cloud::Retail::V2::GcsSource]
         #     Required. Google Cloud Storage location for the input content.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs_source`, `user_event_inline_source`, `big_query_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] big_query_source
         #   @return [::Google::Cloud::Retail::V2::BigQuerySource]
         #     Required. BigQuery input source.
+        #
+        #     Note: The following fields are mutually exclusive: `big_query_source`, `user_event_inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class UserEventInputConfig
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

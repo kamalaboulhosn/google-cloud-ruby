@@ -25,16 +25,26 @@ module Google
         # @!attribute [rw] individual_page_selector
         #   @return [::Google::Cloud::DocumentAI::V1::ProcessOptions::IndividualPageSelector]
         #     Which pages to process (1-indexed).
+        #
+        #     Note: The following fields are mutually exclusive: `individual_page_selector`, `from_start`, `from_end`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] from_start
         #   @return [::Integer]
         #     Only process certain pages from the start. Process all if the document
         #     has fewer pages.
+        #
+        #     Note: The following fields are mutually exclusive: `from_start`, `individual_page_selector`, `from_end`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] from_end
         #   @return [::Integer]
         #     Only process certain pages from the end, same as above.
+        #
+        #     Note: The following fields are mutually exclusive: `from_end`, `individual_page_selector`, `from_start`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] ocr_config
         #   @return [::Google::Cloud::DocumentAI::V1::OcrConfig]
         #     Only applicable to `OCR_PROCESSOR` and `FORM_PARSER_PROCESSOR`.
+        #     Returns error if set on other processor types.
+        # @!attribute [rw] layout_config
+        #   @return [::Google::Cloud::DocumentAI::V1::ProcessOptions::LayoutConfig]
+        #     Optional. Only applicable to `LAYOUT_PARSER_PROCESSOR`.
         #     Returns error if set on other processor types.
         # @!attribute [rw] schema_override
         #   @return [::Google::Cloud::DocumentAI::V1::DocumentSchema]
@@ -46,6 +56,28 @@ module Google
         class ProcessOptions
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Serving config for layout parser processor.
+          # @!attribute [rw] chunking_config
+          #   @return [::Google::Cloud::DocumentAI::V1::ProcessOptions::LayoutConfig::ChunkingConfig]
+          #     Optional. Config for chunking in layout parser processor.
+          class LayoutConfig
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Serving config for chunking.
+            # @!attribute [rw] chunk_size
+            #   @return [::Integer]
+            #     Optional. The chunk sizes to use when splitting documents, in order of
+            #     level.
+            # @!attribute [rw] include_ancestor_headings
+            #   @return [::Boolean]
+            #     Optional. Whether or not to include ancestor headings when splitting.
+            class ChunkingConfig
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+          end
 
           # A list of individual page numbers.
           # @!attribute [rw] pages
@@ -63,12 +95,18 @@ module Google
         # @!attribute [rw] inline_document
         #   @return [::Google::Cloud::DocumentAI::V1::Document]
         #     An inline document proto.
+        #
+        #     Note: The following fields are mutually exclusive: `inline_document`, `raw_document`, `gcs_document`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] raw_document
         #   @return [::Google::Cloud::DocumentAI::V1::RawDocument]
         #     A raw document content (bytes).
+        #
+        #     Note: The following fields are mutually exclusive: `raw_document`, `inline_document`, `gcs_document`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] gcs_document
         #   @return [::Google::Cloud::DocumentAI::V1::GcsDocument]
         #     A raw document on Google Cloud Storage.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs_document`, `inline_document`, `raw_document`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The resource name of the
@@ -102,6 +140,9 @@ module Google
         #     (Unicode codepoints) and can only contain lowercase letters, numeric
         #     characters, underscores, and dashes. International characters are allowed.
         #     Label values are optional. Label keys must start with a letter.
+        # @!attribute [rw] imageless_mode
+        #   @return [::Boolean]
+        #     Optional. Option to remove images from the document.
         class ProcessRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -687,9 +728,13 @@ module Google
         # @!attribute [rw] custom_document_extraction_options
         #   @return [::Google::Cloud::DocumentAI::V1::TrainProcessorVersionRequest::CustomDocumentExtractionOptions]
         #     Options to control Custom Document Extraction (CDE) Processor.
+        #
+        #     Note: The following fields are mutually exclusive: `custom_document_extraction_options`, `foundation_model_tuning_options`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] foundation_model_tuning_options
         #   @return [::Google::Cloud::DocumentAI::V1::TrainProcessorVersionRequest::FoundationModelTuningOptions]
         #     Options to control foundation model tuning of a processor.
+        #
+        #     Note: The following fields are mutually exclusive: `foundation_model_tuning_options`, `custom_document_extraction_options`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The parent (project, location and processor) to create the new

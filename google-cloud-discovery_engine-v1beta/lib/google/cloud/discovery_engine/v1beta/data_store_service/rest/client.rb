@@ -159,14 +159,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @data_store_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @data_store_service_stub.endpoint
                   config.universe_domain = @data_store_service_stub.universe_domain
+                  config.logger = @data_store_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -183,6 +195,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @data_store_service_stub.logger
+              end
 
               # Service calls
 
@@ -205,7 +226,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload create_data_store(parent: nil, data_store: nil, data_store_id: nil, create_advanced_site_search: nil)
+              # @overload create_data_store(parent: nil, data_store: nil, data_store_id: nil, create_advanced_site_search: nil, skip_default_schema_creation: nil)
               #   Pass arguments to `create_data_store` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -231,6 +252,15 @@ module Google
               #     If the data store is not configured as site
               #     search (GENERIC vertical and PUBLIC_WEBSITE content_config), this flag will
               #     be ignored.
+              #   @param skip_default_schema_creation [::Boolean]
+              #     A boolean flag indicating whether to skip the default schema creation for
+              #     the data store. Only enable this flag if you are certain that the default
+              #     schema is incompatible with your use case.
+              #
+              #     If set to true, you must manually create a schema for the data store before
+              #     any documents can be ingested.
+              #
+              #     This flag cannot be specified if `data_store.starting_schema` is specified.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -292,7 +322,7 @@ module Google
                 @data_store_service_stub.create_data_store request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -380,7 +410,6 @@ module Google
 
                 @data_store_service_stub.get_data_store request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -432,8 +461,8 @@ module Google
               #     must match the call that provided the page token. Otherwise, an
               #     INVALID_ARGUMENT error is returned.
               #   @param filter [::String]
-              #     Filter by solution type. For example: filter =
-              #     'solution_type:SOLUTION_TYPE_SEARCH'
+              #     Filter by solution type .
+              #     For example: `filter = 'solution_type:SOLUTION_TYPE_SEARCH'`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::DiscoveryEngine::V1beta::DataStore>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -492,7 +521,7 @@ module Google
                 @data_store_service_stub.list_data_stores request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @data_store_service_stub, :list_data_stores, "data_stores", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -588,7 +617,7 @@ module Google
                 @data_store_service_stub.delete_data_store request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -681,7 +710,6 @@ module Google
 
                 @data_store_service_stub.update_data_store request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -729,6 +757,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -761,6 +796,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -782,6 +822,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

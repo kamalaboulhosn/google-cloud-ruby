@@ -24,7 +24,7 @@ module Google
         # Describes the dataset version.
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The resource name of the DatasetVersion.
+        #     Output only. Identifier. The resource name of the DatasetVersion.
         # @!attribute [r] create_time
         #   @return [::Google::Protobuf::Timestamp]
         #     Output only. Timestamp when this DatasetVersion was created.
@@ -46,6 +46,16 @@ module Google
         # @!attribute [r] metadata
         #   @return [::Google::Protobuf::Value]
         #     Required. Output only. Additional information about the DatasetVersion.
+        # @!attribute [r] model_reference
+        #   @return [::String]
+        #     Output only. Reference to the public base model last used by the dataset
+        #     version. Only set for prompt dataset versions.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
         class DatasetVersion
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

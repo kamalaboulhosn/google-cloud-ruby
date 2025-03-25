@@ -156,8 +156,28 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @error_stats_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
+              end
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @error_stats_service_stub.logger
               end
 
               # Service calls
@@ -182,29 +202,54 @@ module Google
               #
               #   @param project_name [::String]
               #     Required. The resource name of the Google Cloud Platform project. Written
-              #     as `projects/{projectID}` or `projects/{projectNumber}`, where `{projectID}`
-              #     and `{projectNumber}` can be found in the
-              #     [Google Cloud Console](https://support.google.com/cloud/answer/6158840).
+              #     as `projects/{projectID}` or `projects/{projectNumber}`, where
+              #     `{projectID}` and `{projectNumber}` can be found in the
+              #     [Google Cloud console](https://support.google.com/cloud/answer/6158840).
+              #     It may also include a location, such as
+              #     `projects/{projectID}/locations/{location}` where `{location}` is a cloud
+              #     region.
               #
-              #     Examples: `projects/my-project-123`, `projects/5551234`.
+              #     Examples: `projects/my-project-123`, `projects/5551234`,
+              #     `projects/my-project-123/locations/us-central1`,
+              #     `projects/5551234/locations/us-central1`.
+              #
+              #     For a list of supported locations, see [Supported
+              #     Regions](https://cloud.google.com/logging/docs/region-support). `global` is
+              #     the default when unspecified. Use `-` as a wildcard to request group stats
+              #     from all regions.
               #   @param group_id [::Array<::String>]
-              #     Optional. List all <code>ErrorGroupStats</code> with these IDs.
+              #     Optional. List all [ErrorGroupStats]
+              #     [google.devtools.clouderrorreporting.v1beta1.ErrorGroupStats] with these
+              #     IDs. The `group_id` is a unique identifier for a particular error group.
+              #     The identifier is derived from key parts of the error-log content and is
+              #     treated as Service Data. For information about how Service Data
+              #     is handled, see [Google Cloud Privacy Notice]
+              #     (https://cloud.google.com/terms/cloud-privacy-notice).
               #   @param service_filter [::Google::Cloud::ErrorReporting::V1beta1::ServiceContextFilter, ::Hash]
-              #     Optional. List only <code>ErrorGroupStats</code> which belong to a service
-              #     context that matches the filter.
-              #     Data for all service contexts is returned if this field is not specified.
+              #     Optional. List only [ErrorGroupStats]
+              #     [google.devtools.clouderrorreporting.v1beta1.ErrorGroupStats] which belong
+              #     to a service context that matches the filter. Data for all service contexts
+              #     is returned if this field is not specified.
               #   @param time_range [::Google::Cloud::ErrorReporting::V1beta1::QueryTimeRange, ::Hash]
               #     Optional. List data for the given time range.
               #     If not set, a default time range is used. The field
-              #     <code>time_range_begin</code> in the response will specify the beginning
-              #     of this time range.
-              #     Only <code>ErrorGroupStats</code> with a non-zero count in the given time
-              #     range are returned, unless the request contains an explicit
-              #     <code>group_id</code> list. If a <code>group_id</code> list is given, also
-              #     <code>ErrorGroupStats</code> with zero occurrences are returned.
+              #     [time_range_begin]
+              #     [google.devtools.clouderrorreporting.v1beta1.ListGroupStatsResponse.time_range_begin]
+              #     in the response will specify the beginning of this time range. Only
+              #     [ErrorGroupStats]
+              #     [google.devtools.clouderrorreporting.v1beta1.ErrorGroupStats] with a
+              #     non-zero count in the given time range are returned, unless the request
+              #     contains an explicit [group_id]
+              #     [google.devtools.clouderrorreporting.v1beta1.ListGroupStatsRequest.group_id]
+              #     list. If a [group_id]
+              #     [google.devtools.clouderrorreporting.v1beta1.ListGroupStatsRequest.group_id]
+              #     list is given, also [ErrorGroupStats]
+              #     [google.devtools.clouderrorreporting.v1beta1.ErrorGroupStats] with zero
+              #     occurrences are returned.
               #   @param timed_count_duration [::Google::Protobuf::Duration, ::Hash]
-              #     Optional. The preferred duration for a single returned `TimedCount`.
-              #     If not set, no timed counts are returned.
+              #     Optional. The preferred duration for a single returned [TimedCount]
+              #     [google.devtools.clouderrorreporting.v1beta1.TimedCount]. If not set, no
+              #     timed counts are returned.
               #   @param alignment [::Google::Cloud::ErrorReporting::V1beta1::TimedCountAlignment]
               #     Optional. The alignment of the timed counts to be returned.
               #     Default is `ALIGNMENT_EQUAL_AT_END`.
@@ -218,9 +263,10 @@ module Google
               #     Optional. The maximum number of results to return per response.
               #     Default is 20.
               #   @param page_token [::String]
-              #     Optional. A `next_page_token` provided by a previous response. To view
-              #     additional results, pass this token along with the identical query
-              #     parameters as the first request.
+              #     Optional. A [next_page_token]
+              #     [google.devtools.clouderrorreporting.v1beta1.ListGroupStatsResponse.next_page_token]
+              #     provided by a previous response. To view additional results, pass this
+              #     token along with the identical query parameters as the first request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::ErrorReporting::V1beta1::ErrorGroupStats>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -279,7 +325,7 @@ module Google
                 @error_stats_service_stub.list_group_stats request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @error_stats_service_stub, :list_group_stats, "error_group_stats", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -305,13 +351,24 @@ module Google
               #
               #   @param project_name [::String]
               #     Required. The resource name of the Google Cloud Platform project. Written
-              #     as `projects/{projectID}`, where `{projectID}` is the
-              #     [Google Cloud Platform project
-              #     ID](https://support.google.com/cloud/answer/6158840).
+              #     as `projects/{projectID}` or `projects/{projectID}/locations/{location}`,
+              #     where `{projectID}` is the [Google Cloud Platform project
+              #     ID](https://support.google.com/cloud/answer/6158840) and `{location}` is
+              #     a Cloud region.
               #
-              #     Example: `projects/my-project-123`.
+              #     Examples: `projects/my-project-123`,
+              #     `projects/my-project-123/locations/global`.
+              #
+              #     For a list of supported locations, see [Supported
+              #     Regions](https://cloud.google.com/logging/docs/region-support). `global` is
+              #     the default when unspecified.
               #   @param group_id [::String]
               #     Required. The group for which events shall be returned.
+              #     The `group_id` is a unique identifier for a particular error group. The
+              #     identifier is derived from key parts of the error-log content and is
+              #     treated as Service Data. For information about how Service Data
+              #     is handled, see [Google Cloud Privacy
+              #     Notice](https://cloud.google.com/terms/cloud-privacy-notice).
               #   @param service_filter [::Google::Cloud::ErrorReporting::V1beta1::ServiceContextFilter, ::Hash]
               #     Optional. List only ErrorGroups which belong to a service context that
               #     matches the filter.
@@ -382,7 +439,7 @@ module Google
                 @error_stats_service_stub.list_events request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @error_stats_service_stub, :list_events, "error_events", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -408,11 +465,17 @@ module Google
               #
               #   @param project_name [::String]
               #     Required. The resource name of the Google Cloud Platform project. Written
-              #     as `projects/{projectID}`, where `{projectID}` is the
-              #     [Google Cloud Platform project
-              #     ID](https://support.google.com/cloud/answer/6158840).
+              #     as `projects/{projectID}` or `projects/{projectID}/locations/{location}`,
+              #     where `{projectID}` is the [Google Cloud Platform project
+              #     ID](https://support.google.com/cloud/answer/6158840) and `{location}` is
+              #     a Cloud region.
               #
-              #     Example: `projects/my-project-123`.
+              #     Examples: `projects/my-project-123`,
+              #     `projects/my-project-123/locations/global`.
+              #
+              #     For a list of supported locations, see [Supported
+              #     Regions](https://cloud.google.com/logging/docs/region-support). `global` is
+              #     the default when unspecified.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::ErrorReporting::V1beta1::DeleteEventsResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -466,7 +529,6 @@ module Google
 
                 @error_stats_service_stub.delete_events request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -514,6 +576,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -546,6 +615,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -567,6 +641,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

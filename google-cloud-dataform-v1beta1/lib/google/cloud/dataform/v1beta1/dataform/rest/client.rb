@@ -153,8 +153,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @dataform_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -162,6 +173,7 @@ module Google
                   config.endpoint = @dataform_stub.endpoint
                   config.universe_domain = @dataform_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @dataform_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -170,6 +182,7 @@ module Google
                   config.endpoint = @dataform_stub.endpoint
                   config.universe_domain = @dataform_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @dataform_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -186,6 +199,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @dataform_stub.logger
+              end
 
               # Service calls
 
@@ -218,8 +240,9 @@ module Google
               #     Optional. Page token received from a previous `ListRepositories` call.
               #     Provide this to retrieve the subsequent page.
               #
-              #     When paginating, all other parameters provided to `ListRepositories`
-              #     must match the call that provided the page token.
+              #     When paginating, all other parameters provided to `ListRepositories`,
+              #     with the exception of `page_size`, must match the call that provided the
+              #     page token.
               #   @param order_by [::String]
               #     Optional. This field only supports ordering by `name`. If unspecified, the
               #     server will choose the ordering. If specified, the default order is
@@ -227,10 +250,10 @@ module Google
               #   @param filter [::String]
               #     Optional. Filter for the returned list.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::ListRepositoriesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::Repository>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Dataform::V1beta1::ListRepositoriesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::Repository>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -282,8 +305,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @dataform_stub.list_repositories request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :list_repositories, "repositories", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -362,7 +386,6 @@ module Google
 
                 @dataform_stub.get_repository request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -447,7 +470,6 @@ module Google
 
                 @dataform_stub.create_repository request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -455,6 +477,12 @@ module Google
 
               ##
               # Updates a single Repository.
+              #
+              # **Note:** This method does not fully implement
+              # [AIP-134](https://google.aip.dev/134); in particular:
+              # - The wildcard entry (**\***) is treated as a bad request
+              # - When the **field_mask** is omitted, instead of only updating the set
+              #   fields, the request is treated as a full update on all modifiable fields
               #
               # @overload update_repository(request, options = nil)
               #   Pass arguments to `update_repository` via a request object, either of type
@@ -529,7 +557,6 @@ module Google
 
                 @dataform_stub.update_repository request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -556,9 +583,9 @@ module Google
               #   @param name [::String]
               #     Required. The repository's name.
               #   @param force [::Boolean]
-              #     If set to true, any child resources of this repository will also be
-              #     deleted. (Otherwise, the request will only succeed if the repository has no
-              #     child resources.)
+              #     Optional. If set to true, any child resources of this repository will also
+              #     be deleted. (Otherwise, the request will only succeed if the repository has
+              #     no child resources.)
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Protobuf::Empty]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -612,7 +639,6 @@ module Google
 
                 @dataform_stub.delete_repository request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -646,13 +672,13 @@ module Google
               #     applying this commit; otherwise this request will fail. If unset, no
               #     validation on the current HEAD commit SHA is performed.
               #   @param file_operations [::Hash{::String => ::Google::Cloud::Dataform::V1beta1::CommitRepositoryChangesRequest::FileOperation, ::Hash}]
-              #     A map to the path of the file to the operation. The path is the full file
-              #     path including filename, from repository root.
+              #     Optional. A map to the path of the file to the operation. The path is the
+              #     full file path including filename, from repository root.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::CommitRepositoryChangesResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Protobuf::Empty]
+              # @return [::Google::Cloud::Dataform::V1beta1::CommitRepositoryChangesResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -668,7 +694,7 @@ module Google
               #   # Call the commit_repository_changes method.
               #   result = client.commit_repository_changes request
               #
-              #   # The returned object is of type Google::Protobuf::Empty.
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::CommitRepositoryChangesResponse.
               #   p result
               #
               def commit_repository_changes request, options = nil
@@ -701,7 +727,6 @@ module Google
 
                 @dataform_stub.commit_repository_changes request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -786,7 +811,6 @@ module Google
 
                 @dataform_stub.read_repository_file request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -829,8 +853,8 @@ module Google
               #     subsequent page.
               #
               #     When paginating, all other parameters provided to
-              #     `QueryRepositoryDirectoryContents` must match the call that provided the
-              #     page token.
+              #     `QueryRepositoryDirectoryContents`, with the exception of `page_size`, must
+              #     match the call that provided the page token.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::DirectoryEntry>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -889,7 +913,7 @@ module Google
                 @dataform_stub.query_repository_directory_contents request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :query_repository_directory_contents, "directory_entries", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -924,8 +948,9 @@ module Google
               #     Optional. Page token received from a previous `FetchRepositoryHistory`
               #     call. Provide this to retrieve the subsequent page.
               #
-              #     When paginating, all other parameters provided to `FetchRepositoryHistory`
-              #     must match the call that provided the page token.
+              #     When paginating, all other parameters provided to `FetchRepositoryHistory`,
+              #     with the exception of `page_size`, must match the call that provided the
+              #     page token.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::CommitLogEntry>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -984,7 +1009,7 @@ module Google
                 @dataform_stub.fetch_repository_history request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :fetch_repository_history, "commits", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1063,7 +1088,6 @@ module Google
 
                 @dataform_stub.compute_repository_access_token_status request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1142,7 +1166,6 @@ module Google
 
                 @dataform_stub.fetch_remote_branches request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1177,8 +1200,9 @@ module Google
               #     Optional. Page token received from a previous `ListWorkspaces` call.
               #     Provide this to retrieve the subsequent page.
               #
-              #     When paginating, all other parameters provided to `ListWorkspaces`
-              #     must match the call that provided the page token.
+              #     When paginating, all other parameters provided to `ListWorkspaces`, with
+              #     the exception of `page_size`, must match the call that provided the page
+              #     token.
               #   @param order_by [::String]
               #     Optional. This field only supports ordering by `name`. If unspecified, the
               #     server will choose the ordering. If specified, the default order is
@@ -1186,10 +1210,10 @@ module Google
               #   @param filter [::String]
               #     Optional. Filter for the returned list.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::ListWorkspacesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::Workspace>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Dataform::V1beta1::ListWorkspacesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::Workspace>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1241,8 +1265,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @dataform_stub.list_workspaces request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :list_workspaces, "workspaces", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1321,7 +1346,6 @@ module Google
 
                 @dataform_stub.get_workspace request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1406,7 +1430,6 @@ module Google
 
                 @dataform_stub.create_workspace request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1485,7 +1508,6 @@ module Google
 
                 @dataform_stub.delete_workspace request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1564,7 +1586,6 @@ module Google
 
                 @dataform_stub.install_npm_packages request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1597,10 +1618,10 @@ module Google
               #     Required. The author of any merge commit which may be created as a result
               #     of merging fetched Git commits into this workspace.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::PullGitCommitsResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Protobuf::Empty]
+              # @return [::Google::Cloud::Dataform::V1beta1::PullGitCommitsResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1616,7 +1637,7 @@ module Google
               #   # Call the pull_git_commits method.
               #   result = client.pull_git_commits request
               #
-              #   # The returned object is of type Google::Protobuf::Empty.
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::PullGitCommitsResponse.
               #   p result
               #
               def pull_git_commits request, options = nil
@@ -1649,7 +1670,6 @@ module Google
 
                 @dataform_stub.pull_git_commits request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1680,10 +1700,10 @@ module Google
               #     be pushed. If left unset, the repository's default branch name will be
               #     used.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::PushGitCommitsResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Protobuf::Empty]
+              # @return [::Google::Cloud::Dataform::V1beta1::PushGitCommitsResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1699,7 +1719,7 @@ module Google
               #   # Call the push_git_commits method.
               #   result = client.push_git_commits request
               #
-              #   # The returned object is of type Google::Protobuf::Empty.
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::PushGitCommitsResponse.
               #   p result
               #
               def push_git_commits request, options = nil
@@ -1732,7 +1752,6 @@ module Google
 
                 @dataform_stub.push_git_commits request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1811,7 +1830,6 @@ module Google
 
                 @dataform_stub.fetch_file_git_statuses request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1894,7 +1912,6 @@ module Google
 
                 @dataform_stub.fetch_git_ahead_behind request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1928,10 +1945,10 @@ module Google
               #     Optional. Full file paths to commit including filename, rooted at workspace
               #     root. If left empty, all files will be committed.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::CommitWorkspaceChangesResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Protobuf::Empty]
+              # @return [::Google::Cloud::Dataform::V1beta1::CommitWorkspaceChangesResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1947,7 +1964,7 @@ module Google
               #   # Call the commit_workspace_changes method.
               #   result = client.commit_workspace_changes request
               #
-              #   # The returned object is of type Google::Protobuf::Empty.
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::CommitWorkspaceChangesResponse.
               #   p result
               #
               def commit_workspace_changes request, options = nil
@@ -1980,7 +1997,6 @@ module Google
 
                 @dataform_stub.commit_workspace_changes request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2012,10 +2028,10 @@ module Google
               #   @param clean [::Boolean]
               #     Optional. If set to true, untracked files will be deleted.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::ResetWorkspaceChangesResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Protobuf::Empty]
+              # @return [::Google::Cloud::Dataform::V1beta1::ResetWorkspaceChangesResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2031,7 +2047,7 @@ module Google
               #   # Call the reset_workspace_changes method.
               #   result = client.reset_workspace_changes request
               #
-              #   # The returned object is of type Google::Protobuf::Empty.
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::ResetWorkspaceChangesResponse.
               #   p result
               #
               def reset_workspace_changes request, options = nil
@@ -2064,7 +2080,6 @@ module Google
 
                 @dataform_stub.reset_workspace_changes request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2146,7 +2161,6 @@ module Google
 
                 @dataform_stub.fetch_file_diff request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2184,8 +2198,8 @@ module Google
               #     call. Provide this to retrieve the subsequent page.
               #
               #     When paginating, all other parameters provided to
-              #     `QueryDirectoryContents` must match the call that provided the page
-              #     token.
+              #     `QueryDirectoryContents`, with the exception of `page_size`, must match the
+              #     call that provided the page token.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::DirectoryEntry>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -2244,7 +2258,106 @@ module Google
                 @dataform_stub.query_directory_contents request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :query_directory_contents, "directory_entries", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Finds the contents of a given Workspace directory by filter.
+              #
+              # @overload search_files(request, options = nil)
+              #   Pass arguments to `search_files` via a request object, either of type
+              #   {::Google::Cloud::Dataform::V1beta1::SearchFilesRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dataform::V1beta1::SearchFilesRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload search_files(workspace: nil, page_size: nil, page_token: nil, filter: nil)
+              #   Pass arguments to `search_files` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param workspace [::String]
+              #     Required. The workspace's name.
+              #   @param page_size [::Integer]
+              #     Optional. Maximum number of search results to return. The server may return
+              #     fewer items than requested. If unspecified, the server will pick an
+              #     appropriate default.
+              #   @param page_token [::String]
+              #     Optional. Page token received from a previous `SearchFilesRequest`
+              #     call. Provide this to retrieve the subsequent page.
+              #
+              #     When paginating, all other parameters provided to `SearchFilesRequest`,
+              #     with the exception of `page_size`, must match the call that provided the
+              #     page token.
+              #   @param filter [::String]
+              #     Optional. Optional filter for the returned list in filtering format.
+              #     Filtering is only currently supported on the `path` field.
+              #     See https://google.aip.dev/160 for details.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::SearchResult>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::SearchResult>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dataform/v1beta1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dataform::V1beta1::Dataform::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dataform::V1beta1::SearchFilesRequest.new
+              #
+              #   # Call the search_files method.
+              #   result = client.search_files request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::Dataform::V1beta1::SearchResult.
+              #     p item
+              #   end
+              #
+              def search_files request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dataform::V1beta1::SearchFilesRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.search_files.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dataform::V1beta1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.search_files.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.search_files.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dataform_stub.search_files request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :search_files, "search_results", request, result, options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2326,7 +2439,6 @@ module Google
 
                 @dataform_stub.make_directory request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2356,10 +2468,10 @@ module Google
               #     Required. The directory's full path including directory name, relative to
               #     the workspace root.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::RemoveDirectoryResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Protobuf::Empty]
+              # @return [::Google::Cloud::Dataform::V1beta1::RemoveDirectoryResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2375,7 +2487,7 @@ module Google
               #   # Call the remove_directory method.
               #   result = client.remove_directory request
               #
-              #   # The returned object is of type Google::Protobuf::Empty.
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::RemoveDirectoryResponse.
               #   p result
               #
               def remove_directory request, options = nil
@@ -2408,7 +2520,6 @@ module Google
 
                 @dataform_stub.remove_directory request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2494,7 +2605,6 @@ module Google
 
                 @dataform_stub.move_directory request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2513,7 +2623,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload read_file(workspace: nil, path: nil)
+              # @overload read_file(workspace: nil, path: nil, revision: nil)
               #   Pass arguments to `read_file` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -2523,6 +2633,9 @@ module Google
               #   @param path [::String]
               #     Required. The file's full path including filename, relative to the
               #     workspace root.
+              #   @param revision [::String]
+              #     Optional. The Git revision of the file to return. If left empty, the
+              #     current contents of `path` will be returned.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Dataform::V1beta1::ReadFileResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -2576,7 +2689,6 @@ module Google
 
                 @dataform_stub.read_file request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2606,10 +2718,10 @@ module Google
               #     Required. The file's full path including filename, relative to the
               #     workspace root.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::RemoveFileResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Protobuf::Empty]
+              # @return [::Google::Cloud::Dataform::V1beta1::RemoveFileResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2625,7 +2737,7 @@ module Google
               #   # Call the remove_file method.
               #   result = client.remove_file request
               #
-              #   # The returned object is of type Google::Protobuf::Empty.
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::RemoveFileResponse.
               #   p result
               #
               def remove_file request, options = nil
@@ -2658,7 +2770,6 @@ module Google
 
                 @dataform_stub.remove_file request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2743,7 +2854,6 @@ module Google
 
                 @dataform_stub.move_file request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2826,7 +2936,6 @@ module Google
 
                 @dataform_stub.write_file request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2861,13 +2970,14 @@ module Google
               #     Optional. Page token received from a previous `ListReleaseConfigs` call.
               #     Provide this to retrieve the subsequent page.
               #
-              #     When paginating, all other parameters provided to `ListReleaseConfigs`
-              #     must match the call that provided the page token.
+              #     When paginating, all other parameters provided to `ListReleaseConfigs`,
+              #     with the exception of `page_size`, must match the call that provided the
+              #     page token.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::ListReleaseConfigsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::ReleaseConfig>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Dataform::V1beta1::ListReleaseConfigsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::ReleaseConfig>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2919,8 +3029,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @dataform_stub.list_release_configs request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :list_release_configs, "release_configs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2999,7 +3110,6 @@ module Google
 
                 @dataform_stub.get_release_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3084,7 +3194,6 @@ module Google
 
                 @dataform_stub.create_release_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3092,6 +3201,12 @@ module Google
 
               ##
               # Updates a single ReleaseConfig.
+              #
+              # **Note:** This method does not fully implement
+              # [AIP-134](https://google.aip.dev/134); in particular:
+              # - The wildcard entry (**\***) is treated as a bad request
+              # - When the **field_mask** is omitted, instead of only updating the set
+              #   fields, the request is treated as a full update on all modifiable fields
               #
               # @overload update_release_config(request, options = nil)
               #   Pass arguments to `update_release_config` via a request object, either of type
@@ -3166,7 +3281,6 @@ module Google
 
                 @dataform_stub.update_release_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3245,7 +3359,6 @@ module Google
 
                 @dataform_stub.delete_release_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3264,7 +3377,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload list_compilation_results(parent: nil, page_size: nil, page_token: nil)
+              # @overload list_compilation_results(parent: nil, page_size: nil, page_token: nil, order_by: nil, filter: nil)
               #   Pass arguments to `list_compilation_results` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -3280,13 +3393,20 @@ module Google
               #     Optional. Page token received from a previous `ListCompilationResults`
               #     call. Provide this to retrieve the subsequent page.
               #
-              #     When paginating, all other parameters provided to `ListCompilationResults`
-              #     must match the call that provided the page token.
+              #     When paginating, all other parameters provided to `ListCompilationResults`,
+              #     with the exception of `page_size`, must match the call that provided the
+              #     page token.
+              #   @param order_by [::String]
+              #     Optional. This field only supports ordering by `name` and `create_time`.
+              #     If unspecified, the server will choose the ordering.
+              #     If specified, the default order is ascending for the `name` field.
+              #   @param filter [::String]
+              #     Optional. Filter for the returned list.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::ListCompilationResultsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::CompilationResult>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Dataform::V1beta1::ListCompilationResultsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::CompilationResult>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -3338,8 +3458,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @dataform_stub.list_compilation_results request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :list_compilation_results, "compilation_results", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3418,7 +3539,6 @@ module Google
 
                 @dataform_stub.get_compilation_result request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3500,7 +3620,6 @@ module Google
 
                 @dataform_stub.create_compilation_result request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3536,8 +3655,8 @@ module Google
               #     subsequent page.
               #
               #     When paginating, all other parameters provided to
-              #     `QueryCompilationResultActions` must match the call that provided the page
-              #     token.
+              #     `QueryCompilationResultActions`, with the exception of `page_size`, must
+              #     match the call that provided the page token.
               #   @param filter [::String]
               #     Optional. Optional filter for the returned list. Filtering is only
               #     currently supported on the `file_path` field.
@@ -3599,7 +3718,7 @@ module Google
                 @dataform_stub.query_compilation_result_actions request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :query_compilation_result_actions, "compilation_result_actions", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3634,13 +3753,14 @@ module Google
               #     Optional. Page token received from a previous `ListWorkflowConfigs` call.
               #     Provide this to retrieve the subsequent page.
               #
-              #     When paginating, all other parameters provided to `ListWorkflowConfigs`
-              #     must match the call that provided the page token.
+              #     When paginating, all other parameters provided to `ListWorkflowConfigs`,
+              #     with the exception of `page_size`, must match the call that provided the
+              #     page token.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::ListWorkflowConfigsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::WorkflowConfig>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Dataform::V1beta1::ListWorkflowConfigsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::WorkflowConfig>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -3692,8 +3812,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @dataform_stub.list_workflow_configs request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :list_workflow_configs, "workflow_configs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3772,7 +3893,6 @@ module Google
 
                 @dataform_stub.get_workflow_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3857,7 +3977,6 @@ module Google
 
                 @dataform_stub.create_workflow_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3865,6 +3984,12 @@ module Google
 
               ##
               # Updates a single WorkflowConfig.
+              #
+              # **Note:** This method does not fully implement
+              # [AIP-134](https://google.aip.dev/134); in particular:
+              # - The wildcard entry (**\***) is treated as a bad request
+              # - When the **field_mask** is omitted, instead of only updating the set
+              #   fields, the request is treated as a full update on all modifiable fields
               #
               # @overload update_workflow_config(request, options = nil)
               #   Pass arguments to `update_workflow_config` via a request object, either of type
@@ -3939,7 +4064,6 @@ module Google
 
                 @dataform_stub.update_workflow_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4018,7 +4142,6 @@ module Google
 
                 @dataform_stub.delete_workflow_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4053,8 +4176,9 @@ module Google
               #     Optional. Page token received from a previous `ListWorkflowInvocations`
               #     call. Provide this to retrieve the subsequent page.
               #
-              #     When paginating, all other parameters provided to `ListWorkflowInvocations`
-              #     must match the call that provided the page token.
+              #     When paginating, all other parameters provided to
+              #     `ListWorkflowInvocations`, with the exception of `page_size`, must match
+              #     the call that provided the page token.
               #   @param order_by [::String]
               #     Optional. This field only supports ordering by `name`. If unspecified, the
               #     server will choose the ordering. If specified, the default order is
@@ -4062,10 +4186,10 @@ module Google
               #   @param filter [::String]
               #     Optional. Filter for the returned list.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::ListWorkflowInvocationsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::WorkflowInvocation>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Dataform::V1beta1::ListWorkflowInvocationsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::WorkflowInvocation>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -4117,8 +4241,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @dataform_stub.list_workflow_invocations request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :list_workflow_invocations, "workflow_invocations", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4197,7 +4322,6 @@ module Google
 
                 @dataform_stub.get_workflow_invocation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4279,7 +4403,6 @@ module Google
 
                 @dataform_stub.create_workflow_invocation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4358,7 +4481,6 @@ module Google
 
                 @dataform_stub.delete_workflow_invocation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4385,10 +4507,10 @@ module Google
               #   @param name [::String]
               #     Required. The workflow invocation resource's name.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::CancelWorkflowInvocationResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Protobuf::Empty]
+              # @return [::Google::Cloud::Dataform::V1beta1::CancelWorkflowInvocationResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -4404,7 +4526,7 @@ module Google
               #   # Call the cancel_workflow_invocation method.
               #   result = client.cancel_workflow_invocation request
               #
-              #   # The returned object is of type Google::Protobuf::Empty.
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::CancelWorkflowInvocationResponse.
               #   p result
               #
               def cancel_workflow_invocation request, options = nil
@@ -4437,7 +4559,6 @@ module Google
 
                 @dataform_stub.cancel_workflow_invocation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4473,8 +4594,8 @@ module Google
               #     subsequent page.
               #
               #     When paginating, all other parameters provided to
-              #     `QueryWorkflowInvocationActions` must match the call that provided the page
-              #     token.
+              #     `QueryWorkflowInvocationActions`, with the exception of `page_size`, must
+              #     match the call that provided the page token.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Dataform::V1beta1::WorkflowInvocationAction>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -4533,7 +4654,171 @@ module Google
                 @dataform_stub.query_workflow_invocation_actions request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataform_stub, :query_workflow_invocation_actions, "workflow_invocation_actions", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Get default config for a given project and location.
+              #
+              # @overload get_config(request, options = nil)
+              #   Pass arguments to `get_config` via a request object, either of type
+              #   {::Google::Cloud::Dataform::V1beta1::GetConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dataform::V1beta1::GetConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_config(name: nil)
+              #   Pass arguments to `get_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The config name.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::Config]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dataform::V1beta1::Config]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dataform/v1beta1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dataform::V1beta1::Dataform::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dataform::V1beta1::GetConfigRequest.new
+              #
+              #   # Call the get_config method.
+              #   result = client.get_config request
+              #
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::Config.
+              #   p result
+              #
+              def get_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dataform::V1beta1::GetConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dataform::V1beta1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dataform_stub.get_config request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Update default config for a given project and location.
+              #
+              # **Note:** This method does not fully implement
+              # [AIP-134](https://google.aip.dev/134); in particular:
+              # - The wildcard entry (**\***) is treated as a bad request
+              # - When the **field_mask** is omitted, instead of only updating the set
+              #   fields, the request is treated as a full update on all modifiable fields
+              #
+              # @overload update_config(request, options = nil)
+              #   Pass arguments to `update_config` via a request object, either of type
+              #   {::Google::Cloud::Dataform::V1beta1::UpdateConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::Dataform::V1beta1::UpdateConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_config(config: nil, update_mask: nil)
+              #   Pass arguments to `update_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param config [::Google::Cloud::Dataform::V1beta1::Config, ::Hash]
+              #     Required. The config to update.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Optional. Specifies the fields to be updated in the config.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::Dataform::V1beta1::Config]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::Dataform::V1beta1::Config]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/dataform/v1beta1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::Dataform::V1beta1::Dataform::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::Dataform::V1beta1::UpdateConfigRequest.new
+              #
+              #   # Call the update_config method.
+              #   result = client.update_config request
+              #
+              #   # The returned object is of type Google::Cloud::Dataform::V1beta1::Config.
+              #   p result
+              #
+              def update_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Dataform::V1beta1::UpdateConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::Dataform::V1beta1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dataform_stub.update_config request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4581,6 +4866,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -4613,6 +4905,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -4641,6 +4938,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -4800,6 +5098,11 @@ module Google
                   #
                   attr_reader :query_directory_contents
                   ##
+                  # RPC-specific configuration for `search_files`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :search_files
+                  ##
                   # RPC-specific configuration for `make_directory`
                   # @return [::Gapic::Config::Method]
                   #
@@ -4934,6 +5237,16 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :query_workflow_invocation_actions
+                  ##
+                  # RPC-specific configuration for `get_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_config
+                  ##
+                  # RPC-specific configuration for `update_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_config
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -4985,6 +5298,8 @@ module Google
                     @fetch_file_diff = ::Gapic::Config::Method.new fetch_file_diff_config
                     query_directory_contents_config = parent_rpcs.query_directory_contents if parent_rpcs.respond_to? :query_directory_contents
                     @query_directory_contents = ::Gapic::Config::Method.new query_directory_contents_config
+                    search_files_config = parent_rpcs.search_files if parent_rpcs.respond_to? :search_files
+                    @search_files = ::Gapic::Config::Method.new search_files_config
                     make_directory_config = parent_rpcs.make_directory if parent_rpcs.respond_to? :make_directory
                     @make_directory = ::Gapic::Config::Method.new make_directory_config
                     remove_directory_config = parent_rpcs.remove_directory if parent_rpcs.respond_to? :remove_directory
@@ -5039,6 +5354,10 @@ module Google
                     @cancel_workflow_invocation = ::Gapic::Config::Method.new cancel_workflow_invocation_config
                     query_workflow_invocation_actions_config = parent_rpcs.query_workflow_invocation_actions if parent_rpcs.respond_to? :query_workflow_invocation_actions
                     @query_workflow_invocation_actions = ::Gapic::Config::Method.new query_workflow_invocation_actions_config
+                    get_config_config = parent_rpcs.get_config if parent_rpcs.respond_to? :get_config
+                    @get_config = ::Gapic::Config::Method.new get_config_config
+                    update_config_config = parent_rpcs.update_config if parent_rpcs.respond_to? :update_config
+                    @update_config = ::Gapic::Config::Method.new update_config_config
 
                     yield self if block_given?
                   end

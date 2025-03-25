@@ -184,8 +184,28 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @alert_policy_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @alert_policy_service_stub.logger
             end
 
             # Service calls
@@ -221,24 +241,25 @@ module Google
             #     {::Google::Cloud::Monitoring::V3::AlertPolicyService::Client#get_alert_policy GetAlertPolicy}
             #     operation, instead.
             #   @param filter [::String]
-            #     If provided, this field specifies the criteria that must be met by
-            #     alert policies to be included in the response.
+            #     Optional. If provided, this field specifies the criteria that must be met
+            #     by alert policies to be included in the response.
             #
             #     For more details, see [sorting and
             #     filtering](https://cloud.google.com/monitoring/api/v3/sorting-and-filtering).
             #   @param order_by [::String]
-            #     A comma-separated list of fields by which to sort the result. Supports
-            #     the same set of field references as the `filter` field. Entries can be
-            #     prefixed with a minus sign to sort by the field in descending order.
+            #     Optional. A comma-separated list of fields by which to sort the result.
+            #     Supports the same set of field references as the `filter` field. Entries
+            #     can be prefixed with a minus sign to sort by the field in descending order.
             #
             #     For more details, see [sorting and
             #     filtering](https://cloud.google.com/monitoring/api/v3/sorting-and-filtering).
             #   @param page_size [::Integer]
-            #     The maximum number of results to return in a single response.
+            #     Optional. The maximum number of results to return in a single response.
             #   @param page_token [::String]
-            #     If this field is not empty then it must contain the `nextPageToken` value
-            #     returned by a previous call to this method.  Using this field causes the
-            #     method to return more results from the previous method call.
+            #     Optional. If this field is not empty then it must contain the
+            #     `nextPageToken` value returned by a previous call to this method.  Using
+            #     this field causes the method to return more results from the previous
+            #     method call.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::PagedEnumerable<::Google::Cloud::Monitoring::V3::AlertPolicy>]
@@ -304,7 +325,7 @@ module Google
               @alert_policy_service_stub.call_rpc :list_alert_policies, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @alert_policy_service_stub, :list_alert_policies, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -392,7 +413,6 @@ module Google
 
               @alert_policy_service_stub.call_rpc :get_alert_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -498,7 +518,6 @@ module Google
 
               @alert_policy_service_stub.call_rpc :create_alert_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -592,7 +611,6 @@ module Google
 
               @alert_policy_service_stub.call_rpc :delete_alert_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -710,7 +728,6 @@ module Google
 
               @alert_policy_service_stub.call_rpc :update_alert_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -760,6 +777,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -799,6 +823,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -823,6 +852,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

@@ -1,5 +1,42 @@
 # Changelog
 
+### 0.14.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Formatting update ([#28211](https://github.com/googleapis/google-cloud-ruby/issues/28211)) 
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.13.0 (2025-01-08)
+
+#### Features
+
+* Support built-in Cloud Logging and Monitoring for Attached Clusters 
+* Support tags on AttachedCluster resources 
+
+### 0.12.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.11.0 (2024-09-19)
+
+#### Features
+
+* An optional field `kubelet_config` in message `.google.cloud.gkemulticloud.v1.AwsNodePool` is added 
+* An optional field `security_posture_config` in message `.google.cloud.gkemulticloud.v1.AttachedCluster` is added ([#27330](https://github.com/googleapis/google-cloud-ruby/issues/27330)) 
+
+### 0.10.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
 ### 0.10.0 (2024-05-15)
 
 #### Features

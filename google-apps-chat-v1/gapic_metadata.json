@@ -60,6 +60,11 @@
                 "list_spaces"
               ]
             },
+            "SearchSpaces": {
+              "methods": [
+                "search_spaces"
+              ]
+            },
             "GetSpace": {
               "methods": [
                 "get_space"
@@ -138,6 +143,26 @@
             "GetThreadReadState": {
               "methods": [
                 "get_thread_read_state"
+              ]
+            },
+            "GetSpaceEvent": {
+              "methods": [
+                "get_space_event"
+              ]
+            },
+            "ListSpaceEvents": {
+              "methods": [
+                "list_space_events"
+              ]
+            },
+            "GetSpaceNotificationSetting": {
+              "methods": [
+                "get_space_notification_setting"
+              ]
+            },
+            "UpdateSpaceNotificationSetting": {
+              "methods": [
+                "update_space_notification_setting"
               ]
             }
           }

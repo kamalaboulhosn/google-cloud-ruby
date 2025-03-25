@@ -201,8 +201,28 @@ module Google
                     endpoint: @config.endpoint,
                     endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                     universe_domain: @config.universe_domain,
-                    credentials: credentials
+                    credentials: credentials,
+                    logger: @config.logger
                   )
+
+                  @delivery_service_stub.logger(stub: true)&.info do |entry|
+                    entry.set_system_name
+                    entry.set_service
+                    entry.message = "Created client for #{entry.service}"
+                    entry.set_credentials_fields credentials
+                    entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                    entry.set "defaultTimeout", @config.timeout if @config.timeout
+                    entry.set "quotaProject", @quota_project_id if @quota_project_id
+                  end
+                end
+
+                ##
+                # The logger used for request/response debug logging.
+                #
+                # @return [Logger]
+                #
+                def logger
+                  @delivery_service_stub.logger
                 end
 
                 # Service calls
@@ -244,6 +264,7 @@ module Google
                 #     Required. The `DeliveryVehicle` entity to create. When creating a new
                 #     delivery vehicle, you may set the following optional fields:
                 #
+                #     * type
                 #     * last_location
                 #     * attributes
                 #
@@ -302,7 +323,6 @@ module Google
 
                   @delivery_service_stub.create_delivery_vehicle request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -386,7 +406,92 @@ module Google
 
                   @delivery_service_stub.get_delivery_vehicle request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
+                  end
+                rescue ::Gapic::Rest::Error => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Deletes a DeliveryVehicle from the Fleet Engine.
+                #
+                # Returns FAILED_PRECONDITION if the DeliveryVehicle has OPEN Tasks
+                # assigned to it.
+                #
+                # @overload delete_delivery_vehicle(request, options = nil)
+                #   Pass arguments to `delete_delivery_vehicle` via a request object, either of type
+                #   {::Google::Maps::FleetEngine::Delivery::V1::DeleteDeliveryVehicleRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Maps::FleetEngine::Delivery::V1::DeleteDeliveryVehicleRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                #
+                # @overload delete_delivery_vehicle(header: nil, name: nil)
+                #   Pass arguments to `delete_delivery_vehicle` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param header [::Google::Maps::FleetEngine::Delivery::V1::DeliveryRequestHeader, ::Hash]
+                #     Optional. The standard Delivery API request header.
+                #   @param name [::String]
+                #     Required. Must be in the format
+                #     `providers/{provider}/deliveryVehicles/{delivery_vehicle}`.
+                #     The `provider` must be the Google Cloud Project ID. For example,
+                #     `sample-cloud-project`.
+                # @yield [result, operation] Access the result along with the TransportOperation object
+                # @yieldparam result [::Google::Protobuf::Empty]
+                # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                #
+                # @return [::Google::Protobuf::Empty]
+                #
+                # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                #
+                # @example Basic example
+                #   require "google/maps/fleet_engine/delivery/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Maps::FleetEngine::Delivery::V1::DeleteDeliveryVehicleRequest.new
+                #
+                #   # Call the delete_delivery_vehicle method.
+                #   result = client.delete_delivery_vehicle request
+                #
+                #   # The returned object is of type Google::Protobuf::Empty.
+                #   p result
+                #
+                def delete_delivery_vehicle request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Maps::FleetEngine::Delivery::V1::DeleteDeliveryVehicleRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  call_metadata = @config.rpcs.delete_delivery_vehicle.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Maps::FleetEngine::Delivery::V1::VERSION,
+                    transports_version_send: [:rest]
+
+                  call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  options.apply_defaults timeout:      @config.rpcs.delete_delivery_vehicle.timeout,
+                                         metadata:     call_metadata,
+                                         retry_policy: @config.rpcs.delete_delivery_vehicle.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @delivery_service_stub.delete_delivery_vehicle request, options do |result, operation|
+                    yield result, operation if block_given?
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -395,9 +500,9 @@ module Google
                 ##
                 # Writes updated `DeliveryVehicle` data to Fleet Engine, and assigns
                 # `Tasks` to the `DeliveryVehicle`. You cannot update the name of the
-                # `DeliveryVehicle`. You *can* update `remaining_vehicle_journey_segments`
-                # though, but it must contain all of the `VehicleJourneySegment`s currently
-                # on the `DeliveryVehicle`. The `task_id`s are retrieved from
+                # `DeliveryVehicle`. You *can* update `remaining_vehicle_journey_segments`,
+                # but it must contain all of the `VehicleJourneySegment`s to be persisted on
+                # the `DeliveryVehicle`. The `task_id`s are retrieved from
                 # `remaining_vehicle_journey_segments`, and their corresponding `Tasks` are
                 # assigned to the `DeliveryVehicle` if they have not yet been assigned.
                 #
@@ -480,7 +585,6 @@ module Google
 
                   @delivery_service_stub.update_delivery_vehicle request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -571,7 +675,6 @@ module Google
 
                   @delivery_service_stub.batch_create_tasks request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -622,6 +725,12 @@ module Google
                 #     tasks, but required for all other task types)
                 #     * `planned_location` (optional for `UNAVAILABLE` tasks)
                 #     * `task_duration`
+                #
+                #     The following fields can be optionally set:
+                #
+                #     * `target_time_window`
+                #     * `task_tracking_view_config`
+                #     * `attributes`
                 #
                 #     Note: The Task's `name` field is ignored. All other Task fields must not be
                 #     set; otherwise, an error is returned.
@@ -678,7 +787,6 @@ module Google
 
                   @delivery_service_stub.create_task request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -761,7 +869,91 @@ module Google
 
                   @delivery_service_stub.get_task request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
+                  end
+                rescue ::Gapic::Rest::Error => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Deletes a single Task.
+                #
+                # Returns FAILED_PRECONDITION if the Task is OPEN and assigned to a
+                # DeliveryVehicle.
+                #
+                # @overload delete_task(request, options = nil)
+                #   Pass arguments to `delete_task` via a request object, either of type
+                #   {::Google::Maps::FleetEngine::Delivery::V1::DeleteTaskRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Maps::FleetEngine::Delivery::V1::DeleteTaskRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                #
+                # @overload delete_task(header: nil, name: nil)
+                #   Pass arguments to `delete_task` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param header [::Google::Maps::FleetEngine::Delivery::V1::DeliveryRequestHeader, ::Hash]
+                #     Optional. The standard Delivery API request header.
+                #   @param name [::String]
+                #     Required. Must be in the format `providers/{provider}/tasks/{task}`. The
+                #     `provider` must be the Google Cloud Project ID. For example,
+                #     `sample-cloud-project`.
+                # @yield [result, operation] Access the result along with the TransportOperation object
+                # @yieldparam result [::Google::Protobuf::Empty]
+                # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                #
+                # @return [::Google::Protobuf::Empty]
+                #
+                # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                #
+                # @example Basic example
+                #   require "google/maps/fleet_engine/delivery/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Maps::FleetEngine::Delivery::V1::DeleteTaskRequest.new
+                #
+                #   # Call the delete_task method.
+                #   result = client.delete_task request
+                #
+                #   # The returned object is of type Google::Protobuf::Empty.
+                #   p result
+                #
+                def delete_task request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Maps::FleetEngine::Delivery::V1::DeleteTaskRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  call_metadata = @config.rpcs.delete_task.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Maps::FleetEngine::Delivery::V1::VERSION,
+                    transports_version_send: [:rest]
+
+                  call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  options.apply_defaults timeout:      @config.rpcs.delete_task.timeout,
+                                         metadata:     call_metadata,
+                                         retry_policy: @config.rpcs.delete_task.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @delivery_service_stub.delete_task request, options do |result, operation|
+                    yield result, operation if block_given?
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -863,7 +1055,6 @@ module Google
 
                   @delivery_service_stub.update_task request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -908,7 +1099,7 @@ module Google
                 #     http://aip.dev/160 for examples of filter syntax. If you don't specify a
                 #     value, or if you filter on an empty string, then all Tasks are returned.
                 #     For information about the Task properties that you can filter on, see [List
-                #     tasks](https://developers.google.com/maps/documentation/transportation-logistics/last-mile-fleet-solution/fleet-performance/fleet-engine/deliveries_api#list-tasks).
+                #     tasks](https://developers.google.com/maps/documentation/mobility/fleet-engine/journeys/tasks/find-tasks#filter_listed_tasks).
                 # @yield [result, operation] Access the result along with the TransportOperation object
                 # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Maps::FleetEngine::Delivery::V1::Task>]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -967,7 +1158,7 @@ module Google
                   @delivery_service_stub.list_tasks request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @delivery_service_stub, :list_tasks, "tasks", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1052,7 +1243,6 @@ module Google
 
                   @delivery_service_stub.get_task_tracking_info request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1172,7 +1362,7 @@ module Google
                   @delivery_service_stub.list_delivery_vehicles request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @delivery_service_stub, :list_delivery_vehicles, "delivery_vehicles", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1220,6 +1410,13 @@ module Google
                 #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
                 #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -1252,6 +1449,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -1273,6 +1475,7 @@ module Google
                   config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                   config_attr :quota_project, nil, ::String, nil
                   config_attr :universe_domain, nil, ::String, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil
@@ -1322,6 +1525,11 @@ module Google
                     #
                     attr_reader :get_delivery_vehicle
                     ##
+                    # RPC-specific configuration for `delete_delivery_vehicle`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :delete_delivery_vehicle
+                    ##
                     # RPC-specific configuration for `update_delivery_vehicle`
                     # @return [::Gapic::Config::Method]
                     #
@@ -1341,6 +1549,11 @@ module Google
                     # @return [::Gapic::Config::Method]
                     #
                     attr_reader :get_task
+                    ##
+                    # RPC-specific configuration for `delete_task`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :delete_task
                     ##
                     # RPC-specific configuration for `update_task`
                     # @return [::Gapic::Config::Method]
@@ -1368,6 +1581,8 @@ module Google
                       @create_delivery_vehicle = ::Gapic::Config::Method.new create_delivery_vehicle_config
                       get_delivery_vehicle_config = parent_rpcs.get_delivery_vehicle if parent_rpcs.respond_to? :get_delivery_vehicle
                       @get_delivery_vehicle = ::Gapic::Config::Method.new get_delivery_vehicle_config
+                      delete_delivery_vehicle_config = parent_rpcs.delete_delivery_vehicle if parent_rpcs.respond_to? :delete_delivery_vehicle
+                      @delete_delivery_vehicle = ::Gapic::Config::Method.new delete_delivery_vehicle_config
                       update_delivery_vehicle_config = parent_rpcs.update_delivery_vehicle if parent_rpcs.respond_to? :update_delivery_vehicle
                       @update_delivery_vehicle = ::Gapic::Config::Method.new update_delivery_vehicle_config
                       batch_create_tasks_config = parent_rpcs.batch_create_tasks if parent_rpcs.respond_to? :batch_create_tasks
@@ -1376,6 +1591,8 @@ module Google
                       @create_task = ::Gapic::Config::Method.new create_task_config
                       get_task_config = parent_rpcs.get_task if parent_rpcs.respond_to? :get_task
                       @get_task = ::Gapic::Config::Method.new get_task_config
+                      delete_task_config = parent_rpcs.delete_task if parent_rpcs.respond_to? :delete_task
+                      @delete_task = ::Gapic::Config::Method.new delete_task_config
                       update_task_config = parent_rpcs.update_task if parent_rpcs.respond_to? :update_task
                       @update_task = ::Gapic::Config::Method.new update_task_config
                       list_tasks_config = parent_rpcs.list_tasks if parent_rpcs.respond_to? :list_tasks

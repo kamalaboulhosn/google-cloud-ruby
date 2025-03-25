@@ -21,7 +21,7 @@ module Google
   module Cloud
     module ServiceHealth
       module V1
-        VERSION = "0.2.0"
+        VERSION = "2.0.0"
       end
     end
   end

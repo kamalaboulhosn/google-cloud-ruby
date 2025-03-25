@@ -30,6 +30,8 @@ module Google
             ##
             # REST client for the DataCatalog service.
             #
+            # Deprecated: Please use Dataplex Catalog instead.
+            #
             # Data Catalog API service allows you to discover, understand, and manage
             # your data.
             #
@@ -50,6 +52,7 @@ module Google
               #
               # See {::Google::Cloud::DataCatalog::V1::DataCatalog::Rest::Client::Configuration}
               # for a description of the configuration fields.
+              # @deprecated This service is deprecated and may be removed in the next major version update.
               #
               # @example
               #
@@ -164,14 +167,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @data_catalog_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @data_catalog_stub.endpoint
                   config.universe_domain = @data_catalog_stub.universe_domain
+                  config.logger = @data_catalog_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -188,6 +203,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @data_catalog_stub.logger
+              end
 
               # Service calls
 
@@ -281,10 +305,10 @@ module Google
               #     The only allowed `order_by` criteria for admin_search mode is `default`.
               #     Using this flags guarantees a full recall of the search results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::DataCatalog::V1::SearchCatalogResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::DataCatalog::V1::SearchCatalogResult>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::DataCatalog::V1::SearchCatalogResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::DataCatalog::V1::SearchCatalogResult>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -336,8 +360,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @data_catalog_stub.search_catalog request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @data_catalog_stub, :search_catalog, "results", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -454,7 +479,6 @@ module Google
 
                 @data_catalog_stub.create_entry_group request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -535,7 +559,6 @@ module Google
 
                 @data_catalog_stub.get_entry_group request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -625,7 +648,6 @@ module Google
 
                 @data_catalog_stub.update_entry_group request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -711,7 +733,6 @@ module Google
 
                 @data_catalog_stub.delete_entry_group request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -805,7 +826,7 @@ module Google
                 @data_catalog_stub.list_entry_groups request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @data_catalog_stub, :list_entry_groups, "entry_groups", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -905,7 +926,6 @@ module Google
 
                 @data_catalog_stub.create_entry request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1019,7 +1039,6 @@ module Google
 
                 @data_catalog_stub.update_entry request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1107,7 +1126,6 @@ module Google
 
                 @data_catalog_stub.delete_entry request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1186,7 +1204,6 @@ module Google
 
                 @data_catalog_stub.get_entry request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1221,6 +1238,8 @@ module Google
               #
               #      * `//bigquery.googleapis.com/projects/{PROJECT_ID}/datasets/{DATASET_ID}/tables/{TABLE_ID}`
               #      * `//pubsub.googleapis.com/projects/{PROJECT_ID}/topics/{TOPIC_ID}`
+              #
+              #     Note: The following fields are mutually exclusive: `linked_resource`, `sql_resource`, `fully_qualified_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param sql_resource [::String]
               #     The SQL name of the entry. SQL names are case-sensitive.
               #
@@ -1235,6 +1254,8 @@ module Google
               #     Identifiers (`*_ID`) should comply with the
               #     [Lexical structure in Standard SQL]
               #     (https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical).
+              #
+              #     Note: The following fields are mutually exclusive: `sql_resource`, `linked_resource`, `fully_qualified_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param fully_qualified_name [::String]
               #     [Fully Qualified Name
               #     (FQN)](https://cloud.google.com//data-catalog/docs/fully-qualified-names)
@@ -1253,6 +1274,8 @@ module Google
               #     Example for a DPMS table:
               #
               #     `dataproc_metastore:{PROJECT_ID}.{LOCATION_ID}.{INSTANCE_ID}.{DATABASE_ID}.{TABLE_ID}`
+              #
+              #     Note: The following fields are mutually exclusive: `fully_qualified_name`, `linked_resource`, `sql_resource`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param project [::String]
               #     Project where the lookup should be performed. Required to lookup
               #     entry that is not a part of `DPMS` or `DATAPLEX` `integrated_system`
@@ -1314,7 +1337,6 @@ module Google
 
                 @data_catalog_stub.lookup_entry request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1416,7 +1438,7 @@ module Google
                 @data_catalog_stub.list_entries request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @data_catalog_stub, :list_entries, "entries", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1501,7 +1523,6 @@ module Google
 
                 @data_catalog_stub.modify_entry_overview request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1586,7 +1607,6 @@ module Google
 
                 @data_catalog_stub.modify_entry_contacts request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1679,7 +1699,6 @@ module Google
 
                 @data_catalog_stub.create_tag_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1758,7 +1777,6 @@ module Google
 
                 @data_catalog_stub.get_tag_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1855,7 +1873,6 @@ module Google
 
                 @data_catalog_stub.update_tag_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1942,7 +1959,6 @@ module Google
 
                 @data_catalog_stub.delete_tag_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2037,7 +2053,6 @@ module Google
 
                 @data_catalog_stub.create_tag_template_field request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2142,7 +2157,6 @@ module Google
 
                 @data_catalog_stub.update_tag_template_field request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2228,7 +2242,6 @@ module Google
 
                 @data_catalog_stub.rename_tag_template_field request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2312,7 +2325,6 @@ module Google
 
                 @data_catalog_stub.rename_tag_template_field_enum_value request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2400,7 +2412,6 @@ module Google
 
                 @data_catalog_stub.delete_tag_template_field request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2498,7 +2509,6 @@ module Google
 
                 @data_catalog_stub.create_tag request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2584,7 +2594,6 @@ module Google
 
                 @data_catalog_stub.update_tag request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2663,7 +2672,6 @@ module Google
 
                 @data_catalog_stub.delete_tag request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2758,7 +2766,7 @@ module Google
                 @data_catalog_stub.list_tags request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @data_catalog_stub, :list_tags, "tags", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2868,7 +2876,7 @@ module Google
                 @data_catalog_stub.reconcile_tags request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2948,7 +2956,6 @@ module Google
 
                 @data_catalog_stub.star_entry request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3028,7 +3035,6 @@ module Google
 
                 @data_catalog_stub.unstar_entry request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3135,7 +3141,6 @@ module Google
 
                 @data_catalog_stub.set_iam_policy request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3238,7 +3243,6 @@ module Google
 
                 @data_catalog_stub.get_iam_policy request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3336,7 +3340,6 @@ module Google
 
                 @data_catalog_stub.test_iam_permissions request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3445,7 +3448,256 @@ module Google
                 @data_catalog_stub.import_entries request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Sets the configuration related to the migration to Dataplex for an
+              # organization or project.
+              #
+              # @overload set_config(request, options = nil)
+              #   Pass arguments to `set_config` via a request object, either of type
+              #   {::Google::Cloud::DataCatalog::V1::SetConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DataCatalog::V1::SetConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload set_config(name: nil, tag_template_migration: nil, catalog_ui_experience: nil)
+              #   Pass arguments to `set_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The organization or project whose config is being specified.
+              #   @param tag_template_migration [::Google::Cloud::DataCatalog::V1::TagTemplateMigration]
+              #     Opt-in status for the migration of Tag Templates to Dataplex.
+              #
+              #     Note: The following fields are mutually exclusive: `tag_template_migration`, `catalog_ui_experience`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param catalog_ui_experience [::Google::Cloud::DataCatalog::V1::CatalogUIExperience]
+              #     Opt-in status for the UI switch to Dataplex.
+              #
+              #     Note: The following fields are mutually exclusive: `catalog_ui_experience`, `tag_template_migration`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DataCatalog::V1::MigrationConfig]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DataCatalog::V1::MigrationConfig]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/data_catalog/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DataCatalog::V1::DataCatalog::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DataCatalog::V1::SetConfigRequest.new
+              #
+              #   # Call the set_config method.
+              #   result = client.set_config request
+              #
+              #   # The returned object is of type Google::Cloud::DataCatalog::V1::MigrationConfig.
+              #   p result
+              #
+              def set_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DataCatalog::V1::SetConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.set_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DataCatalog::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.set_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.set_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @data_catalog_stub.set_config request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Retrieves the configuration related to the migration from Data Catalog to
+              # Dataplex for a specific organization, including all the projects under it
+              # which have a separate configuration set.
+              #
+              # @overload retrieve_config(request, options = nil)
+              #   Pass arguments to `retrieve_config` via a request object, either of type
+              #   {::Google::Cloud::DataCatalog::V1::RetrieveConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DataCatalog::V1::RetrieveConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload retrieve_config(name: nil)
+              #   Pass arguments to `retrieve_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The organization whose config is being retrieved.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DataCatalog::V1::OrganizationConfig]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DataCatalog::V1::OrganizationConfig]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/data_catalog/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DataCatalog::V1::DataCatalog::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DataCatalog::V1::RetrieveConfigRequest.new
+              #
+              #   # Call the retrieve_config method.
+              #   result = client.retrieve_config request
+              #
+              #   # The returned object is of type Google::Cloud::DataCatalog::V1::OrganizationConfig.
+              #   p result
+              #
+              def retrieve_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DataCatalog::V1::RetrieveConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.retrieve_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DataCatalog::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.retrieve_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.retrieve_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @data_catalog_stub.retrieve_config request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Retrieves the effective configuration related to the migration from Data
+              # Catalog to Dataplex for a specific organization or project. If there is no
+              # specific configuration set for the resource, the setting is checked
+              # hierarchicahlly through the ancestors of the resource, starting from the
+              # resource itself.
+              #
+              # @overload retrieve_effective_config(request, options = nil)
+              #   Pass arguments to `retrieve_effective_config` via a request object, either of type
+              #   {::Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload retrieve_effective_config(name: nil)
+              #   Pass arguments to `retrieve_effective_config` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The resource whose effective config is being retrieved.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DataCatalog::V1::MigrationConfig]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DataCatalog::V1::MigrationConfig]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/data_catalog/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DataCatalog::V1::DataCatalog::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest.new
+              #
+              #   # Call the retrieve_effective_config method.
+              #   result = client.retrieve_effective_config request
+              #
+              #   # The returned object is of type Google::Cloud::DataCatalog::V1::MigrationConfig.
+              #   p result
+              #
+              def retrieve_effective_config request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.retrieve_effective_config.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DataCatalog::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.retrieve_effective_config.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.retrieve_effective_config.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @data_catalog_stub.retrieve_effective_config request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3493,6 +3745,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -3525,6 +3784,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -3546,6 +3810,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -3754,6 +4019,21 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :import_entries
+                  ##
+                  # RPC-specific configuration for `set_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :set_config
+                  ##
+                  # RPC-specific configuration for `retrieve_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :retrieve_config
+                  ##
+                  # RPC-specific configuration for `retrieve_effective_config`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :retrieve_effective_config
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -3825,6 +4105,12 @@ module Google
                     @test_iam_permissions = ::Gapic::Config::Method.new test_iam_permissions_config
                     import_entries_config = parent_rpcs.import_entries if parent_rpcs.respond_to? :import_entries
                     @import_entries = ::Gapic::Config::Method.new import_entries_config
+                    set_config_config = parent_rpcs.set_config if parent_rpcs.respond_to? :set_config
+                    @set_config = ::Gapic::Config::Method.new set_config_config
+                    retrieve_config_config = parent_rpcs.retrieve_config if parent_rpcs.respond_to? :retrieve_config
+                    @retrieve_config = ::Gapic::Config::Method.new retrieve_config_config
+                    retrieve_effective_config_config = parent_rpcs.retrieve_effective_config if parent_rpcs.respond_to? :retrieve_effective_config
+                    @retrieve_effective_config = ::Gapic::Config::Method.new retrieve_effective_config_config
 
                     yield self if block_given?
                   end

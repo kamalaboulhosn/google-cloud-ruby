@@ -1,5 +1,29 @@
 # Release History
 
+### 1.1.0 (2025-03-04)
+
+#### Features
+
+* Update minimum Ruby version to 3.0 ([#29261](https://github.com/googleapis/google-cloud-ruby/issues/29261)) 
+
+### 1.0.1 (2024-12-12)
+
+#### Bug Fixes
+
+* Ensure access token is fetched with recent googleauth versions in the non-api-key case ([#28096](https://github.com/googleapis/google-cloud-ruby/issues/28096)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.5.1 (2024-05-23)
+
+#### Bug Fixes
+
+* Update gemspec to work with Faraday 2.x ([#25907](https://github.com/googleapis/google-cloud-ruby/issues/25907)) 
+
 ### 0.5.0 (2024-03-10)
 
 #### Features

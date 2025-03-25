@@ -231,8 +231,28 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @spanner_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @spanner_stub.logger
             end
 
             # Service calls
@@ -337,7 +357,6 @@ module Google
 
               @spanner_stub.call_rpc :create_session, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -435,7 +454,6 @@ module Google
 
               @spanner_stub.call_rpc :batch_create_sessions, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -523,7 +541,6 @@ module Google
 
               @spanner_stub.call_rpc :get_session, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -633,7 +650,7 @@ module Google
               @spanner_stub.call_rpc :list_sessions, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @spanner_stub, :list_sessions, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -721,7 +738,6 @@ module Google
 
               @spanner_stub.call_rpc :delete_session, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -752,7 +768,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload execute_sql(session: nil, transaction: nil, sql: nil, params: nil, param_types: nil, resume_token: nil, query_mode: nil, partition_token: nil, seqno: nil, query_options: nil, request_options: nil, directed_read_options: nil, data_boost_enabled: nil)
+            # @overload execute_sql(session: nil, transaction: nil, sql: nil, params: nil, param_types: nil, resume_token: nil, query_mode: nil, partition_token: nil, seqno: nil, query_options: nil, request_options: nil, directed_read_options: nil, data_boost_enabled: nil, last_statement: nil)
             #   Pass arguments to `execute_sql` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -838,6 +854,16 @@ module Google
             #
             #     If the field is set to `true` but the request does not set
             #     `partition_token`, the API returns an `INVALID_ARGUMENT` error.
+            #   @param last_statement [::Boolean]
+            #     Optional. If set to true, this statement marks the end of the transaction.
+            #     The transaction should be committed or aborted after this statement
+            #     executes, and attempts to execute any other requests against this
+            #     transaction (including reads and queries) will be rejected.
+            #
+            #     For DML statements, setting this option may cause some error reporting to
+            #     be deferred until commit time (e.g. validation of unique constraints).
+            #     Given this, successful execution of a DML statement should not be assumed
+            #     until a subsequent Commit call completes successfully.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Spanner::V1::ResultSet]
@@ -898,7 +924,6 @@ module Google
 
               @spanner_stub.call_rpc :execute_sql, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -921,7 +946,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload execute_streaming_sql(session: nil, transaction: nil, sql: nil, params: nil, param_types: nil, resume_token: nil, query_mode: nil, partition_token: nil, seqno: nil, query_options: nil, request_options: nil, directed_read_options: nil, data_boost_enabled: nil)
+            # @overload execute_streaming_sql(session: nil, transaction: nil, sql: nil, params: nil, param_types: nil, resume_token: nil, query_mode: nil, partition_token: nil, seqno: nil, query_options: nil, request_options: nil, directed_read_options: nil, data_boost_enabled: nil, last_statement: nil)
             #   Pass arguments to `execute_streaming_sql` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1007,6 +1032,16 @@ module Google
             #
             #     If the field is set to `true` but the request does not set
             #     `partition_token`, the API returns an `INVALID_ARGUMENT` error.
+            #   @param last_statement [::Boolean]
+            #     Optional. If set to true, this statement marks the end of the transaction.
+            #     The transaction should be committed or aborted after this statement
+            #     executes, and attempts to execute any other requests against this
+            #     transaction (including reads and queries) will be rejected.
+            #
+            #     For DML statements, setting this option may cause some error reporting to
+            #     be deferred until commit time (e.g. validation of unique constraints).
+            #     Given this, successful execution of a DML statement should not be assumed
+            #     until a subsequent Commit call completes successfully.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Enumerable<::Google::Cloud::Spanner::V1::PartialResultSet>]
@@ -1070,7 +1105,6 @@ module Google
 
               @spanner_stub.call_rpc :execute_streaming_sql, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1100,7 +1134,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload execute_batch_dml(session: nil, transaction: nil, statements: nil, seqno: nil, request_options: nil)
+            # @overload execute_batch_dml(session: nil, transaction: nil, statements: nil, seqno: nil, request_options: nil, last_statements: nil)
             #   Pass arguments to `execute_batch_dml` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1131,6 +1165,16 @@ module Google
             #     handled requests will yield the same response as the first execution.
             #   @param request_options [::Google::Cloud::Spanner::V1::RequestOptions, ::Hash]
             #     Common options for this request.
+            #   @param last_statements [::Boolean]
+            #     Optional. If set to true, this request marks the end of the transaction.
+            #     The transaction should be committed or aborted after these statements
+            #     execute, and attempts to execute any other requests against this
+            #     transaction (including reads and queries) will be rejected.
+            #
+            #     Setting this option may cause some error reporting to be deferred until
+            #     commit time (e.g. validation of unique constraints). Given this, successful
+            #     execution of statements should not be assumed until a subsequent Commit
+            #     call completes successfully.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Spanner::V1::ExecuteBatchDmlResponse]
@@ -1191,7 +1235,6 @@ module Google
 
               @spanner_stub.call_rpc :execute_batch_dml, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1223,7 +1266,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload read(session: nil, transaction: nil, table: nil, index: nil, columns: nil, key_set: nil, limit: nil, resume_token: nil, partition_token: nil, request_options: nil, directed_read_options: nil, data_boost_enabled: nil)
+            # @overload read(session: nil, transaction: nil, table: nil, index: nil, columns: nil, key_set: nil, limit: nil, resume_token: nil, partition_token: nil, request_options: nil, directed_read_options: nil, data_boost_enabled: nil, order_by: nil, lock_hint: nil)
             #   Pass arguments to `read` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1288,6 +1331,17 @@ module Google
             #
             #     If the field is set to `true` but the request does not set
             #     `partition_token`, the API returns an `INVALID_ARGUMENT` error.
+            #   @param order_by [::Google::Cloud::Spanner::V1::ReadRequest::OrderBy]
+            #     Optional. Order for the returned rows.
+            #
+            #     By default, Spanner will return result rows in primary key order except for
+            #     PartitionRead requests. For applications that do not require rows to be
+            #     returned in primary key (`ORDER_BY_PRIMARY_KEY`) order, setting
+            #     `ORDER_BY_NO_ORDER` option allows Spanner to optimize row retrieval,
+            #     resulting in lower latencies in certain cases (e.g. bulk point lookups).
+            #   @param lock_hint [::Google::Cloud::Spanner::V1::ReadRequest::LockHint]
+            #     Optional. Lock Hint for the request, it can only be used with read-write
+            #     transactions.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Spanner::V1::ResultSet]
@@ -1348,7 +1402,6 @@ module Google
 
               @spanner_stub.call_rpc :read, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1371,7 +1424,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload streaming_read(session: nil, transaction: nil, table: nil, index: nil, columns: nil, key_set: nil, limit: nil, resume_token: nil, partition_token: nil, request_options: nil, directed_read_options: nil, data_boost_enabled: nil)
+            # @overload streaming_read(session: nil, transaction: nil, table: nil, index: nil, columns: nil, key_set: nil, limit: nil, resume_token: nil, partition_token: nil, request_options: nil, directed_read_options: nil, data_boost_enabled: nil, order_by: nil, lock_hint: nil)
             #   Pass arguments to `streaming_read` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1436,6 +1489,17 @@ module Google
             #
             #     If the field is set to `true` but the request does not set
             #     `partition_token`, the API returns an `INVALID_ARGUMENT` error.
+            #   @param order_by [::Google::Cloud::Spanner::V1::ReadRequest::OrderBy]
+            #     Optional. Order for the returned rows.
+            #
+            #     By default, Spanner will return result rows in primary key order except for
+            #     PartitionRead requests. For applications that do not require rows to be
+            #     returned in primary key (`ORDER_BY_PRIMARY_KEY`) order, setting
+            #     `ORDER_BY_NO_ORDER` option allows Spanner to optimize row retrieval,
+            #     resulting in lower latencies in certain cases (e.g. bulk point lookups).
+            #   @param lock_hint [::Google::Cloud::Spanner::V1::ReadRequest::LockHint]
+            #     Optional. Lock Hint for the request, it can only be used with read-write
+            #     transactions.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Enumerable<::Google::Cloud::Spanner::V1::PartialResultSet>]
@@ -1499,7 +1563,6 @@ module Google
 
               @spanner_stub.call_rpc :streaming_read, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1522,7 +1585,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload begin_transaction(session: nil, options: nil, request_options: nil)
+            # @overload begin_transaction(session: nil, options: nil, request_options: nil, mutation_key: nil)
             #   Pass arguments to `begin_transaction` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1537,6 +1600,13 @@ module Google
             #     request_options struct will not do anything. To set the priority for a
             #     transaction, set it on the reads and writes that are part of this
             #     transaction instead.
+            #   @param mutation_key [::Google::Cloud::Spanner::V1::Mutation, ::Hash]
+            #     Optional. Required for read-write transactions on a multiplexed session
+            #     that commit mutations but do not perform any reads or queries. Clients
+            #     should randomly select one of the mutations from the mutation set and send
+            #     it as a part of this request.
+            #     This feature is not yet supported and will result in an UNIMPLEMENTED
+            #     error.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Spanner::V1::Transaction]
@@ -1597,7 +1667,6 @@ module Google
 
               @spanner_stub.call_rpc :begin_transaction, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1629,7 +1698,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload commit(session: nil, transaction_id: nil, single_use_transaction: nil, mutations: nil, return_commit_stats: nil, max_commit_delay: nil, request_options: nil)
+            # @overload commit(session: nil, transaction_id: nil, single_use_transaction: nil, mutations: nil, return_commit_stats: nil, max_commit_delay: nil, request_options: nil, precommit_token: nil)
             #   Pass arguments to `commit` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1638,6 +1707,8 @@ module Google
             #     Required. The session in which the transaction to be committed is running.
             #   @param transaction_id [::String]
             #     Commit a previously-started transaction.
+            #
+            #     Note: The following fields are mutually exclusive: `transaction_id`, `single_use_transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param single_use_transaction [::Google::Cloud::Spanner::V1::TransactionOptions, ::Hash]
             #     Execute mutations in a temporary transaction. Note that unlike
             #     commit of a previously-started transaction, commit with a
@@ -1648,6 +1719,8 @@ module Google
             #     executed more than once. If this is undesirable, use
             #     {::Google::Cloud::Spanner::V1::Spanner::Client#begin_transaction BeginTransaction} and
             #     {::Google::Cloud::Spanner::V1::Spanner::Client#commit Commit} instead.
+            #
+            #     Note: The following fields are mutually exclusive: `single_use_transaction`, `transaction_id`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param mutations [::Array<::Google::Cloud::Spanner::V1::Mutation, ::Hash>]
             #     The mutations to be executed when this transaction commits. All
             #     mutations are applied atomically, in the order they appear in
@@ -1664,6 +1737,13 @@ module Google
             #     and 500 ms.
             #   @param request_options [::Google::Cloud::Spanner::V1::RequestOptions, ::Hash]
             #     Common options for this request.
+            #   @param precommit_token [::Google::Cloud::Spanner::V1::MultiplexedSessionPrecommitToken, ::Hash]
+            #     Optional. If the read-write transaction was executed on a multiplexed
+            #     session, the precommit token with the highest sequence number received in
+            #     this transaction attempt, should be included here. Failing to do so will
+            #     result in a FailedPrecondition error.
+            #     This feature is not yet supported and will result in an UNIMPLEMENTED
+            #     error.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Spanner::V1::CommitResponse]
@@ -1724,7 +1804,6 @@ module Google
 
               @spanner_stub.call_rpc :commit, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1820,7 +1899,6 @@ module Google
 
               @spanner_stub.call_rpc :rollback, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1958,7 +2036,6 @@ module Google
 
               @spanner_stub.call_rpc :partition_query, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2085,7 +2162,6 @@ module Google
 
               @spanner_stub.call_rpc :partition_read, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2205,7 +2281,6 @@ module Google
 
               @spanner_stub.call_rpc :batch_write, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2255,6 +2330,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -2294,6 +2376,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -2318,6 +2405,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

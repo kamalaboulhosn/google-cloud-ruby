@@ -158,14 +158,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @search_tuning_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @search_tuning_service_stub.endpoint
                   config.universe_domain = @search_tuning_service_stub.universe_domain
+                  config.logger = @search_tuning_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -183,6 +195,15 @@ module Google
               #
               attr_reader :location_client
 
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @search_tuning_service_stub.logger
+              end
+
               # Service calls
 
               ##
@@ -198,7 +219,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload train_custom_model(gcs_training_input: nil, data_store: nil, model_type: nil, error_config: nil)
+              # @overload train_custom_model(gcs_training_input: nil, data_store: nil, model_type: nil, error_config: nil, model_id: nil)
               #   Pass arguments to `train_custom_model` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -216,6 +237,8 @@ module Google
               #   @param error_config [::Google::Cloud::DiscoveryEngine::V1beta::ImportErrorConfig, ::Hash]
               #     The desired location of errors incurred during the data ingestion and
               #     training.
+              #   @param model_id [::String]
+              #     If not provided, a UUID will be generated.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -277,7 +300,88 @@ module Google
                 @search_tuning_service_stub.train_custom_model request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets a list of all the custom models.
+              #
+              # @overload list_custom_models(request, options = nil)
+              #   Pass arguments to `list_custom_models` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_custom_models(data_store: nil)
+              #   Pass arguments to `list_custom_models` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param data_store [::String]
+              #     Required. The resource name of the parent Data Store, such as
+              #     `projects/*/locations/global/collections/default_collection/dataStores/default_data_store`.
+              #     This field is used to identify the data store where to fetch the models
+              #     from.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1beta"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1beta::SearchTuningService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsRequest.new
+              #
+              #   # Call the list_custom_models method.
+              #   result = client.list_custom_models request
+              #
+              #   # The returned object is of type Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsResponse.
+              #   p result
+              #
+              def list_custom_models request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1beta::ListCustomModelsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_custom_models.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1beta::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_custom_models.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_custom_models.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @search_tuning_service_stub.list_custom_models request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -325,6 +429,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -357,6 +468,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -378,6 +494,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -421,11 +538,18 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :train_custom_model
+                  ##
+                  # RPC-specific configuration for `list_custom_models`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_custom_models
 
                   # @private
                   def initialize parent_rpcs = nil
                     train_custom_model_config = parent_rpcs.train_custom_model if parent_rpcs.respond_to? :train_custom_model
                     @train_custom_model = ::Gapic::Config::Method.new train_custom_model_config
+                    list_custom_models_config = parent_rpcs.list_custom_models if parent_rpcs.respond_to? :list_custom_models
+                    @list_custom_models = ::Gapic::Config::Method.new list_custom_models_config
 
                     yield self if block_given?
                   end

@@ -31,6 +31,14 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::RankService::ClientPathsTest < M
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_ranking_config_path

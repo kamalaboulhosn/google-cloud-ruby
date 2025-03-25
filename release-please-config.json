@@ -11,6 +11,14 @@
   "tag-separator": "/",
   "sequential-calls": true,
   "packages": {
+    "google-ads-ad_manager": {
+      "component": "google-ads-ad_manager",
+      "version_file": "lib/google/ads/ad_manager/version.rb"
+    },
+    "google-ads-ad_manager-v1": {
+      "component": "google-ads-ad_manager-v1",
+      "version_file": "lib/google/ads/ad_manager/v1/version.rb"
+    },
     "google-analytics-admin": {
       "component": "google-analytics-admin",
       "version_file": "lib/google/analytics/admin/version.rb"
@@ -110,6 +118,14 @@
     "google-cloud-api_gateway-v1": {
       "component": "google-cloud-api_gateway-v1",
       "version_file": "lib/google/cloud/api_gateway/v1/version.rb"
+    },
+    "google-cloud-api_hub": {
+      "component": "google-cloud-api_hub",
+      "version_file": "lib/google/cloud/api_hub/version.rb"
+    },
+    "google-cloud-api_hub-v1": {
+      "component": "google-cloud-api_hub-v1",
+      "version_file": "lib/google/cloud/api_hub/v1/version.rb"
     },
     "google-cloud-api_keys": {
       "component": "google-cloud-api_keys",
@@ -411,6 +427,10 @@
       "component": "google-cloud-cloud_quotas-v1",
       "version_file": "lib/google/cloud/cloud_quotas/v1/version.rb"
     },
+    "google-cloud-cloud_quotas-v1beta": {
+      "component": "google-cloud-cloud_quotas-v1beta",
+      "version_file": "lib/google/cloud/cloud_quotas/v1beta/version.rb"
+    },
     "google-cloud-commerce-consumer-procurement": {
       "component": "google-cloud-commerce-consumer-procurement",
       "version_file": "lib/google/cloud/commerce/consumer/procurement/version.rb"
@@ -442,6 +462,14 @@
     "google-cloud-config_service-v1": {
       "component": "google-cloud-config_service-v1",
       "version_file": "lib/google/cloud/config_service/v1/version.rb"
+    },
+    "google-cloud-connectors": {
+      "component": "google-cloud-connectors",
+      "version_file": "lib/google/cloud/connectors/version.rb"
+    },
+    "google-cloud-connectors-v1": {
+      "component": "google-cloud-connectors-v1",
+      "version_file": "lib/google/cloud/connectors/v1/version.rb"
     },
     "google-cloud-contact_center_insights": {
       "component": "google-cloud-contact_center_insights",
@@ -587,6 +615,14 @@
       "component": "google-cloud-deploy-v1",
       "version_file": "lib/google/cloud/deploy/v1/version.rb"
     },
+    "google-cloud-developer_connect": {
+      "component": "google-cloud-developer_connect",
+      "version_file": "lib/google/cloud/developer_connect/version.rb"
+    },
+    "google-cloud-developer_connect-v1": {
+      "component": "google-cloud-developer_connect-v1",
+      "version_file": "lib/google/cloud/developer_connect/v1/version.rb"
+    },
     "google-cloud-dialogflow": {
       "component": "google-cloud-dialogflow",
       "version_file": "lib/google/cloud/dialogflow/version.rb"
@@ -650,6 +686,14 @@
     "google-cloud-domains-v1beta1": {
       "component": "google-cloud-domains-v1beta1",
       "version_file": "lib/google/cloud/domains/v1beta1/version.rb"
+    },
+    "google-cloud-edge_container": {
+      "component": "google-cloud-edge_container",
+      "version_file": "lib/google/cloud/edge_container/version.rb"
+    },
+    "google-cloud-edge_container-v1": {
+      "component": "google-cloud-edge_container-v1",
+      "version_file": "lib/google/cloud/edge_container/v1/version.rb"
     },
     "google-cloud-edge_network": {
       "component": "google-cloud-edge_network",
@@ -731,6 +775,14 @@
       "component": "google-cloud-functions-v2",
       "version_file": "lib/google/cloud/functions/v2/version.rb"
     },
+    "google-cloud-gdc_hardware_management": {
+      "component": "google-cloud-gdc_hardware_management",
+      "version_file": "lib/google/cloud/gdc_hardware_management/version.rb"
+    },
+    "google-cloud-gdc_hardware_management-v1alpha": {
+      "component": "google-cloud-gdc_hardware_management-v1alpha",
+      "version_file": "lib/google/cloud/gdc_hardware_management/v1alpha/version.rb"
+    },
     "google-cloud-gke_backup": {
       "component": "google-cloud-gke_backup",
       "version_file": "lib/google/cloud/gke_backup/version.rb"
@@ -742,6 +794,10 @@
     "google-cloud-gke_connect-gateway": {
       "component": "google-cloud-gke_connect-gateway",
       "version_file": "lib/google/cloud/gke_connect/gateway/version.rb"
+    },
+    "google-cloud-gke_connect-gateway-v1": {
+      "component": "google-cloud-gke_connect-gateway-v1",
+      "version_file": "lib/google/cloud/gke_connect/gateway/v1/version.rb"
     },
     "google-cloud-gke_connect-gateway-v1beta1": {
       "component": "google-cloud-gke_connect-gateway-v1beta1",
@@ -851,6 +907,14 @@
       "component": "google-cloud-managed_identities-v1",
       "version_file": "lib/google/cloud/managed_identities/v1/version.rb"
     },
+    "google-cloud-managed_kafka": {
+      "component": "google-cloud-managed_kafka",
+      "version_file": "lib/google/cloud/managed_kafka/version.rb"
+    },
+    "google-cloud-managed_kafka-v1": {
+      "component": "google-cloud-managed_kafka-v1",
+      "version_file": "lib/google/cloud/managed_kafka/v1/version.rb"
+    },
     "google-cloud-media_translation": {
       "component": "google-cloud-media_translation",
       "version_file": "lib/google/cloud/media_translation/version.rb"
@@ -870,6 +934,18 @@
     "google-cloud-memcache-v1beta2": {
       "component": "google-cloud-memcache-v1beta2",
       "version_file": "lib/google/cloud/memcache/v1beta2/version.rb"
+    },
+    "google-cloud-memorystore": {
+      "component": "google-cloud-memorystore",
+      "version_file": "lib/google/cloud/memorystore/version.rb"
+    },
+    "google-cloud-memorystore-v1": {
+      "component": "google-cloud-memorystore-v1",
+      "version_file": "lib/google/cloud/memorystore/v1/version.rb"
+    },
+    "google-cloud-memorystore-v1beta": {
+      "component": "google-cloud-memorystore-v1beta",
+      "version_file": "lib/google/cloud/memorystore/v1beta/version.rb"
     },
     "google-cloud-metastore": {
       "component": "google-cloud-metastore",
@@ -943,6 +1019,14 @@
       "component": "google-cloud-network_security-v1beta1",
       "version_file": "lib/google/cloud/network_security/v1beta1/version.rb"
     },
+    "google-cloud-network_services": {
+      "component": "google-cloud-network_services",
+      "version_file": "lib/google/cloud/network_services/version.rb"
+    },
+    "google-cloud-network_services-v1": {
+      "component": "google-cloud-network_services-v1",
+      "version_file": "lib/google/cloud/network_services/v1/version.rb"
+    },
     "google-cloud-notebooks": {
       "component": "google-cloud-notebooks",
       "version_file": "lib/google/cloud/notebooks/version.rb"
@@ -966,6 +1050,14 @@
     "google-cloud-optimization-v1": {
       "component": "google-cloud-optimization-v1",
       "version_file": "lib/google/cloud/optimization/v1/version.rb"
+    },
+    "google-cloud-oracle_database": {
+      "component": "google-cloud-oracle_database",
+      "version_file": "lib/google/cloud/oracle_database/version.rb"
+    },
+    "google-cloud-oracle_database-v1": {
+      "component": "google-cloud-oracle_database-v1",
+      "version_file": "lib/google/cloud/oracle_database/v1/version.rb"
     },
     "google-cloud-orchestration-airflow-service": {
       "component": "google-cloud-orchestration-airflow-service",
@@ -1007,6 +1099,26 @@
       "component": "google-cloud-os_login-v1beta",
       "version_file": "lib/google/cloud/os_login/v1beta/version.rb"
     },
+    "google-cloud-parallelstore": {
+      "component": "google-cloud-parallelstore",
+      "version_file": "lib/google/cloud/parallelstore/version.rb"
+    },
+    "google-cloud-parallelstore-v1": {
+      "component": "google-cloud-parallelstore-v1",
+      "version_file": "lib/google/cloud/parallelstore/v1/version.rb"
+    },
+    "google-cloud-parallelstore-v1beta": {
+      "component": "google-cloud-parallelstore-v1beta",
+      "version_file": "lib/google/cloud/parallelstore/v1beta/version.rb"
+    },
+    "google-cloud-parameter_manager": {
+      "component": "google-cloud-parameter_manager",
+      "version_file": "lib/google/cloud/parameter_manager/version.rb"
+    },
+    "google-cloud-parameter_manager-v1": {
+      "component": "google-cloud-parameter_manager-v1",
+      "version_file": "lib/google/cloud/parameter_manager/v1/version.rb"
+    },
     "google-cloud-phishing_protection": {
       "component": "google-cloud-phishing_protection",
       "version_file": "lib/google/cloud/phishing_protection/version.rb"
@@ -1042,6 +1154,14 @@
     "google-cloud-private_catalog-v1beta1": {
       "component": "google-cloud-private_catalog-v1beta1",
       "version_file": "lib/google/cloud/private_catalog/v1beta1/version.rb"
+    },
+    "google-cloud-privileged_access_manager": {
+      "component": "google-cloud-privileged_access_manager",
+      "version_file": "lib/google/cloud/privileged_access_manager/version.rb"
+    },
+    "google-cloud-privileged_access_manager-v1": {
+      "component": "google-cloud-privileged_access_manager-v1",
+      "version_file": "lib/google/cloud/privileged_access_manager/v1/version.rb"
     },
     "google-cloud-profiler": {
       "component": "google-cloud-profiler",
@@ -1107,6 +1227,10 @@
       "component": "google-cloud-redis-cluster-v1",
       "version_file": "lib/google/cloud/redis/cluster/v1/version.rb"
     },
+    "google-cloud-redis-cluster-v1beta1": {
+      "component": "google-cloud-redis-cluster-v1beta1",
+      "version_file": "lib/google/cloud/redis/cluster/v1beta1/version.rb"
+    },
     "google-cloud-redis-v1": {
       "component": "google-cloud-redis-v1",
       "version_file": "lib/google/cloud/redis/v1/version.rb"
@@ -1122,14 +1246,6 @@
     "google-cloud-resource_manager-v3": {
       "component": "google-cloud-resource_manager-v3",
       "version_file": "lib/google/cloud/resource_manager/v3/version.rb"
-    },
-    "google-cloud-resource_settings": {
-      "component": "google-cloud-resource_settings",
-      "version_file": "lib/google/cloud/resource_settings/version.rb"
-    },
-    "google-cloud-resource_settings-v1": {
-      "component": "google-cloud-resource_settings-v1",
-      "version_file": "lib/google/cloud/resource_settings/v1/version.rb"
     },
     "google-cloud-retail": {
       "component": "google-cloud-retail",
@@ -1198,6 +1314,10 @@
     "google-cloud-security-public_ca": {
       "component": "google-cloud-security-public_ca",
       "version_file": "lib/google/cloud/security/public_ca/version.rb"
+    },
+    "google-cloud-security-public_ca-v1": {
+      "component": "google-cloud-security-public_ca-v1",
+      "version_file": "lib/google/cloud/security/public_ca/v1/version.rb"
     },
     "google-cloud-security-public_ca-v1beta1": {
       "component": "google-cloud-security-public_ca-v1beta1",
@@ -1487,6 +1607,14 @@
       "component": "google-cloud-vision-v1p4beta1",
       "version_file": "lib/google/cloud/vision/v1p4beta1/version.rb"
     },
+    "google-cloud-vision_ai": {
+      "component": "google-cloud-vision_ai",
+      "version_file": "lib/google/cloud/vision_ai/version.rb"
+    },
+    "google-cloud-vision_ai-v1": {
+      "component": "google-cloud-vision_ai-v1",
+      "version_file": "lib/google/cloud/vision_ai/v1/version.rb"
+    },
     "google-cloud-vm_migration": {
       "component": "google-cloud-vm_migration",
       "version_file": "lib/google/cloud/vm_migration/version.rb"
@@ -1555,6 +1683,18 @@
       "component": "google-cloud-workflows-v1beta",
       "version_file": "lib/google/cloud/workflows/v1beta/version.rb"
     },
+    "google-cloud-workstations": {
+      "component": "google-cloud-workstations",
+      "version_file": "lib/google/cloud/workstations/version.rb"
+    },
+    "google-cloud-workstations-v1": {
+      "component": "google-cloud-workstations-v1",
+      "version_file": "lib/google/cloud/workstations/v1/version.rb"
+    },
+    "google-cloud-workstations-v1beta": {
+      "component": "google-cloud-workstations-v1beta",
+      "version_file": "lib/google/cloud/workstations/v1beta/version.rb"
+    },
     "google-iam-client": {
       "component": "google-iam-client",
       "version_file": "lib/google/iam/client/version.rb"
@@ -1603,6 +1743,22 @@
       "component": "google-maps-fleet_engine-v1",
       "version_file": "lib/google/maps/fleet_engine/v1/version.rb"
     },
+    "google-shopping-css": {
+      "component": "google-shopping-css",
+      "version_file": "lib/google/shopping/css/version.rb"
+    },
+    "google-shopping-css-v1": {
+      "component": "google-shopping-css-v1",
+      "version_file": "lib/google/shopping/css/v1/version.rb"
+    },
+    "google-shopping-merchant-accounts": {
+      "component": "google-shopping-merchant-accounts",
+      "version_file": "lib/google/shopping/merchant/accounts/version.rb"
+    },
+    "google-shopping-merchant-accounts-v1beta": {
+      "component": "google-shopping-merchant-accounts-v1beta",
+      "version_file": "lib/google/shopping/merchant/accounts/v1beta/version.rb"
+    },
     "google-shopping-merchant-conversions": {
       "component": "google-shopping-merchant-conversions",
       "version_file": "lib/google/shopping/merchant/conversions/version.rb"
@@ -1610,6 +1766,14 @@
     "google-shopping-merchant-conversions-v1beta": {
       "component": "google-shopping-merchant-conversions-v1beta",
       "version_file": "lib/google/shopping/merchant/conversions/v1beta/version.rb"
+    },
+    "google-shopping-merchant-data_sources": {
+      "component": "google-shopping-merchant-data_sources",
+      "version_file": "lib/google/shopping/merchant/data_sources/version.rb"
+    },
+    "google-shopping-merchant-data_sources-v1beta": {
+      "component": "google-shopping-merchant-data_sources-v1beta",
+      "version_file": "lib/google/shopping/merchant/data_sources/v1beta/version.rb"
     },
     "google-shopping-merchant-inventories": {
       "component": "google-shopping-merchant-inventories",
@@ -1635,6 +1799,22 @@
       "component": "google-shopping-merchant-notifications-v1beta",
       "version_file": "lib/google/shopping/merchant/notifications/v1beta/version.rb"
     },
+    "google-shopping-merchant-products": {
+      "component": "google-shopping-merchant-products",
+      "version_file": "lib/google/shopping/merchant/products/version.rb"
+    },
+    "google-shopping-merchant-products-v1beta": {
+      "component": "google-shopping-merchant-products-v1beta",
+      "version_file": "lib/google/shopping/merchant/products/v1beta/version.rb"
+    },
+    "google-shopping-merchant-promotions": {
+      "component": "google-shopping-merchant-promotions",
+      "version_file": "lib/google/shopping/merchant/promotions/version.rb"
+    },
+    "google-shopping-merchant-promotions-v1beta": {
+      "component": "google-shopping-merchant-promotions-v1beta",
+      "version_file": "lib/google/shopping/merchant/promotions/v1beta/version.rb"
+    },
     "google-shopping-merchant-quota": {
       "component": "google-shopping-merchant-quota",
       "version_file": "lib/google/shopping/merchant/quota/version.rb"
@@ -1650,6 +1830,14 @@
     "google-shopping-merchant-reports-v1beta": {
       "component": "google-shopping-merchant-reports-v1beta",
       "version_file": "lib/google/shopping/merchant/reports/v1beta/version.rb"
+    },
+    "google-shopping-merchant-reviews": {
+      "component": "google-shopping-merchant-reviews",
+      "version_file": "lib/google/shopping/merchant/reviews/version.rb"
+    },
+    "google-shopping-merchant-reviews-v1beta": {
+      "component": "google-shopping-merchant-reviews-v1beta",
+      "version_file": "lib/google/shopping/merchant/reviews/v1beta/version.rb"
     },
     "grafeas": {
       "component": "grafeas",

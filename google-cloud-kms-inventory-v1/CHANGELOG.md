@@ -1,5 +1,63 @@
 # Changelog
 
+### 0.14.0 (2025-02-25)
+
+#### Features
+
+* Introduce PublicKeyFormat enum for selecting public key export encoding 
+* Support PQC asymmetric signing algorithms ML_DSA_65 and SLH_DSA_SHA2_128s ([#29169](https://github.com/googleapis/google-cloud-ruby/issues/29169)) 
+
+### 0.13.0 (2025-01-29)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Include note about validating externally-provided credentials 
+
+### 0.12.2 (2025-01-09)
+
+#### Documentation
+
+* Minor updates ([#28204](https://github.com/googleapis/google-cloud-ruby/issues/28204)) 
+
+### 0.12.1 (2025-01-08)
+
+#### Documentation
+
+* Fixed some links in the reference documentation ([#28117](https://github.com/googleapis/google-cloud-ruby/issues/28117)) 
+
+### 0.12.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.11.3 (2024-12-04)
+
+#### Documentation
+
+* Updated CryptoKeyVersionAlgorithm description ([#27673](https://github.com/googleapis/google-cloud-ruby/issues/27673)) 
+
+### 0.11.2 (2024-09-30)
+
+#### Documentation
+
+* Document that CryptoKey#destroy_scheduled_duration default is 30 days ([#27339](https://github.com/googleapis/google-cloud-ruby/issues/27339)) 
+
+### 0.11.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 0.11.0 (2024-06-24)
+
+#### Features
+
+* Support Key Access Justifications policy configuration ([#26138](https://github.com/googleapis/google-cloud-ruby/issues/26138)) 
+
 ### 0.10.0 (2024-05-15)
 
 #### Features

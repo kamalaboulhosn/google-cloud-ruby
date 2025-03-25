@@ -38,8 +38,10 @@ module Google
         # @!attribute [rw] row_filter
         #   @return [::String]
         #     Optional. A filter applied to all rows in a single DataScan job.
-        #     The filter needs to be a valid SQL expression for a WHERE clause in
-        #     BigQuery standard SQL syntax.
+        #     The filter needs to be a valid SQL expression for a [WHERE clause in
+        #     GoogleSQL
+        #     syntax](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#where_clause).
+        #
         #     Example: col1 >= 0 AND col2 < 10
         # @!attribute [rw] post_scan_actions
         #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec::PostScanActions]
@@ -221,11 +223,11 @@ module Google
         #     evaluation, or
         #     * exclude `null` rows from the `evaluated_count`, by setting
         #     `ignore_nulls = true`.
+        #
+        #     This field is not set for rule SqlAssertion.
         # @!attribute [rw] passed_count
         #   @return [::Integer]
-        #     The number of rows which passed a rule evaluation.
-        #
-        #     This field is only valid for row-level type rules.
+        #     This field is not set for rule SqlAssertion.
         # @!attribute [rw] null_count
         #   @return [::Integer]
         #     The number of rows with null values in the specified column.
@@ -241,10 +243,10 @@ module Google
         #     This field is only valid for row-level type rules.
         # @!attribute [r] assertion_row_count
         #   @return [::Integer]
-        #     Output only. The number of rows returned by the sql statement in the
-        #     SqlAssertion rule.
+        #     Output only. The number of rows returned by the SQL statement in a SQL
+        #     assertion rule.
         #
-        #     This field is only valid for SqlAssertion rules.
+        #     This field is only valid for SQL assertion rules.
         class DataQualityRuleResult
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -276,7 +278,7 @@ module Google
         #   @return [::String]
         #     The dimension name a rule belongs to. Supported dimensions are
         #     ["COMPLETENESS", "ACCURACY", "CONSISTENCY", "VALIDITY", "UNIQUENESS",
-        #     "INTEGRITY"]
+        #     "FRESHNESS", "VOLUME"]
         class DataQualityDimension
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -287,36 +289,54 @@ module Google
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::RangeExpectation]
         #     Row-level rule which evaluates whether each column value lies between a
         #     specified range.
+        #
+        #     Note: The following fields are mutually exclusive: `range_expectation`, `non_null_expectation`, `set_expectation`, `regex_expectation`, `uniqueness_expectation`, `statistic_range_expectation`, `row_condition_expectation`, `table_condition_expectation`, `sql_assertion`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] non_null_expectation
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::NonNullExpectation]
         #     Row-level rule which evaluates whether each column value is null.
+        #
+        #     Note: The following fields are mutually exclusive: `non_null_expectation`, `range_expectation`, `set_expectation`, `regex_expectation`, `uniqueness_expectation`, `statistic_range_expectation`, `row_condition_expectation`, `table_condition_expectation`, `sql_assertion`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] set_expectation
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::SetExpectation]
         #     Row-level rule which evaluates whether each column value is contained by
         #     a specified set.
+        #
+        #     Note: The following fields are mutually exclusive: `set_expectation`, `range_expectation`, `non_null_expectation`, `regex_expectation`, `uniqueness_expectation`, `statistic_range_expectation`, `row_condition_expectation`, `table_condition_expectation`, `sql_assertion`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] regex_expectation
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::RegexExpectation]
         #     Row-level rule which evaluates whether each column value matches a
         #     specified regex.
+        #
+        #     Note: The following fields are mutually exclusive: `regex_expectation`, `range_expectation`, `non_null_expectation`, `set_expectation`, `uniqueness_expectation`, `statistic_range_expectation`, `row_condition_expectation`, `table_condition_expectation`, `sql_assertion`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] uniqueness_expectation
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::UniquenessExpectation]
         #     Row-level rule which evaluates whether each column value is unique.
+        #
+        #     Note: The following fields are mutually exclusive: `uniqueness_expectation`, `range_expectation`, `non_null_expectation`, `set_expectation`, `regex_expectation`, `statistic_range_expectation`, `row_condition_expectation`, `table_condition_expectation`, `sql_assertion`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] statistic_range_expectation
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::StatisticRangeExpectation]
         #     Aggregate rule which evaluates whether the column aggregate
         #     statistic lies between a specified range.
+        #
+        #     Note: The following fields are mutually exclusive: `statistic_range_expectation`, `range_expectation`, `non_null_expectation`, `set_expectation`, `regex_expectation`, `uniqueness_expectation`, `row_condition_expectation`, `table_condition_expectation`, `sql_assertion`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] row_condition_expectation
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::RowConditionExpectation]
         #     Row-level rule which evaluates whether each row in a table passes the
         #     specified condition.
+        #
+        #     Note: The following fields are mutually exclusive: `row_condition_expectation`, `range_expectation`, `non_null_expectation`, `set_expectation`, `regex_expectation`, `uniqueness_expectation`, `statistic_range_expectation`, `table_condition_expectation`, `sql_assertion`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] table_condition_expectation
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::TableConditionExpectation]
         #     Aggregate rule which evaluates whether the provided expression is true
         #     for a table.
+        #
+        #     Note: The following fields are mutually exclusive: `table_condition_expectation`, `range_expectation`, `non_null_expectation`, `set_expectation`, `regex_expectation`, `uniqueness_expectation`, `statistic_range_expectation`, `row_condition_expectation`, `sql_assertion`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] sql_assertion
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityRule::SqlAssertion]
         #     Aggregate rule which evaluates the number of rows returned for the
-        #     provided statement.
+        #     provided statement. If any rows are returned, this rule fails.
+        #
+        #     Note: The following fields are mutually exclusive: `sql_assertion`, `range_expectation`, `non_null_expectation`, `set_expectation`, `regex_expectation`, `uniqueness_expectation`, `statistic_range_expectation`, `row_condition_expectation`, `table_condition_expectation`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] column
         #   @return [::String]
         #     Optional. The unnested column which this rule is evaluated against.
@@ -336,7 +356,8 @@ module Google
         #   @return [::String]
         #     Required. The dimension a rule belongs to. Results are also aggregated at
         #     the dimension level. Supported dimensions are **["COMPLETENESS",
-        #     "ACCURACY", "CONSISTENCY", "VALIDITY", "UNIQUENESS", "INTEGRITY"]**
+        #     "ACCURACY", "CONSISTENCY", "VALIDITY", "UNIQUENESS", "FRESHNESS",
+        #     "VOLUME"]**
         # @!attribute [rw] threshold
         #   @return [::Float]
         #     Optional. The minimum ratio of **passing_rows / total_rows** required to
@@ -359,6 +380,10 @@ module Google
         #     Optional. Description of the rule.
         #
         #     * The maximum length is 1,024 characters.
+        # @!attribute [rw] suspended
+        #   @return [::Boolean]
+        #     Optional. Whether the Rule is active or suspended.
+        #     Default is false.
         class DataQualityRule
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -472,8 +497,9 @@ module Google
 
           # Evaluates whether each row passes the specified condition.
           #
-          # The SQL expression needs to use BigQuery standard SQL syntax and should
-          # produce a boolean value per row as the result.
+          # The SQL expression needs to use [GoogleSQL
+          # syntax](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
+          # and should produce a boolean value per row as the result.
           #
           # Example: col1 >= 0 AND col2 < 10
           # @!attribute [rw] sql_expression
@@ -486,8 +512,9 @@ module Google
 
           # Evaluates whether the provided expression is true.
           #
-          # The SQL expression needs to use BigQuery standard SQL syntax and should
-          # produce a scalar boolean result.
+          # The SQL expression needs to use [GoogleSQL
+          # syntax](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
+          # and should produce a scalar boolean result.
           #
           # Example: MIN(col1) >= 0
           # @!attribute [rw] sql_expression
@@ -498,17 +525,20 @@ module Google
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
 
-          # Queries for rows returned by the provided SQL statement. If any rows are
-          # are returned, this rule fails.
+          # A SQL statement that is evaluated to return rows that match an invalid
+          # state. If any rows are are returned, this rule fails.
           #
-          # The SQL statement needs to use BigQuery standard SQL syntax, and must not
-          # contain any semicolons.
+          # The SQL statement must use [GoogleSQL
+          # syntax](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax),
+          # and must not contain any semicolons.
           #
-          # $\\{data()} can be used to reference the rows being evaluated, i.e. the table
-          # after all additional filters (row filters, incremental data filters,
-          # sampling) are applied.
+          # You can use the data reference parameter `${data()}` to reference the
+          # source table with all of its precondition filters applied. Examples of
+          # precondition filters include row filters, incremental data filters, and
+          # sampling. For more information, see [Data reference
+          # parameter](https://cloud.google.com/dataplex/docs/auto-data-quality-overview#data-reference-parameter).
           #
-          # Example: SELECT * FROM $\\{data()} WHERE price < 0
+          # Example: `SELECT * FROM ${data()} WHERE price < 0`
           # @!attribute [rw] sql_statement
           #   @return [::String]
           #     Optional. The SQL statement.

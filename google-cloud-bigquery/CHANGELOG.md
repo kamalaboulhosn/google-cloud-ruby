@@ -1,5 +1,38 @@
 # Release History
 
+### 1.52.0 (2025-03-10)
+
+#### Features
+
+* Update minimum Ruby version to 3.0 ([#29261](https://github.com/googleapis/google-cloud-ruby/issues/29261)) 
+
+### 1.51.1 (2024-12-13)
+
+#### Bug Fixes
+
+* Allow inserts to a target dataset/table in another project ([#28097](https://github.com/googleapis/google-cloud-ruby/issues/28097)) 
+
+### 1.51.0 (2024-12-04)
+
+#### Features
+
+* load jobs with dest tables in another project ([#27681](https://github.com/googleapis/google-cloud-ruby/issues/27681)) 
+#### Bug Fixes
+
+* remove reload! call on patch_table ([#27684](https://github.com/googleapis/google-cloud-ruby/issues/27684)) 
+
+### 1.50.0 (2024-06-27)
+
+#### Features
+
+* add method in load_job to set column name character map ([#26135](https://github.com/googleapis/google-cloud-ruby/issues/26135)) 
+
+### 1.49.1 (2024-06-05)
+
+#### Bug Fixes
+
+* Added bigdecimal to the gem dependencies ([#26012](https://github.com/googleapis/google-cloud-ruby/issues/26012)) 
+
 ### 1.49.0 (2024-03-10)
 
 #### Features

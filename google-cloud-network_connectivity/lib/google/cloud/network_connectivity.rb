@@ -46,6 +46,67 @@ module Google
   module Cloud
     module NetworkConnectivity
       ##
+      # Create a new client object for CrossNetworkAutomationService.
+      #
+      # By default, this returns an instance of
+      # [Google::Cloud::NetworkConnectivity::V1::CrossNetworkAutomationService::Client](https://cloud.google.com/ruby/docs/reference/google-cloud-network_connectivity-v1/latest/Google-Cloud-NetworkConnectivity-V1-CrossNetworkAutomationService-Client)
+      # for a gRPC client for version V1 of the API.
+      # However, you can specify a different API version by passing it in the
+      # `version` parameter. If the CrossNetworkAutomationService service is
+      # supported by that API version, and the corresponding gem is available, the
+      # appropriate versioned client will be returned.
+      #
+      # Raises an exception if the currently installed versioned client gem for the
+      # given API version does not support the CrossNetworkAutomationService service.
+      # You can determine whether the method will succeed by calling
+      # {Google::Cloud::NetworkConnectivity.cross_network_automation_service_available?}.
+      #
+      # ## About CrossNetworkAutomationService
+      #
+      # The service for CrossNetworkAutomation resources.
+      #
+      # @param version [::String, ::Symbol] The API version to connect to. Optional.
+      #   Defaults to `:v1`.
+      # @return [::Object] A client object for the specified version.
+      #
+      def self.cross_network_automation_service version: :v1, &block
+        require "google/cloud/network_connectivity/#{version.to_s.downcase}"
+
+        package_name = Google::Cloud::NetworkConnectivity
+                       .constants
+                       .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
+                       .first
+        service_module = Google::Cloud::NetworkConnectivity.const_get(package_name).const_get(:CrossNetworkAutomationService)
+        service_module.const_get(:Client).new(&block)
+      end
+
+      ##
+      # Determines whether the CrossNetworkAutomationService service is supported by the current client.
+      # If true, you can retrieve a client object by calling {Google::Cloud::NetworkConnectivity.cross_network_automation_service}.
+      # If false, that method will raise an exception. This could happen if the given
+      # API version does not exist or does not support the CrossNetworkAutomationService service,
+      # or if the versioned client gem needs an update to support the CrossNetworkAutomationService service.
+      #
+      # @param version [::String, ::Symbol] The API version to connect to. Optional.
+      #   Defaults to `:v1`.
+      # @return [boolean] Whether the service is available.
+      #
+      def self.cross_network_automation_service_available? version: :v1
+        require "google/cloud/network_connectivity/#{version.to_s.downcase}"
+        package_name = Google::Cloud::NetworkConnectivity
+                       .constants
+                       .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
+                       .first
+        return false unless package_name
+        service_module = Google::Cloud::NetworkConnectivity.const_get package_name
+        return false unless service_module.const_defined? :CrossNetworkAutomationService
+        service_module = service_module.const_get :CrossNetworkAutomationService
+        service_module.const_defined? :Client
+      rescue ::LoadError
+        false
+      end
+
+      ##
       # Create a new client object for HubService.
       #
       # By default, this returns an instance of
@@ -55,6 +116,11 @@ module Google
       # `version` parameter. If the HubService service is
       # supported by that API version, and the corresponding gem is available, the
       # appropriate versioned client will be returned.
+      #
+      # Raises an exception if the currently installed versioned client gem for the
+      # given API version does not support the HubService service.
+      # You can determine whether the method will succeed by calling
+      # {Google::Cloud::NetworkConnectivity.hub_service_available?}.
       #
       # ## About HubService
       #
@@ -78,6 +144,32 @@ module Google
       end
 
       ##
+      # Determines whether the HubService service is supported by the current client.
+      # If true, you can retrieve a client object by calling {Google::Cloud::NetworkConnectivity.hub_service}.
+      # If false, that method will raise an exception. This could happen if the given
+      # API version does not exist or does not support the HubService service,
+      # or if the versioned client gem needs an update to support the HubService service.
+      #
+      # @param version [::String, ::Symbol] The API version to connect to. Optional.
+      #   Defaults to `:v1`.
+      # @return [boolean] Whether the service is available.
+      #
+      def self.hub_service_available? version: :v1
+        require "google/cloud/network_connectivity/#{version.to_s.downcase}"
+        package_name = Google::Cloud::NetworkConnectivity
+                       .constants
+                       .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
+                       .first
+        return false unless package_name
+        service_module = Google::Cloud::NetworkConnectivity.const_get package_name
+        return false unless service_module.const_defined? :HubService
+        service_module = service_module.const_get :HubService
+        service_module.const_defined? :Client
+      rescue ::LoadError
+        false
+      end
+
+      ##
       # Create a new client object for PolicyBasedRoutingService.
       #
       # By default, this returns an instance of
@@ -87,6 +179,11 @@ module Google
       # `version` parameter. If the PolicyBasedRoutingService service is
       # supported by that API version, and the corresponding gem is available, the
       # appropriate versioned client will be returned.
+      #
+      # Raises an exception if the currently installed versioned client gem for the
+      # given API version does not support the PolicyBasedRoutingService service.
+      # You can determine whether the method will succeed by calling
+      # {Google::Cloud::NetworkConnectivity.policy_based_routing_service_available?}.
       #
       # ## About PolicyBasedRoutingService
       #
@@ -106,6 +203,32 @@ module Google
                        .first
         service_module = Google::Cloud::NetworkConnectivity.const_get(package_name).const_get(:PolicyBasedRoutingService)
         service_module.const_get(:Client).new(&block)
+      end
+
+      ##
+      # Determines whether the PolicyBasedRoutingService service is supported by the current client.
+      # If true, you can retrieve a client object by calling {Google::Cloud::NetworkConnectivity.policy_based_routing_service}.
+      # If false, that method will raise an exception. This could happen if the given
+      # API version does not exist or does not support the PolicyBasedRoutingService service,
+      # or if the versioned client gem needs an update to support the PolicyBasedRoutingService service.
+      #
+      # @param version [::String, ::Symbol] The API version to connect to. Optional.
+      #   Defaults to `:v1`.
+      # @return [boolean] Whether the service is available.
+      #
+      def self.policy_based_routing_service_available? version: :v1
+        require "google/cloud/network_connectivity/#{version.to_s.downcase}"
+        package_name = Google::Cloud::NetworkConnectivity
+                       .constants
+                       .select { |sym| sym.to_s.downcase == version.to_s.downcase.tr("_", "") }
+                       .first
+        return false unless package_name
+        service_module = Google::Cloud::NetworkConnectivity.const_get package_name
+        return false unless service_module.const_defined? :PolicyBasedRoutingService
+        service_module = service_module.const_get :PolicyBasedRoutingService
+        service_module.const_defined? :Client
+      rescue ::LoadError
+        false
       end
 
       ##

@@ -31,9 +31,18 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_applications_grpc
+    skip unless Google::Cloud::AppEngine.applications_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::AppEngine.applications transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_applications_rest
+    skip unless Google::Cloud::AppEngine.applications_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::AppEngine.applications transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -53,6 +63,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_services_grpc
+    skip unless Google::Cloud::AppEngine.services_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::AppEngine.services transport: :grpc do |config|
@@ -63,6 +74,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_services_rest
+    skip unless Google::Cloud::AppEngine.services_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::AppEngine.services transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -72,6 +84,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_versions_grpc
+    skip unless Google::Cloud::AppEngine.versions_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::AppEngine.versions transport: :grpc do |config|
@@ -82,6 +95,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_versions_rest
+    skip unless Google::Cloud::AppEngine.versions_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::AppEngine.versions transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -91,6 +105,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_instances_grpc
+    skip unless Google::Cloud::AppEngine.instances_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::AppEngine.instances transport: :grpc do |config|
@@ -101,6 +116,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_instances_rest
+    skip unless Google::Cloud::AppEngine.instances_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::AppEngine.instances transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -110,6 +126,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_firewall_grpc
+    skip unless Google::Cloud::AppEngine.firewall_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::AppEngine.firewall transport: :grpc do |config|
@@ -120,6 +137,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_firewall_rest
+    skip unless Google::Cloud::AppEngine.firewall_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::AppEngine.firewall transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -129,6 +147,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_authorized_domains_grpc
+    skip unless Google::Cloud::AppEngine.authorized_domains_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::AppEngine.authorized_domains transport: :grpc do |config|
@@ -139,6 +158,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_authorized_domains_rest
+    skip unless Google::Cloud::AppEngine.authorized_domains_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::AppEngine.authorized_domains transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -148,6 +168,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_authorized_certificates_grpc
+    skip unless Google::Cloud::AppEngine.authorized_certificates_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::AppEngine.authorized_certificates transport: :grpc do |config|
@@ -158,6 +179,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_authorized_certificates_rest
+    skip unless Google::Cloud::AppEngine.authorized_certificates_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::AppEngine.authorized_certificates transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -167,6 +189,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_domain_mappings_grpc
+    skip unless Google::Cloud::AppEngine.domain_mappings_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::AppEngine.domain_mappings transport: :grpc do |config|
@@ -177,6 +200,7 @@ class Google::Cloud::AppEngine::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_domain_mappings_rest
+    skip unless Google::Cloud::AppEngine.domain_mappings_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::AppEngine.domain_mappings transport: :rest do |config|
         config.credentials = :dummy_credentials

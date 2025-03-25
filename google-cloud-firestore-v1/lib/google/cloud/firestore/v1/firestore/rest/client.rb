@@ -226,14 +226,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @firestore_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @firestore_stub.endpoint
                   config.universe_domain = @firestore_stub.universe_domain
+                  config.logger = @firestore_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -243,6 +255,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @firestore_stub.logger
+              end
 
               # Service calls
 
@@ -274,12 +295,16 @@ module Google
               #     will not be returned in the response.
               #   @param transaction [::String]
               #     Reads the document in a transaction.
+              #
+              #     Note: The following fields are mutually exclusive: `transaction`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param read_time [::Google::Protobuf::Timestamp, ::Hash]
               #     Reads the version of the document at the given time.
               #
               #     This must be a microsecond precision timestamp within the past one hour,
               #     or if Point-in-Time Recovery is enabled, can additionally be a whole
               #     minute timestamp within the past 7 days.
+              #
+              #     Note: The following fields are mutually exclusive: `read_time`, `transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Firestore::V1::Document]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -333,7 +358,6 @@ module Google
 
                 @firestore_stub.get_document request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -397,12 +421,16 @@ module Google
               #     will not be returned in the response.
               #   @param transaction [::String]
               #     Perform the read as part of an already active transaction.
+              #
+              #     Note: The following fields are mutually exclusive: `transaction`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param read_time [::Google::Protobuf::Timestamp, ::Hash]
               #     Perform the read at the provided time.
               #
               #     This must be a microsecond precision timestamp within the past one hour,
               #     or if Point-in-Time Recovery is enabled, can additionally be a whole
               #     minute timestamp within the past 7 days.
+              #
+              #     Note: The following fields are mutually exclusive: `read_time`, `transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param show_missing [::Boolean]
               #     If the list should show missing documents.
               #
@@ -471,7 +499,7 @@ module Google
                 @firestore_stub.list_documents request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @firestore_stub, :list_documents, "documents", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -567,7 +595,6 @@ module Google
 
                 @firestore_stub.update_document request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -650,7 +677,6 @@ module Google
 
                 @firestore_stub.delete_document request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -692,17 +718,23 @@ module Google
               #     not be returned in the response.
               #   @param transaction [::String]
               #     Reads documents in a transaction.
+              #
+              #     Note: The following fields are mutually exclusive: `transaction`, `new_transaction`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param new_transaction [::Google::Cloud::Firestore::V1::TransactionOptions, ::Hash]
               #     Starts a new transaction and reads the documents.
               #     Defaults to a read-only transaction.
               #     The new transaction ID will be returned as the first response in the
               #     stream.
+              #
+              #     Note: The following fields are mutually exclusive: `new_transaction`, `transaction`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param read_time [::Google::Protobuf::Timestamp, ::Hash]
               #     Reads documents as they were at the given time.
               #
               #     This must be a microsecond precision timestamp within the past one hour,
               #     or if Point-in-Time Recovery is enabled, can additionally be a whole
               #     minute timestamp within the past 7 days.
+              #
+              #     Note: The following fields are mutually exclusive: `read_time`, `transaction`, `new_transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @return [::Enumerable<::Google::Cloud::Firestore::V1::BatchGetDocumentsResponse>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
@@ -843,7 +875,6 @@ module Google
 
                 @firestore_stub.begin_transaction request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -929,7 +960,6 @@ module Google
 
                 @firestore_stub.commit request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1011,7 +1041,6 @@ module Google
 
                 @firestore_stub.rollback request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1048,17 +1077,23 @@ module Google
               #     Run the query within an already active transaction.
               #
               #     The value here is the opaque transaction ID to execute the query in.
+              #
+              #     Note: The following fields are mutually exclusive: `transaction`, `new_transaction`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param new_transaction [::Google::Cloud::Firestore::V1::TransactionOptions, ::Hash]
               #     Starts a new transaction and reads the documents.
               #     Defaults to a read-only transaction.
               #     The new transaction ID will be returned as the first response in the
               #     stream.
+              #
+              #     Note: The following fields are mutually exclusive: `new_transaction`, `transaction`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param read_time [::Google::Protobuf::Timestamp, ::Hash]
               #     Reads documents as they were at the given time.
               #
               #     This must be a microsecond precision timestamp within the past one hour,
               #     or if Point-in-Time Recovery is enabled, can additionally be a whole
               #     minute timestamp within the past 7 days.
+              #
+              #     Note: The following fields are mutually exclusive: `read_time`, `transaction`, `new_transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param explain_options [::Google::Cloud::Firestore::V1::ExplainOptions, ::Hash]
               #     Optional. Explain options for the query. If set, additional query
               #     statistics will be returned. If not, only query results will be returned.
@@ -1168,17 +1203,23 @@ module Google
               #     Run the aggregation within an already active transaction.
               #
               #     The value here is the opaque transaction ID to execute the query in.
+              #
+              #     Note: The following fields are mutually exclusive: `transaction`, `new_transaction`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param new_transaction [::Google::Cloud::Firestore::V1::TransactionOptions, ::Hash]
               #     Starts a new transaction as part of the query, defaulting to read-only.
               #
               #     The new transaction ID will be returned as the first response in the
               #     stream.
+              #
+              #     Note: The following fields are mutually exclusive: `new_transaction`, `transaction`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param read_time [::Google::Protobuf::Timestamp, ::Hash]
               #     Executes the query at the given timestamp.
               #
               #     This must be a microsecond precision timestamp within the past one hour,
               #     or if Point-in-Time Recovery is enabled, can additionally be a whole
               #     minute timestamp within the past 7 days.
+              #
+              #     Note: The following fields are mutually exclusive: `read_time`, `transaction`, `new_transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param explain_options [::Google::Cloud::Firestore::V1::ExplainOptions, ::Hash]
               #     Optional. Explain options for the query. If set, additional query
               #     statistics will be returned. If not, only query results will be returned.
@@ -1370,7 +1411,7 @@ module Google
                 @firestore_stub.partition_query request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @firestore_stub, :partition_query, "partitions", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1411,10 +1452,10 @@ module Google
               #     or if Point-in-Time Recovery is enabled, can additionally be a whole
               #     minute timestamp within the past 7 days.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::String>]
+              # @yieldparam result [::Google::Cloud::Firestore::V1::ListCollectionIdsResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Gapic::Rest::PagedEnumerable<::String>]
+              # @return [::Google::Cloud::Firestore::V1::ListCollectionIdsResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1462,9 +1503,7 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @firestore_stub.list_collection_ids request, options do |result, operation|
-                  result = ::Gapic::Rest::PagedEnumerable.new @firestore_stub, :list_collection_ids, "collection_ids", request, result, options
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1561,7 +1600,6 @@ module Google
 
                 @firestore_stub.batch_write request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1656,7 +1694,6 @@ module Google
 
                 @firestore_stub.create_document request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1704,6 +1741,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1736,6 +1780,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1757,6 +1806,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

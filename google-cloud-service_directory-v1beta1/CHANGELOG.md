@@ -1,5 +1,32 @@
 # Release History
 
+### 0.17.0 (2025-01-29)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Include note about validating externally-provided credentials 
+
+### 0.16.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.15.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27012](https://github.com/googleapis/google-cloud-ruby/issues/27012)) 
+
+### 0.15.1 (2024-05-23)
+
+#### Documentation
+
+* Document default page sizes ([#25913](https://github.com/googleapis/google-cloud-ruby/issues/25913)) 
+
 ### 0.15.0 (2024-02-26)
 
 #### Features

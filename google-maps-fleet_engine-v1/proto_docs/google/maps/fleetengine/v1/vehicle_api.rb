@@ -104,6 +104,22 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # DeleteVehicle request message.
+        # @!attribute [rw] header
+        #   @return [::Google::Maps::FleetEngine::V1::RequestHeader]
+        #     Optional. The standard Fleet Engine request header.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. Must be in the format
+        #     `providers/{provider}/vehicles/{vehicle}`.
+        #     The \\{provider} must be the Project ID (for example, `sample-cloud-project`)
+        #     of the Google Cloud Project of which the service account making
+        #     this call is a member.
+        class DeleteVehicleRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # `UpdateVehicle request message.
         # @!attribute [rw] header
         #   @return [::Google::Maps::FleetEngine::V1::RequestHeader]
@@ -610,13 +626,12 @@ module Google
         #     Type of the vehicle match.
         # @!attribute [rw] requested_ordered_by
         #   @return [::Google::Maps::FleetEngine::V1::SearchVehiclesRequest::VehicleMatchOrder]
-        #     The order requested for sorting vehicle matches.
+        #     The order requested for sorting vehicle matches. Equivalent to
+        #     `ordered_by`.
         # @!attribute [rw] ordered_by
         #   @return [::Google::Maps::FleetEngine::V1::SearchVehiclesRequest::VehicleMatchOrder]
-        #     The actual order that was used for this vehicle. Normally this
-        #     will match the 'order_by' field from the request; however, in certain
-        #     circumstances such as an internal server error, a different method
-        #     may be used (such as `PICKUP_POINT_STRAIGHT_DISTANCE`).
+        #     The order requested for sorting vehicle matches. Equivalent to
+        #     `requested_ordered_by`.
         class VehicleMatch
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

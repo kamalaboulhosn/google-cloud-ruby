@@ -84,9 +84,26 @@ module Google
         #     * string literals in quotes.
         #     * integer literals without quotes.
         #     * boolean literals `true` and `false` without quotes.
+        # @!attribute [rw] mute_state
+        #   @return [::Google::Cloud::SecurityCenter::V2::BulkMuteFindingsRequest::MuteState]
+        #     Optional. All findings matching the given filter will have their mute state
+        #     set to this value. The default value is `MUTED`. Setting this to
+        #     `UNDEFINED` will clear the mute state on all matching findings.
         class BulkMuteFindingsRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # The mute state.
+          module MuteState
+            # Unused.
+            MUTE_STATE_UNSPECIFIED = 0
+
+            # Matching findings will be muted (default).
+            MUTED = 1
+
+            # Matching findings will have their mute state cleared.
+            UNDEFINED = 2
+          end
         end
 
         # The response to a BulkMute request. Contains the LRO information.
@@ -99,9 +116,9 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The name of the parent resource of the new BigQuery export. Its
-        #     format is "organizations/[organization_id]/locations/[location_id]",
-        #     "folders/[folder_id]/locations/[location_id]", or
-        #     "projects/[project_id]/locations/[location_id]".
+        #     format is `organizations/[organization_id]/locations/[location_id]`,
+        #     `folders/[folder_id]/locations/[location_id]`, or
+        #     `projects/[project_id]/locations/[location_id]`.
         # @!attribute [rw] big_query_export
         #   @return [::Google::Cloud::SecurityCenter::V2::BigQueryExport]
         #     Required. The BigQuery export being created.
@@ -143,9 +160,9 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Resource name of the new mute configs's parent. Its format is
-        #     "organizations/[organization_id]/locations/[location_id]",
-        #     "folders/[folder_id]/locations/[location_id]", or
-        #     "projects/[project_id]/locations/[location_id]".
+        #     `organizations/[organization_id]/locations/[location_id]`,
+        #     `folders/[folder_id]/locations/[location_id]`, or
+        #     `projects/[project_id]/locations/[location_id]`.
         # @!attribute [rw] mute_config
         #   @return [::Google::Cloud::SecurityCenter::V2::MuteConfig]
         #     Required. The mute config being created.
@@ -164,9 +181,9 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Resource name of the new notification config's parent. Its format
-        #     is "organizations/[organization_id]/locations/[location_id]",
-        #     "folders/[folder_id]/locations/[location_id]", or
-        #     "projects/[project_id]/locations/[location_id]".
+        #     is `organizations/[organization_id]/locations/[location_id]`,
+        #     `folders/[folder_id]/locations/[location_id]`, or
+        #     `projects/[project_id]/locations/[location_id]`.
         # @!attribute [rw] config_id
         #   @return [::String]
         #     Required.
@@ -199,7 +216,7 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Resource name of the new source's parent. Its format should be
-        #     "organizations/[organization_id]".
+        #     `organizations/[organization_id]`.
         # @!attribute [rw] source
         #   @return [::Google::Cloud::SecurityCenter::V2::Source]
         #     Required. The Source being created, only the display_name and description
@@ -334,7 +351,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. Relative resource name of the source. Its format is
-        #     "organizations/[organization_id]/source/[source_id]".
+        #     `organizations/[organization_id]/source/[source_id]`.
         class GetSourceRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -418,14 +435,6 @@ module Google
         #     Required. Expression that defines what assets fields to use for grouping.
         #     The string value should follow SQL syntax: comma separated list of fields.
         #     For example: "parent,resource_name".
-        #
-        #     The following fields are supported:
-        #
-        #     * resource_name
-        #     * category
-        #     * state
-        #     * parent
-        #     * severity
         # @!attribute [rw] page_token
         #   @return [::String]
         #     The value returned by the last `GroupFindingsResponse`; indicates
@@ -486,10 +495,10 @@ module Google
         #     Required. Name of parent to list attack paths.
         #
         #     Valid formats:
-        #     "organizations/\\{organization}",
-        #     "organizations/\\{organization}/simulations/\\{simulation}"
-        #     "organizations/\\{organization}/simulations/\\{simulation}/attackExposureResults/\\{attack_exposure_result_v2}"
-        #     "organizations/\\{organization}/simulations/\\{simulation}/valuedResources/\\{valued_resource}"
+        #     `organizations/{organization}`,
+        #     `organizations/{organization}/simulations/{simulation}`
+        #     `organizations/{organization}/simulations/{simulation}/attackExposureResults/{attack_exposure_result_v2}`
+        #     `organizations/{organization}/simulations/{simulation}/valuedResources/{valued_resource}`
         # @!attribute [rw] filter
         #   @return [::String]
         #     The filter expression that filters the attack path in the response.
@@ -532,8 +541,8 @@ module Google
         #     Required. The organization name or simulation name of this simulation
         #
         #     Valid format:
-        #     "organizations/\\{organization}/simulations/latest"
-        #     "organizations/\\{organization}/simulations/\\{simulation}"
+        #     `organizations/{organization}/simulations/latest`
+        #     `organizations/{organization}/simulations/{simulation}`
         class GetSimulationRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -545,7 +554,7 @@ module Google
         #     Required. The name of this valued resource
         #
         #     Valid format:
-        #     "organizations/\\{organization}/simulations/\\{simulation}/valuedResources/\\{valued_resource}"
+        #     `organizations/{organization}/simulations/{simulation}/valuedResources/{valued_resource}`
         class GetValuedResourceRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -556,9 +565,9 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The parent, which owns the collection of BigQuery exports. Its
-        #     format is "organizations/[organization_id]/locations/[location_id]",
-        #     "folders/[folder_id]/locations/[location_id]", or
-        #     "projects/[project_id]/locations/[location_id]".
+        #     format is `organizations/[organization_id]/locations/[location_id]`,
+        #     `folders/[folder_id]/locations/[location_id]`, or
+        #     `projects/[project_id]/locations/[location_id]`.
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     The maximum number of configs to return. The service may return fewer than
@@ -738,6 +747,45 @@ module Google
             # @!attribute [rw] type
             #   @return [::String]
             #     The full resource type of the resource.
+            # @!attribute [rw] cloud_provider
+            #   @return [::Google::Cloud::SecurityCenter::V2::CloudProvider]
+            #     Indicates which cloud provider the finding is from.
+            # @!attribute [rw] service
+            #   @return [::String]
+            #     The service or resource provider associated with the resource.
+            # @!attribute [rw] location
+            #   @return [::String]
+            #     The region or location of the service (if applicable).
+            # @!attribute [rw] gcp_metadata
+            #   @return [::Google::Cloud::SecurityCenter::V2::GcpMetadata]
+            #     The GCP metadata associated with the finding.
+            #
+            #     Note: The following fields are mutually exclusive: `gcp_metadata`, `aws_metadata`, `azure_metadata`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] aws_metadata
+            #   @return [::Google::Cloud::SecurityCenter::V2::AwsMetadata]
+            #     The AWS metadata associated with the finding.
+            #
+            #     Note: The following fields are mutually exclusive: `aws_metadata`, `gcp_metadata`, `azure_metadata`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] azure_metadata
+            #   @return [::Google::Cloud::SecurityCenter::V2::AzureMetadata]
+            #     The Azure metadata associated with the finding.
+            #
+            #     Note: The following fields are mutually exclusive: `azure_metadata`, `gcp_metadata`, `aws_metadata`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] resource_path
+            #   @return [::Google::Cloud::SecurityCenter::V2::ResourcePath]
+            #     Provides the path to the resource within the resource hierarchy.
+            # @!attribute [rw] resource_path_string
+            #   @return [::String]
+            #     A string representation of the resource path.
+            #     For Google Cloud, it has the format of
+            #     `organizations/{organization_id}/folders/{folder_id}/folders/{folder_id}/projects/{project_id}`
+            #     where there can be any number of folders.
+            #     For AWS, it has the format of
+            #     `org/{organization_id}/ou/{organizational_unit_id}/ou/{organizational_unit_id}/account/{account_id}`
+            #     where there can be any number of organizational units.
+            #     For Azure, it has the format of
+            #     `mg/{management_group_id}/mg/{management_group_id}/subscription/{subscription_id}/rg/{resource_group_name}`
+            #     where there can be any number of management groups.
             class Resource
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -751,11 +799,11 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The parent, which owns the collection of mute configs. Its format
-        #     is "organizations/[organization_id]", "folders/[folder_id]",
-        #     "projects/[project_id]",
-        #     "organizations/[organization_id]/locations/[location_id]",
-        #     "folders/[folder_id]/locations/[location_id]",
-        #     "projects/[project_id]/locations/[location_id]".
+        #     is `organizations/[organization_id]", "folders/[folder_id]`,
+        #     `projects/[project_id]`,
+        #     `organizations/[organization_id]/locations/[location_id]`,
+        #     `folders/[folder_id]/locations/[location_id]`,
+        #     `projects/[project_id]/locations/[location_id]`.
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     The maximum number of configs to return. The service may return fewer than
@@ -827,7 +875,7 @@ module Google
         #   @return [::String]
         #     Required. The parent, which owns the collection of resource value configs.
         #     Its format is
-        #     "organizations/[organization_id]"
+        #     `organizations/[organization_id]`
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     The maximum number of configs to return. The service may return fewer than
@@ -866,8 +914,8 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Resource name of the parent of sources to list. Its format should
-        #     be "organizations/[organization_id]", "folders/[folder_id]", or
-        #     "projects/[project_id]".
+        #     be `organizations/[organization_id]`, `folders/[folder_id]`, or
+        #     `projects/[project_id]`.
         # @!attribute [rw] page_token
         #   @return [::String]
         #     The value returned by the last `ListSourcesResponse`; indicates
@@ -901,9 +949,9 @@ module Google
         #     Required. Name of parent to list exposed resources.
         #
         #     Valid formats:
-        #     "organizations/\\{organization}",
-        #     "organizations/\\{organization}/simulations/\\{simulation}"
-        #     "organizations/\\{organization}/simulations/\\{simulation}/attackExposureResults/\\{attack_exposure_result_v2}"
+        #     `organizations/{organization}`,
+        #     `organizations/{organization}/simulations/{simulation}`
+        #     `organizations/{organization}/simulations/{simulation}/attackExposureResults/{attack_exposure_result_v2}`
         # @!attribute [rw] filter
         #   @return [::String]
         #     The filter expression that filters the valued resources in the response.
@@ -1096,6 +1144,10 @@ module Google
         #   @return [::Google::Protobuf::FieldMask]
         #     The list of fields to be updated.
         #     If empty all mutable fields will be updated.
+        #
+        #     To update nested fields, include the top level field in the mask
+        #     For example, to update gcp_metadata.resource_type, include the
+        #     "gcp_metadata" field mask
         class UpdateResourceValueConfigRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

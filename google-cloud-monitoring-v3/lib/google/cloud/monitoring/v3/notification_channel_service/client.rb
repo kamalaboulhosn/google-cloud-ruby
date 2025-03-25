@@ -199,8 +199,28 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @notification_channel_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @notification_channel_service_stub.logger
             end
 
             # Service calls
@@ -309,7 +329,7 @@ module Google
               @notification_channel_service_stub.call_rpc :list_notification_channel_descriptors, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @notification_channel_service_stub, :list_notification_channel_descriptors, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -398,7 +418,6 @@ module Google
 
               @notification_channel_service_stub.call_rpc :get_notification_channel_descriptor, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -438,24 +457,24 @@ module Google
             #     {::Google::Cloud::Monitoring::V3::NotificationChannelService::Client#get_notification_channel `GetNotificationChannel`}
             #     operation.
             #   @param filter [::String]
-            #     If provided, this field specifies the criteria that must be met by
-            #     notification channels to be included in the response.
+            #     Optional. If provided, this field specifies the criteria that must be met
+            #     by notification channels to be included in the response.
             #
             #     For more details, see [sorting and
             #     filtering](https://cloud.google.com/monitoring/api/v3/sorting-and-filtering).
             #   @param order_by [::String]
-            #     A comma-separated list of fields by which to sort the result. Supports
-            #     the same set of fields as in `filter`. Entries can be prefixed with
-            #     a minus sign to sort in descending rather than ascending order.
+            #     Optional. A comma-separated list of fields by which to sort the result.
+            #     Supports the same set of fields as in `filter`. Entries can be prefixed
+            #     with a minus sign to sort in descending rather than ascending order.
             #
             #     For more details, see [sorting and
             #     filtering](https://cloud.google.com/monitoring/api/v3/sorting-and-filtering).
             #   @param page_size [::Integer]
-            #     The maximum number of results to return in a single response. If
+            #     Optional. The maximum number of results to return in a single response. If
             #     not set to a positive number, a reasonable value will be chosen by the
             #     service.
             #   @param page_token [::String]
-            #     If non-empty, `page_token` must contain a value returned as the
+            #     Optional. If non-empty, `page_token` must contain a value returned as the
             #     `next_page_token` in a previous response to request the next set
             #     of results.
             #
@@ -523,7 +542,7 @@ module Google
               @notification_channel_service_stub.call_rpc :list_notification_channels, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @notification_channel_service_stub, :list_notification_channels, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -615,7 +634,6 @@ module Google
 
               @notification_channel_service_stub.call_rpc :get_notification_channel, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -718,7 +736,6 @@ module Google
 
               @notification_channel_service_stub.call_rpc :create_notification_channel, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -749,7 +766,7 @@ module Google
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
-            #     The fields to update.
+            #     Optional. The fields to update.
             #   @param notification_channel [::Google::Cloud::Monitoring::V3::NotificationChannel, ::Hash]
             #     Required. A description of the changes to be applied to the specified
             #     notification channel. The description must provide a definition for
@@ -815,7 +832,6 @@ module Google
 
               @notification_channel_service_stub.call_rpc :update_notification_channel, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -851,8 +867,8 @@ module Google
             #   @param force [::Boolean]
             #     If true, the notification channel will be deleted regardless of its
             #     use in alert policies (the policies will be updated to remove the
-            #     channel). If false, channels that are still referenced by an existing
-            #     alerting policy will fail to be deleted in a delete operation.
+            #     channel). If false, this operation will fail if the notification channel
+            #     is referenced by existing alerting policies.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Protobuf::Empty]
@@ -913,7 +929,6 @@ module Google
 
               @notification_channel_service_stub.call_rpc :delete_notification_channel, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1000,7 +1015,6 @@ module Google
 
               @notification_channel_service_stub.call_rpc :send_notification_channel_verification_code, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1118,7 +1132,6 @@ module Google
 
               @notification_channel_service_stub.call_rpc :get_notification_channel_verification_code, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1214,7 +1227,6 @@ module Google
 
               @notification_channel_service_stub.call_rpc :verify_notification_channel, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1264,6 +1276,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -1303,6 +1322,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -1327,6 +1351,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

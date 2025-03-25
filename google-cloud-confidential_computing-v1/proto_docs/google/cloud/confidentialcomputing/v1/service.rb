@@ -59,7 +59,17 @@ module Google
         end
 
         # A request for an OIDC token, providing all the necessary information needed
-        # for this service to verify the plaform state of the requestor.
+        # for this service to verify the platform state of the requestor.
+        # @!attribute [rw] td_ccel
+        #   @return [::Google::Cloud::ConfidentialComputing::V1::TdxCcelAttestation]
+        #     Optional. A TDX with CCEL and RTMR Attestation Quote.
+        #
+        #     Note: The following fields are mutually exclusive: `td_ccel`, `sev_snp_attestation`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] sev_snp_attestation
+        #   @return [::Google::Cloud::ConfidentialComputing::V1::SevSnpAttestation]
+        #     Optional. An SEV-SNP Attestation Report.
+        #
+        #     Note: The following fields are mutually exclusive: `sev_snp_attestation`, `td_ccel`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] challenge
         #   @return [::String]
         #     Required. The name of the Challenge whose nonce was used to generate the
@@ -80,7 +90,52 @@ module Google
         #   @return [::Google::Cloud::ConfidentialComputing::V1::TokenOptions]
         #     Optional. A collection of optional, workload-specified claims that modify
         #     the token output.
+        # @!attribute [rw] attester
+        #   @return [::String]
+        #     Optional. An optional indicator of the attester, only applies to certain
+        #     products.
         class VerifyAttestationRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # A TDX Attestation quote.
+        # @!attribute [rw] ccel_acpi_table
+        #   @return [::String]
+        #     Optional. The Confidential Computing Event Log (CCEL) ACPI table. Formatted
+        #     as described in the ACPI Specification 6.5.
+        # @!attribute [rw] ccel_data
+        #   @return [::String]
+        #     Optional. The CCEL event log. Formatted as described in the UEFI 2.10.
+        # @!attribute [rw] canonical_event_log
+        #   @return [::String]
+        #     Optional. An Event Log containing additional events measured into the RTMR
+        #     that are not already present in the CCEL.
+        # @!attribute [rw] td_quote
+        #   @return [::String]
+        #     Optional. The TDX attestation quote from the guest. It contains the RTMR
+        #     values.
+        class TdxCcelAttestation
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # An SEV-SNP Attestation Report.
+        # Contains the attestation report and the certificate bundle that the client
+        # collects.
+        # @!attribute [rw] report
+        #   @return [::String]
+        #     Optional. The SEV-SNP Attestation Report
+        #     Format is in revision 1.55, §7.3 Attestation, Table 22. ATTESTATION_REPORT
+        #     Structure in this document:
+        #     https://www.amd.com/content/dam/amd/en/documents/epyc-technical-docs/specifications/56860.pdf
+        # @!attribute [rw] aux_blob
+        #   @return [::String]
+        #     Optional. Certificate bundle defined in the GHCB protocol definition
+        #     Format is documented in GHCB revision 2.03, section 4.1.8.1 struct
+        #     cert_table in this document:
+        #     https://www.amd.com/content/dam/amd/en/documents/epyc-technical-docs/specifications/56421.pdf
+        class SevSnpAttestation
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
@@ -110,6 +165,9 @@ module Google
         end
 
         # Options to modify claims in the token to generate custom-purpose tokens.
+        # @!attribute [rw] aws_principal_tags_options
+        #   @return [::Google::Cloud::ConfidentialComputing::V1::TokenOptions::AwsPrincipalTagsOptions]
+        #     Optional. Options for the Limited AWS token type.
         # @!attribute [rw] audience
         #   @return [::String]
         #     Optional. Optional string to issue the token with a custom audience claim.
@@ -125,6 +183,37 @@ module Google
         class TokenOptions
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Token options that only apply to the AWS Principal Tags token type.
+          # @!attribute [rw] allowed_principal_tags
+          #   @return [::Google::Cloud::ConfidentialComputing::V1::TokenOptions::AwsPrincipalTagsOptions::AllowedPrincipalTags]
+          #     Optional. Principal tags to allow in the token.
+          class AwsPrincipalTagsOptions
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Allowed principal tags is used to define what principal tags will be
+            # placed in the token.
+            # @!attribute [rw] container_image_signatures
+            #   @return [::Google::Cloud::ConfidentialComputing::V1::TokenOptions::AwsPrincipalTagsOptions::AllowedPrincipalTags::ContainerImageSignatures]
+            #     Optional. Container image signatures allowed in the token.
+            class AllowedPrincipalTags
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Allowed Container Image Signatures. Key IDs are required to allow this
+              # claim to fit within the narrow AWS IAM restrictions.
+              # @!attribute [rw] key_ids
+              #   @return [::Array<::String>]
+              #     Optional. List of key ids to filter into the Principal tags. Only
+              #     keys that have been validated and added to the token will be filtered
+              #     into principal tags. Unrecognized key ids will be ignored.
+              class ContainerImageSignatures
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+            end
+          end
         end
 
         # TPM2 data containing everything necessary to validate any platform state
@@ -261,6 +350,9 @@ module Google
 
           # Limited claim token type for AWS integration
           TOKEN_TYPE_LIMITED_AWS = 3
+
+          # Principal-tag-based token for AWS integration
+          TOKEN_TYPE_AWS_PRINCIPALTAGS = 4
         end
       end
     end

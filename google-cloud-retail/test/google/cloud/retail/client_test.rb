@@ -31,9 +31,18 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_analytics_service_grpc
+    skip unless Google::Cloud::Retail.analytics_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.analytics_service transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_analytics_service_rest
+    skip unless Google::Cloud::Retail.analytics_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.analytics_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -53,6 +63,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_catalog_service_grpc
+    skip unless Google::Cloud::Retail.catalog_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.catalog_service transport: :grpc do |config|
@@ -63,6 +74,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_catalog_service_rest
+    skip unless Google::Cloud::Retail.catalog_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.catalog_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -72,6 +84,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_completion_service_grpc
+    skip unless Google::Cloud::Retail.completion_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.completion_service transport: :grpc do |config|
@@ -82,6 +95,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_completion_service_rest
+    skip unless Google::Cloud::Retail.completion_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.completion_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -91,6 +105,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_control_service_grpc
+    skip unless Google::Cloud::Retail.control_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.control_service transport: :grpc do |config|
@@ -101,6 +116,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_control_service_rest
+    skip unless Google::Cloud::Retail.control_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.control_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -109,7 +125,29 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
     end
   end
 
+  def test_generative_question_service_grpc
+    skip unless Google::Cloud::Retail.generative_question_service_available? transport: :grpc
+    Gapic::ServiceStub.stub :new, DummyStub.new do
+      grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+      client = Google::Cloud::Retail.generative_question_service transport: :grpc do |config|
+        config.credentials = grpc_channel
+      end
+      assert_kind_of Google::Cloud::Retail::V2::GenerativeQuestionService::Client, client
+    end
+  end
+
+  def test_generative_question_service_rest
+    skip unless Google::Cloud::Retail.generative_question_service_available? transport: :rest
+    Gapic::Rest::ClientStub.stub :new, DummyStub.new do
+      client = Google::Cloud::Retail.generative_question_service transport: :rest do |config|
+        config.credentials = :dummy_credentials
+      end
+      assert_kind_of Google::Cloud::Retail::V2::GenerativeQuestionService::Rest::Client, client
+    end
+  end
+
   def test_model_service_grpc
+    skip unless Google::Cloud::Retail.model_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.model_service transport: :grpc do |config|
@@ -120,6 +158,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_model_service_rest
+    skip unless Google::Cloud::Retail.model_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.model_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -129,6 +168,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_prediction_service_grpc
+    skip unless Google::Cloud::Retail.prediction_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.prediction_service transport: :grpc do |config|
@@ -139,6 +179,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_prediction_service_rest
+    skip unless Google::Cloud::Retail.prediction_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.prediction_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -148,6 +189,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_product_service_grpc
+    skip unless Google::Cloud::Retail.product_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.product_service transport: :grpc do |config|
@@ -158,6 +200,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_product_service_rest
+    skip unless Google::Cloud::Retail.product_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.product_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -167,6 +210,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_search_service_grpc
+    skip unless Google::Cloud::Retail.search_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.search_service transport: :grpc do |config|
@@ -177,6 +221,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_search_service_rest
+    skip unless Google::Cloud::Retail.search_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.search_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -186,6 +231,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_serving_config_service_grpc
+    skip unless Google::Cloud::Retail.serving_config_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.serving_config_service transport: :grpc do |config|
@@ -196,6 +242,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_serving_config_service_rest
+    skip unless Google::Cloud::Retail.serving_config_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.serving_config_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -205,6 +252,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_user_event_service_grpc
+    skip unless Google::Cloud::Retail.user_event_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Retail.user_event_service transport: :grpc do |config|
@@ -215,6 +263,7 @@ class Google::Cloud::Retail::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_user_event_service_rest
+    skip unless Google::Cloud::Retail.user_event_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Retail.user_event_service transport: :rest do |config|
         config.credentials = :dummy_credentials

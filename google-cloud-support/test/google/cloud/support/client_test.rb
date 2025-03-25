@@ -30,9 +30,18 @@ class Google::Cloud::Support::ClientConstructionMinitest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_case_attachment_service_grpc
+    skip unless Google::Cloud::Support.case_attachment_service_available?
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Support.case_attachment_service do |config|
@@ -43,6 +52,7 @@ class Google::Cloud::Support::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_case_service_grpc
+    skip unless Google::Cloud::Support.case_service_available?
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Support.case_service do |config|
@@ -53,6 +63,7 @@ class Google::Cloud::Support::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_comment_service_grpc
+    skip unless Google::Cloud::Support.comment_service_available?
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Support.comment_service do |config|

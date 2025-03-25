@@ -1,5 +1,98 @@
 # Release History
 
+### 1.5.0 (2025-02-25)
+
+#### Features
+
+* Introduce PublicKeyFormat enum for selecting public key export encoding 
+* Support PQC asymmetric signing algorithms ML_DSA_65 and SLH_DSA_SHA2_128s ([#29168](https://github.com/googleapis/google-cloud-ruby/issues/29168)) 
+
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.2 (2025-01-15)
+
+#### Documentation
+
+* Minor updates ([#28203](https://github.com/googleapis/google-cloud-ruby/issues/28203)) 
+
+### 1.3.1 (2025-01-08)
+
+#### Documentation
+
+* Fixed some links in the reference documentation ([#28116](https://github.com/googleapis/google-cloud-ruby/issues/28116)) 
+
+### 1.3.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.2.1 (2024-12-04)
+
+#### Documentation
+
+* Updated CryptoKeyVersionAlgorithm description ([#27672](https://github.com/googleapis/google-cloud-ruby/issues/27672)) 
+
+### 1.2.0 (2024-11-07)
+
+#### Features
+
+* Add AdvancedCompleteQuery API 
+* Add BillingEstimation in data store 
+* Add GroundedGenerationService API ([#27537](https://github.com/googleapis/google-cloud-ruby/issues/27537)) 
+* Add lite search API to allow public website search with API key 
+* Add one_box_page_size on search 
+* Add Sitemap APIs to preview channel 
+* Support advanced boost search 
+* Support Google Workspace search 
+* Support natural language understanding search 
+* support query regex in control match rules 
+* Support search personalization to preview channel 
+#### Documentation
+
+* deprecate asynchronous mode in answer generation 
+* deprecate extractive_answers in answer generation 
+* keep the API doc up-to-date with recent changes 
+
+### 1.1.0 (2024-09-30)
+
+#### Features
+
+* Support pagination in the list_keys_handle RPC (BREAKING CHANGE) ([#27338](https://github.com/googleapis/google-cloud-ruby/issues/27338)) 
+* Support states for AutokeyConfig 
+
+### 1.0.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26628](https://github.com/googleapis/google-cloud-ruby/issues/26628)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.27.0 (2024-06-24)
+
+#### Features
+
+* Support Key Access Justifications policy configuration ([#26137](https://github.com/googleapis/google-cloud-ruby/issues/26137)) 
+
 ### 0.26.0 (2024-05-15)
 
 #### Features

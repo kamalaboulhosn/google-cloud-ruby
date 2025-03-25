@@ -171,14 +171,26 @@ module Google
                   universe_domain: @config.universe_domain,
                   channel_args: @config.channel_args,
                   interceptors: @config.interceptors,
-                  channel_pool_config: @config.channel_pool
+                  channel_pool_config: @config.channel_pool,
+                  logger: @config.logger
                 )
+
+                @versions_stub.stub_logger&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @versions_stub.endpoint
                   config.universe_domain = @versions_stub.universe_domain
+                  config.logger = @versions_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -195,6 +207,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @versions_stub.logger
+              end
 
               # Service calls
 
@@ -219,8 +240,8 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The {::Google::Cloud::Dialogflow::CX::V3::Flow Flow} to list all
-              #     versions for. Format: `projects/<Project ID>/locations/<Location
-              #     ID>/agents/<Agent ID>/flows/<Flow ID>`.
+              #     versions for. Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
               #   @param page_size [::Integer]
               #     The maximum number of items to return in a single page. By default 20 and
               #     at most 100.
@@ -291,7 +312,7 @@ module Google
                 @versions_stub.call_rpc :list_versions, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @versions_stub, :list_versions, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -317,8 +338,8 @@ module Google
               #
               #   @param name [::String]
               #     Required. The name of the {::Google::Cloud::Dialogflow::CX::V3::Version Version}.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/flows/<Flow ID>/versions/<Version ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/versions/<VersionID>`.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Google::Cloud::Dialogflow::CX::V3::Version]
@@ -379,7 +400,6 @@ module Google
 
                 @versions_stub.call_rpc :get_version, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -415,8 +435,7 @@ module Google
               #   @param parent [::String]
               #     Required. The {::Google::Cloud::Dialogflow::CX::V3::Flow Flow} to create an
               #     {::Google::Cloud::Dialogflow::CX::V3::Version Version} for. Format:
-              #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/flows/<Flow ID>`.
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
               #   @param version [::Google::Cloud::Dialogflow::CX::V3::Version, ::Hash]
               #     Required. The version to create.
               #
@@ -487,7 +506,7 @@ module Google
                 @versions_stub.call_rpc :create_version, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -576,7 +595,6 @@ module Google
 
                 @versions_stub.call_rpc :update_version, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -602,8 +620,8 @@ module Google
               #
               #   @param name [::String]
               #     Required. The name of the {::Google::Cloud::Dialogflow::CX::V3::Version Version}
-              #     to delete. Format: `projects/<Project ID>/locations/<Location
-              #     ID>/agents/<Agent ID>/flows/<Flow ID>/versions/<Version ID>`.
+              #     to delete. Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/versions/<VersionID>`.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Google::Protobuf::Empty]
@@ -664,7 +682,6 @@ module Google
 
                 @versions_stub.call_rpc :delete_version, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -699,8 +716,8 @@ module Google
               #
               #   @param name [::String]
               #     Required. The {::Google::Cloud::Dialogflow::CX::V3::Version Version} to be loaded
-              #     to draft flow. Format: `projects/<Project ID>/locations/<Location
-              #     ID>/agents/<Agent ID>/flows/<Flow ID>/versions/<Version ID>`.
+              #     to draft flow. Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/versions/<VersionID>`.
               #   @param allow_override_agent_resources [::Boolean]
               #     This field is used to prevent accidental overwrite of other agent
               #     resources, which can potentially impact other flow's behavior. If
@@ -774,7 +791,7 @@ module Google
                 @versions_stub.call_rpc :load_version, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -802,13 +819,13 @@ module Google
               #     Required. Name of the base flow version to compare with the target version.
               #     Use version ID `0` to indicate the draft version of the specified flow.
               #
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/
-              #     <Agent ID>/flows/<Flow ID>/versions/<Version ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/versions/<VersionID>`.
               #   @param target_version [::String]
               #     Required. Name of the target flow version to compare with the
               #     base version. Use version ID `0` to indicate the draft version of the
-              #     specified flow. Format: `projects/<Project ID>/locations/<Location
-              #     ID>/agents/<Agent ID>/flows/<Flow ID>/versions/<Version ID>`.
+              #     specified flow. Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/versions/<VersionID>`.
               #   @param language_code [::String]
               #     The language to compare the flow versions for.
               #
@@ -877,7 +894,6 @@ module Google
 
                 @versions_stub.call_rpc :compare_versions, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -927,6 +943,13 @@ module Google
               #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
               #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -966,6 +989,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -990,6 +1018,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

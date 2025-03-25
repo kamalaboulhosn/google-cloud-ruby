@@ -165,14 +165,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @site_search_engine_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @site_search_engine_service_stub.endpoint
                 config.universe_domain = @site_search_engine_service_stub.universe_domain
+                config.logger = @site_search_engine_service_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -189,6 +201,15 @@ module Google
             # @return [Google::Cloud::Location::Locations::Client]
             #
             attr_reader :location_client
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @site_search_engine_service_stub.logger
+            end
 
             # Service calls
 
@@ -280,7 +301,6 @@ module Google
 
               @site_search_engine_service_stub.call_rpc :get_site_search_engine, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -379,7 +399,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :create_target_site, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -480,7 +500,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :batch_create_target_sites, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -575,7 +595,6 @@ module Google
 
               @site_search_engine_service_stub.call_rpc :get_target_site, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -675,7 +694,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :update_target_site, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -778,7 +797,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :delete_target_site, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -887,7 +906,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :list_target_sites, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @site_search_engine_service_stub, :list_target_sites, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -984,7 +1003,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :enable_advanced_site_search, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1081,7 +1100,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :disable_advanced_site_search, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1100,7 +1119,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload recrawl_uris(site_search_engine: nil, uris: nil)
+            # @overload recrawl_uris(site_search_engine: nil, uris: nil, site_credential: nil)
             #   Pass arguments to `recrawl_uris` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1114,6 +1133,10 @@ module Google
             #     an INVALID_ARGUMENT error is thrown. Each URI should match at least one
             #     {::Google::Cloud::DiscoveryEngine::V1::TargetSite TargetSite} in
             #     `site_search_engine`.
+            #   @param site_credential [::String]
+            #     Optional. Full resource name of the [SiteCredential][], such as
+            #     `projects/*/locations/*/collections/*/dataStores/*/siteSearchEngine/siteCredentials/*`.
+            #     Only set to crawl private URIs.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::Operation]
@@ -1182,7 +1205,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :recrawl_uris, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1279,7 +1302,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :batch_verify_target_sites, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1387,7 +1410,7 @@ module Google
               @site_search_engine_service_stub.call_rpc :fetch_domain_verification_status, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @site_search_engine_service_stub, :fetch_domain_verification_status, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1437,6 +1460,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -1476,6 +1506,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -1500,6 +1535,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

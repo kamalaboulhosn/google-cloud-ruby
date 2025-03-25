@@ -14,6 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
 require 'grpc'
 require 'google/cloud/eventarc/publishing/v1/publisher_pb'
@@ -34,18 +35,23 @@ module Google
             #
             # A partner is a third-party event provider that is integrated with Eventarc.
             #
-            # A subscriber is a GCP customer interested in receiving events.
+            # A subscriber is a Google Cloud customer interested in receiving events.
             #
             # Channel is a first-class Eventarc resource that is created and managed
-            # by the subscriber in their GCP project. A Channel represents a subscriber's
-            # intent to receive events from an event provider. A Channel is associated with
-            # exactly one event provider.
+            # by the subscriber in their Google Cloud project. A Channel represents a
+            # subscriber's intent to receive events from an event provider. A Channel is
+            # associated with exactly one event provider.
             #
             # ChannelConnection is a first-class Eventarc resource that
-            # is created and managed by the partner in their GCP project. A
+            # is created and managed by the partner in their Google Cloud project. A
             # ChannelConnection represents a connection between a partner and a
             # subscriber's Channel. A ChannelConnection has a one-to-one mapping with a
             # Channel.
+            #
+            # Bus is a first-class Eventarc resource that is created and managed in a
+            # Google Cloud project. A Bus provides a discoverable endpoint for events and
+            # is a router that receives all events published by event providers and
+            # delivers them to zero or more subscribers.
             #
             # Publisher allows an event provider to publish events to Eventarc.
             class Service
@@ -60,6 +66,8 @@ module Google
               rpc :PublishChannelConnectionEvents, ::Google::Cloud::Eventarc::Publishing::V1::PublishChannelConnectionEventsRequest, ::Google::Cloud::Eventarc::Publishing::V1::PublishChannelConnectionEventsResponse
               # Publish events to a subscriber's channel.
               rpc :PublishEvents, ::Google::Cloud::Eventarc::Publishing::V1::PublishEventsRequest, ::Google::Cloud::Eventarc::Publishing::V1::PublishEventsResponse
+              # Publish events to a message bus.
+              rpc :Publish, ::Google::Cloud::Eventarc::Publishing::V1::PublishRequest, ::Google::Cloud::Eventarc::Publishing::V1::PublishResponse
             end
 
             Stub = Service.rpc_stub_class

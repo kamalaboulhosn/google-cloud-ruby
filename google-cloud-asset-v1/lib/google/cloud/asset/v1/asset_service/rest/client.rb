@@ -249,8 +249,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @asset_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
               end
 
               ##
@@ -259,6 +270,15 @@ module Google
               # @return [::Google::Cloud::Asset::V1::AssetService::Rest::Operations]
               #
               attr_reader :operations_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @asset_service_stub.logger
+              end
 
               # Service calls
 
@@ -403,7 +423,7 @@ module Google
                 @asset_service_stub.export_assets request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -543,7 +563,7 @@ module Google
                 @asset_service_stub.list_assets request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @asset_service_stub, :list_assets, "assets", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -665,7 +685,6 @@ module Google
 
                 @asset_service_stub.batch_get_assets_history request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -757,7 +776,6 @@ module Google
 
                 @asset_service_stub.create_feed request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -839,7 +857,6 @@ module Google
 
                 @asset_service_stub.get_feed request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -920,7 +937,6 @@ module Google
 
                 @asset_service_stub.list_feeds request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1007,7 +1023,6 @@ module Google
 
                 @asset_service_stub.update_feed request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1089,7 +1104,6 @@ module Google
 
                 @asset_service_stub.delete_feed request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1344,7 +1358,7 @@ module Google
                 @asset_service_stub.search_all_resources request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @asset_service_stub, :search_all_resources, "results", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1525,7 +1539,7 @@ module Google
                 @asset_service_stub.search_all_iam_policies request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @asset_service_stub, :search_all_iam_policies, "results", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1634,7 +1648,6 @@ module Google
 
                 @asset_service_stub.analyze_iam_policy request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1750,7 +1763,7 @@ module Google
                 @asset_service_stub.analyze_iam_policy_longrunning request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1845,7 +1858,6 @@ module Google
 
                 @asset_service_stub.analyze_move request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1890,9 +1902,13 @@ module Google
               #   @param statement [::String]
               #     Optional. A SQL statement that's compatible with [BigQuery
               #     SQL](https://cloud.google.com/bigquery/docs/introduction-sql).
+              #
+              #     Note: The following fields are mutually exclusive: `statement`, `job_reference`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param job_reference [::String]
               #     Optional. Reference to the query job, which is from the
               #     `QueryAssetsResponse` of previous `QueryAssets` call.
+              #
+              #     Note: The following fields are mutually exclusive: `job_reference`, `statement`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param page_size [::Integer]
               #     Optional. The maximum number of rows to return in the results. Responses
               #     are limited to 10 MB and 1000 rows.
@@ -1923,9 +1939,13 @@ module Google
               #     Optional. [start_time] is required. [start_time] must be less than
               #     [end_time] Defaults [end_time] to now if [start_time] is set and
               #     [end_time] isn't. Maximum permitted time range is 7 days.
+              #
+              #     Note: The following fields are mutually exclusive: `read_time_window`, `read_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param read_time [::Google::Protobuf::Timestamp, ::Hash]
               #     Optional. Queries cloud assets as they appeared at the specified point in
               #     time.
+              #
+              #     Note: The following fields are mutually exclusive: `read_time`, `read_time_window`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param output_config [::Google::Cloud::Asset::V1::QueryAssetsOutputConfig, ::Hash]
               #     Optional. Destination where the query results will be saved.
               #
@@ -1989,7 +2009,6 @@ module Google
 
                 @asset_service_stub.query_assets request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2085,7 +2104,6 @@ module Google
 
                 @asset_service_stub.create_saved_query request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2168,7 +2186,6 @@ module Google
 
                 @asset_service_stub.get_saved_query request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2273,7 +2290,7 @@ module Google
                 @asset_service_stub.list_saved_queries request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @asset_service_stub, :list_saved_queries, "saved_queries", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2361,7 +2378,6 @@ module Google
 
                 @asset_service_stub.update_saved_query request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2445,7 +2461,6 @@ module Google
 
                 @asset_service_stub.delete_saved_query request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2540,7 +2555,6 @@ module Google
 
                 @asset_service_stub.batch_get_effective_iam_policies request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2649,7 +2663,7 @@ module Google
                 @asset_service_stub.analyze_org_policies request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @asset_service_stub, :analyze_org_policies, "org_policy_results", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2761,7 +2775,7 @@ module Google
                 @asset_service_stub.analyze_org_policy_governed_containers request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @asset_service_stub, :analyze_org_policy_governed_containers, "governed_containers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2936,7 +2950,7 @@ module Google
                 @asset_service_stub.analyze_org_policy_governed_assets request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @asset_service_stub, :analyze_org_policy_governed_assets, "governed_assets", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2984,6 +2998,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -3016,6 +3037,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -3037,6 +3063,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

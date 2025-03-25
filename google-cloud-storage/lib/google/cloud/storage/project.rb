@@ -99,8 +99,7 @@ module Google
         # @return [String] The service account email address.
         #
         def service_account_email
-          @service_account_email ||= \
-            service.project_service_account.email_address
+          @service_account_email ||= service.project_service_account.email_address
         end
 
         ##
@@ -193,11 +192,20 @@ module Google
         #     puts bucket.name
         #   end
         #
-        def buckets prefix: nil, token: nil, max: nil, user_project: nil
+        # @example Retrieve soft deleted buckets
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #
+        #   soft_deleted_buckets = storage.buckets soft_deleted: true
+        #   soft_deleted_buckets.each do |bucket|
+        #     puts bucket.name
+        #   end
+        def buckets prefix: nil, token: nil, max: nil, user_project: nil, soft_deleted: nil
           gapi = service.list_buckets \
-            prefix: prefix, token: token, max: max, user_project: user_project
+            prefix: prefix, token: token, max: max, user_project: user_project, soft_deleted: soft_deleted
           Bucket::List.from_gapi \
-            gapi, service, prefix, max, user_project: user_project
+            gapi, service, prefix, max, user_project: user_project, soft_deleted: soft_deleted
         end
         alias find_buckets buckets
 
@@ -223,6 +231,10 @@ module Google
         #   account, transit costs will be billed to the given project. This
         #   parameter is required with requester pays-enabled buckets. The
         #   default is `nil`.
+        # @param [Integer] generation generation no of bucket
+        #   on whether the bucket's current metageneration matches the given value.
+        # @param [Boolean] soft_deleted If true, returns the soft-deleted bucket.
+        #   This parameter is required if generation is specified.
         #
         #   The value provided will be applied to all operations on the returned
         #   bucket instance and its files.
@@ -256,9 +268,20 @@ module Google
         #   bucket = storage.bucket "other-project-bucket",
         #                           user_project: "my-other-project"
         #   files = bucket.files # Billed to "my-other-project"
+        # @example With `soft_deleted` set to true and generation specified:
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #
+        #   bucket = storage.bucket "my-bucket",
+        #                           soft_deleted: true,
+        #                           generation: 1234567889
+        #   puts bucket.name
         #
         def bucket bucket_name,
                    skip_lookup: false,
+                   generation: nil,
+                   soft_deleted: nil,
                    if_metageneration_match: nil,
                    if_metageneration_not_match: nil,
                    user_project: nil
@@ -269,7 +292,10 @@ module Google
           gapi = service.get_bucket bucket_name,
                                     if_metageneration_match: if_metageneration_match,
                                     if_metageneration_not_match: if_metageneration_not_match,
-                                    user_project: user_project
+                                    user_project: user_project,
+                                    soft_deleted: soft_deleted,
+                                    generation: generation
+
           Bucket.from_gapi gapi, service, user_project: user_project
         rescue Google::Cloud::NotFoundError
           nil
@@ -421,6 +447,7 @@ module Google
         #     b.lifecycle.add_set_storage_class_rule "COLDLINE", age: 10
         #   end
         #
+        # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
         def create_bucket bucket_name,
                           acl: nil,
                           default_acl: nil,
@@ -435,11 +462,13 @@ module Google
                           requester_pays: nil,
                           user_project: nil,
                           autoclass_enabled: false,
-                          enable_object_retention: nil
+                          enable_object_retention: nil,
+                          hierarchical_namespace: nil
           params = {
             name: bucket_name,
             location: location,
-            custom_placement_config: custom_placement_config
+            custom_placement_config: custom_placement_config,
+            hierarchical_namespace: hierarchical_namespace
           }.delete_if { |_, v| v.nil? }
           new_bucket = Google::Apis::StorageV1::Bucket.new(**params)
           storage_class = storage_class_for storage_class
@@ -452,6 +481,7 @@ module Google
             b.website_404 = website_404 unless website_404.nil?
             b.versioning = versioning unless versioning.nil?
             b.requester_pays = requester_pays unless requester_pays.nil?
+            b.hierarchical_namespace = hierarchical_namespace unless hierarchical_namespace.nil?
           end
           yield updater if block_given?
           updater.check_for_changed_labels!
@@ -463,6 +493,7 @@ module Google
                         enable_object_retention: enable_object_retention
           Bucket.from_gapi gapi, service, user_project: user_project
         end
+        # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
         ##
         # Creates a new HMAC key.
@@ -547,6 +578,32 @@ module Google
             gapi, service,
             service_account_email: nil, show_deleted_keys: nil,
             max: max, user_project: user_project
+        end
+
+        ##
+        # Restores a soft deleted bucket with bucket name and generation.
+        #
+        # @param [String] bucket_name Name of the bucket.
+        # @param [Fixnum] generation Generation of the bucket.
+        #
+        # @return [Google::Cloud::Storage::Bucket, nil] Returns nil if bucket
+        #   does not exist
+        #
+        # @example
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #   generation= 123
+        #
+        #   bucket = storage.restore_bucket "my-bucket", generation
+        #   puts bucket.name
+        #
+        def restore_bucket bucket_name,
+                           generation,
+                           options: {}
+          gapi = service.restore_bucket bucket_name, generation,
+                                        options: options
+          Bucket.from_gapi gapi, service
         end
 
         ##

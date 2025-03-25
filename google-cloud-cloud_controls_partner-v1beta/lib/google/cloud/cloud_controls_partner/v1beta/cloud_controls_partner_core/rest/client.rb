@@ -185,8 +185,28 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @cloud_controls_partner_core_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
+              end
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @cloud_controls_partner_core_stub.logger
               end
 
               # Service calls
@@ -211,7 +231,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. Format:
-              #     organizations/\\{organization}/locations/\\{location}/customers/\\{customer}/workloads/\\{workload}
+              #     `organizations/{organization}/locations/{location}/customers/{customer}/workloads/{workload}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::Workload]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -265,7 +285,6 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_workload request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -292,7 +311,7 @@ module Google
               #   @param parent [::String]
               #     Required. Parent resource
               #     Format:
-              #     organizations/\\{organization}/locations/\\{location}/customers/\\{customer}
+              #     `organizations/{organization}/locations/{location}/customers/{customer}`
               #   @param page_size [::Integer]
               #     The maximum number of workloads to return. The service may return fewer
               #     than this value. If unspecified, at most 500 workloads will be returned.
@@ -304,10 +323,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::ListWorkloadsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1beta::Workload>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::CloudControlsPartner::V1beta::ListWorkloadsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1beta::Workload>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -359,8 +378,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @cloud_controls_partner_core_stub.list_workloads request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @cloud_controls_partner_core_stub, :list_workloads, "workloads", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -386,7 +406,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. Format:
-              #     organizations/\\{organization}/locations/\\{location}/customers/\\{customer}
+              #     `organizations/{organization}/locations/{location}/customers/{customer}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::Customer]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -440,7 +460,6 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_customer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -466,7 +485,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. Parent resource
-              #     Format: organizations/\\{organization}/locations/\\{location}
+              #     Format: `organizations/{organization}/locations/{location}`
               #   @param page_size [::Integer]
               #     The maximum number of Customers to return. The service may return fewer
               #     than this value. If unspecified, at most 500 Customers will be returned.
@@ -478,10 +497,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::ListCustomersResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1beta::Customer>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::CloudControlsPartner::V1beta::ListCustomersResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1beta::Customer>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -533,8 +552,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @cloud_controls_partner_core_stub.list_customers request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @cloud_controls_partner_core_stub, :list_customers, "customers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -560,7 +580,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. Format:
-              #     organizations/\\{organization}/locations/\\{location}/customers/\\{customer}/workloads/\\{workload}/ekmConnections
+              #     `organizations/{organization}/locations/{location}/customers/{customer}/workloads/{workload}/ekmConnections`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::EkmConnections]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -614,7 +634,6 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_ekm_connections request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -640,7 +659,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. Name of the resource to get in the format:
-              #     organizations/\\{organization}/locations/\\{location}/customers/\\{customer}/workloads/\\{workload}/partnerPermissions
+              #     `organizations/{organization}/locations/{location}/customers/{customer}/workloads/{workload}/partnerPermissions`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::PartnerPermissions]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -694,14 +713,14 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_partner_permissions request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
               end
 
               ##
-              # Lists access requests associated with a workload
+              # Deprecated: Only returns access approval requests directly associated with
+              # an assured workload folder.
               #
               # @overload list_access_approval_requests(request, options = nil)
               #   Pass arguments to `list_access_approval_requests` via a request object, either of type
@@ -721,7 +740,7 @@ module Google
               #   @param parent [::String]
               #     Required. Parent resource
               #     Format:
-              #     organizations/\\{organization}/locations/\\{location}/customers/\\{customer}/workloads/\\{workload}
+              #     `organizations/{organization}/locations/{location}/customers/{customer}/workloads/{workload}`
               #   @param page_size [::Integer]
               #     Optional. The maximum number of access requests to return. The service may
               #     return fewer than this value. If unspecified, at most 500 access requests
@@ -735,10 +754,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::ListAccessApprovalRequestsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1beta::AccessApprovalRequest>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::CloudControlsPartner::V1beta::ListAccessApprovalRequestsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::CloudControlsPartner::V1beta::AccessApprovalRequest>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -790,8 +809,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @cloud_controls_partner_core_stub.list_access_approval_requests request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @cloud_controls_partner_core_stub, :list_access_approval_requests, "access_approval_requests", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -816,7 +836,8 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. Format: organizations/\\{organization}/locations/\\{location}/partner
+              #     Required. Format:
+              #     `organizations/{organization}/locations/{location}/partner`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::Partner]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -870,7 +891,252 @@ module Google
 
                 @cloud_controls_partner_core_stub.get_partner request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Creates a new customer.
+              #
+              # @overload create_customer(request, options = nil)
+              #   Pass arguments to `create_customer` via a request object, either of type
+              #   {::Google::Cloud::CloudControlsPartner::V1beta::CreateCustomerRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::CloudControlsPartner::V1beta::CreateCustomerRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload create_customer(parent: nil, customer: nil, customer_id: nil)
+              #   Pass arguments to `create_customer` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Parent resource
+              #     Format: `organizations/{organization}/locations/{location}`
+              #   @param customer [::Google::Cloud::CloudControlsPartner::V1beta::Customer, ::Hash]
+              #     Required. The customer to create.
+              #   @param customer_id [::String]
+              #     Required. The customer id to use for the customer, which will become the
+              #     final component of the customer's resource name. The specified value must
+              #     be a valid Google cloud organization id.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::Customer]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::CloudControlsPartner::V1beta::Customer]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/cloud_controls_partner/v1beta"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::CloudControlsPartner::V1beta::CloudControlsPartnerCore::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::CloudControlsPartner::V1beta::CreateCustomerRequest.new
+              #
+              #   # Call the create_customer method.
+              #   result = client.create_customer request
+              #
+              #   # The returned object is of type Google::Cloud::CloudControlsPartner::V1beta::Customer.
+              #   p result
+              #
+              def create_customer request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::CloudControlsPartner::V1beta::CreateCustomerRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.create_customer.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::CloudControlsPartner::V1beta::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.create_customer.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.create_customer.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_controls_partner_core_stub.create_customer request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Update details of a single customer
+              #
+              # @overload update_customer(request, options = nil)
+              #   Pass arguments to `update_customer` via a request object, either of type
+              #   {::Google::Cloud::CloudControlsPartner::V1beta::UpdateCustomerRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::CloudControlsPartner::V1beta::UpdateCustomerRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_customer(customer: nil, update_mask: nil)
+              #   Pass arguments to `update_customer` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param customer [::Google::Cloud::CloudControlsPartner::V1beta::Customer, ::Hash]
+              #     Required. The customer to update
+              #     Format:
+              #     `organizations/{organization}/locations/{location}/customers/{customer}`
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Optional. The list of fields to update
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::CloudControlsPartner::V1beta::Customer]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::CloudControlsPartner::V1beta::Customer]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/cloud_controls_partner/v1beta"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::CloudControlsPartner::V1beta::CloudControlsPartnerCore::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::CloudControlsPartner::V1beta::UpdateCustomerRequest.new
+              #
+              #   # Call the update_customer method.
+              #   result = client.update_customer request
+              #
+              #   # The returned object is of type Google::Cloud::CloudControlsPartner::V1beta::Customer.
+              #   p result
+              #
+              def update_customer request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::CloudControlsPartner::V1beta::UpdateCustomerRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_customer.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::CloudControlsPartner::V1beta::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_customer.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_customer.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_controls_partner_core_stub.update_customer request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Delete details of a single customer
+              #
+              # @overload delete_customer(request, options = nil)
+              #   Pass arguments to `delete_customer` via a request object, either of type
+              #   {::Google::Cloud::CloudControlsPartner::V1beta::DeleteCustomerRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::CloudControlsPartner::V1beta::DeleteCustomerRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_customer(name: nil)
+              #   Pass arguments to `delete_customer` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. name of the resource to be deleted
+              #     format: name=organizations/*/locations/*/customers/*
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Protobuf::Empty]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/cloud_controls_partner/v1beta"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::CloudControlsPartner::V1beta::CloudControlsPartnerCore::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::CloudControlsPartner::V1beta::DeleteCustomerRequest.new
+              #
+              #   # Call the delete_customer method.
+              #   result = client.delete_customer request
+              #
+              #   # The returned object is of type Google::Protobuf::Empty.
+              #   p result
+              #
+              def delete_customer request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::CloudControlsPartner::V1beta::DeleteCustomerRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_customer.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::CloudControlsPartner::V1beta::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_customer.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_customer.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @cloud_controls_partner_core_stub.delete_customer request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -918,6 +1184,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -950,6 +1223,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -971,6 +1249,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -1049,6 +1328,21 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :get_partner
+                  ##
+                  # RPC-specific configuration for `create_customer`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :create_customer
+                  ##
+                  # RPC-specific configuration for `update_customer`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_customer
+                  ##
+                  # RPC-specific configuration for `delete_customer`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_customer
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -1068,6 +1362,12 @@ module Google
                     @list_access_approval_requests = ::Gapic::Config::Method.new list_access_approval_requests_config
                     get_partner_config = parent_rpcs.get_partner if parent_rpcs.respond_to? :get_partner
                     @get_partner = ::Gapic::Config::Method.new get_partner_config
+                    create_customer_config = parent_rpcs.create_customer if parent_rpcs.respond_to? :create_customer
+                    @create_customer = ::Gapic::Config::Method.new create_customer_config
+                    update_customer_config = parent_rpcs.update_customer if parent_rpcs.respond_to? :update_customer
+                    @update_customer = ::Gapic::Config::Method.new update_customer_config
+                    delete_customer_config = parent_rpcs.delete_customer if parent_rpcs.respond_to? :delete_customer
+                    @delete_customer = ::Gapic::Config::Method.new delete_customer_config
 
                     yield self if block_given?
                   end

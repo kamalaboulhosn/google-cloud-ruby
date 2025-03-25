@@ -74,9 +74,10 @@ module Google
         #     Required. Value for parent.
         # @!attribute [rw] storage_pool_id
         #   @return [::String]
-        #     Required. Id of the requesting storage pool
-        #     If auto-generating Id server-side, remove this field and
-        #     id from the method_signature of Create RPC
+        #     Required. Id of the requesting storage pool. Must be unique within the
+        #     parent resource. Must contain only letters, numbers and hyphen, with the
+        #     first character a letter, the last a letter or a number, and a 63 character
+        #     maximum.
         # @!attribute [rw] storage_pool
         #   @return [::Google::Cloud::NetApp::V1::StoragePool]
         #     Required. The required parameters to create a new storage pool.
@@ -106,6 +107,16 @@ module Google
         #   @return [::String]
         #     Required. Name of the storage pool
         class DeleteStoragePoolRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # SwitchActiveReplicaZoneRequest switch the active/replica zone for a regional
+        # storagePool.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. Name of the storage pool
+        class SwitchActiveReplicaZoneRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
@@ -169,6 +180,23 @@ module Google
         #   @return [::Boolean]
         #     Deprecated. Used to allow SO pool to access AD or DNS server from other
         #     regions.
+        # @!attribute [rw] allow_auto_tiering
+        #   @return [::Boolean]
+        #     Optional. True if the storage pool supports Auto Tiering enabled volumes.
+        #     Default is false. Auto-tiering can be enabled after storage pool creation
+        #     but it can't be disabled once enabled.
+        # @!attribute [rw] replica_zone
+        #   @return [::String]
+        #     Optional. Specifies the replica zone for regional storagePool.
+        # @!attribute [rw] zone
+        #   @return [::String]
+        #     Optional. Specifies the active zone for regional storagePool.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use
         class StoragePool
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -208,6 +236,19 @@ module Google
             # Storage Pool State is Error
             ERROR = 7
           end
+        end
+
+        # ValidateDirectoryServiceRequest validates the directory service policy
+        # attached to the storage pool.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. Name of the storage pool
+        # @!attribute [rw] directory_service_type
+        #   @return [::Google::Cloud::NetApp::V1::DirectoryServiceType]
+        #     Type of directory service policy attached to the storage pool.
+        class ValidateDirectoryServiceRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
         end
       end
     end

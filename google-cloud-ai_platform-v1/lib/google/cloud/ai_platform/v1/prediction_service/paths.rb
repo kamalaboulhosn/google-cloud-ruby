@@ -25,6 +25,25 @@ module Google
           # Path helper methods for the PredictionService API.
           module Paths
             ##
+            # Create a fully-qualified CachedContent resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/cachedContents/{cached_content}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param cached_content [String]
+            #
+            # @return [::String]
+            def cached_content_path project:, location:, cached_content:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/cachedContents/#{cached_content}"
+            end
+
+            ##
             # Create a fully-qualified Endpoint resource string.
             #
             # @overload endpoint_path(project:, location:, endpoint:)
@@ -67,6 +86,25 @@ module Google
               resource = resources[args.keys.sort.join(":")]
               raise ::ArgumentError, "no resource found for values #{args.keys}" if resource.nil?
               resource.call(**args)
+            end
+
+            ##
+            # Create a fully-qualified RagCorpus resource string.
+            #
+            # The resource will be in the following format:
+            #
+            # `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`
+            #
+            # @param project [String]
+            # @param location [String]
+            # @param rag_corpus [String]
+            #
+            # @return [::String]
+            def rag_corpus_path project:, location:, rag_corpus:
+              raise ::ArgumentError, "project cannot contain /" if project.to_s.include? "/"
+              raise ::ArgumentError, "location cannot contain /" if location.to_s.include? "/"
+
+              "projects/#{project}/locations/#{location}/ragCorpora/#{rag_corpus}"
             end
 
             extend self

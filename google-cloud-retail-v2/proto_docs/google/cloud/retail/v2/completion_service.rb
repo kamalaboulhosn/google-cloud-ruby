@@ -94,12 +94,17 @@ module Google
         #
         #     The maximum allowed max suggestions is 20. If it is set higher, it will be
         #     capped by 20.
+        # @!attribute [rw] enable_attribute_suggestions
+        #   @return [::Boolean]
+        #     If true, attribute suggestions are enabled and provided in the response.
+        #
+        #     This field is only available for the "cloud-retail" dataset.
         # @!attribute [rw] entity
         #   @return [::String]
-        #     The entity for customers that may run multiple different entities, domains,
-        #     sites or regions, for example, `Google US`, `Google Ads`, `Waymo`,
+        #     The entity for customers who run multiple entities, domains, sites, or
+        #     regions, for example, `Google US`, `Google Ads`, `Waymo`,
         #     `google.com`, `youtube.com`, etc.
-        #     If this is set, it should be exactly matched with
+        #     If this is set, it must be an exact match with
         #     {::Google::Cloud::Retail::V2::UserEvent#entity UserEvent.entity} to get
         #     per-entity autocomplete results.
         class CompleteQueryRequest
@@ -119,10 +124,11 @@ module Google
         #     for search events resulting from this completion, which enables accurate
         #     attribution of complete model performance.
         # @!attribute [rw] recent_search_results
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Array<::Google::Cloud::Retail::V2::CompleteQueryResponse::RecentSearchResult>]
-        #     Matched recent searches of this user. The maximum number of recent searches
-        #     is 10. This field is a restricted feature. Contact Retail Search support
-        #     team if you are interested in enabling it.
+        #     Deprecated. Matched recent searches of this user. The maximum number of
+        #     recent searches is 10. This field is a restricted feature. If you want to
+        #     enable it, contact Retail Search support.
         #
         #     This feature is only available when
         #     {::Google::Cloud::Retail::V2::CompleteQueryRequest#visitor_id CompleteQueryRequest.visitor_id}
@@ -141,6 +147,16 @@ module Google
         #
         #     Recent searches are deduplicated. More recent searches will be reserved
         #     when duplication happens.
+        # @!attribute [rw] attribute_results
+        #   @return [::Google::Protobuf::Map{::String => ::Google::Cloud::Retail::V2::CompleteQueryResponse::AttributeResult}]
+        #     A map of matched attribute suggestions. This field is only available for
+        #     "cloud-retail" dataset.
+        #
+        #     Current supported keys:
+        #
+        #     * `brands`
+        #
+        #     * `categories`
         class CompleteQueryResponse
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -174,11 +190,30 @@ module Google
             end
           end
 
-          # Recent search of this user.
+          # Deprecated: Recent search of this user.
+          # @deprecated This message is deprecated and may be removed in the next major version update.
           # @!attribute [rw] recent_search
           #   @return [::String]
           #     The recent search query.
           class RecentSearchResult
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Resource that represents attribute results.
+          # The list of suggestions for the attribute.
+          # @!attribute [rw] suggestions
+          #   @return [::Array<::String>]
+          class AttributeResult
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # @!attribute [rw] key
+          #   @return [::String]
+          # @!attribute [rw] value
+          #   @return [::Google::Cloud::Retail::V2::CompleteQueryResponse::AttributeResult]
+          class AttributeResultsEntry
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end

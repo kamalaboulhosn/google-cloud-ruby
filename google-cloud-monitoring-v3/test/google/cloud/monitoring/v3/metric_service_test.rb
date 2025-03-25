@@ -41,9 +41,10 @@ class ::Google::Cloud::Monitoring::V3::MetricService::ClientTest < Minitest::Tes
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::Monitoring::V3::MetricService::ClientTest < Minitest::Tes
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -194,6 +203,7 @@ class ::Google::Cloud::Monitoring::V3::MetricService::ClientTest < Minitest::Tes
     filter = "hello world"
     page_size = 42
     page_token = "hello world"
+    active_only = true
 
     list_metric_descriptors_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :list_metric_descriptors, name
@@ -202,6 +212,7 @@ class ::Google::Cloud::Monitoring::V3::MetricService::ClientTest < Minitest::Tes
       assert_equal "hello world", request["filter"]
       assert_equal 42, request["page_size"]
       assert_equal "hello world", request["page_token"]
+      assert_equal true, request["active_only"]
       refute_nil options
     end
 
@@ -212,35 +223,35 @@ class ::Google::Cloud::Monitoring::V3::MetricService::ClientTest < Minitest::Tes
       end
 
       # Use hash object
-      client.list_metric_descriptors({ name: name, filter: filter, page_size: page_size, page_token: page_token }) do |response, operation|
+      client.list_metric_descriptors({ name: name, filter: filter, page_size: page_size, page_token: page_token, active_only: active_only }) do |response, operation|
         assert_kind_of Gapic::PagedEnumerable, response
         assert_equal grpc_response, response.response
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.list_metric_descriptors name: name, filter: filter, page_size: page_size, page_token: page_token do |response, operation|
+      client.list_metric_descriptors name: name, filter: filter, page_size: page_size, page_token: page_token, active_only: active_only do |response, operation|
         assert_kind_of Gapic::PagedEnumerable, response
         assert_equal grpc_response, response.response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.list_metric_descriptors ::Google::Cloud::Monitoring::V3::ListMetricDescriptorsRequest.new(name: name, filter: filter, page_size: page_size, page_token: page_token) do |response, operation|
+      client.list_metric_descriptors ::Google::Cloud::Monitoring::V3::ListMetricDescriptorsRequest.new(name: name, filter: filter, page_size: page_size, page_token: page_token, active_only: active_only) do |response, operation|
         assert_kind_of Gapic::PagedEnumerable, response
         assert_equal grpc_response, response.response
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.list_metric_descriptors({ name: name, filter: filter, page_size: page_size, page_token: page_token }, grpc_options) do |response, operation|
+      client.list_metric_descriptors({ name: name, filter: filter, page_size: page_size, page_token: page_token, active_only: active_only }, grpc_options) do |response, operation|
         assert_kind_of Gapic::PagedEnumerable, response
         assert_equal grpc_response, response.response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.list_metric_descriptors(::Google::Cloud::Monitoring::V3::ListMetricDescriptorsRequest.new(name: name, filter: filter, page_size: page_size, page_token: page_token), grpc_options) do |response, operation|
+      client.list_metric_descriptors(::Google::Cloud::Monitoring::V3::ListMetricDescriptorsRequest.new(name: name, filter: filter, page_size: page_size, page_token: page_token, active_only: active_only), grpc_options) do |response, operation|
         assert_kind_of Gapic::PagedEnumerable, response
         assert_equal grpc_response, response.response
         assert_equal grpc_operation, operation

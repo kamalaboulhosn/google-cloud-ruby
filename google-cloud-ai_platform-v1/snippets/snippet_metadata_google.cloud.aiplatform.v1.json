@@ -1,7 +1,7 @@
 {
   "client_library": {
     "name": "google-cloud-ai_platform-v1",
-    "version": "0.39.0",
+    "version": "1.5.0",
     "language": "RUBY",
     "apis": [
       {
@@ -327,6 +327,46 @@
         {
           "start": 20,
           "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_DatasetService_UpdateDatasetVersion_sync",
+      "title": "Snippet for the update_dataset_version call in the DatasetService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::DatasetService::Client#update_dataset_version.",
+      "file": "dataset_service/update_dataset_version.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "update_dataset_version",
+        "full_name": "::Google::Cloud::AIPlatform::V1::DatasetService::Client#update_dataset_version",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::UpdateDatasetVersionRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::DatasetVersion",
+        "client": {
+          "short_name": "DatasetService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::DatasetService::Client"
+        },
+        "method": {
+          "short_name": "UpdateDatasetVersion",
+          "full_name": "google.cloud.aiplatform.v1.DatasetService.UpdateDatasetVersion",
+          "service": {
+            "short_name": "DatasetService",
+            "full_name": "google.cloud.aiplatform.v1.DatasetService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
           "type": "FULL"
         }
       ]
@@ -852,6 +892,46 @@
       ]
     },
     {
+      "region_tag": "aiplatform_v1_generated_DeploymentResourcePoolService_UpdateDeploymentResourcePool_sync",
+      "title": "Snippet for the update_deployment_resource_pool call in the DeploymentResourcePoolService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::Client#update_deployment_resource_pool.",
+      "file": "deployment_resource_pool_service/update_deployment_resource_pool.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "update_deployment_resource_pool",
+        "full_name": "::Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::Client#update_deployment_resource_pool",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::UpdateDeploymentResourcePoolRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "DeploymentResourcePoolService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::Client"
+        },
+        "method": {
+          "short_name": "UpdateDeploymentResourcePool",
+          "full_name": "google.cloud.aiplatform.v1.DeploymentResourcePoolService.UpdateDeploymentResourcePool",
+          "service": {
+            "short_name": "DeploymentResourcePoolService",
+            "full_name": "google.cloud.aiplatform.v1.DeploymentResourcePoolService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
       "region_tag": "aiplatform_v1_generated_DeploymentResourcePoolService_DeleteDeploymentResourcePool_sync",
       "title": "Snippet for the delete_deployment_resource_pool call in the DeploymentResourcePoolService service",
       "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::Client#delete_deployment_resource_pool.",
@@ -1092,6 +1172,46 @@
       ]
     },
     {
+      "region_tag": "aiplatform_v1_generated_EndpointService_UpdateEndpointLongRunning_sync",
+      "title": "Snippet for the update_endpoint_long_running call in the EndpointService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::EndpointService::Client#update_endpoint_long_running.",
+      "file": "endpoint_service/update_endpoint_long_running.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "update_endpoint_long_running",
+        "full_name": "::Google::Cloud::AIPlatform::V1::EndpointService::Client#update_endpoint_long_running",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::UpdateEndpointLongRunningRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "EndpointService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::EndpointService::Client"
+        },
+        "method": {
+          "short_name": "UpdateEndpointLongRunning",
+          "full_name": "google.cloud.aiplatform.v1.EndpointService.UpdateEndpointLongRunning",
+          "service": {
+            "short_name": "EndpointService",
+            "full_name": "google.cloud.aiplatform.v1.EndpointService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
       "region_tag": "aiplatform_v1_generated_EndpointService_DeleteEndpoint_sync",
       "title": "Snippet for the delete_endpoint call in the EndpointService service",
       "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::EndpointService::Client#delete_endpoint.",
@@ -1247,6 +1367,46 @@
         {
           "start": 20,
           "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_EvaluationService_EvaluateInstances_sync",
+      "title": "Snippet for the evaluate_instances call in the EvaluationService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::EvaluationService::Client#evaluate_instances.",
+      "file": "evaluation_service/evaluate_instances.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "evaluate_instances",
+        "full_name": "::Google::Cloud::AIPlatform::V1::EvaluationService::Client#evaluate_instances",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::EvaluateInstancesRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::EvaluateInstancesResponse",
+        "client": {
+          "short_name": "EvaluationService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::EvaluationService::Client"
+        },
+        "method": {
+          "short_name": "EvaluateInstances",
+          "full_name": "google.cloud.aiplatform.v1.EvaluationService.EvaluateInstances",
+          "service": {
+            "short_name": "EvaluationService",
+            "full_name": "google.cloud.aiplatform.v1.EvaluationService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
           "type": "FULL"
         }
       ]
@@ -3052,6 +3212,46 @@
       ]
     },
     {
+      "region_tag": "aiplatform_v1_generated_FeatureRegistryService_BatchCreateFeatures_sync",
+      "title": "Snippet for the batch_create_features call in the FeatureRegistryService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client#batch_create_features.",
+      "file": "feature_registry_service/batch_create_features.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "batch_create_features",
+        "full_name": "::Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client#batch_create_features",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::BatchCreateFeaturesRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "FeatureRegistryService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client"
+        },
+        "method": {
+          "short_name": "BatchCreateFeatures",
+          "full_name": "google.cloud.aiplatform.v1.FeatureRegistryService.BatchCreateFeatures",
+          "service": {
+            "short_name": "FeatureRegistryService",
+            "full_name": "google.cloud.aiplatform.v1.FeatureRegistryService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
       "region_tag": "aiplatform_v1_generated_FeatureRegistryService_GetFeature_sync",
       "title": "Snippet for the get_feature call in the FeatureRegistryService service",
       "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::FeatureRegistryService::Client#get_feature.",
@@ -3212,6 +3412,206 @@
       ]
     },
     {
+      "region_tag": "aiplatform_v1_generated_GenAiCacheService_CreateCachedContent_sync",
+      "title": "Snippet for the create_cached_content call in the GenAiCacheService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#create_cached_content.",
+      "file": "gen_ai_cache_service/create_cached_content.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "create_cached_content",
+        "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#create_cached_content",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::CreateCachedContentRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::CachedContent",
+        "client": {
+          "short_name": "GenAiCacheService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client"
+        },
+        "method": {
+          "short_name": "CreateCachedContent",
+          "full_name": "google.cloud.aiplatform.v1.GenAiCacheService.CreateCachedContent",
+          "service": {
+            "short_name": "GenAiCacheService",
+            "full_name": "google.cloud.aiplatform.v1.GenAiCacheService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_GenAiCacheService_GetCachedContent_sync",
+      "title": "Snippet for the get_cached_content call in the GenAiCacheService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#get_cached_content.",
+      "file": "gen_ai_cache_service/get_cached_content.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "get_cached_content",
+        "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#get_cached_content",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::GetCachedContentRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::CachedContent",
+        "client": {
+          "short_name": "GenAiCacheService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client"
+        },
+        "method": {
+          "short_name": "GetCachedContent",
+          "full_name": "google.cloud.aiplatform.v1.GenAiCacheService.GetCachedContent",
+          "service": {
+            "short_name": "GenAiCacheService",
+            "full_name": "google.cloud.aiplatform.v1.GenAiCacheService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_GenAiCacheService_UpdateCachedContent_sync",
+      "title": "Snippet for the update_cached_content call in the GenAiCacheService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#update_cached_content.",
+      "file": "gen_ai_cache_service/update_cached_content.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "update_cached_content",
+        "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#update_cached_content",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::UpdateCachedContentRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::CachedContent",
+        "client": {
+          "short_name": "GenAiCacheService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client"
+        },
+        "method": {
+          "short_name": "UpdateCachedContent",
+          "full_name": "google.cloud.aiplatform.v1.GenAiCacheService.UpdateCachedContent",
+          "service": {
+            "short_name": "GenAiCacheService",
+            "full_name": "google.cloud.aiplatform.v1.GenAiCacheService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_GenAiCacheService_DeleteCachedContent_sync",
+      "title": "Snippet for the delete_cached_content call in the GenAiCacheService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#delete_cached_content.",
+      "file": "gen_ai_cache_service/delete_cached_content.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "delete_cached_content",
+        "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#delete_cached_content",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::DeleteCachedContentRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Protobuf::Empty",
+        "client": {
+          "short_name": "GenAiCacheService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client"
+        },
+        "method": {
+          "short_name": "DeleteCachedContent",
+          "full_name": "google.cloud.aiplatform.v1.GenAiCacheService.DeleteCachedContent",
+          "service": {
+            "short_name": "GenAiCacheService",
+            "full_name": "google.cloud.aiplatform.v1.GenAiCacheService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_GenAiCacheService_ListCachedContents_sync",
+      "title": "Snippet for the list_cached_contents call in the GenAiCacheService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#list_cached_contents.",
+      "file": "gen_ai_cache_service/list_cached_contents.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "list_cached_contents",
+        "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client#list_cached_contents",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::ListCachedContentsRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::ListCachedContentsResponse",
+        "client": {
+          "short_name": "GenAiCacheService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::GenAiCacheService::Client"
+        },
+        "method": {
+          "short_name": "ListCachedContents",
+          "full_name": "google.cloud.aiplatform.v1.GenAiCacheService.ListCachedContents",
+          "service": {
+            "short_name": "GenAiCacheService",
+            "full_name": "google.cloud.aiplatform.v1.GenAiCacheService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 50,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
       "region_tag": "aiplatform_v1_generated_GenAiTuningService_CreateTuningJob_sync",
       "title": "Snippet for the create_tuning_job call in the GenAiTuningService service",
       "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::GenAiTuningService::Client#create_tuning_job.",
@@ -3367,6 +3767,46 @@
         {
           "start": 20,
           "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_GenAiTuningService_RebaseTunedModel_sync",
+      "title": "Snippet for the rebase_tuned_model call in the GenAiTuningService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::GenAiTuningService::Client#rebase_tuned_model.",
+      "file": "gen_ai_tuning_service/rebase_tuned_model.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "rebase_tuned_model",
+        "full_name": "::Google::Cloud::AIPlatform::V1::GenAiTuningService::Client#rebase_tuned_model",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::RebaseTunedModelRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "GenAiTuningService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::GenAiTuningService::Client"
+        },
+        "method": {
+          "short_name": "RebaseTunedModel",
+          "full_name": "google.cloud.aiplatform.v1.GenAiTuningService.RebaseTunedModel",
+          "service": {
+            "short_name": "GenAiTuningService",
+            "full_name": "google.cloud.aiplatform.v1.GenAiTuningService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
           "type": "FULL"
         }
       ]
@@ -7612,6 +8052,46 @@
       ]
     },
     {
+      "region_tag": "aiplatform_v1_generated_ModelService_ListModelVersionCheckpoints_sync",
+      "title": "Snippet for the list_model_version_checkpoints call in the ModelService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ModelService::Client#list_model_version_checkpoints.",
+      "file": "model_service/list_model_version_checkpoints.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "list_model_version_checkpoints",
+        "full_name": "::Google::Cloud::AIPlatform::V1::ModelService::Client#list_model_version_checkpoints",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::ListModelVersionCheckpointsRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::ListModelVersionCheckpointsResponse",
+        "client": {
+          "short_name": "ModelService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::ModelService::Client"
+        },
+        "method": {
+          "short_name": "ListModelVersionCheckpoints",
+          "full_name": "google.cloud.aiplatform.v1.ModelService.ListModelVersionCheckpoints",
+          "service": {
+            "short_name": "ModelService",
+            "full_name": "google.cloud.aiplatform.v1.ModelService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 50,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
       "region_tag": "aiplatform_v1_generated_ModelService_UpdateModel_sync",
       "title": "Snippet for the update_model call in the ModelService service",
       "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ModelService::Client#update_model.",
@@ -8332,6 +8812,46 @@
       ]
     },
     {
+      "region_tag": "aiplatform_v1_generated_NotebookService_UpdateNotebookRuntimeTemplate_sync",
+      "title": "Snippet for the update_notebook_runtime_template call in the NotebookService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::NotebookService::Client#update_notebook_runtime_template.",
+      "file": "notebook_service/update_notebook_runtime_template.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "update_notebook_runtime_template",
+        "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client#update_notebook_runtime_template",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::UpdateNotebookRuntimeTemplateRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::NotebookRuntimeTemplate",
+        "client": {
+          "short_name": "NotebookService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client"
+        },
+        "method": {
+          "short_name": "UpdateNotebookRuntimeTemplate",
+          "full_name": "google.cloud.aiplatform.v1.NotebookService.UpdateNotebookRuntimeTemplate",
+          "service": {
+            "short_name": "NotebookService",
+            "full_name": "google.cloud.aiplatform.v1.NotebookService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
       "region_tag": "aiplatform_v1_generated_NotebookService_AssignNotebookRuntime_sync",
       "title": "Snippet for the assign_notebook_runtime call in the NotebookService service",
       "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::NotebookService::Client#assign_notebook_runtime.",
@@ -8555,6 +9075,206 @@
         "method": {
           "short_name": "StartNotebookRuntime",
           "full_name": "google.cloud.aiplatform.v1.NotebookService.StartNotebookRuntime",
+          "service": {
+            "short_name": "NotebookService",
+            "full_name": "google.cloud.aiplatform.v1.NotebookService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_NotebookService_StopNotebookRuntime_sync",
+      "title": "Snippet for the stop_notebook_runtime call in the NotebookService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::NotebookService::Client#stop_notebook_runtime.",
+      "file": "notebook_service/stop_notebook_runtime.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "stop_notebook_runtime",
+        "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client#stop_notebook_runtime",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::StopNotebookRuntimeRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "NotebookService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client"
+        },
+        "method": {
+          "short_name": "StopNotebookRuntime",
+          "full_name": "google.cloud.aiplatform.v1.NotebookService.StopNotebookRuntime",
+          "service": {
+            "short_name": "NotebookService",
+            "full_name": "google.cloud.aiplatform.v1.NotebookService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_NotebookService_CreateNotebookExecutionJob_sync",
+      "title": "Snippet for the create_notebook_execution_job call in the NotebookService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::NotebookService::Client#create_notebook_execution_job.",
+      "file": "notebook_service/create_notebook_execution_job.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "create_notebook_execution_job",
+        "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client#create_notebook_execution_job",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::CreateNotebookExecutionJobRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "NotebookService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client"
+        },
+        "method": {
+          "short_name": "CreateNotebookExecutionJob",
+          "full_name": "google.cloud.aiplatform.v1.NotebookService.CreateNotebookExecutionJob",
+          "service": {
+            "short_name": "NotebookService",
+            "full_name": "google.cloud.aiplatform.v1.NotebookService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_NotebookService_GetNotebookExecutionJob_sync",
+      "title": "Snippet for the get_notebook_execution_job call in the NotebookService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::NotebookService::Client#get_notebook_execution_job.",
+      "file": "notebook_service/get_notebook_execution_job.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "get_notebook_execution_job",
+        "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client#get_notebook_execution_job",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::GetNotebookExecutionJobRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::NotebookExecutionJob",
+        "client": {
+          "short_name": "NotebookService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client"
+        },
+        "method": {
+          "short_name": "GetNotebookExecutionJob",
+          "full_name": "google.cloud.aiplatform.v1.NotebookService.GetNotebookExecutionJob",
+          "service": {
+            "short_name": "NotebookService",
+            "full_name": "google.cloud.aiplatform.v1.NotebookService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_NotebookService_ListNotebookExecutionJobs_sync",
+      "title": "Snippet for the list_notebook_execution_jobs call in the NotebookService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::NotebookService::Client#list_notebook_execution_jobs.",
+      "file": "notebook_service/list_notebook_execution_jobs.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "list_notebook_execution_jobs",
+        "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client#list_notebook_execution_jobs",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsResponse",
+        "client": {
+          "short_name": "NotebookService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client"
+        },
+        "method": {
+          "short_name": "ListNotebookExecutionJobs",
+          "full_name": "google.cloud.aiplatform.v1.NotebookService.ListNotebookExecutionJobs",
+          "service": {
+            "short_name": "NotebookService",
+            "full_name": "google.cloud.aiplatform.v1.NotebookService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 50,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_NotebookService_DeleteNotebookExecutionJob_sync",
+      "title": "Snippet for the delete_notebook_execution_job call in the NotebookService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::NotebookService::Client#delete_notebook_execution_job.",
+      "file": "notebook_service/delete_notebook_execution_job.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "delete_notebook_execution_job",
+        "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client#delete_notebook_execution_job",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::DeleteNotebookExecutionJobRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "NotebookService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::NotebookService::Client"
+        },
+        "method": {
+          "short_name": "DeleteNotebookExecutionJob",
+          "full_name": "google.cloud.aiplatform.v1.NotebookService.DeleteNotebookExecutionJob",
           "service": {
             "short_name": "NotebookService",
             "full_name": "google.cloud.aiplatform.v1.NotebookService"
@@ -9278,6 +9998,286 @@
           "service": {
             "short_name": "PipelineService",
             "full_name": "google.cloud.aiplatform.v1.PipelineService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_ReasoningEngineExecutionService_QueryReasoningEngine_sync",
+      "title": "Snippet for the query_reasoning_engine call in the ReasoningEngineExecutionService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ReasoningEngineExecutionService::Client#query_reasoning_engine.",
+      "file": "reasoning_engine_execution_service/query_reasoning_engine.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "query_reasoning_engine",
+        "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineExecutionService::Client#query_reasoning_engine",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::QueryReasoningEngineRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::QueryReasoningEngineResponse",
+        "client": {
+          "short_name": "ReasoningEngineExecutionService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineExecutionService::Client"
+        },
+        "method": {
+          "short_name": "QueryReasoningEngine",
+          "full_name": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService.QueryReasoningEngine",
+          "service": {
+            "short_name": "ReasoningEngineExecutionService",
+            "full_name": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_ReasoningEngineExecutionService_StreamQueryReasoningEngine_sync",
+      "title": "Snippet for the stream_query_reasoning_engine call in the ReasoningEngineExecutionService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ReasoningEngineExecutionService::Client#stream_query_reasoning_engine.",
+      "file": "reasoning_engine_execution_service/stream_query_reasoning_engine.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "stream_query_reasoning_engine",
+        "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineExecutionService::Client#stream_query_reasoning_engine",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::StreamQueryReasoningEngineRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Api::HttpBody",
+        "client": {
+          "short_name": "ReasoningEngineExecutionService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineExecutionService::Client"
+        },
+        "method": {
+          "short_name": "StreamQueryReasoningEngine",
+          "full_name": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService.StreamQueryReasoningEngine",
+          "service": {
+            "short_name": "ReasoningEngineExecutionService",
+            "full_name": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 49,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_ReasoningEngineService_CreateReasoningEngine_sync",
+      "title": "Snippet for the create_reasoning_engine call in the ReasoningEngineService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#create_reasoning_engine.",
+      "file": "reasoning_engine_service/create_reasoning_engine.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "create_reasoning_engine",
+        "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#create_reasoning_engine",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::CreateReasoningEngineRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "ReasoningEngineService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client"
+        },
+        "method": {
+          "short_name": "CreateReasoningEngine",
+          "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService.CreateReasoningEngine",
+          "service": {
+            "short_name": "ReasoningEngineService",
+            "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_ReasoningEngineService_GetReasoningEngine_sync",
+      "title": "Snippet for the get_reasoning_engine call in the ReasoningEngineService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#get_reasoning_engine.",
+      "file": "reasoning_engine_service/get_reasoning_engine.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "get_reasoning_engine",
+        "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#get_reasoning_engine",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::GetReasoningEngineRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::ReasoningEngine",
+        "client": {
+          "short_name": "ReasoningEngineService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client"
+        },
+        "method": {
+          "short_name": "GetReasoningEngine",
+          "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService.GetReasoningEngine",
+          "service": {
+            "short_name": "ReasoningEngineService",
+            "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_ReasoningEngineService_ListReasoningEngines_sync",
+      "title": "Snippet for the list_reasoning_engines call in the ReasoningEngineService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#list_reasoning_engines.",
+      "file": "reasoning_engine_service/list_reasoning_engines.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "list_reasoning_engines",
+        "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#list_reasoning_engines",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::ListReasoningEnginesRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::ListReasoningEnginesResponse",
+        "client": {
+          "short_name": "ReasoningEngineService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client"
+        },
+        "method": {
+          "short_name": "ListReasoningEngines",
+          "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService.ListReasoningEngines",
+          "service": {
+            "short_name": "ReasoningEngineService",
+            "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 50,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_ReasoningEngineService_UpdateReasoningEngine_sync",
+      "title": "Snippet for the update_reasoning_engine call in the ReasoningEngineService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#update_reasoning_engine.",
+      "file": "reasoning_engine_service/update_reasoning_engine.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "update_reasoning_engine",
+        "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#update_reasoning_engine",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::UpdateReasoningEngineRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "ReasoningEngineService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client"
+        },
+        "method": {
+          "short_name": "UpdateReasoningEngine",
+          "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService.UpdateReasoningEngine",
+          "service": {
+            "short_name": "ReasoningEngineService",
+            "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_ReasoningEngineService_DeleteReasoningEngine_sync",
+      "title": "Snippet for the delete_reasoning_engine call in the ReasoningEngineService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#delete_reasoning_engine.",
+      "file": "reasoning_engine_service/delete_reasoning_engine.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "delete_reasoning_engine",
+        "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client#delete_reasoning_engine",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::DeleteReasoningEngineRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "ReasoningEngineService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::ReasoningEngineService::Client"
+        },
+        "method": {
+          "short_name": "DeleteReasoningEngine",
+          "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService.DeleteReasoningEngine",
+          "service": {
+            "short_name": "ReasoningEngineService",
+            "full_name": "google.cloud.aiplatform.v1.ReasoningEngineService"
           }
         }
       },
@@ -10967,6 +11967,526 @@
         {
           "start": 20,
           "end": 50,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_CreateRagCorpus_sync",
+      "title": "Snippet for the create_rag_corpus call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#create_rag_corpus.",
+      "file": "vertex_rag_data_service/create_rag_corpus.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "create_rag_corpus",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#create_rag_corpus",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::CreateRagCorpusRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "CreateRagCorpus",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.CreateRagCorpus",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_UpdateRagCorpus_sync",
+      "title": "Snippet for the update_rag_corpus call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#update_rag_corpus.",
+      "file": "vertex_rag_data_service/update_rag_corpus.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "update_rag_corpus",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#update_rag_corpus",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::UpdateRagCorpusRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "UpdateRagCorpus",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.UpdateRagCorpus",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_GetRagCorpus_sync",
+      "title": "Snippet for the get_rag_corpus call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#get_rag_corpus.",
+      "file": "vertex_rag_data_service/get_rag_corpus.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "get_rag_corpus",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#get_rag_corpus",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::GetRagCorpusRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::RagCorpus",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "GetRagCorpus",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.GetRagCorpus",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_ListRagCorpora_sync",
+      "title": "Snippet for the list_rag_corpora call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#list_rag_corpora.",
+      "file": "vertex_rag_data_service/list_rag_corpora.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "list_rag_corpora",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#list_rag_corpora",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::ListRagCorporaRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::ListRagCorporaResponse",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "ListRagCorpora",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.ListRagCorpora",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 50,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_DeleteRagCorpus_sync",
+      "title": "Snippet for the delete_rag_corpus call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#delete_rag_corpus.",
+      "file": "vertex_rag_data_service/delete_rag_corpus.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "delete_rag_corpus",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#delete_rag_corpus",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::DeleteRagCorpusRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "DeleteRagCorpus",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.DeleteRagCorpus",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_UploadRagFile_sync",
+      "title": "Snippet for the upload_rag_file call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#upload_rag_file.",
+      "file": "vertex_rag_data_service/upload_rag_file.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "upload_rag_file",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#upload_rag_file",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::UploadRagFileRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::UploadRagFileResponse",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "UploadRagFile",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.UploadRagFile",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_ImportRagFiles_sync",
+      "title": "Snippet for the import_rag_files call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#import_rag_files.",
+      "file": "vertex_rag_data_service/import_rag_files.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "import_rag_files",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#import_rag_files",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::ImportRagFilesRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "ImportRagFiles",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.ImportRagFiles",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_GetRagFile_sync",
+      "title": "Snippet for the get_rag_file call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#get_rag_file.",
+      "file": "vertex_rag_data_service/get_rag_file.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "get_rag_file",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#get_rag_file",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::GetRagFileRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::RagFile",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "GetRagFile",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.GetRagFile",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_ListRagFiles_sync",
+      "title": "Snippet for the list_rag_files call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#list_rag_files.",
+      "file": "vertex_rag_data_service/list_rag_files.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "list_rag_files",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#list_rag_files",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::ListRagFilesRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::ListRagFilesResponse",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "ListRagFiles",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.ListRagFiles",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 50,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagDataService_DeleteRagFile_sync",
+      "title": "Snippet for the delete_rag_file call in the VertexRagDataService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#delete_rag_file.",
+      "file": "vertex_rag_data_service/delete_rag_file.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "delete_rag_file",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client#delete_rag_file",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::DeleteRagFileRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Longrunning::Operation",
+        "client": {
+          "short_name": "VertexRagDataService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagDataService::Client"
+        },
+        "method": {
+          "short_name": "DeleteRagFile",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagDataService.DeleteRagFile",
+          "service": {
+            "short_name": "VertexRagDataService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagDataService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 53,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagService_RetrieveContexts_sync",
+      "title": "Snippet for the retrieve_contexts call in the VertexRagService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagService::Client#retrieve_contexts.",
+      "file": "vertex_rag_service/retrieve_contexts.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "retrieve_contexts",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagService::Client#retrieve_contexts",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::RetrieveContextsRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::RetrieveContextsResponse",
+        "client": {
+          "short_name": "VertexRagService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagService::Client"
+        },
+        "method": {
+          "short_name": "RetrieveContexts",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagService.RetrieveContexts",
+          "service": {
+            "short_name": "VertexRagService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagService_AugmentPrompt_sync",
+      "title": "Snippet for the augment_prompt call in the VertexRagService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagService::Client#augment_prompt.",
+      "file": "vertex_rag_service/augment_prompt.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "augment_prompt",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagService::Client#augment_prompt",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::AugmentPromptRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::AugmentPromptResponse",
+        "client": {
+          "short_name": "VertexRagService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagService::Client"
+        },
+        "method": {
+          "short_name": "AugmentPrompt",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagService.AugmentPrompt",
+          "service": {
+            "short_name": "VertexRagService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
+          "type": "FULL"
+        }
+      ]
+    },
+    {
+      "region_tag": "aiplatform_v1_generated_VertexRagService_CorroborateContent_sync",
+      "title": "Snippet for the corroborate_content call in the VertexRagService service",
+      "description": "This is an auto-generated example demonstrating basic usage of Google::Cloud::AIPlatform::V1::VertexRagService::Client#corroborate_content.",
+      "file": "vertex_rag_service/corroborate_content.rb",
+      "language": "RUBY",
+      "client_method": {
+        "short_name": "corroborate_content",
+        "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagService::Client#corroborate_content",
+        "async": false,
+        "parameters": [
+          {
+            "type": "::Google::Cloud::AIPlatform::V1::CorroborateContentRequest",
+            "name": "request"
+          }
+        ],
+        "result_type": "::Google::Cloud::AIPlatform::V1::CorroborateContentResponse",
+        "client": {
+          "short_name": "VertexRagService::Client",
+          "full_name": "::Google::Cloud::AIPlatform::V1::VertexRagService::Client"
+        },
+        "method": {
+          "short_name": "CorroborateContent",
+          "full_name": "google.cloud.aiplatform.v1.VertexRagService.CorroborateContent",
+          "service": {
+            "short_name": "VertexRagService",
+            "full_name": "google.cloud.aiplatform.v1.VertexRagService"
+          }
+        }
+      },
+      "canonical": true,
+      "origin": "API_DEFINITION",
+      "segments": [
+        {
+          "start": 20,
+          "end": 46,
           "type": "FULL"
         }
       ]

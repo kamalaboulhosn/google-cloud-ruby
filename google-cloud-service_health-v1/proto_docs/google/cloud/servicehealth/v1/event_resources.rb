@@ -356,6 +356,9 @@ module Google
         # @!attribute [rw] product_name
         #   @return [::String]
         #     Google Cloud product impacted by the event. Example: `"Google Cloud SQL"`
+        # @!attribute [rw] id
+        #   @return [::String]
+        #     Unique identifier for the product.
         class Product
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -416,6 +419,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Requests list of events.
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Parent value using the form
@@ -445,7 +449,8 @@ module Google
         #     response. The expression takes the following forms: <br>
         #     *   field=value for `category` and `state`<br>
         #     *   field &lt;, >, &lt;=, or >= value for `update_time` <br>
-        #     Examples: `category=INCIDENT`, `update_time>=2000-01-01T11:30:00-04:00`
+        #     Examples: `category=INCIDENT`, `update_time>="2000-01-01T11:30:00-04:00"`,
+        #     `event_impacts.product.product_name:"Eventarc"`
         #     <br>
         #
         #     Multiple filter queries are separated by spaces. Example:
@@ -455,7 +460,7 @@ module Google
         #     AND and OR expressions explicitly.
         #
         #     Filter is supported for the following fields: `category`, `state`,
-        #     `update_time`
+        #     `update_time`, `event_impacts.product.product_name`
         # @!attribute [rw] view
         #   @return [::Google::Cloud::ServiceHealth::V1::EventView]
         #     Optional. Event fields to include in response.
@@ -464,6 +469,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Response to request for listing events.
         # @!attribute [r] events
         #   @return [::Array<::Google::Cloud::ServiceHealth::V1::Event>]
         #     Output only. List of events.
@@ -482,7 +488,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Message for getting an event
+        # Gets information about a specific event.
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. Unique name of the event in this scope including project
@@ -497,6 +503,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Requests list of events that affect an organization.
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Parent value using the form
@@ -533,7 +540,7 @@ module Google
         #     *   field=value for `category` and `state`
         #     *   field &lt;, >, &lt;=, or >= value for `update_time`
         #
-        #     Examples: `category=INCIDENT`, `update_time>=2000-01-01T11:30:00-04:00`
+        #     Examples: `category=INCIDENT`, `update_time>="2000-01-01T11:30:00-04:00"`
         #
         #     Multiple filter queries are space-separated. Example:
         #     `category=INCIDENT state=ACTIVE`.
@@ -551,6 +558,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Response to request for listing organization events.
         # @!attribute [r] organization_events
         #   @return [::Array<::Google::Cloud::ServiceHealth::V1::OrganizationEvent>]
         #     Output only. List of organization events affecting an organization.
@@ -569,6 +577,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Gets information about a specific event affecting an organization.
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. Unique name of the event in this scope including organization and
@@ -585,7 +594,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Message for requesting list of OrganizationImpacts
+        # Requests list of projects under an organization affected by an event.
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Parent value using the form
@@ -637,6 +646,8 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Response to request for listing projects under an organization affected by an
+        # event.
         # @!attribute [r] organization_impacts
         #   @return [::Array<::Google::Cloud::ServiceHealth::V1::OrganizationImpact>]
         #     Output only. List of
@@ -657,6 +668,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # Gets information about an event that affects a project under an organization.
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. Name of the resource using the form

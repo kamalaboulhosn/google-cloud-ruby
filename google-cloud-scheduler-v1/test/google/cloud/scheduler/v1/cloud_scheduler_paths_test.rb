@@ -31,6 +31,14 @@ class ::Google::Cloud::Scheduler::V1::CloudScheduler::ClientPathsTest < Minitest
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_job_path

@@ -1,5 +1,108 @@
 # Changelog
 
+### 1.1.0 (2025-02-12)
+
+#### Features
+
+* Support for the cancel_job RPC ([#28963](https://github.com/googleapis/google-cloud-ruby/issues/28963)) 
+
+### 1.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28823](https://github.com/googleapis/google-cloud-ruby/issues/28823))
+
+#### Features
+
+* Bump version to 1.0.0 ([#28941](https://github.com/googleapis/google-cloud-ruby/issues/28941)) 
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28823](https://github.com/googleapis/google-cloud-ruby/issues/28823)) 
+
+### 0.21.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.20.1 (2025-01-08)
+
+#### Documentation
+
+* Fixed a cross-reference link ([#28150](https://github.com/googleapis/google-cloud-ruby/issues/28150)) 
+
+### 0.20.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+#### Documentation
+
+* Clarified some options for logs ([#27745](https://github.com/googleapis/google-cloud-ruby/issues/27745)) 
+
+### 0.19.2 (2024-12-04)
+
+#### Documentation
+
+* Revised labels and reservation field descriptions ([#27680](https://github.com/googleapis/google-cloud-ruby/issues/27680)) 
+
+### 0.19.1 (2024-10-02)
+
+#### Documentation
+
+* Clarify Batch only supports global custom instance template now ([#27390](https://github.com/googleapis/google-cloud-ruby/issues/27390)) 
+
+### 0.19.0 (2024-09-11)
+
+#### Features
+
+* Support for blocking project-level SSH keys ([#27288](https://github.com/googleapis/google-cloud-ruby/issues/27288)) 
+
+### 0.18.3 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 0.18.2 (2024-08-22)
+
+#### Documentation
+
+* Batch CentOS images and HPC CentOS images are EOS 
+* Clarify required fields for Runnable.Container 
+* Clarify required oneof fields for Runnable.Script 
+* clarify tasks success criteria for background runnable ([#26962](https://github.com/googleapis/google-cloud-ruby/issues/26962)) 
+* Clarify TaskSpec requires one or more runnables 
+
+### 0.18.1 (2024-08-06)
+
+#### Documentation
+
+* Refine usage scope for fields `task_execution` and `task_state` in StatusEvent ([#26607](https://github.com/googleapis/google-cloud-ruby/issues/26607)) 
+
+### 0.18.0 (2024-06-26)
+
+#### Features
+
+* Add install_ops_agent field to InstancePolicyOrTemplate for Ops Agent support ([#26180](https://github.com/googleapis/google-cloud-ruby/issues/26180)) 
+
+### 0.17.4 (2024-06-05)
+
+#### Documentation
+
+* Minor documentation updates ([#26047](https://github.com/googleapis/google-cloud-ruby/issues/26047)) 
+
+### 0.17.3 (2024-05-23)
+
+#### Documentation
+
+* Update description for TaskExecution#exit_code ([#25908](https://github.com/googleapis/google-cloud-ruby/issues/25908)) 
+* Update description on allowed_locations in LocationPolicy field ([#25827](https://github.com/googleapis/google-cloud-ruby/issues/25827)) 
+
 ### 0.17.2 (2024-04-17)
 
 #### Documentation

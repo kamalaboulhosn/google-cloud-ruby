@@ -53,6 +53,8 @@ module Google
             # [TuningJob.state][google.cloud.aiplatform.v1.TuningJob.state] is set to
             # `CANCELLED`.
             rpc :CancelTuningJob, ::Google::Cloud::AIPlatform::V1::CancelTuningJobRequest, ::Google::Protobuf::Empty
+            # Rebase a TunedModel.
+            rpc :RebaseTunedModel, ::Google::Cloud::AIPlatform::V1::RebaseTunedModelRequest, ::Google::Longrunning::Operation
           end
 
           Stub = Service.rpc_stub_class

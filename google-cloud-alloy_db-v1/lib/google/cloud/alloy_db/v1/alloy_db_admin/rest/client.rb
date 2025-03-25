@@ -206,8 +206,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @alloy_db_admin_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -215,6 +226,7 @@ module Google
                   config.endpoint = @alloy_db_admin_stub.endpoint
                   config.universe_domain = @alloy_db_admin_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @alloy_db_admin_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -222,6 +234,7 @@ module Google
                   config.quota_project = @quota_project_id
                   config.endpoint = @alloy_db_admin_stub.endpoint
                   config.universe_domain = @alloy_db_admin_stub.universe_domain
+                  config.logger = @alloy_db_admin_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -245,6 +258,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @alloy_db_admin_stub.logger
+              end
 
               # Service calls
 
@@ -281,10 +303,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AlloyDB::V1::ListClustersResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::Cluster>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AlloyDB::V1::ListClustersResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::Cluster>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -336,8 +358,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @alloy_db_admin_stub.list_clusters request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @alloy_db_admin_stub, :list_clusters, "clusters", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -420,7 +443,6 @@ module Google
 
                 @alloy_db_admin_stub.get_cluster request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -453,22 +475,22 @@ module Google
               #     Required. The resource being created
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the create
-              #     request.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -530,7 +552,7 @@ module Google
                 @alloy_db_admin_stub.create_cluster request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -564,22 +586,22 @@ module Google
               #     Required. The resource being updated
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the update
-              #     request.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               #   @param allow_missing [::Boolean]
               #     Optional. If set to true, update succeeds even if cluster is not found. In
               #     that case, a new cluster is created and `update_mask` is ignored.
@@ -644,7 +666,7 @@ module Google
                 @alloy_db_admin_stub.update_cluster request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -673,14 +695,14 @@ module Google
               #     comment on the Cluster.name field.
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -690,8 +712,9 @@ module Google
               #     If an etag is provided and does not match the current etag of the Cluster,
               #     deletion will be blocked and an ABORTED error will be returned.
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the delete.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               #   @param force [::Boolean]
               #     Optional. Whether to cascade delete child instances for given cluster.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -755,7 +778,7 @@ module Google
                 @alloy_db_admin_stub.delete_cluster request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -787,9 +810,9 @@ module Google
               #     comment on the Cluster.name field
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
@@ -804,8 +827,9 @@ module Google
               #     If an etag is provided and does not match the current etag of the Cluster,
               #     deletion will be blocked and an ABORTED error will be returned.
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the delete.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -867,7 +891,115 @@ module Google
                 @alloy_db_admin_stub.promote_cluster request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Switches the roles of PRIMARY and SECONDARY clusters without any data loss.
+              # This promotes the SECONDARY cluster to PRIMARY and sets up the original
+              # PRIMARY cluster to replicate from this newly promoted cluster.
+              #
+              # @overload switchover_cluster(request, options = nil)
+              #   Pass arguments to `switchover_cluster` via a request object, either of type
+              #   {::Google::Cloud::AlloyDB::V1::SwitchoverClusterRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AlloyDB::V1::SwitchoverClusterRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload switchover_cluster(name: nil, request_id: nil, validate_only: nil)
+              #   Pass arguments to `switchover_cluster` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The name of the resource. For the required format, see the
+              #     comment on the Cluster.name field
+              #   @param request_id [::String]
+              #     Optional. An optional request ID to identify requests. Specify a unique
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
+              #
+              #     For example, consider a situation where you make an initial request and
+              #     the request times out. If you make the request again with the same request
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
+              #     clients from accidentally creating duplicate commitments.
+              #
+              #     The request ID must be a valid UUID with the exception that zero UUID is
+              #     not supported (00000000-0000-0000-0000-000000000000).
+              #   @param validate_only [::Boolean]
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/alloy_db/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AlloyDB::V1::SwitchoverClusterRequest.new
+              #
+              #   # Call the switchover_cluster method.
+              #   result = client.switchover_cluster request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def switchover_cluster request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AlloyDB::V1::SwitchoverClusterRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.switchover_cluster.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AlloyDB::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.switchover_cluster.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.switchover_cluster.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @alloy_db_admin_stub.switchover_cluster request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -895,9 +1027,13 @@ module Google
               #
               #   @param backup_source [::Google::Cloud::AlloyDB::V1::BackupSource, ::Hash]
               #     Backup source.
+              #
+              #     Note: The following fields are mutually exclusive: `backup_source`, `continuous_backup_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param continuous_backup_source [::Google::Cloud::AlloyDB::V1::ContinuousBackupSource, ::Hash]
               #     ContinuousBackup source. Continuous backup needs to be enabled in the
               #     source cluster for this operation to succeed.
+              #
+              #     Note: The following fields are mutually exclusive: `continuous_backup_source`, `backup_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param parent [::String]
               #     Required. The name of the parent resource. For the required format, see the
               #     comment on the Cluster.name field.
@@ -907,22 +1043,22 @@ module Google
               #     Required. The resource being created
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the import
-              #     request.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -984,7 +1120,7 @@ module Google
                 @alloy_db_admin_stub.restore_cluster request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1018,22 +1154,22 @@ module Google
               #     Required. Configuration of the requesting object (the secondary cluster).
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the create
-              #     request.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1095,7 +1231,7 @@ module Google
                 @alloy_db_admin_stub.create_secondary_cluster request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1136,10 +1272,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AlloyDB::V1::ListInstancesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::Instance>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AlloyDB::V1::ListInstancesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::Instance>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1191,8 +1327,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @alloy_db_admin_stub.list_instances request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @alloy_db_admin_stub, :list_instances, "instances", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1274,7 +1411,6 @@ module Google
 
                 @alloy_db_admin_stub.get_instance request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1307,22 +1443,22 @@ module Google
               #     Required. The resource being created
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the create
-              #     request.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1384,7 +1520,7 @@ module Google
                 @alloy_db_admin_stub.create_instance request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1417,22 +1553,22 @@ module Google
               #     Required. The resource being created
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the create
-              #     request.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1494,7 +1630,7 @@ module Google
                 @alloy_db_admin_stub.create_secondary_instance request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1533,14 +1669,14 @@ module Google
               #     Required. Resources being created.
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -1606,7 +1742,7 @@ module Google
                 @alloy_db_admin_stub.batch_create_instances request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1640,22 +1776,22 @@ module Google
               #     Required. The resource being updated
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the update
-              #     request.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               #   @param allow_missing [::Boolean]
               #     Optional. If set to true, update succeeds even if instance is not found. In
               #     that case, a new instance is created and `update_mask` is ignored.
@@ -1720,7 +1856,7 @@ module Google
                 @alloy_db_admin_stub.update_instance request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1749,14 +1885,14 @@ module Google
               #     comment on the Instance.name field.
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -1766,8 +1902,9 @@ module Google
               #     If an etag is provided and does not match the current etag of the Instance,
               #     deletion will be blocked and an ABORTED error will be returned.
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the delete.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1829,7 +1966,7 @@ module Google
                 @alloy_db_admin_stub.delete_instance request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1860,21 +1997,22 @@ module Google
               #     comment on the Instance.name field.
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the failover.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1936,7 +2074,7 @@ module Google
                 @alloy_db_admin_stub.failover_instance request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1968,22 +2106,22 @@ module Google
               #     comment on the Instance.name field.
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the fault
-              #     injection.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -2045,7 +2183,7 @@ module Google
                 @alloy_db_admin_stub.inject_fault request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2065,7 +2203,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload restart_instance(name: nil, request_id: nil, validate_only: nil)
+              # @overload restart_instance(name: nil, request_id: nil, validate_only: nil, node_ids: nil)
               #   Pass arguments to `restart_instance` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -2075,21 +2213,25 @@ module Google
               #     comment on the Instance.name field.
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
               #     not supported (00000000-0000-0000-0000-000000000000).
               #   @param validate_only [::Boolean]
-              #     Optional. If set, performs request validation (e.g. permission checks and
-              #     any other type of validation), but do not actually execute the restart.
+              #     Optional. If set, performs request validation, for example, permission
+              #     checks and any other type of validation, but does not actually execute the
+              #     create request.
+              #   @param node_ids [::Array<::String>]
+              #     Optional. Full name of the nodes as obtained from INSTANCE_VIEW_FULL to
+              #     restart upon. Applicable only to read instances.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -2151,7 +2293,99 @@ module Google
                 @alloy_db_admin_stub.restart_instance request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Executes a SQL statement in a database inside an AlloyDB instance.
+              #
+              # @overload execute_sql(request, options = nil)
+              #   Pass arguments to `execute_sql` via a request object, either of type
+              #   {::Google::Cloud::AlloyDB::V1::ExecuteSqlRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AlloyDB::V1::ExecuteSqlRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload execute_sql(password: nil, instance: nil, database: nil, user: nil, sql_statement: nil)
+              #   Pass arguments to `execute_sql` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param password [::String]
+              #     Optional. The database native user’s password.
+              #   @param instance [::String]
+              #     Required. The instance where the SQL will be executed. For the required
+              #     format, see the comment on the Instance.name field.
+              #   @param database [::String]
+              #     Required. Name of the database where the query will be executed.
+              #     Note - Value provided should be the same as expected from `SELECT
+              #     current_database();` and NOT as a resource reference.
+              #   @param user [::String]
+              #     Required. Database user to be used for executing the SQL.
+              #     Note - Value provided should be the same as expected from
+              #     `SELECT current_user;` and NOT as a resource reference.
+              #   @param sql_statement [::String]
+              #     Required. SQL statement to execute on database. Any valid statement is
+              #     permitted, including DDL, DML, DQL statements.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::AlloyDB::V1::ExecuteSqlResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::AlloyDB::V1::ExecuteSqlResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/alloy_db/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AlloyDB::V1::ExecuteSqlRequest.new
+              #
+              #   # Call the execute_sql method.
+              #   result = client.execute_sql request
+              #
+              #   # The returned object is of type Google::Cloud::AlloyDB::V1::ExecuteSqlResponse.
+              #   p result
+              #
+              def execute_sql request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AlloyDB::V1::ExecuteSqlRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.execute_sql.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AlloyDB::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.execute_sql.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.execute_sql.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @alloy_db_admin_stub.execute_sql request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2187,10 +2421,10 @@ module Google
               #   @param order_by [::String]
               #     Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AlloyDB::V1::ListBackupsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::Backup>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AlloyDB::V1::ListBackupsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::Backup>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2242,8 +2476,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @alloy_db_admin_stub.list_backups request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @alloy_db_admin_stub, :list_backups, "backups", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2322,7 +2557,6 @@ module Google
 
                 @alloy_db_admin_stub.get_backup request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2354,14 +2588,14 @@ module Google
               #     Required. The resource being created
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -2430,7 +2664,7 @@ module Google
                 @alloy_db_admin_stub.create_backup request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2464,14 +2698,14 @@ module Google
               #     Required. The resource being updated
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -2543,7 +2777,7 @@ module Google
                 @alloy_db_admin_stub.update_backup request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2572,14 +2806,14 @@ module Google
               #     the Backup.name field.
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -2652,7 +2886,7 @@ module Google
                 @alloy_db_admin_stub.delete_backup request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2747,7 +2981,7 @@ module Google
                 @alloy_db_admin_stub.list_supported_database_flags request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @alloy_db_admin_stub, :list_supported_database_flags, "supported_database_flags", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2780,14 +3014,14 @@ module Google
               #      * projects/\\{project}/locations/\\{location}/clusters/\\{cluster}
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -2857,7 +3091,6 @@ module Google
 
                 @alloy_db_admin_stub.generate_client_certificate request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2886,14 +3119,14 @@ module Google
               #     projects/\\{project}/locations/\\{location}/clusters/\\{cluster}/instances/\\{instance}
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -2951,7 +3184,6 @@ module Google
 
                 @alloy_db_admin_stub.get_connection_info request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2987,10 +3219,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AlloyDB::V1::ListUsersResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::User>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AlloyDB::V1::ListUsersResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::User>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -3042,8 +3274,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @alloy_db_admin_stub.list_users request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @alloy_db_admin_stub, :list_users, "users", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3123,7 +3356,6 @@ module Google
 
                 @alloy_db_admin_stub.get_user request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3155,14 +3387,14 @@ module Google
               #     Required. The resource being created
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -3223,7 +3455,6 @@ module Google
 
                 @alloy_db_admin_stub.create_user request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3257,14 +3488,14 @@ module Google
               #     Required. The resource being updated
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes since the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -3327,7 +3558,6 @@ module Google
 
                 @alloy_db_admin_stub.update_user request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3356,14 +3586,14 @@ module Google
               #     comment on the User.name field.
               #   @param request_id [::String]
               #     Optional. An optional request ID to identify requests. Specify a unique
-              #     request ID so that if you must retry your request, the server will know to
-              #     ignore the request if it has already been completed. The server will
-              #     guarantee that for at least 60 minutes after the first request.
+              #     request ID so that if you must retry your request, the server ignores the
+              #     request if it has already been completed. The server guarantees that for at
+              #     least 60 minutes since the first request.
               #
               #     For example, consider a situation where you make an initial request and
               #     the request times out. If you make the request again with the same request
-              #     ID, the server can check if original operation with the same request ID
-              #     was received, and if so, will ignore the second request. This prevents
+              #     ID, the server can check if the original operation with the same request ID
+              #     was received, and if so, ignores the second request. This prevents
               #     clients from accidentally creating duplicate commitments.
               #
               #     The request ID must be a valid UUID with the exception that zero UUID is
@@ -3424,7 +3654,102 @@ module Google
 
                 @alloy_db_admin_stub.delete_user request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists Databases in a given project and location.
+              #
+              # @overload list_databases(request, options = nil)
+              #   Pass arguments to `list_databases` via a request object, either of type
+              #   {::Google::Cloud::AlloyDB::V1::ListDatabasesRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AlloyDB::V1::ListDatabasesRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_databases(parent: nil, page_size: nil, page_token: nil, filter: nil)
+              #   Pass arguments to `list_databases` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Parent value for ListDatabasesRequest.
+              #   @param page_size [::Integer]
+              #     Optional. The maximum number of databases to return. The service may return
+              #     fewer than this value. If unspecified, 2000 is the default page_size. The
+              #     max value of page_size will be 4000, values above max will be coerced to
+              #     max.
+              #   @param page_token [::String]
+              #     Optional. A page token, received from a previous `ListDatabases` call.
+              #     This should be provided to retrieve the subsequent page.
+              #     This field is currently not supported, its value will be ignored if passed.
+              #   @param filter [::String]
+              #     Optional. Filtering results.
+              #     This field is currently not supported, its value will be ignored if passed.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::Database>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AlloyDB::V1::Database>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/alloy_db/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AlloyDB::V1::AlloyDBAdmin::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AlloyDB::V1::ListDatabasesRequest.new
+              #
+              #   # Call the list_databases method.
+              #   result = client.list_databases request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::AlloyDB::V1::Database.
+              #     p item
+              #   end
+              #
+              def list_databases request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AlloyDB::V1::ListDatabasesRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_databases.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AlloyDB::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_databases.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_databases.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @alloy_db_admin_stub.list_databases request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @alloy_db_admin_stub, :list_databases, "databases", request, result, options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3472,6 +3797,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -3504,6 +3836,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -3532,6 +3869,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -3601,6 +3939,11 @@ module Google
                   #
                   attr_reader :promote_cluster
                   ##
+                  # RPC-specific configuration for `switchover_cluster`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :switchover_cluster
+                  ##
                   # RPC-specific configuration for `restore_cluster`
                   # @return [::Gapic::Config::Method]
                   #
@@ -3660,6 +4003,11 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :restart_instance
+                  ##
+                  # RPC-specific configuration for `execute_sql`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :execute_sql
                   ##
                   # RPC-specific configuration for `list_backups`
                   # @return [::Gapic::Config::Method]
@@ -3725,6 +4073,11 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :delete_user
+                  ##
+                  # RPC-specific configuration for `list_databases`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_databases
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -3740,6 +4093,8 @@ module Google
                     @delete_cluster = ::Gapic::Config::Method.new delete_cluster_config
                     promote_cluster_config = parent_rpcs.promote_cluster if parent_rpcs.respond_to? :promote_cluster
                     @promote_cluster = ::Gapic::Config::Method.new promote_cluster_config
+                    switchover_cluster_config = parent_rpcs.switchover_cluster if parent_rpcs.respond_to? :switchover_cluster
+                    @switchover_cluster = ::Gapic::Config::Method.new switchover_cluster_config
                     restore_cluster_config = parent_rpcs.restore_cluster if parent_rpcs.respond_to? :restore_cluster
                     @restore_cluster = ::Gapic::Config::Method.new restore_cluster_config
                     create_secondary_cluster_config = parent_rpcs.create_secondary_cluster if parent_rpcs.respond_to? :create_secondary_cluster
@@ -3764,6 +4119,8 @@ module Google
                     @inject_fault = ::Gapic::Config::Method.new inject_fault_config
                     restart_instance_config = parent_rpcs.restart_instance if parent_rpcs.respond_to? :restart_instance
                     @restart_instance = ::Gapic::Config::Method.new restart_instance_config
+                    execute_sql_config = parent_rpcs.execute_sql if parent_rpcs.respond_to? :execute_sql
+                    @execute_sql = ::Gapic::Config::Method.new execute_sql_config
                     list_backups_config = parent_rpcs.list_backups if parent_rpcs.respond_to? :list_backups
                     @list_backups = ::Gapic::Config::Method.new list_backups_config
                     get_backup_config = parent_rpcs.get_backup if parent_rpcs.respond_to? :get_backup
@@ -3790,6 +4147,8 @@ module Google
                     @update_user = ::Gapic::Config::Method.new update_user_config
                     delete_user_config = parent_rpcs.delete_user if parent_rpcs.respond_to? :delete_user
                     @delete_user = ::Gapic::Config::Method.new delete_user_config
+                    list_databases_config = parent_rpcs.list_databases if parent_rpcs.respond_to? :list_databases
+                    @list_databases = ::Gapic::Config::Method.new list_databases_config
 
                     yield self if block_given?
                   end

@@ -72,6 +72,14 @@ module Google
         #   @return [::Integer]
         #     Output only. The number of conversations this conversation dataset
         #     contains.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. A read only boolean field reflecting Zone Isolation status of
+        #     the dataset.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. A read only boolean field reflecting Zone Separation status of
+        #     the dataset.
         class ConversationDataset
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -199,7 +207,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Metadata for [ConversationDatasets][CreateConversationDataset].
+        # Metadata for [CreateConversationDataset][].
         # @!attribute [rw] conversation_dataset
         #   @return [::String]
         #     The resource name of the conversation dataset that will be created. Format:
@@ -210,7 +218,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Metadata for [ConversationDatasets][DeleteConversationDataset].
+        # Metadata for [DeleteConversationDataset][].
         class DeleteConversationDatasetOperationMetadata
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

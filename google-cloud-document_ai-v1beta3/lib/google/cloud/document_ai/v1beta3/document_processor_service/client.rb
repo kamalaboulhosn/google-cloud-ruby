@@ -76,17 +76,17 @@ module Google
 
                 default_config.rpcs.process_document.timeout = 300.0
                 default_config.rpcs.process_document.retry_policy = {
-                  initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [4, 14]
+                  initial_delay: 1.0, max_delay: 90.0, multiplier: 9.0, retry_codes: [4, 14, 8]
                 }
 
                 default_config.rpcs.batch_process_documents.timeout = 120.0
                 default_config.rpcs.batch_process_documents.retry_policy = {
-                  initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [4, 14]
+                  initial_delay: 1.0, max_delay: 60.0, multiplier: 1.5, retry_codes: [4, 14]
                 }
 
                 default_config.rpcs.review_document.timeout = 120.0
                 default_config.rpcs.review_document.retry_policy = {
-                  initial_delay: 0.1, max_delay: 60.0, multiplier: 1.3, retry_codes: [4, 14]
+                  initial_delay: 1.0, max_delay: 60.0, multiplier: 1.5, retry_codes: [4, 14]
                 }
 
                 default_config
@@ -183,14 +183,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @document_processor_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @document_processor_service_stub.endpoint
                 config.universe_domain = @document_processor_service_stub.universe_domain
+                config.logger = @document_processor_service_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -208,6 +220,15 @@ module Google
             #
             attr_reader :location_client
 
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @document_processor_service_stub.logger
+            end
+
             # Service calls
 
             ##
@@ -223,17 +244,23 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload process_document(inline_document: nil, raw_document: nil, gcs_document: nil, name: nil, document: nil, skip_human_review: nil, field_mask: nil, process_options: nil, labels: nil)
+            # @overload process_document(inline_document: nil, raw_document: nil, gcs_document: nil, name: nil, document: nil, skip_human_review: nil, field_mask: nil, process_options: nil, labels: nil, imageless_mode: nil)
             #   Pass arguments to `process_document` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param inline_document [::Google::Cloud::DocumentAI::V1beta3::Document, ::Hash]
             #     An inline document proto.
+            #
+            #     Note: The following fields are mutually exclusive: `inline_document`, `raw_document`, `gcs_document`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param raw_document [::Google::Cloud::DocumentAI::V1beta3::RawDocument, ::Hash]
             #     A raw document content (bytes).
+            #
+            #     Note: The following fields are mutually exclusive: `raw_document`, `inline_document`, `gcs_document`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param gcs_document [::Google::Cloud::DocumentAI::V1beta3::GcsDocument, ::Hash]
             #     A raw document on Google Cloud Storage.
+            #
+            #     Note: The following fields are mutually exclusive: `gcs_document`, `inline_document`, `raw_document`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param name [::String]
             #     Required. The resource name of the
             #     {::Google::Cloud::DocumentAI::V1beta3::Processor Processor} or
@@ -267,6 +294,8 @@ module Google
             #     (Unicode codepoints) and can only contain lowercase letters, numeric
             #     characters, underscores, and dashes. International characters are allowed.
             #     Label values are optional. Label keys must start with a letter.
+            #   @param imageless_mode [::Boolean]
+            #     Optional. Option to remove images from the document.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::DocumentAI::V1beta3::ProcessResponse]
@@ -327,7 +356,6 @@ module Google
 
               @document_processor_service_stub.call_rpc :process_document, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -451,7 +479,7 @@ module Google
               @document_processor_service_stub.call_rpc :batch_process_documents, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -540,7 +568,6 @@ module Google
 
               @document_processor_service_stub.call_rpc :fetch_processor_types, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -638,7 +665,7 @@ module Google
               @document_processor_service_stub.call_rpc :list_processor_types, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @document_processor_service_stub, :list_processor_types, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -724,7 +751,6 @@ module Google
 
               @document_processor_service_stub.call_rpc :get_processor_type, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -823,7 +849,7 @@ module Google
               @document_processor_service_stub.call_rpc :list_processors, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @document_processor_service_stub, :list_processors, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -909,7 +935,6 @@ module Google
 
               @document_processor_service_stub.call_rpc :get_processor, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -937,8 +962,12 @@ module Google
             #
             #   @param custom_document_extraction_options [::Google::Cloud::DocumentAI::V1beta3::TrainProcessorVersionRequest::CustomDocumentExtractionOptions, ::Hash]
             #     Options to control Custom Document Extraction (CDE) Processor.
+            #
+            #     Note: The following fields are mutually exclusive: `custom_document_extraction_options`, `foundation_model_tuning_options`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param foundation_model_tuning_options [::Google::Cloud::DocumentAI::V1beta3::TrainProcessorVersionRequest::FoundationModelTuningOptions, ::Hash]
             #     Options to control foundation model tuning of a processor.
+            #
+            #     Note: The following fields are mutually exclusive: `foundation_model_tuning_options`, `custom_document_extraction_options`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param parent [::String]
             #     Required. The parent (project, location and processor) to create the new
             #     version for. Format:
@@ -1022,7 +1051,7 @@ module Google
               @document_processor_service_stub.call_rpc :train_processor_version, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1108,7 +1137,6 @@ module Google
 
               @document_processor_service_stub.call_rpc :get_processor_version, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1208,7 +1236,7 @@ module Google
               @document_processor_service_stub.call_rpc :list_processor_versions, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @document_processor_service_stub, :list_processor_versions, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1303,7 +1331,7 @@ module Google
               @document_processor_service_stub.call_rpc :delete_processor_version, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1397,7 +1425,7 @@ module Google
               @document_processor_service_stub.call_rpc :deploy_processor_version, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1491,7 +1519,7 @@ module Google
               @document_processor_service_stub.call_rpc :undeploy_processor_version, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1501,6 +1529,10 @@ module Google
             # Creates a processor from the
             # {::Google::Cloud::DocumentAI::V1beta3::ProcessorType ProcessorType} provided.
             # The processor will be at `ENABLED` state by default after its creation.
+            # Note that this method requires the `documentai.processors.create`
+            # permission on the project, which is highly privileged. A user or service
+            # account with this permission can create new processors that can interact
+            # with any gcs bucket in your project.
             #
             # @overload create_processor(request, options = nil)
             #   Pass arguments to `create_processor` via a request object, either of type
@@ -1587,7 +1619,6 @@ module Google
 
               @document_processor_service_stub.call_rpc :create_processor, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1682,7 +1713,7 @@ module Google
               @document_processor_service_stub.call_rpc :delete_processor, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1776,7 +1807,7 @@ module Google
               @document_processor_service_stub.call_rpc :enable_processor, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1870,7 +1901,7 @@ module Google
               @document_processor_service_stub.call_rpc :disable_processor, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1975,7 +2006,7 @@ module Google
               @document_processor_service_stub.call_rpc :set_default_processor_version, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2082,7 +2113,7 @@ module Google
               @document_processor_service_stub.call_rpc :review_document, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2183,7 +2214,7 @@ module Google
               @document_processor_service_stub.call_rpc :evaluate_processor_version, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2271,7 +2302,6 @@ module Google
 
               @document_processor_service_stub.call_rpc :get_evaluation, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2372,7 +2402,7 @@ module Google
               @document_processor_service_stub.call_rpc :list_evaluations, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @document_processor_service_stub, :list_evaluations, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2401,9 +2431,13 @@ module Google
             #     and destination processor need to be in the same environment and region.
             #     Note that ProcessorVersions with `model_type` `MODEL_TYPE_LLM` are not
             #     supported.
+            #
+            #     Note: The following fields are mutually exclusive: `processor_version_source`, `external_processor_version_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param external_processor_version_source [::Google::Cloud::DocumentAI::V1beta3::ImportProcessorVersionRequest::ExternalProcessorVersionSource, ::Hash]
             #     The source processor version to import from. It can be from a different
             #     environment and region than the destination processor.
+            #
+            #     Note: The following fields are mutually exclusive: `external_processor_version_source`, `processor_version_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param parent [::String]
             #     Required. The destination processor name to create the processor version
             #     in. Format:
@@ -2476,7 +2510,7 @@ module Google
               @document_processor_service_stub.call_rpc :import_processor_version, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2526,6 +2560,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -2565,6 +2606,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -2589,6 +2635,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

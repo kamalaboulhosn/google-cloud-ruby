@@ -1,5 +1,73 @@
 # Changelog
 
+### 1.5.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.4.0 (2025-01-08)
+
+#### Features
+
+* Support for agent type 
+* Support for authorized views in path helpers 
+
+### 1.3.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.2.0 (2024-12-04)
+
+#### Features
+
+* Add AnalysisRules resource and APIs 
+* Add FeedbackLabel resource and APIs ([#27634](https://github.com/googleapis/google-cloud-ruby/issues/27634)) 
+* Add Quality AI resources and APIs 
+* Add QueryMetrics API 
+#### Documentation
+
+* A comment for field `custom_metadata_keys` in message `.google.cloud.contactcenterinsights.v1.IngestConversationsRequest` is changed 
+* A comment for field `encryption_spec` in message `.google.cloud.contactcenterinsights.v1.InitializeEncryptionSpecRequest` is changed 
+* A comment for field `kms_key` in message `.google.cloud.contactcenterinsights.v1.EncryptionSpec` is changed 
+* A comment for field `labels` in message `.google.cloud.contactcenterinsights.v1.Conversation` is changed 
+* A comment for field `metadata_json` in message `.google.cloud.contactcenterinsights.v1.Conversation` is changed 
+* A comment for field `partial_errors` in message `.google.cloud.contactcenterinsights.v1.InitializeEncryptionSpecMetadata` is changed 
+* A comment for message `EncryptionSpec` is changed 
+* A comment for method `InitializeEncryptionSpec` in service `ContactCenterInsights` is changed 
+
+### 1.1.0 (2024-10-15)
+
+#### Features
+
+* CallAnalysisMetadata includes overall conversation-level silence during the call 
+* Issue resource includes representative description 
+* RuntimeAnnotation includes explicit input used for answer generation 
+* Support for conversation metadata in GcsSource 
+* Support for export_issue_model and import_issue_model 
+* Support for get_encryption_spec and initialize_encryption_spec 
+* Support for JSON metadata in Conversation 
+* Support for specifying result order when calling list_conversations 
+* Support for specifying sample size when calling ingest_conversations 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27004](https://github.com/googleapis/google-cloud-ruby/issues/27004)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.22.0 (2024-02-26)
 
 #### Features

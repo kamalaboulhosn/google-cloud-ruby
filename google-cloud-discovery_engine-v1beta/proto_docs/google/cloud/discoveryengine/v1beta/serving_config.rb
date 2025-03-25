@@ -28,9 +28,13 @@ module Google
         # @!attribute [rw] media_config
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::ServingConfig::MediaConfig]
         #     The MediaConfig of the serving configuration.
+        #
+        #     Note: The following fields are mutually exclusive: `media_config`, `generic_config`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] generic_config
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::ServingConfig::GenericConfig]
         #     The GenericConfig of the serving configuration.
+        #
+        #     Note: The following fields are mutually exclusive: `generic_config`, `media_config`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] name
         #   @return [::String]
         #     Immutable. Fully qualified name
@@ -93,21 +97,27 @@ module Google
         #
         #     The ranking expression is a single function or multiple functions that are
         #     joined by "+".
+        #
         #       * ranking_expression = function, { " + ", function };
+        #
         #     Supported functions:
+        #
         #       * double * relevance_score
         #       * double * dotProduct(embedding_field_path)
+        #
         #     Function variables:
-        #       relevance_score: pre-defined keywords, used for measure relevance between
-        #       query and document.
-        #       embedding_field_path: the document embedding field
+        #
+        #       * `relevance_score`: pre-defined keywords, used for measure relevance
+        #       between query and document.
+        #       * `embedding_field_path`: the document embedding field
         #       used with query embedding vector.
-        #       dotProduct: embedding function between embedding_field_path and query
+        #       * `dotProduct`: embedding function between embedding_field_path and query
         #       embedding vector.
         #
         #      Example ranking expression:
+        #
         #        If document has an embedding field doc_embedding, the ranking expression
-        #        could be 0.5 * relevance_score + 0.3 * dotProduct(doc_embedding).
+        #        could be `0.5 * relevance_score + 0.3 * dotProduct(doc_embedding)`.
         # @!attribute [r] create_time
         #   @return [::Google::Protobuf::Timestamp]
         #     Output only. ServingConfig created timestamp.
@@ -181,6 +191,18 @@ module Google
         #     execute.
         #     Order does not matter.
         #     Maximum number of specifications is 100.
+        # @!attribute [rw] personalization_spec
+        #   @return [::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::PersonalizationSpec]
+        #     The specification for personalization spec.
+        #
+        #     Notice that if both
+        #     {::Google::Cloud::DiscoveryEngine::V1beta::ServingConfig#personalization_spec ServingConfig.personalization_spec}
+        #     and
+        #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest#personalization_spec SearchRequest.personalization_spec}
+        #     are set,
+        #     {::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest#personalization_spec SearchRequest.personalization_spec}
+        #     overrides
+        #     {::Google::Cloud::DiscoveryEngine::V1beta::ServingConfig#personalization_spec ServingConfig.personalization_spec}.
         class ServingConfig
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -204,9 +226,13 @@ module Google
           #   @return [::Float]
           #     Specifies the content watched percentage threshold for demotion.
           #     Threshold value must be between [0, 1.0] inclusive.
+          #
+          #     Note: The following fields are mutually exclusive: `content_watched_percentage_threshold`, `content_watched_seconds_threshold`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] content_watched_seconds_threshold
           #   @return [::Float]
           #     Specifies the content watched minutes threshold for demotion.
+          #
+          #     Note: The following fields are mutually exclusive: `content_watched_seconds_threshold`, `content_watched_percentage_threshold`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] demotion_event_type
           #   @return [::String]
           #     Specifies the event type used for demoting recommendation result.
@@ -219,6 +245,10 @@ module Google
           #
           #     If unset, watch history demotion will not be applied. Content freshness
           #     demotion will still be applied.
+          # @!attribute [rw] demote_content_watched_past_days
+          #   @return [::Integer]
+          #     Optional. Specifies the number of days to look back for demoting watched
+          #     content. If set to zero or unset, defaults to the maximum of 365 days.
           # @!attribute [rw] content_freshness_cutoff_days
           #   @return [::Integer]
           #     Specifies the content freshness used for recommendation result.

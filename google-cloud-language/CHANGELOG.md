@@ -1,5 +1,30 @@
 # Release History
 
+### 2.0.0 (2025-02-13)
+
+### ⚠ BREAKING CHANGES
+
+* Removed dependency on google-cloud-language-v1beta2
+* Updated to use google-cloud-language-v2 by default ([#29000](https://github.com/googleapis/google-cloud-ruby/issues/29000))
+
+#### Features
+
+* Removed dependency on google-cloud-language-v1beta2 
+* Updated to use google-cloud-language-v2 by default ([#29000](https://github.com/googleapis/google-cloud-ruby/issues/29000)) 
+
+### 1.8.0 (2025-01-29)
+
+#### Features
+
+* Provide methods to determine whether services are available with the currently installed versioned client ([#28530](https://github.com/googleapis/google-cloud-ruby/issues/28530)) 
+* Update Ruby version requirement to 3.0 
+
+### 1.7.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26628](https://github.com/googleapis/google-cloud-ruby/issues/26628)) 
+
 ### 1.7.0 (2024-02-26)
 
 #### Features

@@ -33,24 +33,24 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_channel
@@ -83,7 +91,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     channel_id = "hello world"
     request_id = "hello world"
 
-    create_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -141,7 +149,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     filter = "hello world"
     order_by = "hello world"
 
-    list_channels_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_channels_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -195,7 +203,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -251,7 +259,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     request_id = "hello world"
     force = true
 
-    delete_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -307,7 +315,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     channel = {}
     request_id = "hello world"
 
-    update_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -362,7 +370,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     name = "hello world"
     request_id = "hello world"
 
-    start_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    start_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -417,7 +425,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     name = "hello world"
     request_id = "hello world"
 
-    stop_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    stop_channel_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -474,7 +482,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     input_id = "hello world"
     request_id = "hello world"
 
-    create_input_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_input_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -532,7 +540,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     filter = "hello world"
     order_by = "hello world"
 
-    list_inputs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_inputs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -586,7 +594,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_input_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_input_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -641,7 +649,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     name = "hello world"
     request_id = "hello world"
 
-    delete_input_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_input_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -697,7 +705,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     input = {}
     request_id = "hello world"
 
-    update_input_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_input_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -754,7 +762,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     event_id = "hello world"
     request_id = "hello world"
 
-    create_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -812,7 +820,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     filter = "hello world"
     order_by = "hello world"
 
-    list_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_events_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -866,7 +874,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -921,7 +929,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     name = "hello world"
     request_id = "hello world"
 
-    delete_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_event_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -965,6 +973,230 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     end
   end
 
+  def test_list_clips
+    # Create test objects.
+    client_result = ::Google::Cloud::Video::LiveStream::V1::ListClipsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_size = 42
+    page_token = "hello world"
+    filter = "hello world"
+    order_by = "hello world"
+
+    list_clips_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ServiceStub.stub :transcode_list_clips_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_clips_client_stub do
+        # Create client
+        client = ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_clips({ parent: parent, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_clips parent: parent, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_clips ::Google::Cloud::Video::LiveStream::V1::ListClipsRequest.new(parent: parent, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_clips({ parent: parent, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_clips(::Google::Cloud::Video::LiveStream::V1::ListClipsRequest.new(parent: parent, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_clips_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_clip
+    # Create test objects.
+    client_result = ::Google::Cloud::Video::LiveStream::V1::Clip.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_clip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ServiceStub.stub :transcode_get_clip_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_clip_client_stub do
+        # Create client
+        client = ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_clip({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_clip name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_clip ::Google::Cloud::Video::LiveStream::V1::GetClipRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_clip({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_clip(::Google::Cloud::Video::LiveStream::V1::GetClipRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_clip_client_stub.call_count
+      end
+    end
+  end
+
+  def test_create_clip
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    clip_id = "hello world"
+    clip = {}
+    request_id = "hello world"
+
+    create_clip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ServiceStub.stub :transcode_create_clip_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, create_clip_client_stub do
+        # Create client
+        client = ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.create_clip({ parent: parent, clip_id: clip_id, clip: clip, request_id: request_id }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.create_clip parent: parent, clip_id: clip_id, clip: clip, request_id: request_id do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.create_clip ::Google::Cloud::Video::LiveStream::V1::CreateClipRequest.new(parent: parent, clip_id: clip_id, clip: clip, request_id: request_id) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.create_clip({ parent: parent, clip_id: clip_id, clip: clip, request_id: request_id }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.create_clip(::Google::Cloud::Video::LiveStream::V1::CreateClipRequest.new(parent: parent, clip_id: clip_id, clip: clip, request_id: request_id), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, create_clip_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_clip
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    request_id = "hello world"
+
+    delete_clip_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ServiceStub.stub :transcode_delete_clip_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_clip_client_stub do
+        # Create client
+        client = ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_clip({ name: name, request_id: request_id }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_clip name: name, request_id: request_id do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_clip ::Google::Cloud::Video::LiveStream::V1::DeleteClipRequest.new(name: name, request_id: request_id) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_clip({ name: name, request_id: request_id }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_clip(::Google::Cloud::Video::LiveStream::V1::DeleteClipRequest.new(name: name, request_id: request_id), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_clip_client_stub.call_count
+      end
+    end
+  end
+
   def test_create_asset
     # Create test objects.
     client_result = ::Google::Longrunning::Operation.new
@@ -978,7 +1210,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     asset_id = "hello world"
     request_id = "hello world"
 
-    create_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1033,7 +1265,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     name = "hello world"
     request_id = "hello world"
 
-    delete_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1087,7 +1319,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1145,7 +1377,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     filter = "hello world"
     order_by = "hello world"
 
-    list_assets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_assets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1199,7 +1431,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_pool_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_pool_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1255,7 +1487,7 @@ class ::Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::ClientTes
     pool = {}
     request_id = "hello world"
 
-    update_pool_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_pool_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

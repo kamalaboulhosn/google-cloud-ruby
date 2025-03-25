@@ -31,6 +31,14 @@ class ::Google::Shopping::Merchant::Conversions::V1beta::ConversionSourcesServic
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_account_path

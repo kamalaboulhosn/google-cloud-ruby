@@ -1,5 +1,29 @@
 # Release History
 
+### 2.21.0 (2025-03-14)
+
+#### Features
+
+* Support revision_id in Schema 
+
+### 2.20.0 (2025-02-13)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 ([#29071](https://github.com/googleapis/google-cloud-ruby/issues/29071)) 
+
+### 2.19.0 (2024-07-09)
+
+#### Features
+
+* compatibility with GA releases of underlying versioned clients ([#26361](https://github.com/googleapis/google-cloud-ruby/issues/26361)) 
+
+### 2.18.1 (2024-06-05)
+
+#### Bug Fixes
+
+* Added bigdecimal to the gem dependencies ([#26012](https://github.com/googleapis/google-cloud-ruby/issues/26012)) 
+
 ### 2.18.0 (2024-03-26)
 
 #### Features

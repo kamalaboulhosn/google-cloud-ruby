@@ -159,8 +159,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @featurestore_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -168,6 +179,7 @@ module Google
                   config.endpoint = @featurestore_service_stub.endpoint
                   config.universe_domain = @featurestore_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @featurestore_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -176,6 +188,7 @@ module Google
                   config.endpoint = @featurestore_service_stub.endpoint
                   config.universe_domain = @featurestore_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @featurestore_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -199,6 +212,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @featurestore_service_stub.logger
+              end
 
               # Service calls
 
@@ -295,7 +317,7 @@ module Google
                 @featurestore_service_stub.create_featurestore request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -374,7 +396,6 @@ module Google
 
                 @featurestore_service_stub.get_featurestore request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -503,7 +524,7 @@ module Google
                 @featurestore_service_stub.list_featurestores request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @featurestore_service_stub, :list_featurestores, "featurestores", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -607,7 +628,7 @@ module Google
                 @featurestore_service_stub.update_featurestore request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -701,7 +722,7 @@ module Google
                 @featurestore_service_stub.delete_featurestore request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -800,7 +821,7 @@ module Google
                 @featurestore_service_stub.create_entity_type request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -881,7 +902,6 @@ module Google
 
                 @featurestore_service_stub.get_entity_type request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1010,7 +1030,7 @@ module Google
                 @featurestore_service_stub.list_entity_types request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @featurestore_service_stub, :list_entity_types, "entity_types", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1112,7 +1132,6 @@ module Google
 
                 @featurestore_service_stub.update_entity_type request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1205,7 +1224,7 @@ module Google
                 @featurestore_service_stub.delete_entity_type request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1306,7 +1325,7 @@ module Google
                 @featurestore_service_stub.create_feature request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1331,15 +1350,16 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param parent [::String]
-              #     Required. The resource name of the EntityType to create the batch of
-              #     Features under. Format:
+              #     Required. The resource name of the EntityType/FeatureGroup to create the
+              #     batch of Features under. Format:
               #     `projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}`
+              #     `projects/{project}/locations/{location}/featureGroups/{feature_group}`
               #   @param requests [::Array<::Google::Cloud::AIPlatform::V1::CreateFeatureRequest, ::Hash>]
               #     Required. The request message specifying the Features to create. All
-              #     Features must be created under the same parent EntityType. The `parent`
-              #     field in each child request message can be omitted. If `parent` is set in a
-              #     child request, then the value must match the `parent` value in this request
-              #     message.
+              #     Features must be created under the same parent EntityType / FeatureGroup.
+              #     The `parent` field in each child request message can be omitted. If
+              #     `parent` is set in a child request, then the value must match the `parent`
+              #     value in this request message.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1401,7 +1421,7 @@ module Google
                 @featurestore_service_stub.batch_create_features request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1484,7 +1504,6 @@ module Google
 
                 @featurestore_service_stub.get_feature request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1629,7 +1648,7 @@ module Google
                 @featurestore_service_stub.list_features request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @featurestore_service_stub, :list_features, "features", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1672,7 +1691,8 @@ module Google
               #
               #       * `description`
               #       * `labels`
-              #       * `disable_monitoring` (Not supported for FeatureRegistry Feature)
+              #       * `disable_monitoring` (Not supported for FeatureRegistryService Feature)
+              #       * `point_of_contact` (Not supported for FeaturestoreService FeatureStore)
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::AIPlatform::V1::Feature]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1726,7 +1746,6 @@ module Google
 
                 @featurestore_service_stub.update_feature request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1816,7 +1835,7 @@ module Google
                 @featurestore_service_stub.delete_feature request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1860,14 +1879,21 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param avro_source [::Google::Cloud::AIPlatform::V1::AvroSource, ::Hash]
+              #     Note: The following fields are mutually exclusive: `avro_source`, `bigquery_source`, `csv_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param bigquery_source [::Google::Cloud::AIPlatform::V1::BigQuerySource, ::Hash]
+              #     Note: The following fields are mutually exclusive: `bigquery_source`, `avro_source`, `csv_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param csv_source [::Google::Cloud::AIPlatform::V1::CsvSource, ::Hash]
+              #     Note: The following fields are mutually exclusive: `csv_source`, `avro_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param feature_time_field [::String]
               #     Source column that holds the Feature timestamp for all Feature
               #     values in each entity.
+              #
+              #     Note: The following fields are mutually exclusive: `feature_time_field`, `feature_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param feature_time [::Google::Protobuf::Timestamp, ::Hash]
               #     Single Feature timestamp for all entities being imported. The
               #     timestamp must not have higher than millisecond precision.
+              #
+              #     Note: The following fields are mutually exclusive: `feature_time`, `feature_time_field`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param entity_type [::String]
               #     Required. The resource name of the EntityType grouping the Features for
               #     which values are being imported. Format:
@@ -1953,7 +1979,7 @@ module Google
                 @featurestore_service_stub.import_feature_values request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2007,8 +2033,12 @@ module Google
               #
               #     Values in the timestamp column must use the RFC 3339 format, e.g.
               #     `2012-07-30T10:43:17.123Z`.
+              #
+              #     Note: The following fields are mutually exclusive: `csv_read_instances`, `bigquery_read_instances`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param bigquery_read_instances [::Google::Cloud::AIPlatform::V1::BigQuerySource, ::Hash]
               #     Similar to csv_read_instances, but from BigQuery source.
+              #
+              #     Note: The following fields are mutually exclusive: `bigquery_read_instances`, `csv_read_instances`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param featurestore [::String]
               #     Required. The resource name of the Featurestore from which to query Feature
               #     values. Format:
@@ -2091,7 +2121,7 @@ module Google
                 @featurestore_service_stub.batch_read_feature_values request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2118,9 +2148,13 @@ module Google
               #   @param snapshot_export [::Google::Cloud::AIPlatform::V1::ExportFeatureValuesRequest::SnapshotExport, ::Hash]
               #     Exports the latest Feature values of all entities of the EntityType
               #     within a time range.
+              #
+              #     Note: The following fields are mutually exclusive: `snapshot_export`, `full_export`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param full_export [::Google::Cloud::AIPlatform::V1::ExportFeatureValuesRequest::FullExport, ::Hash]
               #     Exports all historical values of all entities of the EntityType within a
               #     time range
+              #
+              #     Note: The following fields are mutually exclusive: `full_export`, `snapshot_export`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param entity_type [::String]
               #     Required. The resource name of the EntityType from which to export Feature
               #     values. Format:
@@ -2192,7 +2226,7 @@ module Google
                 @featurestore_service_stub.export_feature_values request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2227,9 +2261,13 @@ module Google
               #
               #   @param select_entity [::Google::Cloud::AIPlatform::V1::DeleteFeatureValuesRequest::SelectEntity, ::Hash]
               #     Select feature values to be deleted by specifying entities.
+              #
+              #     Note: The following fields are mutually exclusive: `select_entity`, `select_time_range_and_feature`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param select_time_range_and_feature [::Google::Cloud::AIPlatform::V1::DeleteFeatureValuesRequest::SelectTimeRangeAndFeature, ::Hash]
               #     Select feature values to be deleted by specifying time range and
               #     features.
+              #
+              #     Note: The following fields are mutually exclusive: `select_time_range_and_feature`, `select_entity`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param entity_type [::String]
               #     Required. The resource name of the EntityType grouping the Features for
               #     which values are being deleted from. Format:
@@ -2295,7 +2333,7 @@ module Google
                 @featurestore_service_stub.delete_feature_values request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2455,7 +2493,7 @@ module Google
                 @featurestore_service_stub.search_features request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @featurestore_service_stub, :search_features, "features", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2503,6 +2541,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -2535,6 +2580,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -2563,6 +2613,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

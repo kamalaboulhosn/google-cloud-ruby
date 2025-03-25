@@ -1,5 +1,108 @@
 # Release History
 
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Fixed an incorrect link ([#28758](https://github.com/googleapis/google-cloud-ruby/issues/28758)) 
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.4.0 (2024-11-13)
+
+#### Features
+
+* add desired_enterprise_config,desired_node_pool_auto_config_linux_node_config to ClusterUpdate. 
+* add desired_tier to EnterpriseConfig. 
+* add DesiredEnterpriseConfig proto message 
+* add LinuxNodeConfig in NodePoolAutoConfig 
+* add LocalSsdEncryptionMode in NodeConfig ([#27579](https://github.com/googleapis/google-cloud-ruby/issues/27579)) 
+* add UpgradeInfoEvent proto message 
+#### Documentation
+
+* Minor documentation updates 
+
+### 1.3.0 (2024-10-15)
+
+#### Features
+
+* Added storage pools field to NodePool API ([#27429](https://github.com/googleapis/google-cloud-ruby/issues/27429)) 
+
+### 1.2.0 (2024-08-30)
+
+#### Features
+
+* add ReleaseChannel EXTENDED value ([#27022](https://github.com/googleapis/google-cloud-ruby/issues/27022)) 
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.1.1 (2024-08-09)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26626](https://github.com/googleapis/google-cloud-ruby/issues/26626)) 
+
+### 1.1.0 (2024-08-05)
+
+#### Features
+
+* Support for DCGM monitoring ([#26447](https://github.com/googleapis/google-cloud-ruby/issues/26447)) 
+* Support for Ray Clusters ([#26480](https://github.com/googleapis/google-cloud-ruby/issues/26480)) 
+#### Documentation
+
+* Mark a number of fields as read-only (i.e. only for output) ([#26515](https://github.com/googleapis/google-cloud-ruby/issues/26515)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.42.0 (2024-06-12)
+
+#### Features
+
+* support for REST transport ([#26088](https://github.com/googleapis/google-cloud-ruby/issues/26088)) 
+
+### 0.41.0 (2024-06-10)
+
+#### Features
+
+* A new field `accelerators` is added to message `.google.container.v1.UpdateNodePoolRequest` 
+* A new field `additive_vpc_scope_dns_domain` is added to message `.google.container.v1.DNSConfig` 
+* A new field `containerd_config` is added to message `.google.container.v1.NodeConfig` 
+* A new field `containerd_config` is added to message `.google.container.v1.NodeConfigDefaults` 
+* A new field `containerd_config` is added to message `.google.container.v1.UpdateNodePoolRequest` 
+* A new field `desired_containerd_config` is added to message `.google.container.v1.ClusterUpdate` 
+* A new field `desired_node_kubelet_config` is added to message `.google.container.v1.ClusterUpdate` 
+* A new field `desired_node_pool_auto_config_kubelet_config` is added to message `.google.container.v1.ClusterUpdate` 
+* A new field `enable_nested_virtualization` is added to message `.google.container.v1.AdvancedMachineFeatures` 
+* A new field `hugepages` is added to message `.google.container.v1.LinuxNodeConfig` 
+* A new field `node_kubelet_config` is added to message `.google.container.v1.NodeConfigDefaults` 
+* A new field `node_kubelet_config` is added to message `.google.container.v1.NodePoolAutoConfig` 
+* A new field `satisfies_pzi` is added to message `.google.container.v1.Cluster` 
+* A new field `satisfies_pzs` is added to message `.google.container.v1.Cluster` 
+* A new message `ContainerdConfig` is added 
+* A new message `HugepagesConfig` is added ([#26082](https://github.com/googleapis/google-cloud-ruby/issues/26082)) 
+* A new value `CADVISOR` is added to enum `Component` 
+* A new value `ENTERPRISE` is added to enum `Mode` 
+* A new value `KUBELET` is added to enum `Component` 
+* A new value `MPS` is added to enum `GPUSharingStrategy` 
+#### Documentation
+
+* A comment for field `desired_private_cluster_config` in message `.google.container.v1.ClusterUpdate` is changed 
+* A comment for field `in_transit_encryption_config` in message `.google.container.v1.NetworkConfig` is changed 
+
 ### 0.40.0 (2024-04-15)
 
 #### Features

@@ -33,24 +33,24 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_inspect_content
@@ -84,7 +92,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     inspect_template_name = "hello world"
     location_id = "hello world"
 
-    inspect_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    inspect_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -143,7 +151,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     include_findings = true
     byte_item = {}
 
-    redact_image_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    redact_image_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -203,7 +211,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     deidentify_template_name = "hello world"
     location_id = "hello world"
 
-    deidentify_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    deidentify_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -263,7 +271,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     reidentify_template_name = "hello world"
     location_id = "hello world"
 
-    reidentify_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    reidentify_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -320,7 +328,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     filter = "hello world"
     location_id = "hello world"
 
-    list_info_types_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_info_types_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -377,7 +385,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     template_id = "hello world"
     location_id = "hello world"
 
-    create_inspect_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_inspect_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -433,7 +441,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     inspect_template = {}
     update_mask = {}
 
-    update_inspect_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_inspect_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -487,7 +495,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_inspect_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_inspect_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -545,7 +553,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     order_by = "hello world"
     location_id = "hello world"
 
-    list_inspect_templates_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_inspect_templates_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -599,7 +607,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_inspect_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_inspect_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -656,7 +664,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     template_id = "hello world"
     location_id = "hello world"
 
-    create_deidentify_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_deidentify_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -712,7 +720,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     deidentify_template = {}
     update_mask = {}
 
-    update_deidentify_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_deidentify_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -766,7 +774,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_deidentify_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_deidentify_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -824,7 +832,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     order_by = "hello world"
     location_id = "hello world"
 
-    list_deidentify_templates_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_deidentify_templates_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -878,7 +886,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_deidentify_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_deidentify_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -935,7 +943,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     trigger_id = "hello world"
     location_id = "hello world"
 
-    create_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -991,7 +999,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     job_trigger = {}
     update_mask = {}
 
-    update_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1046,7 +1054,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     name = "hello world"
     hybrid_item = {}
 
-    hybrid_inspect_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    hybrid_inspect_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1100,7 +1108,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1160,7 +1168,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     type = :DLP_JOB_TYPE_UNSPECIFIED
     location_id = "hello world"
 
-    list_job_triggers_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_job_triggers_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1214,7 +1222,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1268,7 +1276,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    activate_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    activate_job_trigger_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1324,7 +1332,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     discovery_config = {}
     config_id = "hello world"
 
-    create_discovery_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_discovery_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1380,7 +1388,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     discovery_config = {}
     update_mask = {}
 
-    update_discovery_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_discovery_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1434,7 +1442,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_discovery_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_discovery_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1491,7 +1499,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     page_size = 42
     order_by = "hello world"
 
-    list_discovery_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_discovery_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1545,7 +1553,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_discovery_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_discovery_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1602,7 +1610,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     job_id = "hello world"
     location_id = "hello world"
 
-    create_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1662,7 +1670,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     order_by = "hello world"
     location_id = "hello world"
 
-    list_dlp_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_dlp_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1716,7 +1724,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1770,7 +1778,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1824,7 +1832,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    cancel_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    cancel_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1881,7 +1889,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     stored_info_type_id = "hello world"
     location_id = "hello world"
 
-    create_stored_info_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_stored_info_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1937,7 +1945,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     config = {}
     update_mask = {}
 
-    update_stored_info_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_stored_info_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1991,7 +1999,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_stored_info_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_stored_info_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2049,7 +2057,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     order_by = "hello world"
     location_id = "hello world"
 
-    list_stored_info_types_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_stored_info_types_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2103,7 +2111,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_stored_info_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_stored_info_type_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2161,7 +2169,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     order_by = "hello world"
     filter = "hello world"
 
-    list_project_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_project_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2219,7 +2227,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     order_by = "hello world"
     filter = "hello world"
 
-    list_table_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_table_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2277,7 +2285,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     order_by = "hello world"
     filter = "hello world"
 
-    list_column_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_column_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2331,7 +2339,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_project_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_project_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2375,6 +2383,172 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     end
   end
 
+  def test_list_file_store_data_profiles
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::ListFileStoreDataProfilesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    page_token = "hello world"
+    page_size = 42
+    order_by = "hello world"
+    filter = "hello world"
+
+    list_file_store_data_profiles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_list_file_store_data_profiles_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_file_store_data_profiles_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_file_store_data_profiles({ parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_file_store_data_profiles parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_file_store_data_profiles ::Google::Cloud::Dlp::V2::ListFileStoreDataProfilesRequest.new(parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_file_store_data_profiles({ parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_file_store_data_profiles(::Google::Cloud::Dlp::V2::ListFileStoreDataProfilesRequest.new(parent: parent, page_token: page_token, page_size: page_size, order_by: order_by, filter: filter), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_file_store_data_profiles_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_file_store_data_profile
+    # Create test objects.
+    client_result = ::Google::Cloud::Dlp::V2::FileStoreDataProfile.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_file_store_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_get_file_store_data_profile_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_file_store_data_profile_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_file_store_data_profile({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_file_store_data_profile name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_file_store_data_profile ::Google::Cloud::Dlp::V2::GetFileStoreDataProfileRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_file_store_data_profile({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_file_store_data_profile(::Google::Cloud::Dlp::V2::GetFileStoreDataProfileRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_file_store_data_profile_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_file_store_data_profile
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_file_store_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dlp::V2::DlpService::Rest::ServiceStub.stub :transcode_delete_file_store_data_profile_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_file_store_data_profile_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dlp::V2::DlpService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_file_store_data_profile({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_file_store_data_profile name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_file_store_data_profile ::Google::Cloud::Dlp::V2::DeleteFileStoreDataProfileRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_file_store_data_profile({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_file_store_data_profile(::Google::Cloud::Dlp::V2::DeleteFileStoreDataProfileRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_file_store_data_profile_client_stub.call_count
+      end
+    end
+  end
+
   def test_get_table_data_profile
     # Create test objects.
     client_result = ::Google::Cloud::Dlp::V2::TableDataProfile.new
@@ -2385,7 +2559,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_table_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_table_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2439,7 +2613,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_column_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_column_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2493,7 +2667,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_table_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_table_data_profile_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2548,7 +2722,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     name = "hello world"
     hybrid_item = {}
 
-    hybrid_inspect_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    hybrid_inspect_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2602,7 +2776,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    finish_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    finish_dlp_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2657,7 +2831,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     parent = "hello world"
     connection = {}
 
-    create_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2711,7 +2885,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2768,7 +2942,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     page_token = "hello world"
     filter = "hello world"
 
-    list_connections_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_connections_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2825,7 +2999,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     page_token = "hello world"
     filter = "hello world"
 
-    search_connections_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    search_connections_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2879,7 +3053,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2935,7 +3109,7 @@ class ::Google::Cloud::Dlp::V2::DlpService::Rest::ClientTest < Minitest::Test
     connection = {}
     update_mask = {}
 
-    update_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_connection_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

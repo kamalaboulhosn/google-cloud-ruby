@@ -33,24 +33,24 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_list_secrets
@@ -83,7 +91,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     page_token = "hello world"
     filter = "hello world"
 
-    list_secrets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_secrets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -139,7 +147,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     secret_id = "hello world"
     secret = {}
 
-    create_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -194,7 +202,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     parent = "hello world"
     payload = {}
 
-    add_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    add_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -248,7 +256,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -303,7 +311,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     secret = {}
     update_mask = {}
 
-    update_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -358,7 +366,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     name = "hello world"
     etag = "hello world"
 
-    delete_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_secret_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -415,7 +423,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     page_token = "hello world"
     filter = "hello world"
 
-    list_secret_versions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_secret_versions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -469,7 +477,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -523,7 +531,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     # Create request parameters for a unary method.
     name = "hello world"
 
-    access_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    access_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -578,7 +586,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     name = "hello world"
     etag = "hello world"
 
-    disable_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    disable_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -633,7 +641,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     name = "hello world"
     etag = "hello world"
 
-    enable_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    enable_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -688,7 +696,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     name = "hello world"
     etag = "hello world"
 
-    destroy_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    destroy_secret_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -744,7 +752,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     policy = {}
     update_mask = {}
 
-    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -799,7 +807,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     resource = "hello world"
     options = {}
 
-    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_iam_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -854,7 +862,7 @@ class ::Google::Cloud::SecretManager::V1::SecretManagerService::Rest::ClientTest
     resource = "hello world"
     permissions = ["hello world"]
 
-    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    test_iam_permissions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

@@ -31,6 +31,14 @@ class ::Google::Apps::Meet::V2beta::SpacesService::ClientPathsTest < Minitest::T
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_conference_record_path
@@ -42,6 +50,18 @@ class ::Google::Apps::Meet::V2beta::SpacesService::ClientPathsTest < Minitest::T
 
       path = client.conference_record_path conference_record: "value0"
       assert_equal "conferenceRecords/value0", path
+    end
+  end
+
+  def test_member_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Apps::Meet::V2beta::SpacesService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.member_path space: "value0", member: "value1"
+      assert_equal "spaces/value0/members/value1", path
     end
   end
 

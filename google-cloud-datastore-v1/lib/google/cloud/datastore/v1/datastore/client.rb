@@ -188,8 +188,28 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @datastore_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @datastore_stub.logger
             end
 
             # Service calls
@@ -207,7 +227,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload lookup(project_id: nil, database_id: nil, read_options: nil, keys: nil)
+            # @overload lookup(project_id: nil, database_id: nil, read_options: nil, keys: nil, property_mask: nil)
             #   Pass arguments to `lookup` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -223,6 +243,13 @@ module Google
             #     The options for this lookup request.
             #   @param keys [::Array<::Google::Cloud::Datastore::V1::Key, ::Hash>]
             #     Required. Keys of entities to look up.
+            #   @param property_mask [::Google::Cloud::Datastore::V1::PropertyMask, ::Hash]
+            #     The properties to return. Defaults to returning all properties.
+            #
+            #     If this field is set and an entity has a property not referenced in the
+            #     mask, it will be absent from [LookupResponse.found.entity.properties][].
+            #
+            #     The entity's key is always returned.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Datastore::V1::LookupResponse]
@@ -286,7 +313,6 @@ module Google
 
               @datastore_stub.call_rpc :lookup, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -305,7 +331,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload run_query(project_id: nil, database_id: nil, partition_id: nil, read_options: nil, query: nil, gql_query: nil, explain_options: nil)
+            # @overload run_query(project_id: nil, database_id: nil, partition_id: nil, read_options: nil, query: nil, gql_query: nil, property_mask: nil, explain_options: nil)
             #   Pass arguments to `run_query` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -326,8 +352,18 @@ module Google
             #     The options for this query.
             #   @param query [::Google::Cloud::Datastore::V1::Query, ::Hash]
             #     The query to run.
+            #
+            #     Note: The following fields are mutually exclusive: `query`, `gql_query`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param gql_query [::Google::Cloud::Datastore::V1::GqlQuery, ::Hash]
             #     The GQL query to run. This query must be a non-aggregation query.
+            #
+            #     Note: The following fields are mutually exclusive: `gql_query`, `query`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            #   @param property_mask [::Google::Cloud::Datastore::V1::PropertyMask, ::Hash]
+            #     The properties to return.
+            #     This field must not be set for a projection query.
+            #
+            #     See
+            #     {::Google::Cloud::Datastore::V1::LookupRequest#property_mask LookupRequest.property_mask}.
             #   @param explain_options [::Google::Cloud::Datastore::V1::ExplainOptions, ::Hash]
             #     Optional. Explain options for the query. If set, additional query
             #     statistics will be returned. If not, only query results will be returned.
@@ -394,7 +430,6 @@ module Google
 
               @datastore_stub.call_rpc :run_query, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -434,8 +469,12 @@ module Google
             #     The options for this query.
             #   @param aggregation_query [::Google::Cloud::Datastore::V1::AggregationQuery, ::Hash]
             #     The query to run.
+            #
+            #     Note: The following fields are mutually exclusive: `aggregation_query`, `gql_query`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param gql_query [::Google::Cloud::Datastore::V1::GqlQuery, ::Hash]
             #     The GQL query to run. This query must be an aggregation query.
+            #
+            #     Note: The following fields are mutually exclusive: `gql_query`, `aggregation_query`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param explain_options [::Google::Cloud::Datastore::V1::ExplainOptions, ::Hash]
             #     Optional. Explain options for the query. If set, additional query
             #     statistics will be returned. If not, only query results will be returned.
@@ -502,7 +541,6 @@ module Google
 
               @datastore_stub.call_rpc :run_aggregation_query, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -598,7 +636,6 @@ module Google
 
               @datastore_stub.call_rpc :begin_transaction, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -636,11 +673,15 @@ module Google
             #     The identifier of the transaction associated with the commit. A
             #     transaction identifier is returned by a call to
             #     {::Google::Cloud::Datastore::V1::Datastore::Client#begin_transaction Datastore.BeginTransaction}.
+            #
+            #     Note: The following fields are mutually exclusive: `transaction`, `single_use_transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param single_use_transaction [::Google::Cloud::Datastore::V1::TransactionOptions, ::Hash]
             #     Options for beginning a new transaction for this request.
             #     The transaction is committed when the request completes. If specified,
             #     {::Google::Cloud::Datastore::V1::TransactionOptions TransactionOptions.mode} must be
             #     {::Google::Cloud::Datastore::V1::TransactionOptions::ReadWrite TransactionOptions.ReadWrite}.
+            #
+            #     Note: The following fields are mutually exclusive: `single_use_transaction`, `transaction`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param mutations [::Array<::Google::Cloud::Datastore::V1::Mutation, ::Hash>]
             #     The mutations to perform.
             #
@@ -718,7 +759,6 @@ module Google
 
               @datastore_stub.call_rpc :commit, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -815,7 +855,6 @@ module Google
 
               @datastore_stub.call_rpc :rollback, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -913,7 +952,6 @@ module Google
 
               @datastore_stub.call_rpc :allocate_ids, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1011,7 +1049,6 @@ module Google
 
               @datastore_stub.call_rpc :reserve_ids, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1061,6 +1098,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -1100,6 +1144,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -1124,6 +1173,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

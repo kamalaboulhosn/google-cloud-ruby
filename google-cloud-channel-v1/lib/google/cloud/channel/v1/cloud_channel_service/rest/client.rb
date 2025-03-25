@@ -203,8 +203,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @cloud_channel_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
               end
 
               ##
@@ -213,6 +224,15 @@ module Google
               # @return [::Google::Cloud::Channel::V1::CloudChannelService::Rest::Operations]
               #
               attr_reader :operations_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @cloud_channel_service_stub.logger
+              end
 
               # Service calls
 
@@ -321,7 +341,7 @@ module Google
                 @cloud_channel_service_stub.list_customers request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_customers, "customers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -413,7 +433,6 @@ module Google
 
                 @cloud_channel_service_stub.get_customer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -450,7 +469,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload check_cloud_identity_accounts_exist(parent: nil, domain: nil)
+              # @overload check_cloud_identity_accounts_exist(parent: nil, domain: nil, primary_admin_email: nil)
               #   Pass arguments to `check_cloud_identity_accounts_exist` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -459,7 +478,12 @@ module Google
               #     Required. The reseller account's resource name.
               #     Parent uses the format: accounts/\\{account_id}
               #   @param domain [::String]
-              #     Required. Domain to fetch for Cloud Identity account customer.
+              #     Required. Domain to fetch for Cloud Identity account customers, including
+              #     domain and team customers. For team customers, please use the domain for
+              #     their emails.
+              #   @param primary_admin_email [::String]
+              #     Optional. Primary admin email to fetch for Cloud Identity account team
+              #     customer.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Channel::V1::CheckCloudIdentityAccountsExistResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -513,7 +537,6 @@ module Google
 
                 @cloud_channel_service_stub.check_cloud_identity_accounts_exist request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -610,7 +633,6 @@ module Google
 
                 @cloud_channel_service_stub.create_customer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -704,7 +726,6 @@ module Google
 
                 @cloud_channel_service_stub.update_customer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -792,7 +813,6 @@ module Google
 
                 @cloud_channel_service_stub.delete_customer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -830,15 +850,23 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload import_customer(domain: nil, cloud_identity_id: nil, parent: nil, auth_token: nil, overwrite_if_exists: nil, channel_partner_id: nil, customer: nil)
+              # @overload import_customer(domain: nil, cloud_identity_id: nil, primary_admin_email: nil, parent: nil, auth_token: nil, overwrite_if_exists: nil, channel_partner_id: nil, customer: nil)
               #   Pass arguments to `import_customer` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param domain [::String]
               #     Required. Customer domain.
+              #
+              #     Note: The following fields are mutually exclusive: `domain`, `cloud_identity_id`, `primary_admin_email`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param cloud_identity_id [::String]
               #     Required. Customer's Cloud Identity ID
+              #
+              #     Note: The following fields are mutually exclusive: `cloud_identity_id`, `domain`, `primary_admin_email`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              #   @param primary_admin_email [::String]
+              #     Required. Customer's primary admin email.
+              #
+              #     Note: The following fields are mutually exclusive: `primary_admin_email`, `domain`, `cloud_identity_id`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param parent [::String]
               #     Required. The resource name of the reseller's account.
               #     Parent takes the format: accounts/\\{account_id} or
@@ -914,7 +942,6 @@ module Google
 
                 @cloud_channel_service_stub.import_customer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1031,7 +1058,7 @@ module Google
                 @cloud_channel_service_stub.provision_cloud_identity request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1138,7 +1165,7 @@ module Google
                 @cloud_channel_service_stub.list_entitlements request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_entitlements, "entitlements", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1182,11 +1209,15 @@ module Google
               #
               #   @param cloud_identity_id [::String]
               #     Customer's Cloud Identity ID
+              #
+              #     Note: The following fields are mutually exclusive: `cloud_identity_id`, `customer_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param customer_name [::String]
               #     A reseller is required to create a customer and use the resource name of
               #     the created customer here.
               #     Customer_name uses the format:
               #     accounts/\\{account_id}/customers/\\{customer_id}
+              #
+              #     Note: The following fields are mutually exclusive: `customer_name`, `cloud_identity_id`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param parent [::String]
               #     Required. The reseller account's resource name.
               #     Parent uses the format: accounts/\\{account_id}
@@ -1270,7 +1301,7 @@ module Google
                 @cloud_channel_service_stub.list_transferable_skus request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_transferable_skus, "transferable_skus", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1317,9 +1348,13 @@ module Google
               #
               #   @param cloud_identity_id [::String]
               #     Customer's Cloud Identity ID
+              #
+              #     Note: The following fields are mutually exclusive: `cloud_identity_id`, `customer_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param customer_name [::String]
               #     A reseller should create a customer and use the resource name of
               #     that customer here.
+              #
+              #     Note: The following fields are mutually exclusive: `customer_name`, `cloud_identity_id`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param parent [::String]
               #     Required. The resource name of the reseller's account.
               #   @param page_size [::Integer]
@@ -1403,7 +1438,7 @@ module Google
                 @cloud_channel_service_stub.list_transferable_offers request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_transferable_offers, "transferable_offers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1494,7 +1529,6 @@ module Google
 
                 @cloud_channel_service_stub.get_entitlement request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1636,7 +1670,7 @@ module Google
                 @cloud_channel_service_stub.create_entitlement request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1769,7 +1803,7 @@ module Google
                 @cloud_channel_service_stub.change_parameters request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1895,7 +1929,7 @@ module Google
                 @cloud_channel_service_stub.change_renewal_settings request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2033,7 +2067,7 @@ module Google
                 @cloud_channel_service_stub.change_offer request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2158,7 +2192,7 @@ module Google
                 @cloud_channel_service_stub.start_paid_service request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2280,7 +2314,7 @@ module Google
                 @cloud_channel_service_stub.suspend_entitlement request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2407,7 +2441,7 @@ module Google
                 @cloud_channel_service_stub.cancel_entitlement request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2535,7 +2569,7 @@ module Google
                 @cloud_channel_service_stub.activate_entitlement request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2675,7 +2709,7 @@ module Google
                 @cloud_channel_service_stub.transfer_entitlements request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2807,7 +2841,7 @@ module Google
                 @cloud_channel_service_stub.transfer_entitlements_to_google request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2916,7 +2950,7 @@ module Google
                 @cloud_channel_service_stub.list_channel_partner_links request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_channel_partner_links, "channel_partner_links", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3013,7 +3047,6 @@ module Google
 
                 @cloud_channel_service_stub.get_channel_partner_link request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3120,7 +3153,6 @@ module Google
 
                 @cloud_channel_service_stub.create_channel_partner_link request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3229,7 +3261,6 @@ module Google
 
                 @cloud_channel_service_stub.update_channel_partner_link request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3326,7 +3357,6 @@ module Google
 
                 @cloud_channel_service_stub.get_customer_repricing_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3456,7 +3486,7 @@ module Google
                 @cloud_channel_service_stub.list_customer_repricing_configs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_customer_repricing_configs, "customer_repricing_configs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3580,7 +3610,6 @@ module Google
 
                 @cloud_channel_service_stub.create_customer_repricing_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3690,7 +3719,6 @@ module Google
 
                 @cloud_channel_service_stub.update_customer_repricing_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3787,7 +3815,6 @@ module Google
 
                 @cloud_channel_service_stub.delete_customer_repricing_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3884,7 +3911,6 @@ module Google
 
                 @cloud_channel_service_stub.get_channel_partner_repricing_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4017,7 +4043,7 @@ module Google
                 @cloud_channel_service_stub.list_channel_partner_repricing_configs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_channel_partner_repricing_configs, "channel_partner_repricing_configs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4142,7 +4168,6 @@ module Google
 
                 @cloud_channel_service_stub.create_channel_partner_repricing_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4252,7 +4277,6 @@ module Google
 
                 @cloud_channel_service_stub.update_channel_partner_repricing_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4348,7 +4372,6 @@ module Google
 
                 @cloud_channel_service_stub.delete_channel_partner_repricing_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4462,7 +4485,7 @@ module Google
                 @cloud_channel_service_stub.list_sku_groups request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_sku_groups, "sku_groups", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4575,7 +4598,7 @@ module Google
                 @cloud_channel_service_stub.list_sku_group_billable_skus request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_sku_group_billable_skus, "billable_skus", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4665,7 +4688,6 @@ module Google
 
                 @cloud_channel_service_stub.lookup_offer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4764,7 +4786,7 @@ module Google
                 @cloud_channel_service_stub.list_products request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_products, "products", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4868,7 +4890,7 @@ module Google
                 @cloud_channel_service_stub.list_skus request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_skus, "skus", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4978,7 +5000,7 @@ module Google
                 @cloud_channel_service_stub.list_offers request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_offers, "offers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5012,8 +5034,12 @@ module Google
               #
               #   @param create_entitlement_purchase [::Google::Cloud::Channel::V1::ListPurchasableSkusRequest::CreateEntitlementPurchase, ::Hash]
               #     List SKUs for CreateEntitlement purchase.
+              #
+              #     Note: The following fields are mutually exclusive: `create_entitlement_purchase`, `change_offer_purchase`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param change_offer_purchase [::Google::Cloud::Channel::V1::ListPurchasableSkusRequest::ChangeOfferPurchase, ::Hash]
               #     List SKUs for ChangeOffer purchase with a new SKU.
+              #
+              #     Note: The following fields are mutually exclusive: `change_offer_purchase`, `create_entitlement_purchase`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param customer [::String]
               #     Required. The resource name of the customer to list SKUs for.
               #     Format: accounts/\\{account_id}/customers/\\{customer_id}.
@@ -5085,7 +5111,7 @@ module Google
                 @cloud_channel_service_stub.list_purchasable_skus request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_purchasable_skus, "purchasable_skus", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5122,8 +5148,12 @@ module Google
               #
               #   @param create_entitlement_purchase [::Google::Cloud::Channel::V1::ListPurchasableOffersRequest::CreateEntitlementPurchase, ::Hash]
               #     List Offers for CreateEntitlement purchase.
+              #
+              #     Note: The following fields are mutually exclusive: `create_entitlement_purchase`, `change_offer_purchase`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param change_offer_purchase [::Google::Cloud::Channel::V1::ListPurchasableOffersRequest::ChangeOfferPurchase, ::Hash]
               #     List Offers for ChangeOffer purchase.
+              #
+              #     Note: The following fields are mutually exclusive: `change_offer_purchase`, `create_entitlement_purchase`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param customer [::String]
               #     Required. The resource name of the customer to list Offers for.
               #     Format: accounts/\\{account_id}/customers/\\{customer_id}.
@@ -5195,7 +5225,7 @@ module Google
                 @cloud_channel_service_stub.list_purchasable_offers request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_purchasable_offers, "purchasable_offers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5289,7 +5319,6 @@ module Google
 
                 @cloud_channel_service_stub.query_eligible_billing_accounts request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5388,7 +5417,6 @@ module Google
 
                 @cloud_channel_service_stub.register_subscriber request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5490,7 +5518,6 @@ module Google
 
                 @cloud_channel_service_stub.unregister_subscriber request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5544,10 +5571,10 @@ module Google
               #     When paginating, all other parameters provided to `ListSubscribers` must
               #     match the call that provided the page token.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::String>]
+              # @yieldparam result [::Google::Cloud::Channel::V1::ListSubscribersResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Gapic::Rest::PagedEnumerable<::String>]
+              # @return [::Google::Cloud::Channel::V1::ListSubscribersResponse]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -5595,9 +5622,7 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @cloud_channel_service_stub.list_subscribers request, options do |result, operation|
-                  result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_subscribers, "service_accounts", request, result, options
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5716,7 +5741,7 @@ module Google
                 @cloud_channel_service_stub.list_entitlement_changes request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @cloud_channel_service_stub, :list_entitlement_changes, "entitlement_changes", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -5764,6 +5789,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -5796,6 +5828,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -5817,6 +5854,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

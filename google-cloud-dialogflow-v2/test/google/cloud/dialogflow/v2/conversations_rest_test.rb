@@ -33,24 +33,24 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_conversation
@@ -82,7 +90,7 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     conversation = {}
     conversation_id = "hello world"
 
-    create_conversation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_conversation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -139,7 +147,7 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     page_token = "hello world"
     filter = "hello world"
 
-    list_conversations_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_conversations_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -193,7 +201,7 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_conversation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_conversation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -247,7 +255,7 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    complete_conversation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    complete_conversation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -291,6 +299,61 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     end
   end
 
+  def test_ingest_context_references
+    # Create test objects.
+    client_result = ::Google::Cloud::Dialogflow::V2::IngestContextReferencesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    conversation = "hello world"
+    context_references = {}
+
+    ingest_context_references_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ServiceStub.stub :transcode_ingest_context_references_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, ingest_context_references_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dialogflow::V2::Conversations::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.ingest_context_references({ conversation: conversation, context_references: context_references }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.ingest_context_references conversation: conversation, context_references: context_references do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.ingest_context_references ::Google::Cloud::Dialogflow::V2::IngestContextReferencesRequest.new(conversation: conversation, context_references: context_references) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.ingest_context_references({ conversation: conversation, context_references: context_references }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.ingest_context_references(::Google::Cloud::Dialogflow::V2::IngestContextReferencesRequest.new(conversation: conversation, context_references: context_references), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, ingest_context_references_client_stub.call_count
+      end
+    end
+  end
+
   def test_list_messages
     # Create test objects.
     client_result = ::Google::Cloud::Dialogflow::V2::ListMessagesResponse.new
@@ -304,7 +367,7 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     page_size = 42
     page_token = "hello world"
 
-    list_messages_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_messages_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -361,7 +424,7 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     context_size = 42
     assist_query_params = {}
 
-    suggest_conversation_summary_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    suggest_conversation_summary_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -418,7 +481,7 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     latest_message = "hello world"
     max_context_size = 42
 
-    generate_stateless_summary_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    generate_stateless_summary_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -462,6 +525,64 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     end
   end
 
+  def test_generate_stateless_suggestion
+    # Create test objects.
+    client_result = ::Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    generator = {}
+    context_references = {}
+    conversation_context = {}
+    trigger_events = [:TRIGGER_EVENT_UNSPECIFIED]
+
+    generate_stateless_suggestion_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ServiceStub.stub :transcode_generate_stateless_suggestion_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, generate_stateless_suggestion_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dialogflow::V2::Conversations::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.generate_stateless_suggestion({ parent: parent, generator: generator, context_references: context_references, conversation_context: conversation_context, trigger_events: trigger_events }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.generate_stateless_suggestion parent: parent, generator: generator, context_references: context_references, conversation_context: conversation_context, trigger_events: trigger_events do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.generate_stateless_suggestion ::Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionRequest.new(parent: parent, generator: generator, context_references: context_references, conversation_context: conversation_context, trigger_events: trigger_events) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.generate_stateless_suggestion({ parent: parent, generator: generator, context_references: context_references, conversation_context: conversation_context, trigger_events: trigger_events }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.generate_stateless_suggestion(::Google::Cloud::Dialogflow::V2::GenerateStatelessSuggestionRequest.new(parent: parent, generator: generator, context_references: context_references, conversation_context: conversation_context, trigger_events: trigger_events), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, generate_stateless_suggestion_client_stub.call_count
+      end
+    end
+  end
+
   def test_search_knowledge
     # Create test objects.
     client_result = ::Google::Cloud::Dialogflow::V2::SearchKnowledgeResponse.new
@@ -476,8 +597,12 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
     session_id = "hello world"
     conversation = "hello world"
     latest_message = "hello world"
+    query_source = :QUERY_SOURCE_UNSPECIFIED
+    end_user_metadata = {}
+    search_config = {}
+    exact_search = true
 
-    search_knowledge_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    search_knowledge_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -491,32 +616,88 @@ class ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ClientTest < Minites
         end
 
         # Use hash object
-        client.search_knowledge({ parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message }) do |_result, response|
+        client.search_knowledge({ parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message, query_source: query_source, end_user_metadata: end_user_metadata, search_config: search_config, exact_search: exact_search }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.search_knowledge parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message do |_result, response|
+        client.search_knowledge parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message, query_source: query_source, end_user_metadata: end_user_metadata, search_config: search_config, exact_search: exact_search do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.search_knowledge ::Google::Cloud::Dialogflow::V2::SearchKnowledgeRequest.new(parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message) do |_result, response|
+        client.search_knowledge ::Google::Cloud::Dialogflow::V2::SearchKnowledgeRequest.new(parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message, query_source: query_source, end_user_metadata: end_user_metadata, search_config: search_config, exact_search: exact_search) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.search_knowledge({ parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message }, call_options) do |_result, response|
+        client.search_knowledge({ parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message, query_source: query_source, end_user_metadata: end_user_metadata, search_config: search_config, exact_search: exact_search }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.search_knowledge(::Google::Cloud::Dialogflow::V2::SearchKnowledgeRequest.new(parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message), call_options) do |_result, response|
+        client.search_knowledge(::Google::Cloud::Dialogflow::V2::SearchKnowledgeRequest.new(parent: parent, query: query, conversation_profile: conversation_profile, session_id: session_id, conversation: conversation, latest_message: latest_message, query_source: query_source, end_user_metadata: end_user_metadata, search_config: search_config, exact_search: exact_search), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Verify method calls
         assert_equal 5, search_knowledge_client_stub.call_count
+      end
+    end
+  end
+
+  def test_generate_suggestions
+    # Create test objects.
+    client_result = ::Google::Cloud::Dialogflow::V2::GenerateSuggestionsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    conversation = "hello world"
+    latest_message = "hello world"
+    trigger_events = [:TRIGGER_EVENT_UNSPECIFIED]
+
+    generate_suggestions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dialogflow::V2::Conversations::Rest::ServiceStub.stub :transcode_generate_suggestions_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, generate_suggestions_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dialogflow::V2::Conversations::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.generate_suggestions({ conversation: conversation, latest_message: latest_message, trigger_events: trigger_events }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.generate_suggestions conversation: conversation, latest_message: latest_message, trigger_events: trigger_events do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.generate_suggestions ::Google::Cloud::Dialogflow::V2::GenerateSuggestionsRequest.new(conversation: conversation, latest_message: latest_message, trigger_events: trigger_events) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.generate_suggestions({ conversation: conversation, latest_message: latest_message, trigger_events: trigger_events }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.generate_suggestions(::Google::Cloud::Dialogflow::V2::GenerateSuggestionsRequest.new(conversation: conversation, latest_message: latest_message, trigger_events: trigger_events), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, generate_suggestions_client_stub.call_count
       end
     end
   end

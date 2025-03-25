@@ -33,24 +33,24 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::RankService::Rest::ClientTest < 
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::RankService::Rest::ClientTest < 
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_rank
@@ -84,8 +92,9 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::RankService::Rest::ClientTest < 
     query = "hello world"
     records = [{}]
     ignore_record_details_in_response = true
+    user_labels = {}
 
-    rank_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    rank_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -99,27 +108,27 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::RankService::Rest::ClientTest < 
         end
 
         # Use hash object
-        client.rank({ ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response }) do |_result, response|
+        client.rank({ ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response, user_labels: user_labels }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.rank ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response do |_result, response|
+        client.rank ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response, user_labels: user_labels do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.rank ::Google::Cloud::DiscoveryEngine::V1beta::RankRequest.new(ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response) do |_result, response|
+        client.rank ::Google::Cloud::DiscoveryEngine::V1beta::RankRequest.new(ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response, user_labels: user_labels) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.rank({ ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response }, call_options) do |_result, response|
+        client.rank({ ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response, user_labels: user_labels }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.rank(::Google::Cloud::DiscoveryEngine::V1beta::RankRequest.new(ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response), call_options) do |_result, response|
+        client.rank(::Google::Cloud::DiscoveryEngine::V1beta::RankRequest.new(ranking_config: ranking_config, model: model, top_n: top_n, query: query, records: records, ignore_record_details_in_response: ignore_record_details_in_response, user_labels: user_labels), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 

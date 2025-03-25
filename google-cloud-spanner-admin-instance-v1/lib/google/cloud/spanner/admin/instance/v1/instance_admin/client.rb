@@ -224,8 +224,19 @@ module Google
                     universe_domain: @config.universe_domain,
                     channel_args: @config.channel_args,
                     interceptors: @config.interceptors,
-                    channel_pool_config: @config.channel_pool
+                    channel_pool_config: @config.channel_pool,
+                    logger: @config.logger
                   )
+
+                  @instance_admin_stub.stub_logger&.info do |entry|
+                    entry.set_system_name
+                    entry.set_service
+                    entry.message = "Created client for #{entry.service}"
+                    entry.set_credentials_fields credentials
+                    entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                    entry.set "defaultTimeout", @config.timeout if @config.timeout
+                    entry.set "quotaProject", @quota_project_id if @quota_project_id
+                  end
                 end
 
                 ##
@@ -235,10 +246,22 @@ module Google
                 #
                 attr_reader :operations_client
 
+                ##
+                # The logger used for request/response debug logging.
+                #
+                # @return [Logger]
+                #
+                def logger
+                  @instance_admin_stub.logger
+                end
+
                 # Service calls
 
                 ##
                 # Lists the supported instance configurations for a given project.
+                #
+                # Returns both Google-managed configurations and user-managed
+                # configurations.
                 #
                 # @overload list_instance_configs(request, options = nil)
                 #   Pass arguments to `list_instance_configs` via a request object, either of type
@@ -332,7 +355,7 @@ module Google
                   @instance_admin_stub.call_rpc :list_instance_configs, request, options: options do |response, operation|
                     response = ::Gapic::PagedEnumerable.new @instance_admin_stub, :list_instance_configs, request, response, operation, options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -419,48 +442,47 @@ module Google
 
                   @instance_admin_stub.call_rpc :get_instance_config, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
                 end
 
                 ##
-                # Creates an instance config and begins preparing it to be used. The
-                # returned {::Google::Longrunning::Operation long-running operation}
+                # Creates an instance configuration and begins preparing it to be used. The
+                # returned long-running operation
                 # can be used to track the progress of preparing the new
-                # instance config. The instance config name is assigned by the caller. If the
-                # named instance config already exists, `CreateInstanceConfig` returns
-                # `ALREADY_EXISTS`.
+                # instance configuration. The instance configuration name is assigned by the
+                # caller. If the named instance configuration already exists,
+                # `CreateInstanceConfig` returns `ALREADY_EXISTS`.
                 #
                 # Immediately after the request returns:
                 #
-                #   * The instance config is readable via the API, with all requested
-                #     attributes. The instance config's
+                #   * The instance configuration is readable via the API, with all requested
+                #     attributes. The instance configuration's
                 #     {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig#reconciling reconciling}
                 #     field is set to true. Its state is `CREATING`.
                 #
                 # While the operation is pending:
                 #
-                #   * Cancelling the operation renders the instance config immediately
+                #   * Cancelling the operation renders the instance configuration immediately
                 #     unreadable via the API.
                 #   * Except for deleting the creating resource, all other attempts to modify
-                #     the instance config are rejected.
+                #     the instance configuration are rejected.
                 #
                 # Upon completion of the returned operation:
                 #
                 #   * Instances can be created using the instance configuration.
-                #   * The instance config's
+                #   * The instance configuration's
                 #   {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig#reconciling reconciling}
                 #   field becomes false. Its state becomes `READY`.
                 #
-                # The returned {::Google::Longrunning::Operation long-running operation} will
+                # The returned long-running operation will
                 # have a name of the format
                 # `<instance_config_name>/operations/<operation_id>` and can be used to track
-                # creation of the instance config. The
-                # {::Google::Longrunning::Operation#metadata metadata} field type is
+                # creation of the instance configuration. The
+                # metadata field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::CreateInstanceConfigMetadata CreateInstanceConfigMetadata}.
-                # The {::Google::Longrunning::Operation#response response} field type is
+                # The response field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig InstanceConfig}, if
                 # successful.
                 #
@@ -484,18 +506,18 @@ module Google
                 #   the default parameter values, pass an empty Hash as a request object (see above).
                 #
                 #   @param parent [::String]
-                #     Required. The name of the project in which to create the instance config.
-                #     Values are of the form `projects/<project>`.
+                #     Required. The name of the project in which to create the instance
+                #     configuration. Values are of the form `projects/<project>`.
                 #   @param instance_config_id [::String]
-                #     Required. The ID of the instance config to create.  Valid identifiers are
-                #     of the form `custom-[-a-z0-9]*[a-z0-9]` and must be between 2 and 64
+                #     Required. The ID of the instance configuration to create. Valid identifiers
+                #     are of the form `custom-[-a-z0-9]*[a-z0-9]` and must be between 2 and 64
                 #     characters in length. The `custom-` prefix is required to avoid name
-                #     conflicts with Google managed configurations.
+                #     conflicts with Google-managed configurations.
                 #   @param instance_config [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig, ::Hash]
-                #     Required. The InstanceConfig proto of the configuration to create.
-                #     instance_config.name must be
+                #     Required. The `InstanceConfig` proto of the configuration to create.
+                #     `instance_config.name` must be
                 #     `<parent>/instanceConfigs/<instance_config_id>`.
-                #     instance_config.base_config must be a Google managed configuration name,
+                #     `instance_config.base_config` must be a Google-managed configuration name,
                 #     e.g. <parent>/instanceConfigs/us-east1, <parent>/instanceConfigs/nam3.
                 #   @param validate_only [::Boolean]
                 #     An option to validate, but not actually execute, a request,
@@ -568,23 +590,23 @@ module Google
                   @instance_admin_stub.call_rpc :create_instance_config, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
                 end
 
                 ##
-                # Updates an instance config. The returned
-                # {::Google::Longrunning::Operation long-running operation} can be used to track
-                # the progress of updating the instance. If the named instance config does
-                # not exist, returns `NOT_FOUND`.
+                # Updates an instance configuration. The returned
+                # long-running operation can be used to track
+                # the progress of updating the instance. If the named instance configuration
+                # does not exist, returns `NOT_FOUND`.
                 #
-                # Only user managed configurations can be updated.
+                # Only user-managed configurations can be updated.
                 #
                 # Immediately after the request returns:
                 #
-                #   * The instance config's
+                #   * The instance configuration's
                 #     {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig#reconciling reconciling}
                 #     field is set to true.
                 #
@@ -594,26 +616,26 @@ module Google
                 #     {::Google::Cloud::Spanner::Admin::Instance::V1::UpdateInstanceConfigMetadata#cancel_time cancel_time}.
                 #     The operation is guaranteed to succeed at undoing all changes, after
                 #     which point it terminates with a `CANCELLED` status.
-                #   * All other attempts to modify the instance config are rejected.
-                #   * Reading the instance config via the API continues to give the
+                #   * All other attempts to modify the instance configuration are rejected.
+                #   * Reading the instance configuration via the API continues to give the
                 #     pre-request values.
                 #
                 # Upon completion of the returned operation:
                 #
                 #   * Creating instances using the instance configuration uses the new
                 #     values.
-                #   * The instance config's new values are readable via the API.
-                #   * The instance config's
+                #   * The new values of the instance configuration are readable via the API.
+                #   * The instance configuration's
                 #   {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig#reconciling reconciling}
                 #   field becomes false.
                 #
-                # The returned {::Google::Longrunning::Operation long-running operation} will
+                # The returned long-running operation will
                 # have a name of the format
                 # `<instance_config_name>/operations/<operation_id>` and can be used to track
-                # the instance config modification.  The
-                # {::Google::Longrunning::Operation#metadata metadata} field type is
+                # the instance configuration modification.  The
+                # metadata field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::UpdateInstanceConfigMetadata UpdateInstanceConfigMetadata}.
-                # The {::Google::Longrunning::Operation#response response} field type is
+                # The response field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig InstanceConfig}, if
                 # successful.
                 #
@@ -636,8 +658,9 @@ module Google
                 #   the default parameter values, pass an empty Hash as a request object (see above).
                 #
                 #   @param instance_config [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig, ::Hash]
-                #     Required. The user instance config to update, which must always include the
-                #     instance config name. Otherwise, only fields mentioned in
+                #     Required. The user instance configuration to update, which must always
+                #     include the instance configuration name. Otherwise, only fields mentioned
+                #     in
                 #     {::Google::Cloud::Spanner::Admin::Instance::V1::UpdateInstanceConfigRequest#update_mask update_mask}
                 #     need be included. To prevent conflicts of concurrent updates,
                 #     {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig#reconciling etag} can
@@ -720,18 +743,18 @@ module Google
                   @instance_admin_stub.call_rpc :update_instance_config, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
                 end
 
                 ##
-                # Deletes the instance config. Deletion is only allowed when no
+                # Deletes the instance configuration. Deletion is only allowed when no
                 # instances are using the configuration. If any instances are using
-                # the config, returns `FAILED_PRECONDITION`.
+                # the configuration, returns `FAILED_PRECONDITION`.
                 #
-                # Only user managed configurations can be deleted.
+                # Only user-managed configurations can be deleted.
                 #
                 # Authorization requires `spanner.instanceConfigs.delete` permission on
                 # the resource {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig#name name}.
@@ -757,12 +780,12 @@ module Google
                 #     `projects/<project>/instanceConfigs/<instance_config>`
                 #   @param etag [::String]
                 #     Used for optimistic concurrency control as a way to help prevent
-                #     simultaneous deletes of an instance config from overwriting each
+                #     simultaneous deletes of an instance configuration from overwriting each
                 #     other. If not empty, the API
-                #     only deletes the instance config when the etag provided matches the current
-                #     status of the requested instance config. Otherwise, deletes the instance
-                #     config without checking the current status of the requested instance
-                #     config.
+                #     only deletes the instance configuration when the etag provided matches the
+                #     current status of the requested instance configuration. Otherwise, deletes
+                #     the instance configuration without checking the current status of the
+                #     requested instance configuration.
                 #   @param validate_only [::Boolean]
                 #     An option to validate, but not actually execute, a request,
                 #     and provide the same response.
@@ -826,19 +849,18 @@ module Google
 
                   @instance_admin_stub.call_rpc :delete_instance_config, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
                 end
 
                 ##
-                # Lists the user-managed instance config [long-running
-                # operations][google.longrunning.Operation] in the given project. An instance
-                # config operation has a name of the form
+                # Lists the user-managed instance configuration long-running
+                # operations in the given project. An instance
+                # configuration operation has a name of the form
                 # `projects/<project>/instanceConfigs/<instance_config>/operations/<operation>`.
                 # The long-running operation
-                # {::Google::Longrunning::Operation#metadata metadata} field type
+                # metadata field type
                 # `metadata.type_url` describes the type of the metadata. Operations returned
                 # include those that have completed/failed/canceled within the last 7 days,
                 # and pending operations. Operations returned are ordered by
@@ -861,7 +883,7 @@ module Google
                 #   the default parameter values, pass an empty Hash as a request object (see above).
                 #
                 #   @param parent [::String]
-                #     Required. The project of the instance config operations.
+                #     Required. The project of the instance configuration operations.
                 #     Values are of the form `projects/<project>`.
                 #   @param filter [::String]
                 #     An expression that filters the list of returned operations.
@@ -872,8 +894,7 @@ module Google
                 #     must be one of: `<`, `>`, `<=`, `>=`, `!=`, `=`, or `:`.
                 #     Colon `:` is the contains operator. Filter rules are not case sensitive.
                 #
-                #     The following fields in the {::Google::Longrunning::Operation Operation}
-                #     are eligible for filtering:
+                #     The following fields in the Operation are eligible for filtering:
                 #
                 #       * `name` - The name of the long-running operation
                 #       * `done` - False if the operation is in progress, else true.
@@ -904,7 +925,7 @@ module Google
                 #         `(error:*)` - Return operations where:
                 #         * The operation's metadata type is
                 #         {::Google::Cloud::Spanner::Admin::Instance::V1::CreateInstanceConfigMetadata CreateInstanceConfigMetadata}.
-                #         * The instance config name contains "custom-config".
+                #         * The instance configuration name contains "custom-config".
                 #         * The operation started before 2021-03-28T14:50:00Z.
                 #         * The operation resulted in an error.
                 #   @param page_size [::Integer]
@@ -982,7 +1003,7 @@ module Google
                     wrap_lro_operation = ->(op_response) { ::Gapic::Operation.new op_response, @operations_client }
                     response = ::Gapic::PagedEnumerable.new @instance_admin_stub, :list_instance_config_operations, request, response, operation, options, format_resource: wrap_lro_operation
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1109,7 +1130,7 @@ module Google
                   @instance_admin_stub.call_rpc :list_instances, request, options: options do |response, operation|
                     response = ::Gapic::PagedEnumerable.new @instance_admin_stub, :list_instances, request, response, operation, options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1135,7 +1156,9 @@ module Google
                 #
                 #   @param parent [::String]
                 #     Required. The instance whose instance partitions should be listed. Values
-                #     are of the form `projects/<project>/instances/<instance>`.
+                #     are of the form `projects/<project>/instances/<instance>`. Use `{instance}
+                #     = '-'` to list instance partitions for all Instances in a project, e.g.,
+                #     `projects/myproject/instances/-`.
                 #   @param page_size [::Integer]
                 #     Number of instance partitions to be returned in the response. If 0 or less,
                 #     defaults to the server's maximum allowed page size.
@@ -1216,7 +1239,7 @@ module Google
                   @instance_admin_stub.call_rpc :list_instance_partitions, request, options: options do |response, operation|
                     response = ::Gapic::PagedEnumerable.new @instance_admin_stub, :list_instance_partitions, request, response, operation, options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1308,7 +1331,6 @@ module Google
 
                   @instance_admin_stub.call_rpc :get_instance, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1316,7 +1338,7 @@ module Google
 
                 ##
                 # Creates an instance and begins preparing it to begin serving. The
-                # returned {::Google::Longrunning::Operation long-running operation}
+                # returned long-running operation
                 # can be used to track the progress of preparing the new
                 # instance. The instance name is assigned by the caller. If the
                 # named instance already exists, `CreateInstance` returns
@@ -1342,12 +1364,12 @@ module Google
                 #   * The instance's allocated resource levels are readable via the API.
                 #   * The instance's state becomes `READY`.
                 #
-                # The returned {::Google::Longrunning::Operation long-running operation} will
+                # The returned long-running operation will
                 # have a name of the format `<instance_name>/operations/<operation_id>` and
                 # can be used to track creation of the instance.  The
-                # {::Google::Longrunning::Operation#metadata metadata} field type is
+                # metadata field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::CreateInstanceMetadata CreateInstanceMetadata}.
-                # The {::Google::Longrunning::Operation#response response} field type is
+                # The response field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::Instance Instance}, if successful.
                 #
                 # @overload create_instance(request, options = nil)
@@ -1443,7 +1465,7 @@ module Google
                   @instance_admin_stub.call_rpc :create_instance, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1451,8 +1473,7 @@ module Google
 
                 ##
                 # Updates an instance, and begins allocating or releasing resources
-                # as requested. The returned [long-running
-                # operation][google.longrunning.Operation] can be used to track the
+                # as requested. The returned long-running operation can be used to track the
                 # progress of updating the instance. If the named instance does not
                 # exist, returns `NOT_FOUND`.
                 #
@@ -1480,12 +1501,12 @@ module Google
                 #     tables.
                 #   * The instance's new resource levels are readable via the API.
                 #
-                # The returned {::Google::Longrunning::Operation long-running operation} will
+                # The returned long-running operation will
                 # have a name of the format `<instance_name>/operations/<operation_id>` and
                 # can be used to track the instance modification.  The
-                # {::Google::Longrunning::Operation#metadata metadata} field type is
+                # metadata field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::UpdateInstanceMetadata UpdateInstanceMetadata}.
-                # The {::Google::Longrunning::Operation#response response} field type is
+                # The response field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::Instance Instance}, if successful.
                 #
                 # Authorization requires `spanner.instances.update` permission on
@@ -1585,7 +1606,7 @@ module Google
                   @instance_admin_stub.call_rpc :update_instance, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1682,7 +1703,6 @@ module Google
 
                   @instance_admin_stub.call_rpc :delete_instance, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1784,7 +1804,6 @@ module Google
 
                   @instance_admin_stub.call_rpc :set_iam_policy, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1878,7 +1897,6 @@ module Google
 
                   @instance_admin_stub.call_rpc :get_iam_policy, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1975,7 +1993,6 @@ module Google
 
                   @instance_admin_stub.call_rpc :test_iam_permissions, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2063,7 +2080,6 @@ module Google
 
                   @instance_admin_stub.call_rpc :get_instance_partition, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2071,7 +2087,7 @@ module Google
 
                 ##
                 # Creates an instance partition and begins preparing it to be used. The
-                # returned {::Google::Longrunning::Operation long-running operation}
+                # returned long-running operation
                 # can be used to track the progress of preparing the new instance partition.
                 # The instance partition name is assigned by the caller. If the named
                 # instance partition already exists, `CreateInstancePartition` returns
@@ -2098,13 +2114,13 @@ module Google
                 #     API.
                 #   * The instance partition's state becomes `READY`.
                 #
-                # The returned {::Google::Longrunning::Operation long-running operation} will
+                # The returned long-running operation will
                 # have a name of the format
                 # `<instance_partition_name>/operations/<operation_id>` and can be used to
                 # track creation of the instance partition.  The
-                # {::Google::Longrunning::Operation#metadata metadata} field type is
+                # metadata field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::CreateInstancePartitionMetadata CreateInstancePartitionMetadata}.
-                # The {::Google::Longrunning::Operation#response response} field type is
+                # The response field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::InstancePartition InstancePartition}, if
                 # successful.
                 #
@@ -2203,7 +2219,7 @@ module Google
                   @instance_admin_stub.call_rpc :create_instance_partition, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2302,7 +2318,6 @@ module Google
 
                   @instance_admin_stub.call_rpc :delete_instance_partition, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2310,8 +2325,7 @@ module Google
 
                 ##
                 # Updates an instance partition, and begins allocating or releasing resources
-                # as requested. The returned [long-running
-                # operation][google.longrunning.Operation] can be used to track the
+                # as requested. The returned long-running operation can be used to track the
                 # progress of updating the instance partition. If the named instance
                 # partition does not exist, returns `NOT_FOUND`.
                 #
@@ -2340,13 +2354,13 @@ module Google
                 #     partition's tables.
                 #   * The instance partition's new resource levels are readable via the API.
                 #
-                # The returned {::Google::Longrunning::Operation long-running operation} will
+                # The returned long-running operation will
                 # have a name of the format
                 # `<instance_partition_name>/operations/<operation_id>` and can be used to
                 # track the instance partition modification. The
-                # {::Google::Longrunning::Operation#metadata metadata} field type is
+                # metadata field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::UpdateInstancePartitionMetadata UpdateInstancePartitionMetadata}.
-                # The {::Google::Longrunning::Operation#response response} field type is
+                # The response field type is
                 # {::Google::Cloud::Spanner::Admin::Instance::V1::InstancePartition InstancePartition}, if
                 # successful.
                 #
@@ -2449,19 +2463,18 @@ module Google
                   @instance_admin_stub.call_rpc :update_instance_partition, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
                 end
 
                 ##
-                # Lists instance partition [long-running
-                # operations][google.longrunning.Operation] in the given instance.
+                # Lists instance partition long-running operations in the given instance.
                 # An instance partition operation has a name of the form
                 # `projects/<project>/instances/<instance>/instancePartitions/<instance_partition>/operations/<operation>`.
                 # The long-running operation
-                # {::Google::Longrunning::Operation#metadata metadata} field type
+                # metadata field type
                 # `metadata.type_url` describes the type of the metadata. Operations returned
                 # include those that have completed/failed/canceled within the last 7 days,
                 # and pending operations. Operations returned are ordered by
@@ -2499,8 +2512,7 @@ module Google
                 #     must be one of: `<`, `>`, `<=`, `>=`, `!=`, `=`, or `:`.
                 #     Colon `:` is the contains operator. Filter rules are not case sensitive.
                 #
-                #     The following fields in the {::Google::Longrunning::Operation Operation}
-                #     are eligible for filtering:
+                #     The following fields in the Operation are eligible for filtering:
                 #
                 #       * `name` - The name of the long-running operation
                 #       * `done` - False if the operation is in progress, else true.
@@ -2547,7 +2559,8 @@ module Google
                 #     Optional. Deadline used while retrieving metadata for instance partition
                 #     operations. Instance partitions whose operation metadata cannot be
                 #     retrieved within this deadline will be added to
-                #     [unreachable][ListInstancePartitionOperationsResponse.unreachable] in
+                #     {::Google::Cloud::Spanner::Admin::Instance::V1::ListInstancePartitionOperationsResponse#unreachable_instance_partitions unreachable_instance_partitions}
+                #     in
                 #     {::Google::Cloud::Spanner::Admin::Instance::V1::ListInstancePartitionOperationsResponse ListInstancePartitionOperationsResponse}.
                 #
                 # @yield [response, operation] Access the result along with the RPC operation
@@ -2615,7 +2628,165 @@ module Google
                     wrap_lro_operation = ->(op_response) { ::Gapic::Operation.new op_response, @operations_client }
                     response = ::Gapic::PagedEnumerable.new @instance_admin_stub, :list_instance_partition_operations, request, response, operation, options, format_resource: wrap_lro_operation
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
+                  end
+                rescue ::GRPC::BadStatus => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Moves an instance to the target instance configuration. You can use the
+                # returned long-running operation to track
+                # the progress of moving the instance.
+                #
+                # `MoveInstance` returns `FAILED_PRECONDITION` if the instance meets any of
+                # the following criteria:
+                #
+                #   * Is undergoing a move to a different instance configuration
+                #   * Has backups
+                #   * Has an ongoing update
+                #   * Contains any CMEK-enabled databases
+                #   * Is a free trial instance
+                #
+                # While the operation is pending:
+                #
+                #   * All other attempts to modify the instance, including changes to its
+                #     compute capacity, are rejected.
+                #   * The following database and backup admin operations are rejected:
+                #
+                #     * `DatabaseAdmin.CreateDatabase`
+                #     * `DatabaseAdmin.UpdateDatabaseDdl` (disabled if default_leader is
+                #        specified in the request.)
+                #     * `DatabaseAdmin.RestoreDatabase`
+                #     * `DatabaseAdmin.CreateBackup`
+                #     * `DatabaseAdmin.CopyBackup`
+                #
+                #   * Both the source and target instance configurations are subject to
+                #     hourly compute and storage charges.
+                #   * The instance might experience higher read-write latencies and a higher
+                #     transaction abort rate. However, moving an instance doesn't cause any
+                #     downtime.
+                #
+                # The returned long-running operation has
+                # a name of the format
+                # `<instance_name>/operations/<operation_id>` and can be used to track
+                # the move instance operation. The
+                # metadata field type is
+                # {::Google::Cloud::Spanner::Admin::Instance::V1::MoveInstanceMetadata MoveInstanceMetadata}.
+                # The response field type is
+                # {::Google::Cloud::Spanner::Admin::Instance::V1::Instance Instance},
+                # if successful.
+                # Cancelling the operation sets its metadata's
+                # {::Google::Cloud::Spanner::Admin::Instance::V1::MoveInstanceMetadata#cancel_time cancel_time}.
+                # Cancellation is not immediate because it involves moving any data
+                # previously moved to the target instance configuration back to the original
+                # instance configuration. You can use this operation to track the progress of
+                # the cancellation. Upon successful completion of the cancellation, the
+                # operation terminates with `CANCELLED` status.
+                #
+                # If not cancelled, upon completion of the returned operation:
+                #
+                #   * The instance successfully moves to the target instance
+                #     configuration.
+                #   * You are billed for compute and storage in target instance
+                #   configuration.
+                #
+                # Authorization requires the `spanner.instances.update` permission on
+                # the resource {::Google::Cloud::Spanner::Admin::Instance::V1::Instance instance}.
+                #
+                # For more details, see
+                # [Move an instance](https://cloud.google.com/spanner/docs/move-instance).
+                #
+                # @overload move_instance(request, options = nil)
+                #   Pass arguments to `move_instance` via a request object, either of type
+                #   {::Google::Cloud::Spanner::Admin::Instance::V1::MoveInstanceRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Spanner::Admin::Instance::V1::MoveInstanceRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+                #
+                # @overload move_instance(name: nil, target_config: nil)
+                #   Pass arguments to `move_instance` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param name [::String]
+                #     Required. The instance to move.
+                #     Values are of the form `projects/<project>/instances/<instance>`.
+                #   @param target_config [::String]
+                #     Required. The target instance configuration where to move the instance.
+                #     Values are of the form `projects/<project>/instanceConfigs/<config>`.
+                #
+                # @yield [response, operation] Access the result along with the RPC operation
+                # @yieldparam response [::Gapic::Operation]
+                # @yieldparam operation [::GRPC::ActiveCall::Operation]
+                #
+                # @return [::Gapic::Operation]
+                #
+                # @raise [::Google::Cloud::Error] if the RPC is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/spanner/admin/instance/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Spanner::Admin::Instance::V1::MoveInstanceRequest.new
+                #
+                #   # Call the move_instance method.
+                #   result = client.move_instance request
+                #
+                #   # The returned object is of type Gapic::Operation. You can use it to
+                #   # check the status of an operation, cancel it, or wait for results.
+                #   # Here is how to wait for a response.
+                #   result.wait_until_done! timeout: 60
+                #   if result.response?
+                #     p result.response
+                #   else
+                #     puts "No response received."
+                #   end
+                #
+                def move_instance request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Spanner::Admin::Instance::V1::MoveInstanceRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  metadata = @config.rpcs.move_instance.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Spanner::Admin::Instance::V1::VERSION
+                  metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  header_params = {}
+                  if request.name
+                    header_params["name"] = request.name
+                  end
+
+                  request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                  metadata[:"x-goog-request-params"] ||= request_params_header
+
+                  options.apply_defaults timeout:      @config.rpcs.move_instance.timeout,
+                                         metadata:     metadata,
+                                         retry_policy: @config.rpcs.move_instance.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @instance_admin_stub.call_rpc :move_instance, request, options: options do |response, operation|
+                    response = ::Gapic::Operation.new response, @operations_client, options: options
+                    yield response, operation if block_given?
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2665,6 +2836,13 @@ module Google
                 #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
                 #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -2704,6 +2882,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -2728,6 +2911,7 @@ module Google
                   config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                   config_attr :quota_project, nil, ::String, nil
                   config_attr :universe_domain, nil, ::String, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil
@@ -2874,6 +3058,11 @@ module Google
                     # @return [::Gapic::Config::Method]
                     #
                     attr_reader :list_instance_partition_operations
+                    ##
+                    # RPC-specific configuration for `move_instance`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :move_instance
 
                     # @private
                     def initialize parent_rpcs = nil
@@ -2917,6 +3106,8 @@ module Google
                       @update_instance_partition = ::Gapic::Config::Method.new update_instance_partition_config
                       list_instance_partition_operations_config = parent_rpcs.list_instance_partition_operations if parent_rpcs.respond_to? :list_instance_partition_operations
                       @list_instance_partition_operations = ::Gapic::Config::Method.new list_instance_partition_operations_config
+                      move_instance_config = parent_rpcs.move_instance if parent_rpcs.respond_to? :move_instance
+                      @move_instance = ::Gapic::Config::Method.new move_instance_config
 
                       yield self if block_given?
                     end

@@ -162,8 +162,28 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @text_to_speech_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @text_to_speech_stub.logger
             end
 
             # Service calls
@@ -247,7 +267,6 @@ module Google
 
               @text_to_speech_stub.call_rpc :list_voices, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -267,7 +286,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload synthesize_speech(input: nil, voice: nil, audio_config: nil, enable_time_pointing: nil)
+            # @overload synthesize_speech(input: nil, voice: nil, audio_config: nil, enable_time_pointing: nil, advanced_voice_options: nil)
             #   Pass arguments to `synthesize_speech` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -280,6 +299,8 @@ module Google
             #     Required. The configuration of the synthesized audio.
             #   @param enable_time_pointing [::Array<::Google::Cloud::TextToSpeech::V1beta1::SynthesizeSpeechRequest::TimepointType>]
             #     Whether and what timepoints are returned in the response.
+            #   @param advanced_voice_options [::Google::Cloud::TextToSpeech::V1beta1::AdvancedVoiceOptions, ::Hash]
+            #     Advanced voice options.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::TextToSpeech::V1beta1::SynthesizeSpeechResponse]
@@ -332,7 +353,85 @@ module Google
 
               @text_to_speech_stub.call_rpc :synthesize_speech, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Performs bidirectional streaming speech synthesis: receive audio while
+            # sending text.
+            #
+            # @param request [::Gapic::StreamInput, ::Enumerable<::Google::Cloud::TextToSpeech::V1beta1::StreamingSynthesizeRequest, ::Hash>]
+            #   An enumerable of {::Google::Cloud::TextToSpeech::V1beta1::StreamingSynthesizeRequest} instances.
+            # @param options [::Gapic::CallOptions, ::Hash]
+            #   Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Enumerable<::Google::Cloud::TextToSpeech::V1beta1::StreamingSynthesizeResponse>]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Enumerable<::Google::Cloud::TextToSpeech::V1beta1::StreamingSynthesizeResponse>]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/cloud/text_to_speech/v1beta1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Cloud::TextToSpeech::V1beta1::TextToSpeech::Client.new
+            #
+            #   # Create an input stream.
+            #   input = Gapic::StreamInput.new
+            #
+            #   # Call the streaming_synthesize method to start streaming.
+            #   output = client.streaming_synthesize input
+            #
+            #   # Send requests on the stream. For each request object, set fields by
+            #   # passing keyword arguments. Be sure to close the stream when done.
+            #   input << Google::Cloud::TextToSpeech::V1beta1::StreamingSynthesizeRequest.new
+            #   input << Google::Cloud::TextToSpeech::V1beta1::StreamingSynthesizeRequest.new
+            #   input.close
+            #
+            #   # The returned object is a streamed enumerable yielding elements of type
+            #   # ::Google::Cloud::TextToSpeech::V1beta1::StreamingSynthesizeResponse
+            #   output.each do |current_response|
+            #     p current_response
+            #   end
+            #
+            def streaming_synthesize request, options = nil
+              unless request.is_a? ::Enumerable
+                raise ::ArgumentError, "request must be an Enumerable" unless request.respond_to? :to_enum
+                request = request.to_enum
+              end
+
+              request = request.lazy.map do |req|
+                ::Gapic::Protobuf.coerce req, to: ::Google::Cloud::TextToSpeech::V1beta1::StreamingSynthesizeRequest
+              end
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.streaming_synthesize.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Cloud::TextToSpeech::V1beta1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              options.apply_defaults timeout:      @config.rpcs.streaming_synthesize.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.streaming_synthesize.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @text_to_speech_stub.call_rpc :streaming_synthesize, request, options: options do |response, operation|
+                yield response, operation if block_given?
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -382,6 +481,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -421,6 +527,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -445,6 +556,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil
@@ -501,6 +613,11 @@ module Google
                 # @return [::Gapic::Config::Method]
                 #
                 attr_reader :synthesize_speech
+                ##
+                # RPC-specific configuration for `streaming_synthesize`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :streaming_synthesize
 
                 # @private
                 def initialize parent_rpcs = nil
@@ -508,6 +625,8 @@ module Google
                   @list_voices = ::Gapic::Config::Method.new list_voices_config
                   synthesize_speech_config = parent_rpcs.synthesize_speech if parent_rpcs.respond_to? :synthesize_speech
                   @synthesize_speech = ::Gapic::Config::Method.new synthesize_speech_config
+                  streaming_synthesize_config = parent_rpcs.streaming_synthesize if parent_rpcs.respond_to? :streaming_synthesize
+                  @streaming_synthesize = ::Gapic::Config::Method.new streaming_synthesize_config
 
                   yield self if block_given?
                 end

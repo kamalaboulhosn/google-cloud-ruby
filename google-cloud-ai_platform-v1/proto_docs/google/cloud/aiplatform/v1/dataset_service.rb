@@ -47,6 +47,7 @@ module Google
 
         # Request message for
         # {::Google::Cloud::AIPlatform::V1::DatasetService::Client#get_dataset DatasetService.GetDataset}.
+        # Next ID: 4
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The name of the Dataset resource.
@@ -73,6 +74,23 @@ module Google
         #       * `description`
         #       * `labels`
         class UpdateDatasetRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Request message for
+        # {::Google::Cloud::AIPlatform::V1::DatasetService::Client#update_dataset_version DatasetService.UpdateDatasetVersion}.
+        # @!attribute [rw] dataset_version
+        #   @return [::Google::Cloud::AIPlatform::V1::DatasetVersion]
+        #     Required. The DatasetVersion which replaces the resource on the server.
+        # @!attribute [rw] update_mask
+        #   @return [::Google::Protobuf::FieldMask]
+        #     Required. The update mask applies to the resource.
+        #     For the `FieldMask` definition, see
+        #     {::Google::Protobuf::FieldMask google.protobuf.FieldMask}. Updatable fields:
+        #
+        #       * `display_name`
+        class UpdateDatasetVersionRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
@@ -268,6 +286,7 @@ module Google
 
         # Request message for
         # {::Google::Cloud::AIPlatform::V1::DatasetService::Client#get_dataset_version DatasetService.GetDatasetVersion}.
+        # Next ID: 4
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The resource name of the Dataset version to delete.
@@ -391,9 +410,13 @@ module Google
         #   @return [::String]
         #     A comma-separated list of data item fields to order by, sorted in
         #     ascending order. Use "desc" after a field name for descending.
+        #
+        #     Note: The following fields are mutually exclusive: `order_by_data_item`, `order_by_annotation`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] order_by_annotation
         #   @return [::Google::Cloud::AIPlatform::V1::SearchDataItemsRequest::OrderByAnnotation]
         #     Expression that allows ranking results based on annotation's property.
+        #
+        #     Note: The following fields are mutually exclusive: `order_by_annotation`, `order_by_data_item`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] dataset
         #   @return [::String]
         #     Required. The resource name of the Dataset from which to search DataItems.

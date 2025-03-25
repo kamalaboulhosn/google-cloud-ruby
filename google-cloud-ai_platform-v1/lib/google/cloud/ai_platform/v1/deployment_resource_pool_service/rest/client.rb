@@ -159,8 +159,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @deployment_resource_pool_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -168,6 +179,7 @@ module Google
                   config.endpoint = @deployment_resource_pool_service_stub.endpoint
                   config.universe_domain = @deployment_resource_pool_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @deployment_resource_pool_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -176,6 +188,7 @@ module Google
                   config.endpoint = @deployment_resource_pool_service_stub.endpoint
                   config.universe_domain = @deployment_resource_pool_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @deployment_resource_pool_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -199,6 +212,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @deployment_resource_pool_service_stub.logger
+              end
 
               # Service calls
 
@@ -293,7 +315,7 @@ module Google
                 @deployment_resource_pool_service_stub.create_deployment_resource_pool request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -374,7 +396,6 @@ module Google
 
                 @deployment_resource_pool_service_stub.get_deployment_resource_pool request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -469,7 +490,101 @@ module Google
                 @deployment_resource_pool_service_stub.list_deployment_resource_pools request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @deployment_resource_pool_service_stub, :list_deployment_resource_pools, "deployment_resource_pools", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Update a DeploymentResourcePool.
+              #
+              # @overload update_deployment_resource_pool(request, options = nil)
+              #   Pass arguments to `update_deployment_resource_pool` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::UpdateDeploymentResourcePoolRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::UpdateDeploymentResourcePoolRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_deployment_resource_pool(deployment_resource_pool: nil, update_mask: nil)
+              #   Pass arguments to `update_deployment_resource_pool` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param deployment_resource_pool [::Google::Cloud::AIPlatform::V1::DeploymentResourcePool, ::Hash]
+              #     Required. The DeploymentResourcePool to update.
+              #
+              #     The DeploymentResourcePool's `name` field is used to identify the
+              #     DeploymentResourcePool to update.
+              #     Format:
+              #     `projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}`
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Required. The list of fields to update.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::UpdateDeploymentResourcePoolRequest.new
+              #
+              #   # Call the update_deployment_resource_pool method.
+              #   result = client.update_deployment_resource_pool request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def update_deployment_resource_pool request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::UpdateDeploymentResourcePoolRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_deployment_resource_pool.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_deployment_resource_pool.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_deployment_resource_pool.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @deployment_resource_pool_service_stub.update_deployment_resource_pool request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -558,7 +673,7 @@ module Google
                 @deployment_resource_pool_service_stub.delete_deployment_resource_pool request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -597,10 +712,10 @@ module Google
               #     `QueryDeployedModels` must match the call that provided the page
               #     token.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AIPlatform::V1::QueryDeployedModelsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AIPlatform::V1::DeployedModel>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AIPlatform::V1::QueryDeployedModelsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AIPlatform::V1::DeployedModel>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -652,8 +767,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @deployment_resource_pool_service_stub.query_deployed_models request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @deployment_resource_pool_service_stub, :query_deployed_models, "deployed_models", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -701,6 +817,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -733,6 +856,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -761,6 +889,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -815,6 +944,11 @@ module Google
                   #
                   attr_reader :list_deployment_resource_pools
                   ##
+                  # RPC-specific configuration for `update_deployment_resource_pool`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_deployment_resource_pool
+                  ##
                   # RPC-specific configuration for `delete_deployment_resource_pool`
                   # @return [::Gapic::Config::Method]
                   #
@@ -833,6 +967,8 @@ module Google
                     @get_deployment_resource_pool = ::Gapic::Config::Method.new get_deployment_resource_pool_config
                     list_deployment_resource_pools_config = parent_rpcs.list_deployment_resource_pools if parent_rpcs.respond_to? :list_deployment_resource_pools
                     @list_deployment_resource_pools = ::Gapic::Config::Method.new list_deployment_resource_pools_config
+                    update_deployment_resource_pool_config = parent_rpcs.update_deployment_resource_pool if parent_rpcs.respond_to? :update_deployment_resource_pool
+                    @update_deployment_resource_pool = ::Gapic::Config::Method.new update_deployment_resource_pool_config
                     delete_deployment_resource_pool_config = parent_rpcs.delete_deployment_resource_pool if parent_rpcs.respond_to? :delete_deployment_resource_pool
                     @delete_deployment_resource_pool = ::Gapic::Config::Method.new delete_deployment_resource_pool_config
                     query_deployed_models_config = parent_rpcs.query_deployed_models if parent_rpcs.respond_to? :query_deployed_models

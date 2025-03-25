@@ -31,9 +31,18 @@ class Google::Cloud::CloudControlsPartner::ClientConstructionMinitest < Minitest
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_cloud_controls_partner_core_grpc
+    skip unless Google::Cloud::CloudControlsPartner.cloud_controls_partner_core_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::CloudControlsPartner.cloud_controls_partner_core transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Cloud::CloudControlsPartner::ClientConstructionMinitest < Minitest
   end
 
   def test_cloud_controls_partner_core_rest
+    skip unless Google::Cloud::CloudControlsPartner.cloud_controls_partner_core_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::CloudControlsPartner.cloud_controls_partner_core transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -53,6 +63,7 @@ class Google::Cloud::CloudControlsPartner::ClientConstructionMinitest < Minitest
   end
 
   def test_cloud_controls_partner_monitoring_grpc
+    skip unless Google::Cloud::CloudControlsPartner.cloud_controls_partner_monitoring_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::CloudControlsPartner.cloud_controls_partner_monitoring transport: :grpc do |config|
@@ -63,6 +74,7 @@ class Google::Cloud::CloudControlsPartner::ClientConstructionMinitest < Minitest
   end
 
   def test_cloud_controls_partner_monitoring_rest
+    skip unless Google::Cloud::CloudControlsPartner.cloud_controls_partner_monitoring_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::CloudControlsPartner.cloud_controls_partner_monitoring transport: :rest do |config|
         config.credentials = :dummy_credentials

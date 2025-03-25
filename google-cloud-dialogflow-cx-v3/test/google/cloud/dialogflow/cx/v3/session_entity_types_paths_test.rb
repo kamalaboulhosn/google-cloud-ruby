@@ -31,6 +31,14 @@ class ::Google::Cloud::Dialogflow::CX::V3::SessionEntityTypes::ClientPathsTest <
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_session_path

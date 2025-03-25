@@ -106,6 +106,8 @@ module Google
 
                     default_config.rpcs.update_reservation.timeout = 300.0
 
+                    default_config.rpcs.failover_reservation.timeout = 300.0
+
                     default_config.rpcs.create_capacity_commitment.timeout = 300.0
 
                     default_config.rpcs.list_capacity_commitments.timeout = 300.0
@@ -233,8 +235,28 @@ module Google
                     endpoint: @config.endpoint,
                     endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                     universe_domain: @config.universe_domain,
-                    credentials: credentials
+                    credentials: credentials,
+                    logger: @config.logger
                   )
+
+                  @reservation_service_stub.logger(stub: true)&.info do |entry|
+                    entry.set_system_name
+                    entry.set_service
+                    entry.message = "Created client for #{entry.service}"
+                    entry.set_credentials_fields credentials
+                    entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                    entry.set "defaultTimeout", @config.timeout if @config.timeout
+                    entry.set "quotaProject", @quota_project_id if @quota_project_id
+                  end
+                end
+
+                ##
+                # The logger used for request/response debug logging.
+                #
+                # @return [Logger]
+                #
+                def logger
+                  @reservation_service_stub.logger
                 end
 
                 # Service calls
@@ -319,7 +341,6 @@ module Google
 
                   @reservation_service_stub.create_reservation request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -408,7 +429,7 @@ module Google
                   @reservation_service_stub.list_reservations request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @reservation_service_stub, :list_reservations, "reservations", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -488,7 +509,6 @@ module Google
 
                   @reservation_service_stub.get_reservation request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -570,7 +590,6 @@ module Google
 
                   @reservation_service_stub.delete_reservation request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -651,7 +670,89 @@ module Google
 
                   @reservation_service_stub.update_reservation request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
+                  end
+                rescue ::Gapic::Rest::Error => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Fail over a reservation to the secondary location. The operation should be
+                # done in the current secondary location, which will be promoted to the
+                # new primary location for the reservation.
+                # Attempting to failover a reservation in the current primary location will
+                # fail with the error code `google.rpc.Code.FAILED_PRECONDITION`.
+                #
+                # @overload failover_reservation(request, options = nil)
+                #   Pass arguments to `failover_reservation` via a request object, either of type
+                #   {::Google::Cloud::Bigquery::Reservation::V1::FailoverReservationRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Bigquery::Reservation::V1::FailoverReservationRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                #
+                # @overload failover_reservation(name: nil)
+                #   Pass arguments to `failover_reservation` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param name [::String]
+                #     Required. Resource name of the reservation to failover. E.g.,
+                #        `projects/myproject/locations/US/reservations/team1-prod`
+                # @yield [result, operation] Access the result along with the TransportOperation object
+                # @yieldparam result [::Google::Cloud::Bigquery::Reservation::V1::Reservation]
+                # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                #
+                # @return [::Google::Cloud::Bigquery::Reservation::V1::Reservation]
+                #
+                # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/bigquery/reservation/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Bigquery::Reservation::V1::ReservationService::Rest::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Bigquery::Reservation::V1::FailoverReservationRequest.new
+                #
+                #   # Call the failover_reservation method.
+                #   result = client.failover_reservation request
+                #
+                #   # The returned object is of type Google::Cloud::Bigquery::Reservation::V1::Reservation.
+                #   p result
+                #
+                def failover_reservation request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Bigquery::Reservation::V1::FailoverReservationRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  call_metadata = @config.rpcs.failover_reservation.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Bigquery::Reservation::V1::VERSION,
+                    transports_version_send: [:rest]
+
+                  call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  options.apply_defaults timeout:      @config.rpcs.failover_reservation.timeout,
+                                         metadata:     call_metadata,
+                                         retry_policy: @config.rpcs.failover_reservation.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @reservation_service_stub.failover_reservation request, options do |result, operation|
+                    yield result, operation if block_given?
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -742,7 +843,6 @@ module Google
 
                   @reservation_service_stub.create_capacity_commitment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -831,7 +931,7 @@ module Google
                   @reservation_service_stub.list_capacity_commitments request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @reservation_service_stub, :list_capacity_commitments, "capacity_commitments", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -911,7 +1011,6 @@ module Google
 
                   @reservation_service_stub.get_capacity_commitment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -997,7 +1096,6 @@ module Google
 
                   @reservation_service_stub.delete_capacity_commitment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1084,7 +1182,6 @@ module Google
 
                   @reservation_service_stub.update_capacity_commitment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1173,7 +1270,6 @@ module Google
 
                   @reservation_service_stub.split_capacity_commitment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1265,7 +1361,6 @@ module Google
 
                   @reservation_service_stub.merge_capacity_commitments request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1386,7 +1481,6 @@ module Google
 
                   @reservation_service_stub.create_assignment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1500,7 +1594,7 @@ module Google
                   @reservation_service_stub.list_assignments request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @reservation_service_stub, :list_assignments, "assignments", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1594,7 +1688,6 @@ module Google
 
                   @reservation_service_stub.delete_assignment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1714,7 +1807,7 @@ module Google
                   @reservation_service_stub.search_assignments request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @reservation_service_stub, :search_assignments, "assignments", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1831,7 +1924,7 @@ module Google
                   @reservation_service_stub.search_all_assignments request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @reservation_service_stub, :search_all_assignments, "assignments", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1925,7 +2018,6 @@ module Google
 
                   @reservation_service_stub.move_assignment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2008,7 +2100,6 @@ module Google
 
                   @reservation_service_stub.update_assignment request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2088,7 +2179,6 @@ module Google
 
                   @reservation_service_stub.get_bi_reservation request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2176,7 +2266,6 @@ module Google
 
                   @reservation_service_stub.update_bi_reservation request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2224,6 +2313,13 @@ module Google
                 #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
                 #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -2256,6 +2352,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -2277,6 +2378,7 @@ module Google
                   config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                   config_attr :quota_project, nil, ::String, nil
                   config_attr :universe_domain, nil, ::String, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil
@@ -2340,6 +2442,11 @@ module Google
                     # @return [::Gapic::Config::Method]
                     #
                     attr_reader :update_reservation
+                    ##
+                    # RPC-specific configuration for `failover_reservation`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :failover_reservation
                     ##
                     # RPC-specific configuration for `create_capacity_commitment`
                     # @return [::Gapic::Config::Method]
@@ -2433,6 +2540,8 @@ module Google
                       @delete_reservation = ::Gapic::Config::Method.new delete_reservation_config
                       update_reservation_config = parent_rpcs.update_reservation if parent_rpcs.respond_to? :update_reservation
                       @update_reservation = ::Gapic::Config::Method.new update_reservation_config
+                      failover_reservation_config = parent_rpcs.failover_reservation if parent_rpcs.respond_to? :failover_reservation
+                      @failover_reservation = ::Gapic::Config::Method.new failover_reservation_config
                       create_capacity_commitment_config = parent_rpcs.create_capacity_commitment if parent_rpcs.respond_to? :create_capacity_commitment
                       @create_capacity_commitment = ::Gapic::Config::Method.new create_capacity_commitment_config
                       list_capacity_commitments_config = parent_rpcs.list_capacity_commitments if parent_rpcs.respond_to? :list_capacity_commitments

@@ -25,7 +25,7 @@ module Google
         # Chat app is invited to, part of, or absent from a space.
         # @!attribute [rw] name
         #   @return [::String]
-        #     Resource name of the membership, assigned by the server.
+        #     Identifier. Resource name of the membership, assigned by the server.
         #
         #     Format: `spaces/{space}/members/{member}`
         # @!attribute [r] state
@@ -39,17 +39,22 @@ module Google
         #     This field can only be used as input in `UpdateMembership`.
         # @!attribute [rw] member
         #   @return [::Google::Apps::Chat::V1::User]
-        #     The Google Chat user or app the membership corresponds to.
+        #     Optional. The Google Chat user or app the membership corresponds to.
         #     If your Chat app [authenticates as a
         #     user](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user),
         #     the output populates the
         #     [user](https://developers.google.com/workspace/chat/api/reference/rest/v1/User)
         #     `name` and `type`.
+        #
+        #     Note: The following fields are mutually exclusive: `member`, `group_member`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] group_member
         #   @return [::Google::Apps::Chat::V1::Group]
-        #     The Google Group the membership corresponds to.
-        #     Only supports read operations. Other operations, like
-        #     creating or updating a membership, aren't currently supported.
+        #     Optional. The Google Group the membership corresponds to.
+        #
+        #     Reading or mutating memberships for Google Groups requires [user
+        #     authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+        #
+        #     Note: The following fields are mutually exclusive: `group_member`, `member`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] create_time
         #   @return [::Google::Protobuf::Timestamp]
         #     Optional. Immutable. The creation time of the membership, such as when a
@@ -113,21 +118,57 @@ module Google
         # @!attribute [rw] membership
         #   @return [::Google::Apps::Chat::V1::Membership]
         #     Required. The membership relation to create.
+        #
         #     The `memberType` field must contain a user with the `user.name` and
         #     `user.type` fields populated. The server will assign a resource name
         #     and overwrite anything specified.
+        #
         #     When a Chat app creates a membership relation for a human user, it must use
-        #     the `chat.memberships` scope, set `user.type` to `HUMAN`, and set
-        #     `user.name` with format `users/{user}`, where `{user}` can be the email
-        #     address for the user. For users in the same Workspace organization `{user}`
-        #     can also be the `id` of the
-        #     [person](https://developers.google.com/people/api/rest/v1/people) from the
-        #     People API, or the `id` for the user in the Directory API. For example, if
-        #     the People API Person profile ID for `user@example.com` is `123456789`, you
-        #     can add the user to the space by setting the `membership.member.name` to
-        #     `users/user@example.com` or `users/123456789`. When a Chat app creates a
-        #     membership relation for itself, it must use the `chat.memberships.app`
-        #     scope, set `user.type` to `BOT`, and set `user.name` to `users/app`.
+        #     certain authorization scopes and set specific values for certain fields:
+        #
+        #     - When [authenticating as a
+        #     user](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user),
+        #     the `chat.memberships` authorization scope is required.
+        #
+        #     - When [authenticating as an
+        #     app](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app),
+        #     the `chat.app.memberships` authorization scope is required.
+        #     Authenticating as an app is available in [Developer
+        #     Preview](https://developers.google.com/workspace/preview).
+        #
+        #     - Set `user.type` to `HUMAN`, and set `user.name` with format
+        #     `users/{user}`, where `{user}` can be the email address for the user. For
+        #     users in the same Workspace organization `{user}` can also be the `id` of
+        #     the [person](https://developers.google.com/people/api/rest/v1/people) from
+        #     the People API, or the `id` for the user in the Directory API. For example,
+        #     if the People API Person profile ID for `user@example.com` is `123456789`,
+        #     you can add the user to the space by setting the `membership.member.name`
+        #     to `users/user@example.com` or `users/123456789`.
+        #
+        #     Inviting users external to the Workspace organization that owns the space
+        #     requires [user
+        #     authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+        #
+        #     When a Chat app creates a membership relation for itself, it must
+        #     [authenticate as a
+        #     user](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+        #     and use the `chat.memberships.app` scope, set `user.type` to `BOT`, and set
+        #     `user.name` to `users/app`.
+        # @!attribute [rw] use_admin_access
+        #   @return [::Boolean]
+        #     Optional. When `true`, the method runs using the user's Google Workspace
+        #     administrator privileges.
+        #
+        #     The calling user must be a Google Workspace administrator with the
+        #     [manage chat and spaces conversations
+        #     privilege](https://support.google.com/a/answer/13369245).
+        #
+        #     Requires the `chat.admin.memberships` [OAuth 2.0
+        #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+        #
+        #     Creating app memberships or creating memberships for users outside the
+        #     administrator's Google Workspace organization isn't supported using admin
+        #     access.
         class CreateMembershipRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -146,6 +187,17 @@ module Google
         #     Currently supported field paths:
         #
         #     - `role`
+        # @!attribute [rw] use_admin_access
+        #   @return [::Boolean]
+        #     Optional. When `true`, the method runs using the user's Google Workspace
+        #     administrator privileges.
+        #
+        #     The calling user must be a Google Workspace administrator with the
+        #     [manage chat and spaces conversations
+        #     privilege](https://support.google.com/a/answer/13369245).
+        #
+        #     Requires the `chat.admin.memberships` [OAuth 2.0
+        #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
         class UpdateMembershipRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -188,16 +240,23 @@ module Google
         #
         #     To filter by role, set `role` to `ROLE_MEMBER` or `ROLE_MANAGER`.
         #
-        #     To filter by type, set `member.type` to `HUMAN` or `BOT`.
+        #     To filter by type, set `member.type` to `HUMAN` or `BOT`. You can also
+        #     filter for `member.type` using the `!=` operator.
         #
         #     To filter by both role and type, use the `AND` operator. To filter by
         #     either role or type, use the `OR` operator.
+        #
+        #     Either `member.type = "HUMAN"` or `member.type != "BOT"` is required
+        #     when `use_admin_access` is set to true. Other member type filters will be
+        #     rejected.
         #
         #     For example, the following queries are valid:
         #
         #     ```
         #     role = "ROLE_MANAGER" OR role = "ROLE_MEMBER"
         #     member.type = "HUMAN" AND role = "ROLE_MANAGER"
+        #
+        #     member.type != "BOT"
         #     ```
         #
         #     The following queries are invalid:
@@ -206,7 +265,6 @@ module Google
         #     member.type = "HUMAN" AND member.type = "BOT"
         #     role = "ROLE_MANAGER" AND role = "ROLE_MEMBER"
         #     ```
-        #
         #
         #     Invalid queries are rejected by the server with an `INVALID_ARGUMENT`
         #     error.
@@ -229,6 +287,20 @@ module Google
         #
         #     Currently requires [user
         #     authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+        # @!attribute [rw] use_admin_access
+        #   @return [::Boolean]
+        #     Optional. When `true`, the method runs using the user's Google Workspace
+        #     administrator privileges.
+        #
+        #     The calling user must be a Google Workspace administrator with the
+        #     [manage chat and spaces conversations
+        #     privilege](https://support.google.com/a/answer/13369245).
+        #
+        #     Requires either the `chat.admin.memberships.readonly` or
+        #     `chat.admin.memberships` [OAuth 2.0
+        #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+        #
+        #     Listing app memberships in a space isn't supported when using admin access.
         class ListMembershipsRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -258,11 +330,23 @@ module Google
         #
         #     Format: `spaces/{space}/members/{member}` or `spaces/{space}/members/app`
         #
-        #     When [authenticated as a
-        #     user](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user),
-        #     you can use the user's email as an alias for `{member}`. For example,
+        #     You can use the user's email as an alias for `{member}`. For example,
         #     `spaces/{space}/members/example@gmail.com` where `example@gmail.com` is the
         #     email of the Google Chat user.
+        # @!attribute [rw] use_admin_access
+        #   @return [::Boolean]
+        #     Optional. When `true`, the method runs using the user's Google Workspace
+        #     administrator privileges.
+        #
+        #     The calling user must be a Google Workspace administrator with the
+        #     [manage chat and spaces conversations
+        #     privilege](https://support.google.com/a/answer/13369245).
+        #
+        #     Requires the `chat.admin.memberships` or `chat.admin.memberships.readonly`
+        #     [OAuth 2.0
+        #     scopes](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+        #
+        #     Getting app memberships in a space isn't supported when using admin access.
         class GetMembershipRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -285,6 +369,19 @@ module Google
         #     and `spaces/{space}/members/app` format.
         #
         #     Format: `spaces/{space}/members/{member}` or `spaces/{space}/members/app`.
+        # @!attribute [rw] use_admin_access
+        #   @return [::Boolean]
+        #     Optional. When `true`, the method runs using the user's Google Workspace
+        #     administrator privileges.
+        #
+        #     The calling user must be a Google Workspace administrator with the
+        #     [manage chat and spaces conversations
+        #     privilege](https://support.google.com/a/answer/13369245).
+        #
+        #     Requires the `chat.admin.memberships` [OAuth 2.0
+        #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+        #
+        #     Deleting app memberships in a space isn't supported using admin access.
         class DeleteMembershipRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

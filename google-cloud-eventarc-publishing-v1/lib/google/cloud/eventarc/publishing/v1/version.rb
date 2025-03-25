@@ -22,7 +22,7 @@ module Google
     module Eventarc
       module Publishing
         module V1
-          VERSION = "0.9.0"
+          VERSION = "1.3.2"
         end
       end
     end

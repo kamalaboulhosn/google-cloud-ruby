@@ -41,6 +41,12 @@ module Google
         # @!attribute [r] sync_summary
         #   @return [::Google::Cloud::Aiplatform::V1::FeatureViewSync::SyncSummary]
         #     Output only. Summary of the sync job.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
         class FeatureViewSync
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -53,6 +59,10 @@ module Google
           # @!attribute [r] total_slot
           #   @return [::Integer]
           #     Output only. BigQuery slot milliseconds consumed for the sync job.
+          # @!attribute [rw] system_watermark_time
+          #   @return [::Google::Protobuf::Timestamp]
+          #     Lower bound of the system time watermark for the sync job. This is only
+          #     set for continuously syncing feature views.
           class SyncSummary
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

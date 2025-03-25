@@ -213,8 +213,19 @@ module Google
                     endpoint: @config.endpoint,
                     endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                     universe_domain: @config.universe_domain,
-                    credentials: credentials
+                    credentials: credentials,
+                    logger: @config.logger
                   )
+
+                  @livestream_service_stub.logger(stub: true)&.info do |entry|
+                    entry.set_system_name
+                    entry.set_service
+                    entry.message = "Created client for #{entry.service}"
+                    entry.set_credentials_fields credentials
+                    entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                    entry.set "defaultTimeout", @config.timeout if @config.timeout
+                    entry.set "quotaProject", @quota_project_id if @quota_project_id
+                  end
 
                   @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                     config.credentials = credentials
@@ -222,6 +233,7 @@ module Google
                     config.endpoint = @livestream_service_stub.endpoint
                     config.universe_domain = @livestream_service_stub.universe_domain
                     config.bindings_override = @config.bindings_override
+                    config.logger = @livestream_service_stub.logger if config.respond_to? :logger=
                   end
                 end
 
@@ -238,6 +250,15 @@ module Google
                 # @return [Google::Cloud::Location::Locations::Rest::Client]
                 #
                 attr_reader :location_client
+
+                ##
+                # The logger used for request/response debug logging.
+                #
+                # @return [Logger]
+                #
+                def logger
+                  @livestream_service_stub.logger
+                end
 
                 # Service calls
 
@@ -344,7 +365,7 @@ module Google
                   @livestream_service_stub.create_channel request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -385,10 +406,10 @@ module Google
                 #     Specifies the ordering of results following syntax at
                 #     https://cloud.google.com/apis/design/design_patterns#sorting_order.
                 # @yield [result, operation] Access the result along with the TransportOperation object
-                # @yieldparam result [::Google::Cloud::Video::LiveStream::V1::ListChannelsResponse]
+                # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Channel>]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
                 #
-                # @return [::Google::Cloud::Video::LiveStream::V1::ListChannelsResponse]
+                # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Channel>]
                 #
                 # @raise [::Google::Cloud::Error] if the REST call is aborted.
                 #
@@ -440,8 +461,9 @@ module Google
                                          retry_policy: @config.retry_policy
 
                   @livestream_service_stub.list_channels request, options do |result, operation|
+                    result = ::Gapic::Rest::PagedEnumerable.new @livestream_service_stub, :list_channels, "channels", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -521,7 +543,6 @@ module Google
 
                   @livestream_service_stub.get_channel request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -628,7 +649,7 @@ module Google
                   @livestream_service_stub.delete_channel request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -750,7 +771,7 @@ module Google
                   @livestream_service_stub.update_channel request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -853,7 +874,7 @@ module Google
                   @livestream_service_stub.start_channel request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -956,7 +977,7 @@ module Google
                   @livestream_service_stub.stop_channel request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1064,7 +1085,7 @@ module Google
                   @livestream_service_stub.create_input request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1105,10 +1126,10 @@ module Google
                 #     Specifies the ordering of results following syntax at [Sorting
                 #     Order](https://cloud.google.com/apis/design/design_patterns#sorting_order).
                 # @yield [result, operation] Access the result along with the TransportOperation object
-                # @yieldparam result [::Google::Cloud::Video::LiveStream::V1::ListInputsResponse]
+                # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Input>]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
                 #
-                # @return [::Google::Cloud::Video::LiveStream::V1::ListInputsResponse]
+                # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Input>]
                 #
                 # @raise [::Google::Cloud::Error] if the REST call is aborted.
                 #
@@ -1160,8 +1181,9 @@ module Google
                                          retry_policy: @config.retry_policy
 
                   @livestream_service_stub.list_inputs request, options do |result, operation|
+                    result = ::Gapic::Rest::PagedEnumerable.new @livestream_service_stub, :list_inputs, "inputs", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1241,7 +1263,6 @@ module Google
 
                   @livestream_service_stub.get_input request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1343,7 +1364,7 @@ module Google
                   @livestream_service_stub.delete_input request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1457,7 +1478,7 @@ module Google
                   @livestream_service_stub.update_input request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1557,7 +1578,6 @@ module Google
 
                   @livestream_service_stub.create_event request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1598,10 +1618,10 @@ module Google
                 #     Specifies the ordering of results following syntax at
                 #     https://cloud.google.com/apis/design/design_patterns#sorting_order.
                 # @yield [result, operation] Access the result along with the TransportOperation object
-                # @yieldparam result [::Google::Cloud::Video::LiveStream::V1::ListEventsResponse]
+                # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Event>]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
                 #
-                # @return [::Google::Cloud::Video::LiveStream::V1::ListEventsResponse]
+                # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Event>]
                 #
                 # @raise [::Google::Cloud::Error] if the REST call is aborted.
                 #
@@ -1653,8 +1673,9 @@ module Google
                                          retry_policy: @config.retry_policy
 
                   @livestream_service_stub.list_events request, options do |result, operation|
+                    result = ::Gapic::Rest::PagedEnumerable.new @livestream_service_stub, :list_events, "events", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1734,7 +1755,6 @@ module Google
 
                   @livestream_service_stub.get_event request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1828,7 +1848,390 @@ module Google
 
                   @livestream_service_stub.delete_event request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
+                  end
+                rescue ::Gapic::Rest::Error => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Returns a list of all clips in the specified channel.
+                #
+                # @overload list_clips(request, options = nil)
+                #   Pass arguments to `list_clips` via a request object, either of type
+                #   {::Google::Cloud::Video::LiveStream::V1::ListClipsRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Video::LiveStream::V1::ListClipsRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                #
+                # @overload list_clips(parent: nil, page_size: nil, page_token: nil, filter: nil, order_by: nil)
+                #   Pass arguments to `list_clips` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param parent [::String]
+                #     Required. Parent value for ListClipsRequest
+                #   @param page_size [::Integer]
+                #     Requested page size. Server may return fewer items than requested.
+                #     If unspecified, server will pick an appropriate default.
+                #   @param page_token [::String]
+                #     A token identifying a page of results the server should return.
+                #   @param filter [::String]
+                #     Filtering results
+                #   @param order_by [::String]
+                #     Hint for how to order the results
+                # @yield [result, operation] Access the result along with the TransportOperation object
+                # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Clip>]
+                # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                #
+                # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Clip>]
+                #
+                # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/video/live_stream/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Video::LiveStream::V1::ListClipsRequest.new
+                #
+                #   # Call the list_clips method.
+                #   result = client.list_clips request
+                #
+                #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+                #   # over elements, and API calls will be issued to fetch pages as needed.
+                #   result.each do |item|
+                #     # Each element is of type ::Google::Cloud::Video::LiveStream::V1::Clip.
+                #     p item
+                #   end
+                #
+                def list_clips request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Video::LiveStream::V1::ListClipsRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  call_metadata = @config.rpcs.list_clips.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Video::LiveStream::V1::VERSION,
+                    transports_version_send: [:rest]
+
+                  call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  options.apply_defaults timeout:      @config.rpcs.list_clips.timeout,
+                                         metadata:     call_metadata,
+                                         retry_policy: @config.rpcs.list_clips.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @livestream_service_stub.list_clips request, options do |result, operation|
+                    result = ::Gapic::Rest::PagedEnumerable.new @livestream_service_stub, :list_clips, "clips", request, result, options
+                    yield result, operation if block_given?
+                    throw :response, result
+                  end
+                rescue ::Gapic::Rest::Error => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Returns the specified clip.
+                #
+                # @overload get_clip(request, options = nil)
+                #   Pass arguments to `get_clip` via a request object, either of type
+                #   {::Google::Cloud::Video::LiveStream::V1::GetClipRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Video::LiveStream::V1::GetClipRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                #
+                # @overload get_clip(name: nil)
+                #   Pass arguments to `get_clip` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param name [::String]
+                #     Required. Name of the resource, in the following form:
+                #     `projects/{project}/locations/{location}/channels/{channel}/clips/{clip}`.
+                # @yield [result, operation] Access the result along with the TransportOperation object
+                # @yieldparam result [::Google::Cloud::Video::LiveStream::V1::Clip]
+                # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                #
+                # @return [::Google::Cloud::Video::LiveStream::V1::Clip]
+                #
+                # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/video/live_stream/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Video::LiveStream::V1::GetClipRequest.new
+                #
+                #   # Call the get_clip method.
+                #   result = client.get_clip request
+                #
+                #   # The returned object is of type Google::Cloud::Video::LiveStream::V1::Clip.
+                #   p result
+                #
+                def get_clip request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Video::LiveStream::V1::GetClipRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  call_metadata = @config.rpcs.get_clip.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Video::LiveStream::V1::VERSION,
+                    transports_version_send: [:rest]
+
+                  call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  options.apply_defaults timeout:      @config.rpcs.get_clip.timeout,
+                                         metadata:     call_metadata,
+                                         retry_policy: @config.rpcs.get_clip.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @livestream_service_stub.get_clip request, options do |result, operation|
+                    yield result, operation if block_given?
+                  end
+                rescue ::Gapic::Rest::Error => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Creates a clip with the provided clip ID in the specified channel.
+                #
+                # @overload create_clip(request, options = nil)
+                #   Pass arguments to `create_clip` via a request object, either of type
+                #   {::Google::Cloud::Video::LiveStream::V1::CreateClipRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Video::LiveStream::V1::CreateClipRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                #
+                # @overload create_clip(parent: nil, clip_id: nil, clip: nil, request_id: nil)
+                #   Pass arguments to `create_clip` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param parent [::String]
+                #     Required. The parent resource name, in the following form:
+                #     `projects/{project}/locations/{location}/channels/{channel}`.
+                #   @param clip_id [::String]
+                #     Required. Id of the requesting object in the following form:
+                #
+                #     1. 1 character minimum, 63 characters maximum
+                #     2. Only contains letters, digits, underscores, and hyphens
+                #   @param clip [::Google::Cloud::Video::LiveStream::V1::Clip, ::Hash]
+                #     Required. The resource being created
+                #   @param request_id [::String]
+                #     Optional. An optional request ID to identify requests. Specify a unique
+                #     request ID so that if you must retry your request, the server will know to
+                #     ignore the request if it has already been completed. The server will
+                #     guarantee that for at least 60 minutes since the first request.
+                #
+                #     For example, consider a situation where you make an initial request and
+                #     the request times out. If you make the request again with the same request
+                #     ID, the server can check if original operation with the same request ID
+                #     was received, and if so, will ignore the second request. This prevents
+                #     clients from accidentally creating duplicate commitments.
+                #
+                #     The request ID must be a valid UUID with the exception that zero UUID is
+                #     not supported (00000000-0000-0000-0000-000000000000).
+                # @yield [result, operation] Access the result along with the TransportOperation object
+                # @yieldparam result [::Gapic::Operation]
+                # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                #
+                # @return [::Gapic::Operation]
+                #
+                # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/video/live_stream/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Video::LiveStream::V1::CreateClipRequest.new
+                #
+                #   # Call the create_clip method.
+                #   result = client.create_clip request
+                #
+                #   # The returned object is of type Gapic::Operation. You can use it to
+                #   # check the status of an operation, cancel it, or wait for results.
+                #   # Here is how to wait for a response.
+                #   result.wait_until_done! timeout: 60
+                #   if result.response?
+                #     p result.response
+                #   else
+                #     puts "No response received."
+                #   end
+                #
+                def create_clip request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Video::LiveStream::V1::CreateClipRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  call_metadata = @config.rpcs.create_clip.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Video::LiveStream::V1::VERSION,
+                    transports_version_send: [:rest]
+
+                  call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  options.apply_defaults timeout:      @config.rpcs.create_clip.timeout,
+                                         metadata:     call_metadata,
+                                         retry_policy: @config.rpcs.create_clip.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @livestream_service_stub.create_clip request, options do |result, operation|
+                    result = ::Gapic::Operation.new result, @operations_client, options: options
+                    yield result, operation if block_given?
+                    throw :response, result
+                  end
+                rescue ::Gapic::Rest::Error => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Deletes the specified clip job resource. This method only deletes the clip
+                # job and does not delete the VOD clip stored in the GCS.
+                #
+                # @overload delete_clip(request, options = nil)
+                #   Pass arguments to `delete_clip` via a request object, either of type
+                #   {::Google::Cloud::Video::LiveStream::V1::DeleteClipRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Video::LiveStream::V1::DeleteClipRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                #
+                # @overload delete_clip(name: nil, request_id: nil)
+                #   Pass arguments to `delete_clip` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param name [::String]
+                #     Required. The name of the clip resource, in the form of:
+                #     `projects/{project}/locations/{location}/channels/{channelId}/clips/{clipId}`.
+                #   @param request_id [::String]
+                #     Optional. A request ID to identify requests. Specify a unique request ID
+                #     so that if you must retry your request, the server will know to ignore
+                #     the request if it has already been completed. The server will guarantee
+                #     that for at least 60 minutes since the first request.
+                #
+                #     For example, consider a situation where you make an initial request and the
+                #     request times out. If you make the request again with the same request ID,
+                #     the server can check if original operation with the same request ID was
+                #     received, and if so, will ignore the second request. This prevents clients
+                #     from accidentally creating duplicate commitments.
+                #
+                #     The request ID must be a valid UUID with the exception that zero UUID is
+                #     not supported `(00000000-0000-0000-0000-000000000000)`.
+                # @yield [result, operation] Access the result along with the TransportOperation object
+                # @yieldparam result [::Gapic::Operation]
+                # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                #
+                # @return [::Gapic::Operation]
+                #
+                # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/video/live_stream/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Video::LiveStream::V1::LivestreamService::Rest::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Video::LiveStream::V1::DeleteClipRequest.new
+                #
+                #   # Call the delete_clip method.
+                #   result = client.delete_clip request
+                #
+                #   # The returned object is of type Gapic::Operation. You can use it to
+                #   # check the status of an operation, cancel it, or wait for results.
+                #   # Here is how to wait for a response.
+                #   result.wait_until_done! timeout: 60
+                #   if result.response?
+                #     p result.response
+                #   else
+                #     puts "No response received."
+                #   end
+                #
+                def delete_clip request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Video::LiveStream::V1::DeleteClipRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  call_metadata = @config.rpcs.delete_clip.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Video::LiveStream::V1::VERSION,
+                    transports_version_send: [:rest]
+
+                  call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  options.apply_defaults timeout:      @config.rpcs.delete_clip.timeout,
+                                         metadata:     call_metadata,
+                                         retry_policy: @config.rpcs.delete_clip.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @livestream_service_stub.delete_clip request, options do |result, operation|
+                    result = ::Gapic::Operation.new result, @operations_client, options: options
+                    yield result, operation if block_given?
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1937,7 +2340,7 @@ module Google
                   @livestream_service_stub.create_asset request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2039,7 +2442,7 @@ module Google
                   @livestream_service_stub.delete_asset request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2119,7 +2522,6 @@ module Google
 
                   @livestream_service_stub.get_asset request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2156,10 +2558,10 @@ module Google
                 #   @param order_by [::String]
                 #     Hint for how to order the results
                 # @yield [result, operation] Access the result along with the TransportOperation object
-                # @yieldparam result [::Google::Cloud::Video::LiveStream::V1::ListAssetsResponse]
+                # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Asset>]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
                 #
-                # @return [::Google::Cloud::Video::LiveStream::V1::ListAssetsResponse]
+                # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Video::LiveStream::V1::Asset>]
                 #
                 # @raise [::Google::Cloud::Error] if the REST call is aborted.
                 #
@@ -2211,8 +2613,9 @@ module Google
                                          retry_policy: @config.retry_policy
 
                   @livestream_service_stub.list_assets request, options do |result, operation|
+                    result = ::Gapic::Rest::PagedEnumerable.new @livestream_service_stub, :list_assets, "assets", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2292,7 +2695,6 @@ module Google
 
                   @livestream_service_stub.get_pool request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2401,7 +2803,7 @@ module Google
                   @livestream_service_stub.update_pool request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2449,6 +2851,13 @@ module Google
                 #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
                 #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -2481,6 +2890,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -2509,6 +2923,7 @@ module Google
                   # by the host service.
                   # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                   config_attr :bindings_override, {}, ::Hash, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil
@@ -2628,6 +3043,26 @@ module Google
                     #
                     attr_reader :delete_event
                     ##
+                    # RPC-specific configuration for `list_clips`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :list_clips
+                    ##
+                    # RPC-specific configuration for `get_clip`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :get_clip
+                    ##
+                    # RPC-specific configuration for `create_clip`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :create_clip
+                    ##
+                    # RPC-specific configuration for `delete_clip`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :delete_clip
+                    ##
                     # RPC-specific configuration for `create_asset`
                     # @return [::Gapic::Config::Method]
                     #
@@ -2692,6 +3127,14 @@ module Google
                       @get_event = ::Gapic::Config::Method.new get_event_config
                       delete_event_config = parent_rpcs.delete_event if parent_rpcs.respond_to? :delete_event
                       @delete_event = ::Gapic::Config::Method.new delete_event_config
+                      list_clips_config = parent_rpcs.list_clips if parent_rpcs.respond_to? :list_clips
+                      @list_clips = ::Gapic::Config::Method.new list_clips_config
+                      get_clip_config = parent_rpcs.get_clip if parent_rpcs.respond_to? :get_clip
+                      @get_clip = ::Gapic::Config::Method.new get_clip_config
+                      create_clip_config = parent_rpcs.create_clip if parent_rpcs.respond_to? :create_clip
+                      @create_clip = ::Gapic::Config::Method.new create_clip_config
+                      delete_clip_config = parent_rpcs.delete_clip if parent_rpcs.respond_to? :delete_clip
+                      @delete_clip = ::Gapic::Config::Method.new delete_clip_config
                       create_asset_config = parent_rpcs.create_asset if parent_rpcs.respond_to? :create_asset
                       @create_asset = ::Gapic::Config::Method.new create_asset_config
                       delete_asset_config = parent_rpcs.delete_asset if parent_rpcs.respond_to? :delete_asset

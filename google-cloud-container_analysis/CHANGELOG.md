@@ -1,5 +1,18 @@
 # Release History
 
+### 1.5.0 (2025-01-29)
+
+#### Features
+
+* Provide methods to determine whether services are available with the currently installed versioned client ([#28528](https://github.com/googleapis/google-cloud-ruby/issues/28528)) 
+* Update Ruby version requirement to 3.0 
+
+### 1.4.1 (2024-08-09)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26626](https://github.com/googleapis/google-cloud-ruby/issues/26626)) 
+
 ### 1.4.0 (2024-02-26)
 
 #### Features

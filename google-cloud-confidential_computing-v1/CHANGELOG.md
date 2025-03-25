@@ -1,5 +1,57 @@
 # Changelog
 
+### 1.5.0 (2025-02-25)
+
+#### Features
+
+* Support for the attester parameter to verify_attestation ([#29175](https://github.com/googleapis/google-cloud-ruby/issues/29175)) 
+
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.2.0 (2024-12-04)
+
+#### Features
+
+* Support for the AWS Principal Tags token type ([#27659](https://github.com/googleapis/google-cloud-ruby/issues/27659)) 
+
+### 1.1.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27004](https://github.com/googleapis/google-cloud-ruby/issues/27004)) 
+
+### 1.1.1 (2024-08-09)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26625](https://github.com/googleapis/google-cloud-ruby/issues/26625)) 
+
+### 1.1.0 (2024-07-22)
+
+#### Features
+
+* Add a new field `tee_attestation` to `VerifyAttestationRequest` message proto for SEV SNP and TDX attestations ([#26440](https://github.com/googleapis/google-cloud-ruby/issues/26440)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.9.0 (2024-04-15)
 
 #### Features

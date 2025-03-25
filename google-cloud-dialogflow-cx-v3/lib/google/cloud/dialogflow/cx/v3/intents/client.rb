@@ -171,14 +171,26 @@ module Google
                   universe_domain: @config.universe_domain,
                   channel_args: @config.channel_args,
                   interceptors: @config.interceptors,
-                  channel_pool_config: @config.channel_pool
+                  channel_pool_config: @config.channel_pool,
+                  logger: @config.logger
                 )
+
+                @intents_stub.stub_logger&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @intents_stub.endpoint
                   config.universe_domain = @intents_stub.universe_domain
+                  config.logger = @intents_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -195,6 +207,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @intents_stub.logger
+              end
 
               # Service calls
 
@@ -218,7 +239,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The agent to list all intents for.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param language_code [::String]
               #     The language to list intents for. The following fields are language
               #     dependent:
@@ -302,7 +323,7 @@ module Google
                 @intents_stub.call_rpc :list_intents, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @intents_stub, :list_intents, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -328,8 +349,8 @@ module Google
               #
               #   @param name [::String]
               #     Required. The name of the intent.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/intents/<Intent ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
               #   @param language_code [::String]
               #     The language to retrieve the intent for. The following fields are language
               #     dependent:
@@ -401,7 +422,6 @@ module Google
 
                 @intents_stub.call_rpc :get_intent, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -431,7 +451,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The agent to create an intent for.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param intent [::Google::Cloud::Dialogflow::CX::V3::Intent, ::Hash]
               #     Required. The intent to create.
               #   @param language_code [::String]
@@ -504,7 +524,6 @@ module Google
 
                 @intents_stub.call_rpc :create_intent, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -607,7 +626,6 @@ module Google
 
                 @intents_stub.call_rpc :update_intent, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -637,8 +655,8 @@ module Google
               #
               #   @param name [::String]
               #     Required. The name of the intent to delete.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/intents/<Intent ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Google::Protobuf::Empty]
@@ -699,7 +717,6 @@ module Google
 
                 @intents_stub.call_rpc :delete_intent, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -734,7 +751,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The agent to import the intents into.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param intents_uri [::String]
               #     The [Google Cloud Storage](https://cloud.google.com/storage/docs/) URI
               #     to import intents from. The format of this URI must be
@@ -745,8 +762,12 @@ module Google
               #     have read permissions for the object. For more information, see
               #     [Dialogflow access
               #     control](https://cloud.google.com/dialogflow/cx/docs/concept/access-control#storage).
+              #
+              #     Note: The following fields are mutually exclusive: `intents_uri`, `intents_content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param intents_content [::Google::Cloud::Dialogflow::CX::V3::InlineSource, ::Hash]
               #     Uncompressed byte content of intents.
+              #
+              #     Note: The following fields are mutually exclusive: `intents_content`, `intents_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param merge_option [::Google::Cloud::Dialogflow::CX::V3::ImportIntentsRequest::MergeOption]
               #     Merge option for importing intents. If not specified, `REJECT` is assumed.
               #
@@ -817,7 +838,7 @@ module Google
                 @intents_stub.call_rpc :import_intents, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -852,12 +873,11 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The name of the parent agent to export intents.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param intents [::Array<::String>]
               #     Required. The name of the intents to export.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/intents/<Intent ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
               #   @param intents_uri [::String]
               #     Optional. The [Google Cloud
               #     Storage](https://cloud.google.com/storage/docs/) URI to export the
@@ -869,8 +889,12 @@ module Google
               #     have write permissions for the object. For more information, see
               #     [Dialogflow access
               #     control](https://cloud.google.com/dialogflow/cx/docs/concept/access-control#storage).
+              #
+              #     Note: The following fields are mutually exclusive: `intents_uri`, `intents_content_inline`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param intents_content_inline [::Boolean]
               #     Optional. The option to return the serialized intents inline.
+              #
+              #     Note: The following fields are mutually exclusive: `intents_content_inline`, `intents_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param data_format [::Google::Cloud::Dialogflow::CX::V3::ExportIntentsRequest::DataFormat]
               #     Optional. The data format of the exported intents. If not specified, `BLOB`
               #     is assumed.
@@ -942,7 +966,7 @@ module Google
                 @intents_stub.call_rpc :export_intents, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -992,6 +1016,13 @@ module Google
               #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
               #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1031,6 +1062,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1055,6 +1091,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

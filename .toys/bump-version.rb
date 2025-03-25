@@ -26,6 +26,9 @@ end
 flag :enable_fork, "--fork" do
   desc "Use a fork to open the pull request"
 end
+flag :automerge do
+  desc "Automatically merge the pull request"
+end
 flag :approval_token, "--approval-token" do
   default ENV["APPROVAL_GITHUB_TOKEN"]
   desc "GitHub token for adding labels to pull requests"
@@ -51,7 +54,7 @@ def run
   setup
   verify_version
   pr_number = open_change_pr
-  process_change_pr pr_number if git_remote
+  process_change_pr pr_number if git_remote && automerge
 end
 
 def setup
@@ -84,7 +87,7 @@ def open_change_pr
   salt = format "%06d", rand(1_000_000)
   branch_name = "bump/#{timestamp}-#{salt}"
   message = "feat: #{changelog_entry}"
-  pr_body = "Trivial change via bump-version tool"
+  pr_body = "Release-As: #{gem_version}"
   result = yoshi_pr_generator.capture enabled: !git_remote.nil?,
                                       remote: git_remote,
                                       branch_name: branch_name,

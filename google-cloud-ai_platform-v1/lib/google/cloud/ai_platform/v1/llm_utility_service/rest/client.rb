@@ -152,8 +152,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @llm_utility_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -161,6 +172,7 @@ module Google
                   config.endpoint = @llm_utility_service_stub.endpoint
                   config.universe_domain = @llm_utility_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @llm_utility_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -169,6 +181,7 @@ module Google
                   config.endpoint = @llm_utility_service_stub.endpoint
                   config.universe_domain = @llm_utility_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @llm_utility_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -186,6 +199,15 @@ module Google
               #
               attr_reader :iam_policy_client
 
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @llm_utility_service_stub.logger
+              end
+
               # Service calls
 
               ##
@@ -201,7 +223,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload count_tokens(endpoint: nil, model: nil, instances: nil, contents: nil)
+              # @overload count_tokens(endpoint: nil, model: nil, instances: nil, contents: nil, system_instruction: nil, tools: nil, generation_config: nil)
               #   Pass arguments to `count_tokens` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -211,14 +233,28 @@ module Google
               #     Format:
               #     `projects/{project}/locations/{location}/endpoints/{endpoint}`
               #   @param model [::String]
-              #     Required. The name of the publisher model requested to serve the
+              #     Optional. The name of the publisher model requested to serve the
               #     prediction. Format:
               #     `projects/{project}/locations/{location}/publishers/*/models/*`
               #   @param instances [::Array<::Google::Protobuf::Value, ::Hash>]
-              #     Required. The instances that are the input to token counting call.
+              #     Optional. The instances that are the input to token counting call.
               #     Schema is identical to the prediction schema of the underlying model.
               #   @param contents [::Array<::Google::Cloud::AIPlatform::V1::Content, ::Hash>]
-              #     Required. Input content.
+              #     Optional. Input content.
+              #   @param system_instruction [::Google::Cloud::AIPlatform::V1::Content, ::Hash]
+              #     Optional. The user provided system instructions for the model.
+              #     Note: only text should be used in parts and content in each part will be in
+              #     a separate paragraph.
+              #   @param tools [::Array<::Google::Cloud::AIPlatform::V1::Tool, ::Hash>]
+              #     Optional. A list of `Tools` the model may use to generate the next
+              #     response.
+              #
+              #     A `Tool` is a piece of code that enables the system to interact with
+              #     external systems to perform an action, or set of actions, outside of
+              #     knowledge and scope of the model.
+              #   @param generation_config [::Google::Cloud::AIPlatform::V1::GenerationConfig, ::Hash]
+              #     Optional. Generation config that the model will use to generate the
+              #     response.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::AIPlatform::V1::CountTokensResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -272,7 +308,6 @@ module Google
 
                 @llm_utility_service_stub.count_tokens request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -291,7 +326,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload compute_tokens(endpoint: nil, instances: nil)
+              # @overload compute_tokens(endpoint: nil, instances: nil, model: nil, contents: nil)
               #   Pass arguments to `compute_tokens` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -300,9 +335,15 @@ module Google
               #     Required. The name of the Endpoint requested to get lists of tokens and
               #     token ids.
               #   @param instances [::Array<::Google::Protobuf::Value, ::Hash>]
-              #     Required. The instances that are the input to token computing API call.
+              #     Optional. The instances that are the input to token computing API call.
               #     Schema is identical to the prediction schema of the text model, even for
               #     the non-text models, like chat models, or Codey models.
+              #   @param model [::String]
+              #     Optional. The name of the publisher model requested to serve the
+              #     prediction. Format:
+              #     projects/\\{project}/locations/\\{location}/publishers/*/models/*
+              #   @param contents [::Array<::Google::Cloud::AIPlatform::V1::Content, ::Hash>]
+              #     Optional. Input content.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::AIPlatform::V1::ComputeTokensResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -356,7 +397,6 @@ module Google
 
                 @llm_utility_service_stub.compute_tokens request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -404,6 +444,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -436,6 +483,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -464,6 +516,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

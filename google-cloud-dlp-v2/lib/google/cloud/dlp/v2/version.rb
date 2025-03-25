@@ -21,7 +21,7 @@ module Google
   module Cloud
     module Dlp
       module V2
-        VERSION = "0.23.0"
+        VERSION = "1.8.0"
       end
     end
   end

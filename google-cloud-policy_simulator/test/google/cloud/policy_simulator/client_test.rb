@@ -31,9 +31,18 @@ class Google::Cloud::PolicySimulator::ClientConstructionMinitest < Minitest::Tes
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_simulator_grpc
+    skip unless Google::Cloud::PolicySimulator.simulator_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::PolicySimulator.simulator transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Cloud::PolicySimulator::ClientConstructionMinitest < Minitest::Tes
   end
 
   def test_simulator_rest
+    skip unless Google::Cloud::PolicySimulator.simulator_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::PolicySimulator.simulator transport: :rest do |config|
         config.credentials = :dummy_credentials

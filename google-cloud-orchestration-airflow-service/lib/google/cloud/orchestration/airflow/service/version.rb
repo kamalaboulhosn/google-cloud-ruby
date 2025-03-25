@@ -22,7 +22,7 @@ module Google
     module Orchestration
       module Airflow
         module Service
-          VERSION = "1.4.0"
+          VERSION = "1.5.0"
         end
       end
     end

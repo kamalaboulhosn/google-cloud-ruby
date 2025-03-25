@@ -33,24 +33,24 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_delivery_vehicle
@@ -83,7 +91,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     delivery_vehicle_id = "hello world"
     delivery_vehicle = {}
 
-    create_delivery_vehicle_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_delivery_vehicle_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -138,7 +146,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     header = {}
     name = "hello world"
 
-    get_delivery_vehicle_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_delivery_vehicle_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -182,6 +190,61 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     end
   end
 
+  def test_delete_delivery_vehicle
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    header = {}
+    name = "hello world"
+
+    delete_delivery_vehicle_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ServiceStub.stub :transcode_delete_delivery_vehicle_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_delivery_vehicle_client_stub do
+        # Create client
+        client = ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_delivery_vehicle({ header: header, name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_delivery_vehicle header: header, name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_delivery_vehicle ::Google::Maps::FleetEngine::Delivery::V1::DeleteDeliveryVehicleRequest.new(header: header, name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_delivery_vehicle({ header: header, name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_delivery_vehicle(::Google::Maps::FleetEngine::Delivery::V1::DeleteDeliveryVehicleRequest.new(header: header, name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_delivery_vehicle_client_stub.call_count
+      end
+    end
+  end
+
   def test_update_delivery_vehicle
     # Create test objects.
     client_result = ::Google::Maps::FleetEngine::Delivery::V1::DeliveryVehicle.new
@@ -194,7 +257,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     delivery_vehicle = {}
     update_mask = {}
 
-    update_delivery_vehicle_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_delivery_vehicle_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -250,7 +313,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     parent = "hello world"
     requests = [{}]
 
-    batch_create_tasks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    batch_create_tasks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -307,7 +370,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     task_id = "hello world"
     task = {}
 
-    create_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -362,7 +425,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     header = {}
     name = "hello world"
 
-    get_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -406,6 +469,61 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     end
   end
 
+  def test_delete_task
+    # Create test objects.
+    client_result = ::Google::Protobuf::Empty.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    header = {}
+    name = "hello world"
+
+    delete_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ServiceStub.stub :transcode_delete_task_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_task_client_stub do
+        # Create client
+        client = ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_task({ header: header, name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_task header: header, name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_task ::Google::Maps::FleetEngine::Delivery::V1::DeleteTaskRequest.new(header: header, name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_task({ header: header, name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_task(::Google::Maps::FleetEngine::Delivery::V1::DeleteTaskRequest.new(header: header, name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_task_client_stub.call_count
+      end
+    end
+  end
+
   def test_update_task
     # Create test objects.
     client_result = ::Google::Maps::FleetEngine::Delivery::V1::Task.new
@@ -418,7 +536,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     task = {}
     update_mask = {}
 
-    update_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -476,7 +594,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     page_token = "hello world"
     filter = "hello world"
 
-    list_tasks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_tasks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -531,7 +649,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     header = {}
     name = "hello world"
 
-    get_task_tracking_info_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_task_tracking_info_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -590,7 +708,7 @@ class ::Google::Maps::FleetEngine::Delivery::V1::DeliveryService::Rest::ClientTe
     filter = "hello world"
     viewport = {}
 
-    list_delivery_vehicles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_delivery_vehicles_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

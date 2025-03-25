@@ -258,8 +258,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @app_hub_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -267,6 +278,7 @@ module Google
                   config.endpoint = @app_hub_stub.endpoint
                   config.universe_domain = @app_hub_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @app_hub_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -275,6 +287,7 @@ module Google
                   config.endpoint = @app_hub_stub.endpoint
                   config.universe_domain = @app_hub_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @app_hub_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -298,6 +311,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @app_hub_stub.logger
+              end
 
               # Service calls
 
@@ -377,7 +399,6 @@ module Google
 
                 @app_hub_stub.lookup_service_project_attachment request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -415,10 +436,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AppHub::V1::ListServiceProjectAttachmentsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::ServiceProjectAttachment>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AppHub::V1::ListServiceProjectAttachmentsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::ServiceProjectAttachment>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -470,8 +491,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @app_hub_stub.list_service_project_attachments request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @app_hub_stub, :list_service_project_attachments, "service_project_attachments", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -580,7 +602,7 @@ module Google
                 @app_hub_stub.create_service_project_attachment request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -661,7 +683,6 @@ module Google
 
                 @app_hub_stub.get_service_project_attachment request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -764,7 +785,7 @@ module Google
                 @app_hub_stub.delete_service_project_attachment request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -847,7 +868,6 @@ module Google
 
                 @app_hub_stub.detach_service_project_attachment request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -885,10 +905,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AppHub::V1::ListDiscoveredServicesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::DiscoveredService>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AppHub::V1::ListDiscoveredServicesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::DiscoveredService>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -940,8 +960,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @app_hub_stub.list_discovered_services request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @app_hub_stub, :list_discovered_services, "discovered_services", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1022,7 +1043,6 @@ module Google
 
                 @app_hub_stub.get_discovered_service request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1107,7 +1127,6 @@ module Google
 
                 @app_hub_stub.lookup_discovered_service request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1145,10 +1164,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AppHub::V1::ListServicesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::Service>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AppHub::V1::ListServicesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::Service>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1200,8 +1219,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @app_hub_stub.list_services request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @app_hub_stub, :list_services, "services", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1311,7 +1331,7 @@ module Google
                 @app_hub_stub.create_service request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1392,7 +1412,6 @@ module Google
 
                 @app_hub_stub.get_service request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1503,7 +1522,7 @@ module Google
                 @app_hub_stub.update_service request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1606,7 +1625,7 @@ module Google
                 @app_hub_stub.delete_service request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1644,10 +1663,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AppHub::V1::ListDiscoveredWorkloadsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::DiscoveredWorkload>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AppHub::V1::ListDiscoveredWorkloadsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::DiscoveredWorkload>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1699,8 +1718,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @app_hub_stub.list_discovered_workloads request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @app_hub_stub, :list_discovered_workloads, "discovered_workloads", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1781,7 +1801,6 @@ module Google
 
                 @app_hub_stub.get_discovered_workload request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1866,7 +1885,6 @@ module Google
 
                 @app_hub_stub.lookup_discovered_workload request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1904,10 +1922,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AppHub::V1::ListWorkloadsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::Workload>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AppHub::V1::ListWorkloadsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::Workload>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1959,8 +1977,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @app_hub_stub.list_workloads request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @app_hub_stub, :list_workloads, "workloads", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2070,7 +2089,7 @@ module Google
                 @app_hub_stub.create_workload request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2151,7 +2170,6 @@ module Google
 
                 @app_hub_stub.get_workload request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2262,7 +2280,7 @@ module Google
                 @app_hub_stub.update_workload request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2365,7 +2383,7 @@ module Google
                 @app_hub_stub.delete_workload request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2402,10 +2420,10 @@ module Google
               #   @param order_by [::String]
               #     Optional. Hint for how to order the results.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::AppHub::V1::ListApplicationsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::Application>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::AppHub::V1::ListApplicationsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AppHub::V1::Application>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2457,8 +2475,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @app_hub_stub.list_applications request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @app_hub_stub, :list_applications, "applications", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2567,7 +2586,7 @@ module Google
                 @app_hub_stub.create_application request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2648,7 +2667,6 @@ module Google
 
                 @app_hub_stub.get_application request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2759,7 +2777,7 @@ module Google
                 @app_hub_stub.update_application request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2862,7 +2880,7 @@ module Google
                 @app_hub_stub.delete_application request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2910,6 +2928,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -2942,6 +2967,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -2970,6 +3000,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

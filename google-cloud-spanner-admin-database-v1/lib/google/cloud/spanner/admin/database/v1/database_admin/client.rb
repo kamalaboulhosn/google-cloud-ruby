@@ -160,6 +160,36 @@ module Google
                       initial_delay: 1.0, max_delay: 32.0, multiplier: 1.3, retry_codes: [14, 4]
                     }
 
+                    default_config.rpcs.add_split_points.timeout = 3600.0
+                    default_config.rpcs.add_split_points.retry_policy = {
+                      initial_delay: 1.0, max_delay: 32.0, multiplier: 1.3, retry_codes: [14, 4]
+                    }
+
+                    default_config.rpcs.create_backup_schedule.timeout = 3600.0
+                    default_config.rpcs.create_backup_schedule.retry_policy = {
+                      initial_delay: 1.0, max_delay: 32.0, multiplier: 1.3, retry_codes: [14, 4]
+                    }
+
+                    default_config.rpcs.get_backup_schedule.timeout = 3600.0
+                    default_config.rpcs.get_backup_schedule.retry_policy = {
+                      initial_delay: 1.0, max_delay: 32.0, multiplier: 1.3, retry_codes: [14, 4]
+                    }
+
+                    default_config.rpcs.update_backup_schedule.timeout = 3600.0
+                    default_config.rpcs.update_backup_schedule.retry_policy = {
+                      initial_delay: 1.0, max_delay: 32.0, multiplier: 1.3, retry_codes: [14, 4]
+                    }
+
+                    default_config.rpcs.delete_backup_schedule.timeout = 3600.0
+                    default_config.rpcs.delete_backup_schedule.retry_policy = {
+                      initial_delay: 1.0, max_delay: 32.0, multiplier: 1.3, retry_codes: [14, 4]
+                    }
+
+                    default_config.rpcs.list_backup_schedules.timeout = 3600.0
+                    default_config.rpcs.list_backup_schedules.retry_policy = {
+                      initial_delay: 1.0, max_delay: 32.0, multiplier: 1.3, retry_codes: [14, 4]
+                    }
+
                     default_config
                   end
                   yield @configure if block_given?
@@ -254,8 +284,19 @@ module Google
                     universe_domain: @config.universe_domain,
                     channel_args: @config.channel_args,
                     interceptors: @config.interceptors,
-                    channel_pool_config: @config.channel_pool
+                    channel_pool_config: @config.channel_pool,
+                    logger: @config.logger
                   )
+
+                  @database_admin_stub.stub_logger&.info do |entry|
+                    entry.set_system_name
+                    entry.set_service
+                    entry.message = "Created client for #{entry.service}"
+                    entry.set_credentials_fields credentials
+                    entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                    entry.set "defaultTimeout", @config.timeout if @config.timeout
+                    entry.set "quotaProject", @quota_project_id if @quota_project_id
+                  end
                 end
 
                 ##
@@ -264,6 +305,15 @@ module Google
                 # @return [::Google::Cloud::Spanner::Admin::Database::V1::DatabaseAdmin::Operations]
                 #
                 attr_reader :operations_client
+
+                ##
+                # The logger used for request/response debug logging.
+                #
+                # @return [Logger]
+                #
+                def logger
+                  @database_admin_stub.logger
+                end
 
                 # Service calls
 
@@ -361,7 +411,7 @@ module Google
                   @database_admin_stub.call_rpc :list_databases, request, options: options do |response, operation|
                     response = ::Gapic::PagedEnumerable.new @database_admin_stub, :list_databases, request, response, operation, options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -496,7 +546,7 @@ module Google
                   @database_admin_stub.call_rpc :create_database, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -583,7 +633,6 @@ module Google
 
                   @database_admin_stub.call_rpc :get_database, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -717,7 +766,7 @@ module Google
                   @database_admin_stub.call_rpc :update_database, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -857,7 +906,7 @@ module Google
                   @database_admin_stub.call_rpc :update_database_ddl, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -947,7 +996,6 @@ module Google
 
                   @database_admin_stub.call_rpc :drop_database, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1037,7 +1085,6 @@ module Google
 
                   @database_admin_stub.call_rpc :get_database_ddl, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1141,7 +1188,6 @@ module Google
 
                   @database_admin_stub.call_rpc :set_iam_policy, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1238,7 +1284,6 @@ module Google
 
                   @database_admin_stub.call_rpc :get_iam_policy, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1339,7 +1384,6 @@ module Google
 
                   @database_admin_stub.call_rpc :test_iam_permissions, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1461,7 +1505,7 @@ module Google
                   @database_admin_stub.call_rpc :create_backup, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1591,7 +1635,7 @@ module Google
                   @database_admin_stub.call_rpc :copy_backup, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1680,7 +1724,6 @@ module Google
 
                   @database_admin_stub.call_rpc :get_backup, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1776,7 +1819,6 @@ module Google
 
                   @database_admin_stub.call_rpc :update_backup, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1865,7 +1907,6 @@ module Google
 
                   @database_admin_stub.call_rpc :delete_backup, request, options: options do |response, operation|
                     yield response, operation if block_given?
-                    return response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1914,6 +1955,7 @@ module Google
                 #       * `expire_time`  (and values are of the format YYYY-MM-DDTHH:MM:SSZ)
                 #       * `version_time` (and values are of the format YYYY-MM-DDTHH:MM:SSZ)
                 #       * `size_bytes`
+                #       * `backup_schedules`
                 #
                 #     You can combine multiple expressions by enclosing each expression in
                 #     parentheses. By default, expressions are combined with AND logic, but
@@ -1932,6 +1974,8 @@ module Google
                 #       * `expire_time < \"2018-03-28T14:50:00Z\"`
                 #              - The backup `expire_time` is before 2018-03-28T14:50:00Z.
                 #       * `size_bytes > 10000000000` - The backup's size is greater than 10GB
+                #       * `backup_schedules:daily`
+                #              - The backup is created from a schedule with "daily" in its name.
                 #   @param page_size [::Integer]
                 #     Number of backups to be returned in the response. If 0 or
                 #     less, defaults to the server's maximum allowed page size.
@@ -2006,7 +2050,7 @@ module Google
                   @database_admin_stub.call_rpc :list_backups, request, options: options do |response, operation|
                     response = ::Gapic::PagedEnumerable.new @database_admin_stub, :list_backups, request, response, operation, options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2135,7 +2179,7 @@ module Google
                   @database_admin_stub.call_rpc :restore_database, request, options: options do |response, operation|
                     response = ::Gapic::Operation.new response, @operations_client, options: options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2290,7 +2334,7 @@ module Google
                     wrap_lro_operation = ->(op_response) { ::Gapic::Operation.new op_response, @operations_client }
                     response = ::Gapic::PagedEnumerable.new @database_admin_stub, :list_database_operations, request, response, operation, options, format_resource: wrap_lro_operation
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2472,7 +2516,7 @@ module Google
                     wrap_lro_operation = ->(op_response) { ::Gapic::Operation.new op_response, @operations_client }
                     response = ::Gapic::PagedEnumerable.new @database_admin_stub, :list_backup_operations, request, response, operation, options, format_resource: wrap_lro_operation
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2573,7 +2617,562 @@ module Google
                   @database_admin_stub.call_rpc :list_database_roles, request, options: options do |response, operation|
                     response = ::Gapic::PagedEnumerable.new @database_admin_stub, :list_database_roles, request, response, operation, options
                     yield response, operation if block_given?
-                    return response
+                    throw :response, response
+                  end
+                rescue ::GRPC::BadStatus => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Adds split points to specified tables, indexes of a database.
+                #
+                # @overload add_split_points(request, options = nil)
+                #   Pass arguments to `add_split_points` via a request object, either of type
+                #   {::Google::Cloud::Spanner::Admin::Database::V1::AddSplitPointsRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Spanner::Admin::Database::V1::AddSplitPointsRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+                #
+                # @overload add_split_points(database: nil, split_points: nil, initiator: nil)
+                #   Pass arguments to `add_split_points` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param database [::String]
+                #     Required. The database on whose tables/indexes split points are to be
+                #     added. Values are of the form
+                #     `projects/<project>/instances/<instance>/databases/<database>`.
+                #   @param split_points [::Array<::Google::Cloud::Spanner::Admin::Database::V1::SplitPoints, ::Hash>]
+                #     Required. The split points to add.
+                #   @param initiator [::String]
+                #     Optional. A user-supplied tag associated with the split points.
+                #     For example, "intital_data_load", "special_event_1".
+                #     Defaults to "CloudAddSplitPointsAPI" if not specified.
+                #     The length of the tag must not exceed 50 characters,else will be trimmed.
+                #     Only valid UTF8 characters are allowed.
+                #
+                # @yield [response, operation] Access the result along with the RPC operation
+                # @yieldparam response [::Google::Cloud::Spanner::Admin::Database::V1::AddSplitPointsResponse]
+                # @yieldparam operation [::GRPC::ActiveCall::Operation]
+                #
+                # @return [::Google::Cloud::Spanner::Admin::Database::V1::AddSplitPointsResponse]
+                #
+                # @raise [::Google::Cloud::Error] if the RPC is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/spanner/admin/database/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Spanner::Admin::Database::V1::DatabaseAdmin::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Spanner::Admin::Database::V1::AddSplitPointsRequest.new
+                #
+                #   # Call the add_split_points method.
+                #   result = client.add_split_points request
+                #
+                #   # The returned object is of type Google::Cloud::Spanner::Admin::Database::V1::AddSplitPointsResponse.
+                #   p result
+                #
+                def add_split_points request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Spanner::Admin::Database::V1::AddSplitPointsRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  metadata = @config.rpcs.add_split_points.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Spanner::Admin::Database::V1::VERSION
+                  metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  header_params = {}
+                  if request.database
+                    header_params["database"] = request.database
+                  end
+
+                  request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                  metadata[:"x-goog-request-params"] ||= request_params_header
+
+                  options.apply_defaults timeout:      @config.rpcs.add_split_points.timeout,
+                                         metadata:     metadata,
+                                         retry_policy: @config.rpcs.add_split_points.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @database_admin_stub.call_rpc :add_split_points, request, options: options do |response, operation|
+                    yield response, operation if block_given?
+                  end
+                rescue ::GRPC::BadStatus => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Creates a new backup schedule.
+                #
+                # @overload create_backup_schedule(request, options = nil)
+                #   Pass arguments to `create_backup_schedule` via a request object, either of type
+                #   {::Google::Cloud::Spanner::Admin::Database::V1::CreateBackupScheduleRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Spanner::Admin::Database::V1::CreateBackupScheduleRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+                #
+                # @overload create_backup_schedule(parent: nil, backup_schedule_id: nil, backup_schedule: nil)
+                #   Pass arguments to `create_backup_schedule` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param parent [::String]
+                #     Required. The name of the database that this backup schedule applies to.
+                #   @param backup_schedule_id [::String]
+                #     Required. The Id to use for the backup schedule. The `backup_schedule_id`
+                #     appended to `parent` forms the full backup schedule name of the form
+                #     `projects/<project>/instances/<instance>/databases/<database>/backupSchedules/<backup_schedule_id>`.
+                #   @param backup_schedule [::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule, ::Hash]
+                #     Required. The backup schedule to create.
+                #
+                # @yield [response, operation] Access the result along with the RPC operation
+                # @yieldparam response [::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule]
+                # @yieldparam operation [::GRPC::ActiveCall::Operation]
+                #
+                # @return [::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule]
+                #
+                # @raise [::Google::Cloud::Error] if the RPC is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/spanner/admin/database/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Spanner::Admin::Database::V1::DatabaseAdmin::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Spanner::Admin::Database::V1::CreateBackupScheduleRequest.new
+                #
+                #   # Call the create_backup_schedule method.
+                #   result = client.create_backup_schedule request
+                #
+                #   # The returned object is of type Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule.
+                #   p result
+                #
+                def create_backup_schedule request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Spanner::Admin::Database::V1::CreateBackupScheduleRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  metadata = @config.rpcs.create_backup_schedule.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Spanner::Admin::Database::V1::VERSION
+                  metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  header_params = {}
+                  if request.parent
+                    header_params["parent"] = request.parent
+                  end
+
+                  request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                  metadata[:"x-goog-request-params"] ||= request_params_header
+
+                  options.apply_defaults timeout:      @config.rpcs.create_backup_schedule.timeout,
+                                         metadata:     metadata,
+                                         retry_policy: @config.rpcs.create_backup_schedule.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @database_admin_stub.call_rpc :create_backup_schedule, request, options: options do |response, operation|
+                    yield response, operation if block_given?
+                  end
+                rescue ::GRPC::BadStatus => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Gets backup schedule for the input schedule name.
+                #
+                # @overload get_backup_schedule(request, options = nil)
+                #   Pass arguments to `get_backup_schedule` via a request object, either of type
+                #   {::Google::Cloud::Spanner::Admin::Database::V1::GetBackupScheduleRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Spanner::Admin::Database::V1::GetBackupScheduleRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+                #
+                # @overload get_backup_schedule(name: nil)
+                #   Pass arguments to `get_backup_schedule` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param name [::String]
+                #     Required. The name of the schedule to retrieve.
+                #     Values are of the form
+                #     `projects/<project>/instances/<instance>/databases/<database>/backupSchedules/<backup_schedule_id>`.
+                #
+                # @yield [response, operation] Access the result along with the RPC operation
+                # @yieldparam response [::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule]
+                # @yieldparam operation [::GRPC::ActiveCall::Operation]
+                #
+                # @return [::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule]
+                #
+                # @raise [::Google::Cloud::Error] if the RPC is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/spanner/admin/database/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Spanner::Admin::Database::V1::DatabaseAdmin::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Spanner::Admin::Database::V1::GetBackupScheduleRequest.new
+                #
+                #   # Call the get_backup_schedule method.
+                #   result = client.get_backup_schedule request
+                #
+                #   # The returned object is of type Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule.
+                #   p result
+                #
+                def get_backup_schedule request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Spanner::Admin::Database::V1::GetBackupScheduleRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  metadata = @config.rpcs.get_backup_schedule.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Spanner::Admin::Database::V1::VERSION
+                  metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  header_params = {}
+                  if request.name
+                    header_params["name"] = request.name
+                  end
+
+                  request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                  metadata[:"x-goog-request-params"] ||= request_params_header
+
+                  options.apply_defaults timeout:      @config.rpcs.get_backup_schedule.timeout,
+                                         metadata:     metadata,
+                                         retry_policy: @config.rpcs.get_backup_schedule.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @database_admin_stub.call_rpc :get_backup_schedule, request, options: options do |response, operation|
+                    yield response, operation if block_given?
+                  end
+                rescue ::GRPC::BadStatus => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Updates a backup schedule.
+                #
+                # @overload update_backup_schedule(request, options = nil)
+                #   Pass arguments to `update_backup_schedule` via a request object, either of type
+                #   {::Google::Cloud::Spanner::Admin::Database::V1::UpdateBackupScheduleRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Spanner::Admin::Database::V1::UpdateBackupScheduleRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+                #
+                # @overload update_backup_schedule(backup_schedule: nil, update_mask: nil)
+                #   Pass arguments to `update_backup_schedule` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param backup_schedule [::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule, ::Hash]
+                #     Required. The backup schedule to update. `backup_schedule.name`, and the
+                #     fields to be updated as specified by `update_mask` are required. Other
+                #     fields are ignored.
+                #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+                #     Required. A mask specifying which fields in the BackupSchedule resource
+                #     should be updated. This mask is relative to the BackupSchedule resource,
+                #     not to the request message. The field mask must always be
+                #     specified; this prevents any future fields from being erased
+                #     accidentally.
+                #
+                # @yield [response, operation] Access the result along with the RPC operation
+                # @yieldparam response [::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule]
+                # @yieldparam operation [::GRPC::ActiveCall::Operation]
+                #
+                # @return [::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule]
+                #
+                # @raise [::Google::Cloud::Error] if the RPC is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/spanner/admin/database/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Spanner::Admin::Database::V1::DatabaseAdmin::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Spanner::Admin::Database::V1::UpdateBackupScheduleRequest.new
+                #
+                #   # Call the update_backup_schedule method.
+                #   result = client.update_backup_schedule request
+                #
+                #   # The returned object is of type Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule.
+                #   p result
+                #
+                def update_backup_schedule request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Spanner::Admin::Database::V1::UpdateBackupScheduleRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  metadata = @config.rpcs.update_backup_schedule.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Spanner::Admin::Database::V1::VERSION
+                  metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  header_params = {}
+                  if request.backup_schedule&.name
+                    header_params["backup_schedule.name"] = request.backup_schedule.name
+                  end
+
+                  request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                  metadata[:"x-goog-request-params"] ||= request_params_header
+
+                  options.apply_defaults timeout:      @config.rpcs.update_backup_schedule.timeout,
+                                         metadata:     metadata,
+                                         retry_policy: @config.rpcs.update_backup_schedule.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @database_admin_stub.call_rpc :update_backup_schedule, request, options: options do |response, operation|
+                    yield response, operation if block_given?
+                  end
+                rescue ::GRPC::BadStatus => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Deletes a backup schedule.
+                #
+                # @overload delete_backup_schedule(request, options = nil)
+                #   Pass arguments to `delete_backup_schedule` via a request object, either of type
+                #   {::Google::Cloud::Spanner::Admin::Database::V1::DeleteBackupScheduleRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Spanner::Admin::Database::V1::DeleteBackupScheduleRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+                #
+                # @overload delete_backup_schedule(name: nil)
+                #   Pass arguments to `delete_backup_schedule` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param name [::String]
+                #     Required. The name of the schedule to delete.
+                #     Values are of the form
+                #     `projects/<project>/instances/<instance>/databases/<database>/backupSchedules/<backup_schedule_id>`.
+                #
+                # @yield [response, operation] Access the result along with the RPC operation
+                # @yieldparam response [::Google::Protobuf::Empty]
+                # @yieldparam operation [::GRPC::ActiveCall::Operation]
+                #
+                # @return [::Google::Protobuf::Empty]
+                #
+                # @raise [::Google::Cloud::Error] if the RPC is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/spanner/admin/database/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Spanner::Admin::Database::V1::DatabaseAdmin::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Spanner::Admin::Database::V1::DeleteBackupScheduleRequest.new
+                #
+                #   # Call the delete_backup_schedule method.
+                #   result = client.delete_backup_schedule request
+                #
+                #   # The returned object is of type Google::Protobuf::Empty.
+                #   p result
+                #
+                def delete_backup_schedule request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Spanner::Admin::Database::V1::DeleteBackupScheduleRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  metadata = @config.rpcs.delete_backup_schedule.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Spanner::Admin::Database::V1::VERSION
+                  metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  header_params = {}
+                  if request.name
+                    header_params["name"] = request.name
+                  end
+
+                  request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                  metadata[:"x-goog-request-params"] ||= request_params_header
+
+                  options.apply_defaults timeout:      @config.rpcs.delete_backup_schedule.timeout,
+                                         metadata:     metadata,
+                                         retry_policy: @config.rpcs.delete_backup_schedule.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @database_admin_stub.call_rpc :delete_backup_schedule, request, options: options do |response, operation|
+                    yield response, operation if block_given?
+                  end
+                rescue ::GRPC::BadStatus => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Lists all the backup schedules for the database.
+                #
+                # @overload list_backup_schedules(request, options = nil)
+                #   Pass arguments to `list_backup_schedules` via a request object, either of type
+                #   {::Google::Cloud::Spanner::Admin::Database::V1::ListBackupSchedulesRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Spanner::Admin::Database::V1::ListBackupSchedulesRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+                #
+                # @overload list_backup_schedules(parent: nil, page_size: nil, page_token: nil)
+                #   Pass arguments to `list_backup_schedules` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param parent [::String]
+                #     Required. Database is the parent resource whose backup schedules should be
+                #     listed. Values are of the form
+                #     projects/<project>/instances/<instance>/databases/<database>
+                #   @param page_size [::Integer]
+                #     Optional. Number of backup schedules to be returned in the response. If 0
+                #     or less, defaults to the server's maximum allowed page size.
+                #   @param page_token [::String]
+                #     Optional. If non-empty, `page_token` should contain a
+                #     {::Google::Cloud::Spanner::Admin::Database::V1::ListBackupSchedulesResponse#next_page_token next_page_token}
+                #     from a previous
+                #     {::Google::Cloud::Spanner::Admin::Database::V1::ListBackupSchedulesResponse ListBackupSchedulesResponse}
+                #     to the same `parent`.
+                #
+                # @yield [response, operation] Access the result along with the RPC operation
+                # @yieldparam response [::Gapic::PagedEnumerable<::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule>]
+                # @yieldparam operation [::GRPC::ActiveCall::Operation]
+                #
+                # @return [::Gapic::PagedEnumerable<::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule>]
+                #
+                # @raise [::Google::Cloud::Error] if the RPC is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/spanner/admin/database/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Spanner::Admin::Database::V1::DatabaseAdmin::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Spanner::Admin::Database::V1::ListBackupSchedulesRequest.new
+                #
+                #   # Call the list_backup_schedules method.
+                #   result = client.list_backup_schedules request
+                #
+                #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+                #   # over elements, and API calls will be issued to fetch pages as needed.
+                #   result.each do |item|
+                #     # Each element is of type ::Google::Cloud::Spanner::Admin::Database::V1::BackupSchedule.
+                #     p item
+                #   end
+                #
+                def list_backup_schedules request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Spanner::Admin::Database::V1::ListBackupSchedulesRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  metadata = @config.rpcs.list_backup_schedules.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Spanner::Admin::Database::V1::VERSION
+                  metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  header_params = {}
+                  if request.parent
+                    header_params["parent"] = request.parent
+                  end
+
+                  request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+                  metadata[:"x-goog-request-params"] ||= request_params_header
+
+                  options.apply_defaults timeout:      @config.rpcs.list_backup_schedules.timeout,
+                                         metadata:     metadata,
+                                         retry_policy: @config.rpcs.list_backup_schedules.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @database_admin_stub.call_rpc :list_backup_schedules, request, options: options do |response, operation|
+                    response = ::Gapic::PagedEnumerable.new @database_admin_stub, :list_backup_schedules, request, response, operation, options
+                    yield response, operation if block_given?
+                    throw :response, response
                   end
                 rescue ::GRPC::BadStatus => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2623,6 +3222,13 @@ module Google
                 #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
                 #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -2662,6 +3268,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -2686,6 +3297,7 @@ module Google
                   config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                   config_attr :quota_project, nil, ::String, nil
                   config_attr :universe_domain, nil, ::String, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil
@@ -2832,6 +3444,36 @@ module Google
                     # @return [::Gapic::Config::Method]
                     #
                     attr_reader :list_database_roles
+                    ##
+                    # RPC-specific configuration for `add_split_points`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :add_split_points
+                    ##
+                    # RPC-specific configuration for `create_backup_schedule`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :create_backup_schedule
+                    ##
+                    # RPC-specific configuration for `get_backup_schedule`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :get_backup_schedule
+                    ##
+                    # RPC-specific configuration for `update_backup_schedule`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :update_backup_schedule
+                    ##
+                    # RPC-specific configuration for `delete_backup_schedule`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :delete_backup_schedule
+                    ##
+                    # RPC-specific configuration for `list_backup_schedules`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :list_backup_schedules
 
                     # @private
                     def initialize parent_rpcs = nil
@@ -2875,6 +3517,18 @@ module Google
                       @list_backup_operations = ::Gapic::Config::Method.new list_backup_operations_config
                       list_database_roles_config = parent_rpcs.list_database_roles if parent_rpcs.respond_to? :list_database_roles
                       @list_database_roles = ::Gapic::Config::Method.new list_database_roles_config
+                      add_split_points_config = parent_rpcs.add_split_points if parent_rpcs.respond_to? :add_split_points
+                      @add_split_points = ::Gapic::Config::Method.new add_split_points_config
+                      create_backup_schedule_config = parent_rpcs.create_backup_schedule if parent_rpcs.respond_to? :create_backup_schedule
+                      @create_backup_schedule = ::Gapic::Config::Method.new create_backup_schedule_config
+                      get_backup_schedule_config = parent_rpcs.get_backup_schedule if parent_rpcs.respond_to? :get_backup_schedule
+                      @get_backup_schedule = ::Gapic::Config::Method.new get_backup_schedule_config
+                      update_backup_schedule_config = parent_rpcs.update_backup_schedule if parent_rpcs.respond_to? :update_backup_schedule
+                      @update_backup_schedule = ::Gapic::Config::Method.new update_backup_schedule_config
+                      delete_backup_schedule_config = parent_rpcs.delete_backup_schedule if parent_rpcs.respond_to? :delete_backup_schedule
+                      @delete_backup_schedule = ::Gapic::Config::Method.new delete_backup_schedule_config
+                      list_backup_schedules_config = parent_rpcs.list_backup_schedules if parent_rpcs.respond_to? :list_backup_schedules
+                      @list_backup_schedules = ::Gapic::Config::Method.new list_backup_schedules_config
 
                       yield self if block_given?
                     end

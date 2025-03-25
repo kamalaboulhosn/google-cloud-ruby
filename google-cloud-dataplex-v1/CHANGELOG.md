@@ -1,5 +1,129 @@
 # Changelog
 
+### 2.2.0 (2025-03-13)
+
+#### Features
+
+* Added custom BigQuery dataset location support in Auto Discovery 
+#### Documentation
+
+* Deprecated the DataTaxonomyService 
+
+### 2.1.0 (2025-02-07)
+
+#### Features
+
+* Support the "NONE" entry sync mode ([#28942](https://github.com/googleapis/google-cloud-ruby/issues/28942)) 
+
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824)) 
+
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.0 (2025-01-15)
+
+#### Features
+
+* The delete_data_Scan RPC supports the force parameter 
+#### Documentation
+
+* Various fixes and clarifications to the reference documentation 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-12-04)
+
+#### Features
+
+* A new enum `TableType` is added 
+* A new field `datascan_id` is added to message `.google.cloud.dataplex.v1.DiscoveryEvent` 
+* A new field `suspended` is added to DataScans 
+* A new field `table` is added to message `.google.cloud.dataplex.v1.DiscoveryEvent` 
+* A new message `TableDetails` is added 
+* Add a DATA_DISCOVERY enum type in DataScanEvent 
+* Add a DataDiscoveryAppliedConfigs message 
+* Add a TABLE_DELETED field in DiscoveryEvent 
+* Add a TABLE_IGNORED field in DiscoveryEvent 
+* Add a TABLE_PUBLISHED field in DiscoveryEvent 
+* Add a TABLE_UPDATED field in DiscoveryEvent 
+* Add an Issue field to DiscoveryEvent.ActionDetails to output the action message in Cloud Logs 
+* add annotations in CreateMetadataJob, GetMetadataJob, ListMetaDataJobs and CancelMetadataJob for cloud audit logging 
+* Add data_version field to AspectSource 
+* Add new Data Discovery scan type in Datascan 
+* expose create time in DataScanJobAPI 
+* expose create time to customers 
+* release metadata export in private preview 
+* release MetadataJob APIs and related resources in GA 
+* update Go Bigtable import path 
+* update Go Datastore import path ([#27636](https://github.com/googleapis/google-cloud-ruby/issues/27636)) 
+#### Documentation
+
+* A comment for message `DataScanEvent` is changed 
+* Add comment for field `status` in message `.google.cloud.dataplex.v1.MetadataJob` per https://linter.aip.dev/192/has-comments 
+* Add comment for field `type` in message `.google.cloud.dataplex.v1.MetadataJob` per https://linter.aip.dev/192/has-comments 
+* Add Identifier for `name` in message `.google.cloud.dataplex.v1.MetadataJob` per https://google.aip.dev/cloud/2510 
+* add info about schema changes for BigQuery metadata in Dataplex Catalog 
+* Add link to fully qualified names documentation 
+* correct API documentation 
+* correct the dimensions for data quality rules 
+* Dataplex Tasks do not support Dataplex Content path as a direct input anymore 
+* Scrub descriptions for standalone discovery scans 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.23.0 (2024-06-28)
+
+#### Features
+
+* expose data scan execution create time to customers ([#26243](https://github.com/googleapis/google-cloud-ruby/issues/26243)) 
+
+### 0.22.0 (2024-06-25)
+
+#### Features
+
+* Support resource location field in EntrySource ([#26142](https://github.com/googleapis/google-cloud-ruby/issues/26142)) 
+
+### 0.21.1 (2024-06-18)
+
+#### Documentation
+
+* Marked linked_resource and snippets as deprecated in SearchEntriesResult ([#26126](https://github.com/googleapis/google-cloud-ruby/issues/26126)) 
+
+### 0.21.0 (2024-05-23)
+
+#### Features
+
+* Support SQL Assertion data quality rules ([#25838](https://github.com/googleapis/google-cloud-ruby/issues/25838)) 
+
 ### 0.20.0 (2024-04-19)
 
 #### Features

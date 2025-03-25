@@ -29,7 +29,7 @@ module Google
         # on the permissions needed to create or view tags.
         # @!attribute [rw] name
         #   @return [::String]
-        #     The resource name of the tag in URL format. Example:
+        #     Identifier. The resource name of the tag in URL format. Example:
         #
         #     * projects/\\{project_id}/locations/\\{location}/entrygroups/\\{entry_group_id}/entries/\\{entry_id}/tags/\\{tag_id}
         #
@@ -82,19 +82,29 @@ module Google
         # @!attribute [rw] double_value
         #   @return [::Float]
         #     Holds the value for a tag field with double type.
+        #
+        #     Note: The following fields are mutually exclusive: `double_value`, `string_value`, `bool_value`, `timestamp_value`, `enum_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] string_value
         #   @return [::String]
         #     Holds the value for a tag field with string type.
+        #
+        #     Note: The following fields are mutually exclusive: `string_value`, `double_value`, `bool_value`, `timestamp_value`, `enum_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] bool_value
         #   @return [::Boolean]
         #     Holds the value for a tag field with boolean type.
+        #
+        #     Note: The following fields are mutually exclusive: `bool_value`, `double_value`, `string_value`, `timestamp_value`, `enum_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] timestamp_value
         #   @return [::Google::Protobuf::Timestamp]
         #     Holds the value for a tag field with timestamp type.
+        #
+        #     Note: The following fields are mutually exclusive: `timestamp_value`, `double_value`, `string_value`, `bool_value`, `enum_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] enum_value
         #   @return [::Google::Cloud::DataCatalog::V1beta1::TagField::EnumValue]
         #     Holds the value for a tag field with enum type. This value must be
         #     one of the allowed values in the definition of this enum.
+        #
+        #     Note: The following fields are mutually exclusive: `enum_value`, `double_value`, `string_value`, `bool_value`, `timestamp_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] order
         #   @return [::Integer]
         #     Output only. The order of this field with respect to other fields in this
@@ -127,7 +137,7 @@ module Google
         # which includes permission to use the tag template to tag resources.
         # @!attribute [rw] name
         #   @return [::String]
-        #     The resource name of the tag template in URL format. Example:
+        #     Identifier. The resource name of the tag template in URL format. Example:
         #
         #     * projects/\\{project_id}/locations/\\{location}/tagTemplates/\\{tag_template_id}
         #
@@ -146,6 +156,9 @@ module Google
         #     letters (both uppercase and lowercase), numbers (0-9) and underscores (_).
         #     Field IDs must be at least 1 character long and at most
         #     64 characters long. Field IDs must start with a letter or underscore.
+        # @!attribute [r] dataplex_transfer_status
+        #   @return [::Google::Cloud::DataCatalog::V1beta1::TagTemplate::DataplexTransferStatus]
+        #     Output only. Transfer status of the TagTemplate
         class TagTemplate
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -158,13 +171,26 @@ module Google
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
+
+          # This enum describes TagTemplate transfer status to Dataplex service.
+          module DataplexTransferStatus
+            # Default value. TagTemplate and its tags are only visible and editable in
+            # DataCatalog.
+            DATAPLEX_TRANSFER_STATUS_UNSPECIFIED = 0
+
+            # TagTemplate and its tags are auto-copied to Dataplex service.
+            # Visible in both services. Editable in DataCatalog, read-only in Dataplex.
+            # Deprecated: Individual TagTemplate migration is deprecated in favor of
+            # organization or project wide TagTemplate migration opt-in.
+            MIGRATED = 1
+          end
         end
 
         # The template for an individual field within a tag template.
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The resource name of the tag template field in URL format.
-        #     Example:
+        #     Output only. Identifier. The resource name of the tag template field in URL
+        #     format. Example:
         #
         #     * projects/\\{project_id}/locations/\\{location}/tagTemplates/\\{tag_template}/fields/\\{field}
         #
@@ -196,9 +222,13 @@ module Google
         # @!attribute [rw] primitive_type
         #   @return [::Google::Cloud::DataCatalog::V1beta1::FieldType::PrimitiveType]
         #     Represents primitive types - string, bool etc.
+        #
+        #     Note: The following fields are mutually exclusive: `primitive_type`, `enum_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] enum_type
         #   @return [::Google::Cloud::DataCatalog::V1beta1::FieldType::EnumType]
         #     Represents an enum type.
+        #
+        #     Note: The following fields are mutually exclusive: `enum_type`, `primitive_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class FieldType
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

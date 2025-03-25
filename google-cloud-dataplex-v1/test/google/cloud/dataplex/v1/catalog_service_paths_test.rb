@@ -31,6 +31,14 @@ class ::Google::Cloud::Dataplex::V1::CatalogService::ClientPathsTest < Minitest:
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_aspect_type_path
@@ -90,6 +98,18 @@ class ::Google::Cloud::Dataplex::V1::CatalogService::ClientPathsTest < Minitest:
 
       path = client.location_path project: "value0", location: "value1"
       assert_equal "projects/value0/locations/value1", path
+    end
+  end
+
+  def test_metadata_job_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::Dataplex::V1::CatalogService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.metadata_job_path project: "value0", location: "value1", metadata_job: "value2"
+      assert_equal "projects/value0/locations/value1/metadataJobs/value2", path
     end
   end
 end

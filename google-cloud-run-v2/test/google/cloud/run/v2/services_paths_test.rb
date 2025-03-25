@@ -31,6 +31,26 @@ class ::Google::Cloud::Run::V2::Services::ClientPathsTest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
+  end
+
+  def test_build_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::Run::V2::Services::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.build_path project: "value0", location: "value1", build: "value2"
+      assert_equal "projects/value0/locations/value1/builds/value2", path
+    end
   end
 
   def test_connector_path
@@ -66,6 +86,33 @@ class ::Google::Cloud::Run::V2::Services::ClientPathsTest < Minitest::Test
 
       path = client.location_path project: "value0", location: "value1"
       assert_equal "projects/value0/locations/value1", path
+    end
+  end
+
+  def test_mesh_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::Run::V2::Services::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.mesh_path project: "value0", location: "value1", mesh: "value2"
+      assert_equal "projects/value0/locations/value1/meshes/value2", path
+    end
+  end
+
+  def test_policy_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::Run::V2::Services::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.policy_path project: "value0"
+      assert_equal "projects/value0/policy", path
+
+      path = client.policy_path location: "value0"
+      assert_equal "locations/value0/policy", path
     end
   end
 
@@ -114,6 +161,18 @@ class ::Google::Cloud::Run::V2::Services::ClientPathsTest < Minitest::Test
 
       path = client.service_path project: "value0", location: "value1", service: "value2"
       assert_equal "projects/value0/locations/value1/services/value2", path
+    end
+  end
+
+  def test_worker_pool_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::Run::V2::Services::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.worker_pool_path project: "value0", location: "value1", worker_pool: "value2"
+      assert_equal "projects/value0/locations/value1/workerPools/value2", path
     end
   end
 end

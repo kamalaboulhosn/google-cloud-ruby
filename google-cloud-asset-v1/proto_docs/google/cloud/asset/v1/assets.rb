@@ -127,14 +127,20 @@ module Google
         #   @return [::Google::Identity::AccessContextManager::V1::AccessPolicy]
         #     Also refer to the [access policy user
         #     guide](https://cloud.google.com/access-context-manager/docs/overview#access-policies).
+        #
+        #     Note: The following fields are mutually exclusive: `access_policy`, `access_level`, `service_perimeter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] access_level
         #   @return [::Google::Identity::AccessContextManager::V1::AccessLevel]
         #     Also refer to the [access level user
         #     guide](https://cloud.google.com/access-context-manager/docs/overview#access-levels).
+        #
+        #     Note: The following fields are mutually exclusive: `access_level`, `access_policy`, `service_perimeter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] service_perimeter
         #   @return [::Google::Identity::AccessContextManager::V1::ServicePerimeter]
         #     Also refer to the [service perimeter user
         #     guide](https://cloud.google.com/vpc-service-controls/docs/overview).
+        #
+        #     Note: The following fields are mutually exclusive: `service_perimeter`, `access_policy`, `access_level`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] os_inventory
         #   @return [::Google::Cloud::OsConfig::V1::Inventory]
         #     A representation of runtime OS Inventory information. See [this
@@ -341,7 +347,6 @@ module Google
         end
 
         # A result of Resource Search, containing information of a cloud resource.
-        # Next ID: 34
         # @!attribute [rw] name
         #   @return [::String]
         #     The full resource name of this resource. Example:
@@ -425,8 +430,8 @@ module Google
         #     * Use a free text query. Example: `us-west*`
         # @!attribute [rw] labels
         #   @return [::Google::Protobuf::Map{::String => ::String}]
-        #     Labels associated with this resource. See [Labelling and grouping Google
-        #     Cloud
+        #     User labels associated with this resource. See [Labelling and grouping
+        #     Google Cloud
         #     resources](https://cloud.google.com/blog/products/gcp/labelling-and-grouping-your-google-cloud-platform-resources)
         #     for more information. This field is available only when the resource's
         #     Protobuf contains it.
@@ -1005,9 +1010,13 @@ module Google
           # @!attribute [rw] role
           #   @return [::String]
           #     The role.
+          #
+          #     Note: The following fields are mutually exclusive: `role`, `permission`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] permission
           #   @return [::String]
           #     The permission.
+          #
+          #     Note: The following fields are mutually exclusive: `permission`, `role`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] analysis_state
           #   @return [::Google::Cloud::Asset::V1::IamPolicyAnalysisState]
           #     The analysis state of this access.

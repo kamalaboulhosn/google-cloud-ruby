@@ -27,8 +27,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. Resource name of the settings.
-          #     Format: `projects/<Project ID>/locations/<Location
-          #     ID>/securitySettings/<security settings ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/securitySettings/<securitysettingsID>`.
           class GetSecuritySettingsRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -53,7 +53,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The location to list all security settings for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>`.
           # @!attribute [rw] page_size
           #   @return [::Integer]
           #     The maximum number of items to return in a single page. By default 20 and
@@ -84,7 +84,7 @@ module Google
           #   @return [::String]
           #     Required. The location to create an
           #     {::Google::Cloud::Dialogflow::CX::V3::SecuritySettings SecuritySettings} for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>`.
           # @!attribute [rw] security_settings
           #   @return [::Google::Cloud::Dialogflow::CX::V3::SecuritySettings]
           #     Required. The security settings to create.
@@ -98,8 +98,8 @@ module Google
           #   @return [::String]
           #     Required. The name of the
           #     {::Google::Cloud::Dialogflow::CX::V3::SecuritySettings SecuritySettings} to
-          #     delete. Format: `projects/<Project ID>/locations/<Location
-          #     ID>/securitySettings/<Security Settings ID>`.
+          #     delete. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/securitySettings/<SecuritySettingsID>`.
           class DeleteSecuritySettingsRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -115,8 +115,8 @@ module Google
           #     {::Google::Cloud::Dialogflow::CX::V3::SecuritySettingsService::Client#update_security_settings SecuritySettingsService.UpdateSecuritySettings}
           #     method.
           #     {::Google::Cloud::Dialogflow::CX::V3::SecuritySettingsService::Client#create_security_settings SecuritySettingsService.CreateSecuritySettings}
-          #     populates the name automatically. Format: `projects/<Project
-          #     ID>/locations/<Location ID>/securitySettings/<Security Settings ID>`.
+          #     populates the name automatically. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/securitySettings/<SecuritySettingsID>`.
           # @!attribute [rw] display_name
           #   @return [::String]
           #     Required. The human-readable name of the security settings, unique within
@@ -142,9 +142,9 @@ module Google
           #     If empty, we use the default DLP inspect config.
           #
           #     The template name will have one of the following formats:
-          #     `projects/<Project ID>/locations/<Location ID>/inspectTemplates/<Template
-          #     ID>` OR `organizations/<Organization ID>/locations/<Location
-          #     ID>/inspectTemplates/<Template ID>`
+          #     `projects/<ProjectID>/locations/<LocationID>/inspectTemplates/<TemplateID>`
+          #     OR
+          #     `organizations/<OrganizationID>/locations/<LocationID>/inspectTemplates/<TemplateID>`
           #
           #     Note: `inspect_template` must be located in the same region as the
           #     `SecuritySettings`.
@@ -161,9 +161,9 @@ module Google
           #     If empty, Dialogflow replaces sensitive info with `[redacted]` text.
           #
           #     The template name will have one of the following formats:
-          #     `projects/<Project ID>/locations/<Location
-          #     ID>/deidentifyTemplates/<Template ID>` OR `organizations/<Organization
-          #     ID>/locations/<Location ID>/deidentifyTemplates/<Template ID>`
+          #     `projects/<ProjectID>/locations/<LocationID>/deidentifyTemplates/<TemplateID>`
+          #     OR
+          #     `organizations/<OrganizationID>/locations/<LocationID>/deidentifyTemplates/<TemplateID>`
           #
           #     Note: `deidentify_template` must be located in the same region as the
           #     `SecuritySettings`.
@@ -174,10 +174,17 @@ module Google
           #     for Agent Assist traffic), higher value will be ignored and use default.
           #     Setting a value higher than that has no effect. A missing value or
           #     setting to 0 also means we use default TTL.
+          #     When data retention configuration is changed, it only applies to the data
+          #     created after the change; the TTL of existing data created before the
+          #     change stays intact.
+          #
+          #     Note: The following fields are mutually exclusive: `retention_window_days`, `retention_strategy`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] retention_strategy
           #   @return [::Google::Cloud::Dialogflow::CX::V3::SecuritySettings::RetentionStrategy]
           #     Specifies the retention behavior defined by
           #     {::Google::Cloud::Dialogflow::CX::V3::SecuritySettings::RetentionStrategy SecuritySettings.RetentionStrategy}.
+          #
+          #     Note: The following fields are mutually exclusive: `retention_strategy`, `retention_window_days`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] purge_data_types
           #   @return [::Array<::Google::Cloud::Dialogflow::CX::V3::SecuritySettings::PurgeDataType>]
           #     List of types of data to remove when retention settings triggers purge.
@@ -227,10 +234,16 @@ module Google
             # @!attribute [rw] enable_audio_redaction
             #   @return [::Boolean]
             #     Enable audio redaction if it is true.
+            #     Note that this only redacts end-user audio data;
+            #     Synthesised audio from the virtual agent is not redacted.
             # @!attribute [rw] audio_format
             #   @return [::Google::Cloud::Dialogflow::CX::V3::SecuritySettings::AudioExportSettings::AudioFormat]
             #     File format for exported audio file. Currently only in telephony
             #     recordings.
+            # @!attribute [rw] store_tts_audio
+            #   @return [::Boolean]
+            #     Whether to store TTS audio. By default, TTS audio from the virtual agent
+            #     is not exported.
             class AudioExportSettings
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods

@@ -61,8 +61,9 @@ module Google
         # @!attribute [rw] page_token
         #   @return [::String]
         #     Optional. The standard list page token.
-        #     Typically obtained via [ListTuningJob.next_page_token][] of the
-        #     previous GenAiTuningService.ListTuningJob][] call.
+        #     Typically obtained via
+        #     {::Google::Cloud::AIPlatform::V1::ListTuningJobsResponse#next_page_token ListTuningJobsResponse.next_page_token}
+        #     of the previous GenAiTuningService.ListTuningJob][] call.
         class ListTuningJobsRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -91,6 +92,42 @@ module Google
         #     Required. The name of the TuningJob to cancel. Format:
         #     `projects/{project}/locations/{location}/tuningJobs/{tuning_job}`
         class CancelTuningJobRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Request message for
+        # {::Google::Cloud::AIPlatform::V1::GenAiTuningService::Client#rebase_tuned_model GenAiTuningService.RebaseTunedModel}.
+        # @!attribute [rw] parent
+        #   @return [::String]
+        #     Required. The resource name of the Location into which to rebase the Model.
+        #     Format: `projects/{project}/locations/{location}`
+        # @!attribute [rw] tuned_model_ref
+        #   @return [::Google::Cloud::AIPlatform::V1::TunedModelRef]
+        #     Required. TunedModel reference to retrieve the legacy model information.
+        # @!attribute [rw] tuning_job
+        #   @return [::Google::Cloud::AIPlatform::V1::TuningJob]
+        #     Optional. The TuningJob to be updated. Users can use this TuningJob field
+        #     to overwrite tuning configs.
+        # @!attribute [rw] artifact_destination
+        #   @return [::Google::Cloud::AIPlatform::V1::GcsDestination]
+        #     Optional. The Google Cloud Storage location to write the artifacts.
+        # @!attribute [rw] deploy_to_same_endpoint
+        #   @return [::Boolean]
+        #     Optional. By default, bison to gemini migration will always create new
+        #     model/endpoint, but for gemini-1.0 to gemini-1.5 migration, we default
+        #     deploy to the same endpoint. See details in this Section.
+        class RebaseTunedModelRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Runtime operation information for
+        # {::Google::Cloud::AIPlatform::V1::GenAiTuningService::Client#rebase_tuned_model GenAiTuningService.RebaseTunedModel}.
+        # @!attribute [rw] generic_metadata
+        #   @return [::Google::Cloud::AIPlatform::V1::GenericOperationMetadata]
+        #     The common part of the operation generic information.
+        class RebaseTunedModelOperationMetadata
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end

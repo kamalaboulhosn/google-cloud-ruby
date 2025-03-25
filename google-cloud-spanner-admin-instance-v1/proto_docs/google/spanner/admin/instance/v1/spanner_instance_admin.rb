@@ -25,7 +25,7 @@ module Google
           module V1
             # @!attribute [rw] location
             #   @return [::String]
-            #     The location of the serving resources, e.g. "us-central1".
+            #     The location of the serving resources, e.g., "us-central1".
             # @!attribute [rw] type
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::ReplicaInfo::ReplicaType]
             #     The type of replica.
@@ -81,27 +81,34 @@ module Google
             #     A unique identifier for the instance configuration.  Values
             #     are of the form
             #     `projects/<project>/instanceConfigs/[a-z][-a-z0-9]*`.
+            #
+            #     User instance configuration must start with `custom-`.
             # @!attribute [rw] display_name
             #   @return [::String]
             #     The name of this instance configuration as it appears in UIs.
             # @!attribute [r] config_type
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig::Type]
-            #     Output only. Whether this instance config is a Google or User Managed
-            #     Configuration.
+            #     Output only. Whether this instance configuration is a Google-managed or
+            #     user-managed configuration.
             # @!attribute [rw] replicas
             #   @return [::Array<::Google::Cloud::Spanner::Admin::Instance::V1::ReplicaInfo>]
             #     The geographic placement of nodes in this instance configuration and their
             #     replication properties.
+            #
+            #     To create user-managed configurations, input
+            #     `replicas` must include all replicas in `replicas` of the `base_config`
+            #     and include one or more replicas in the `optional_replicas` of the
+            #     `base_config`.
             # @!attribute [r] optional_replicas
             #   @return [::Array<::Google::Cloud::Spanner::Admin::Instance::V1::ReplicaInfo>]
-            #     Output only. The available optional replicas to choose from for user
-            #     managed configurations. Populated for Google managed configurations.
+            #     Output only. The available optional replicas to choose from for
+            #     user-managed configurations. Populated for Google-managed configurations.
             # @!attribute [rw] base_config
             #   @return [::String]
             #     Base configuration name, e.g. projects/<project_name>/instanceConfigs/nam3,
-            #     based on which this configuration is created. Only set for user managed
+            #     based on which this configuration is created. Only set for user-managed
             #     configurations. `base_config` must refer to a configuration of type
-            #     GOOGLE_MANAGED in the same project as this configuration.
+            #     `GOOGLE_MANAGED` in the same project as this configuration.
             # @!attribute [rw] labels
             #   @return [::Google::Protobuf::Map{::String => ::String}]
             #     Cloud Labels are a flexible and lightweight mechanism for organizing cloud
@@ -128,26 +135,39 @@ module Google
             # @!attribute [rw] etag
             #   @return [::String]
             #     etag is used for optimistic concurrency control as a way
-            #     to help prevent simultaneous updates of a instance config from overwriting
-            #     each other. It is strongly suggested that systems make use of the etag in
-            #     the read-modify-write cycle to perform instance config updates in order to
-            #     avoid race conditions: An etag is returned in the response which contains
-            #     instance configs, and systems are expected to put that etag in the request
-            #     to update instance config to ensure that their change will be applied to
-            #     the same version of the instance config.
-            #     If no etag is provided in the call to update instance config, then the
-            #     existing instance config is overwritten blindly.
+            #     to help prevent simultaneous updates of a instance configuration from
+            #     overwriting each other. It is strongly suggested that systems make use of
+            #     the etag in the read-modify-write cycle to perform instance configuration
+            #     updates in order to avoid race conditions: An etag is returned in the
+            #     response which contains instance configurations, and systems are expected
+            #     to put that etag in the request to update instance configuration to ensure
+            #     that their change is applied to the same version of the instance
+            #     configuration. If no etag is provided in the call to update the instance
+            #     configuration, then the existing instance configuration is overwritten
+            #     blindly.
             # @!attribute [rw] leader_options
             #   @return [::Array<::String>]
             #     Allowed values of the "default_leader" schema option for databases in
             #     instances that use this instance configuration.
             # @!attribute [r] reconciling
             #   @return [::Boolean]
-            #     Output only. If true, the instance config is being created or updated. If
-            #     false, there are no ongoing operations for the instance config.
+            #     Output only. If true, the instance configuration is being created or
+            #     updated. If false, there are no ongoing operations for the instance
+            #     configuration.
             # @!attribute [r] state
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig::State]
-            #     Output only. The current instance config state.
+            #     Output only. The current instance configuration state. Applicable only for
+            #     `USER_MANAGED` configurations.
+            # @!attribute [r] free_instance_availability
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig::FreeInstanceAvailability]
+            #     Output only. Describes whether free instances are available to be created
+            #     in this instance configuration.
+            # @!attribute [r] quorum_type
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig::QuorumType]
+            #     Output only. The `QuorumType` of the instance configuration.
+            # @!attribute [r] storage_limit_per_processing_unit
+            #   @return [::Integer]
+            #     Output only. The storage limit in bytes per processing unit.
             class InstanceConfig
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -166,34 +186,119 @@ module Google
                 # Unspecified.
                 TYPE_UNSPECIFIED = 0
 
-                # Google managed configuration.
+                # Google-managed configuration.
                 GOOGLE_MANAGED = 1
 
-                # User managed configuration.
+                # User-managed configuration.
                 USER_MANAGED = 2
               end
 
-              # Indicates the current state of the instance config.
+              # Indicates the current state of the instance configuration.
               module State
                 # Not specified.
                 STATE_UNSPECIFIED = 0
 
-                # The instance config is still being created.
+                # The instance configuration is still being created.
                 CREATING = 1
 
-                # The instance config is fully created and ready to be used to create
-                # instances.
+                # The instance configuration is fully created and ready to be used to
+                # create instances.
                 READY = 2
+              end
+
+              # Describes the availability for free instances to be created in an instance
+              # configuration.
+              module FreeInstanceAvailability
+                # Not specified.
+                FREE_INSTANCE_AVAILABILITY_UNSPECIFIED = 0
+
+                # Indicates that free instances are available to be created in this
+                # instance configuration.
+                AVAILABLE = 1
+
+                # Indicates that free instances are not supported in this instance
+                # configuration.
+                UNSUPPORTED = 2
+
+                # Indicates that free instances are currently not available to be created
+                # in this instance configuration.
+                DISABLED = 3
+
+                # Indicates that additional free instances cannot be created in this
+                # instance configuration because the project has reached its limit of free
+                # instances.
+                QUOTA_EXCEEDED = 4
+              end
+
+              # Indicates the quorum type of this instance configuration.
+              module QuorumType
+                # Quorum type not specified.
+                QUORUM_TYPE_UNSPECIFIED = 0
+
+                # An instance configuration tagged with `REGION` quorum type forms a write
+                # quorum in a single region.
+                REGION = 1
+
+                # An instance configuration tagged with the `DUAL_REGION` quorum type forms
+                # a write quorum with exactly two read-write regions in a multi-region
+                # configuration.
+                #
+                # This instance configuration requires failover in the event of
+                # regional failures.
+                DUAL_REGION = 2
+
+                # An instance configuration tagged with the `MULTI_REGION` quorum type
+                # forms a write quorum from replicas that are spread across more than one
+                # region in a multi-region configuration.
+                MULTI_REGION = 3
               end
             end
 
-            # Autoscaling config for an instance.
+            # ReplicaComputeCapacity describes the amount of server resources that are
+            # allocated to each replica identified by the replica selection.
+            # @!attribute [rw] replica_selection
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::ReplicaSelection]
+            #     Required. Identifies replicas by specified properties.
+            #     All replicas in the selection have the same amount of compute capacity.
+            # @!attribute [rw] node_count
+            #   @return [::Integer]
+            #     The number of nodes allocated to each replica.
+            #
+            #     This may be zero in API responses for instances that are not yet in
+            #     state `READY`.
+            #
+            #     Note: The following fields are mutually exclusive: `node_count`, `processing_units`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] processing_units
+            #   @return [::Integer]
+            #     The number of processing units allocated to each replica.
+            #
+            #     This may be zero in API responses for instances that are not yet in
+            #     state `READY`.
+            #
+            #     Note: The following fields are mutually exclusive: `processing_units`, `node_count`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            class ReplicaComputeCapacity
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Autoscaling configuration for an instance.
             # @!attribute [rw] autoscaling_limits
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::AutoscalingConfig::AutoscalingLimits]
             #     Required. Autoscaling limits for an instance.
             # @!attribute [rw] autoscaling_targets
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::AutoscalingConfig::AutoscalingTargets]
             #     Required. The autoscaling targets for an instance.
+            # @!attribute [rw] asymmetric_autoscaling_options
+            #   @return [::Array<::Google::Cloud::Spanner::Admin::Instance::V1::AutoscalingConfig::AsymmetricAutoscalingOption>]
+            #     Optional. Optional asymmetric autoscaling options.
+            #     Replicas matching the replica selection criteria will be autoscaled
+            #     independently from other replicas. The autoscaler will scale the replicas
+            #     based on the utilization of replicas identified by the replica selection.
+            #     Replica selections should not overlap with each other.
+            #
+            #     Other replicas (those do not match any replica selection) will be
+            #     autoscaled together and will have the same compute capacity allocated to
+            #     them.
             class AutoscalingConfig
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -207,19 +312,27 @@ module Google
               #   @return [::Integer]
               #     Minimum number of nodes allocated to the instance. If set, this number
               #     should be greater than or equal to 1.
+              #
+              #     Note: The following fields are mutually exclusive: `min_nodes`, `min_processing_units`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @!attribute [rw] min_processing_units
               #   @return [::Integer]
               #     Minimum number of processing units allocated to the instance. If set,
               #     this number should be multiples of 1000.
+              #
+              #     Note: The following fields are mutually exclusive: `min_processing_units`, `min_nodes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @!attribute [rw] max_nodes
               #   @return [::Integer]
               #     Maximum number of nodes allocated to the instance. If set, this number
               #     should be greater than or equal to min_nodes.
+              #
+              #     Note: The following fields are mutually exclusive: `max_nodes`, `max_processing_units`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @!attribute [rw] max_processing_units
               #   @return [::Integer]
               #     Maximum number of processing units allocated to the instance. If set,
               #     this number should be multiples of 1000 and be greater than or equal to
               #     min_processing_units.
+              #
+              #     Note: The following fields are mutually exclusive: `max_processing_units`, `max_nodes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               class AutoscalingLimits
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -237,10 +350,43 @@ module Google
               #     Required. The target storage utilization percentage that the autoscaler
               #     should be trying to achieve for the instance. This number is on a scale
               #     from 0 (no utilization) to 100 (full utilization). The valid range is
-              #     [10, 100] inclusive.
+              #     [10, 99] inclusive.
               class AutoscalingTargets
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # AsymmetricAutoscalingOption specifies the scaling of replicas identified by
+              # the given selection.
+              # @!attribute [rw] replica_selection
+              #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::ReplicaSelection]
+              #     Required. Selects the replicas to which this AsymmetricAutoscalingOption
+              #     applies. Only read-only replicas are supported.
+              # @!attribute [rw] overrides
+              #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::AutoscalingConfig::AsymmetricAutoscalingOption::AutoscalingConfigOverrides]
+              #     Optional. Overrides applied to the top-level autoscaling configuration
+              #     for the selected replicas.
+              class AsymmetricAutoscalingOption
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+
+                # Overrides the top-level autoscaling configuration for the replicas
+                # identified by `replica_selection`. All fields in this message are
+                # optional. Any unspecified fields will use the corresponding values from
+                # the top-level autoscaling configuration.
+                # @!attribute [rw] autoscaling_limits
+                #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::AutoscalingConfig::AutoscalingLimits]
+                #     Optional. If specified, overrides the min/max limit in the top-level
+                #     autoscaling configuration for the selected replicas.
+                # @!attribute [rw] autoscaling_target_high_priority_cpu_utilization_percent
+                #   @return [::Integer]
+                #     Optional. If specified, overrides the autoscaling target
+                #     high_priority_cpu_utilization_percent in the top-level autoscaling
+                #     configuration for the selected replicas.
+                class AutoscalingConfigOverrides
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
               end
             end
 
@@ -263,32 +409,46 @@ module Google
             #     Must be unique per project and between 4 and 30 characters in length.
             # @!attribute [rw] node_count
             #   @return [::Integer]
-            #     The number of nodes allocated to this instance. At most one of either
-            #     node_count or processing_units should be present in the message.
+            #     The number of nodes allocated to this instance. At most, one of either
+            #     `node_count` or `processing_units` should be present in the message.
             #
-            #     Users can set the node_count field to specify the target number of nodes
+            #     Users can set the `node_count` field to specify the target number of nodes
             #     allocated to the instance.
             #
-            #     This may be zero in API responses for instances that are not yet in state
-            #     `READY`.
+            #     If autoscaling is enabled, `node_count` is treated as an `OUTPUT_ONLY`
+            #     field and reflects the current number of nodes allocated to the instance.
             #
-            #     See [the
-            #     documentation](https://cloud.google.com/spanner/docs/compute-capacity)
-            #     for more information about nodes and processing units.
+            #     This might be zero in API responses for instances that are not yet in the
+            #     `READY` state.
+            #
+            #
+            #     For more information, see
+            #     [Compute capacity, nodes, and processing
+            #     units](https://cloud.google.com/spanner/docs/compute-capacity).
             # @!attribute [rw] processing_units
             #   @return [::Integer]
-            #     The number of processing units allocated to this instance. At most one of
-            #     processing_units or node_count should be present in the message.
+            #     The number of processing units allocated to this instance. At most, one of
+            #     either `processing_units` or `node_count` should be present in the message.
             #
-            #     Users can set the processing_units field to specify the target number of
+            #     Users can set the `processing_units` field to specify the target number of
             #     processing units allocated to the instance.
             #
-            #     This may be zero in API responses for instances that are not yet in state
-            #     `READY`.
+            #     If autoscaling is enabled, `processing_units` is treated as an
+            #     `OUTPUT_ONLY` field and reflects the current number of processing units
+            #     allocated to the instance.
             #
-            #     See [the
-            #     documentation](https://cloud.google.com/spanner/docs/compute-capacity)
-            #     for more information about nodes and processing units.
+            #     This might be zero in API responses for instances that are not yet in the
+            #     `READY` state.
+            #
+            #
+            #     For more information, see
+            #     [Compute capacity, nodes and processing
+            #     units](https://cloud.google.com/spanner/docs/compute-capacity).
+            # @!attribute [r] replica_compute_capacity
+            #   @return [::Array<::Google::Cloud::Spanner::Admin::Instance::V1::ReplicaComputeCapacity>]
+            #     Output only. Lists the compute capacity per ReplicaSelection. A replica
+            #     selection identifies a set of replicas with common properties. Replicas
+            #     identified by a ReplicaSelection are scaled with the same compute capacity.
             # @!attribute [rw] autoscaling_config
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::AutoscalingConfig]
             #     Optional. The autoscaling configuration. Autoscaling is enabled if this
@@ -325,6 +485,9 @@ module Google
             #     specific characters being disallowed.  For example, representing labels
             #     as the string:  name + "_" + value  would prove problematic if we were to
             #     allow "_" in a future release.
+            # @!attribute [rw] instance_type
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::Instance::InstanceType]
+            #     The `InstanceType` of the current instance.
             # @!attribute [rw] endpoint_uris
             #   @return [::Array<::String>]
             #     Deprecated. This field is not populated.
@@ -334,6 +497,24 @@ module Google
             # @!attribute [r] update_time
             #   @return [::Google::Protobuf::Timestamp]
             #     Output only. The time at which the instance was most recently updated.
+            # @!attribute [rw] free_instance_metadata
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::FreeInstanceMetadata]
+            #     Free instance metadata. Only populated for free instances.
+            # @!attribute [rw] edition
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::Instance::Edition]
+            #     Optional. The `Edition` of the current instance.
+            # @!attribute [rw] default_backup_schedule_type
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::Instance::DefaultBackupScheduleType]
+            #     Optional. Controls the default backup schedule behavior for new databases
+            #     within the instance. By default, a backup schedule is created automatically
+            #     when a new database is created in a new instance.
+            #
+            #     Note that the `AUTOMATIC` value isn't permitted for free instances,
+            #     as backups and backup schedules aren't supported for free instances.
+            #
+            #     In the `GetInstance` or `ListInstances` response, if the value of
+            #     `default_backup_schedule_type` isn't set, or set to `NONE`, Spanner doesn't
+            #     create a default backup schedule for new databases in the instance.
             class Instance
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -360,6 +541,59 @@ module Google
                 # The instance is fully created and ready to do work such as
                 # creating databases.
                 READY = 2
+              end
+
+              # The type of this instance. The type can be used to distinguish product
+              # variants, that can affect aspects like: usage restrictions, quotas and
+              # billing. Currently this is used to distinguish FREE_INSTANCE vs PROVISIONED
+              # instances.
+              module InstanceType
+                # Not specified.
+                INSTANCE_TYPE_UNSPECIFIED = 0
+
+                # Provisioned instances have dedicated resources, standard usage limits and
+                # support.
+                PROVISIONED = 1
+
+                # Free instances provide no guarantee for dedicated resources,
+                # [node_count, processing_units] should be 0. They come
+                # with stricter usage limits and limited support.
+                FREE_INSTANCE = 2
+              end
+
+              # The edition selected for this instance. Different editions provide
+              # different capabilities at different price points.
+              module Edition
+                # Edition not specified.
+                EDITION_UNSPECIFIED = 0
+
+                # Standard edition.
+                STANDARD = 1
+
+                # Enterprise edition.
+                ENTERPRISE = 2
+
+                # Enterprise Plus edition.
+                ENTERPRISE_PLUS = 3
+              end
+
+              # Indicates the
+              # [default backup
+              # schedule](https://cloud.google.com/spanner/docs/backup#default-backup-schedules)
+              # behavior for new databases within the instance.
+              module DefaultBackupScheduleType
+                # Not specified.
+                DEFAULT_BACKUP_SCHEDULE_TYPE_UNSPECIFIED = 0
+
+                # A default backup schedule isn't created automatically when a new database
+                # is created in the instance.
+                NONE = 1
+
+                # A default backup schedule is created automatically when a new database
+                # is created in the instance. The default backup schedule creates a full
+                # backup every 24 hours. These full backups are retained for 7 days.
+                # You can edit or delete the default backup schedule once it's created.
+                AUTOMATIC = 2
               end
             end
 
@@ -412,23 +646,23 @@ module Google
             end
 
             # The request for
-            # [CreateInstanceConfigRequest][InstanceAdmin.CreateInstanceConfigRequest].
+            # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#create_instance_config CreateInstanceConfig}.
             # @!attribute [rw] parent
             #   @return [::String]
-            #     Required. The name of the project in which to create the instance config.
-            #     Values are of the form `projects/<project>`.
+            #     Required. The name of the project in which to create the instance
+            #     configuration. Values are of the form `projects/<project>`.
             # @!attribute [rw] instance_config_id
             #   @return [::String]
-            #     Required. The ID of the instance config to create.  Valid identifiers are
-            #     of the form `custom-[-a-z0-9]*[a-z0-9]` and must be between 2 and 64
+            #     Required. The ID of the instance configuration to create. Valid identifiers
+            #     are of the form `custom-[-a-z0-9]*[a-z0-9]` and must be between 2 and 64
             #     characters in length. The `custom-` prefix is required to avoid name
-            #     conflicts with Google managed configurations.
+            #     conflicts with Google-managed configurations.
             # @!attribute [rw] instance_config
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig]
-            #     Required. The InstanceConfig proto of the configuration to create.
-            #     instance_config.name must be
+            #     Required. The `InstanceConfig` proto of the configuration to create.
+            #     `instance_config.name` must be
             #     `<parent>/instanceConfigs/<instance_config_id>`.
-            #     instance_config.base_config must be a Google managed configuration name,
+            #     `instance_config.base_config` must be a Google-managed configuration name,
             #     e.g. <parent>/instanceConfigs/us-east1, <parent>/instanceConfigs/nam3.
             # @!attribute [rw] validate_only
             #   @return [::Boolean]
@@ -440,11 +674,12 @@ module Google
             end
 
             # The request for
-            # [UpdateInstanceConfigRequest][InstanceAdmin.UpdateInstanceConfigRequest].
+            # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#update_instance_config UpdateInstanceConfig}.
             # @!attribute [rw] instance_config
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig]
-            #     Required. The user instance config to update, which must always include the
-            #     instance config name. Otherwise, only fields mentioned in
+            #     Required. The user instance configuration to update, which must always
+            #     include the instance configuration name. Otherwise, only fields mentioned
+            #     in
             #     {::Google::Cloud::Spanner::Admin::Instance::V1::UpdateInstanceConfigRequest#update_mask update_mask}
             #     need be included. To prevent conflicts of concurrent updates,
             #     {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig#reconciling etag} can
@@ -467,7 +702,7 @@ module Google
             end
 
             # The request for
-            # [DeleteInstanceConfigRequest][InstanceAdmin.DeleteInstanceConfigRequest].
+            # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#delete_instance_config DeleteInstanceConfig}.
             # @!attribute [rw] name
             #   @return [::String]
             #     Required. The name of the instance configuration to be deleted.
@@ -476,12 +711,12 @@ module Google
             # @!attribute [rw] etag
             #   @return [::String]
             #     Used for optimistic concurrency control as a way to help prevent
-            #     simultaneous deletes of an instance config from overwriting each
+            #     simultaneous deletes of an instance configuration from overwriting each
             #     other. If not empty, the API
-            #     only deletes the instance config when the etag provided matches the current
-            #     status of the requested instance config. Otherwise, deletes the instance
-            #     config without checking the current status of the requested instance
-            #     config.
+            #     only deletes the instance configuration when the etag provided matches the
+            #     current status of the requested instance configuration. Otherwise, deletes
+            #     the instance configuration without checking the current status of the
+            #     requested instance configuration.
             # @!attribute [rw] validate_only
             #   @return [::Boolean]
             #     An option to validate, but not actually execute, a request,
@@ -495,7 +730,7 @@ module Google
             # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#list_instance_config_operations ListInstanceConfigOperations}.
             # @!attribute [rw] parent
             #   @return [::String]
-            #     Required. The project of the instance config operations.
+            #     Required. The project of the instance configuration operations.
             #     Values are of the form `projects/<project>`.
             # @!attribute [rw] filter
             #   @return [::String]
@@ -507,8 +742,7 @@ module Google
             #     must be one of: `<`, `>`, `<=`, `>=`, `!=`, `=`, or `:`.
             #     Colon `:` is the contains operator. Filter rules are not case sensitive.
             #
-            #     The following fields in the {::Google::Longrunning::Operation Operation}
-            #     are eligible for filtering:
+            #     The following fields in the Operation are eligible for filtering:
             #
             #       * `name` - The name of the long-running operation
             #       * `done` - False if the operation is in progress, else true.
@@ -539,7 +773,7 @@ module Google
             #         `(error:*)` - Return operations where:
             #         * The operation's metadata type is
             #         {::Google::Cloud::Spanner::Admin::Instance::V1::CreateInstanceConfigMetadata CreateInstanceConfigMetadata}.
-            #         * The instance config name contains "custom-config".
+            #         * The instance configuration name contains "custom-config".
             #         * The operation started before 2021-03-28T14:50:00Z.
             #         * The operation resulted in an error.
             # @!attribute [rw] page_size
@@ -562,10 +796,10 @@ module Google
             # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#list_instance_config_operations ListInstanceConfigOperations}.
             # @!attribute [rw] operations
             #   @return [::Array<::Google::Longrunning::Operation>]
-            #     The list of matching instance config [long-running
-            #     operations][google.longrunning.Operation]. Each operation's name will be
-            #     prefixed by the instance config's name. The operation's
-            #     {::Google::Longrunning::Operation#metadata metadata} field type
+            #     The list of matching instance configuration long-running operations. Each
+            #     operation's name will be
+            #     prefixed by the name of the instance configuration. The operation's
+            #     metadata field type
             #     `metadata.type_url` describes the type of the metadata.
             # @!attribute [rw] next_page_token
             #   @return [::String]
@@ -768,11 +1002,47 @@ module Google
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end
 
+            # Free instance specific metadata that is kept even after an instance has been
+            # upgraded for tracking purposes.
+            # @!attribute [r] expire_time
+            #   @return [::Google::Protobuf::Timestamp]
+            #     Output only. Timestamp after which the instance will either be upgraded or
+            #     scheduled for deletion after a grace period. ExpireBehavior is used to
+            #     choose between upgrading or scheduling the free instance for deletion. This
+            #     timestamp is set during the creation of a free instance.
+            # @!attribute [r] upgrade_time
+            #   @return [::Google::Protobuf::Timestamp]
+            #     Output only. If present, the timestamp at which the free instance was
+            #     upgraded to a provisioned instance.
+            # @!attribute [rw] expire_behavior
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::FreeInstanceMetadata::ExpireBehavior]
+            #     Specifies the expiration behavior of a free instance. The default of
+            #     ExpireBehavior is `REMOVE_AFTER_GRACE_PERIOD`. This can be modified during
+            #     or after creation, and before expiration.
+            class FreeInstanceMetadata
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Allows users to change behavior when a free instance expires.
+              module ExpireBehavior
+                # Not specified.
+                EXPIRE_BEHAVIOR_UNSPECIFIED = 0
+
+                # When the free instance expires, upgrade the instance to a provisioned
+                # instance.
+                FREE_TO_PROVISIONED = 1
+
+                # When the free instance expires, disable the instance, and delete it
+                # after the grace period passes if it has not been upgraded.
+                REMOVE_AFTER_GRACE_PERIOD = 2
+              end
+            end
+
             # Metadata type for the operation returned by
             # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#create_instance_config CreateInstanceConfig}.
             # @!attribute [rw] instance_config
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig]
-            #     The target instance config end state.
+            #     The target instance configuration end state.
             # @!attribute [rw] progress
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::OperationProgress]
             #     The progress of the
@@ -790,7 +1060,7 @@ module Google
             # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#update_instance_config UpdateInstanceConfig}.
             # @!attribute [rw] instance_config
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstanceConfig]
-            #     The desired instance config after updating.
+            #     The desired instance configuration after updating.
             # @!attribute [rw] progress
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::OperationProgress]
             #     The progress of the
@@ -828,20 +1098,24 @@ module Google
             #   @return [::Integer]
             #     The number of nodes allocated to this instance partition.
             #
-            #     Users can set the node_count field to specify the target number of nodes
-            #     allocated to the instance partition.
+            #     Users can set the `node_count` field to specify the target number of
+            #     nodes allocated to the instance partition.
             #
             #     This may be zero in API responses for instance partitions that are not
             #     yet in state `READY`.
+            #
+            #     Note: The following fields are mutually exclusive: `node_count`, `processing_units`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] processing_units
             #   @return [::Integer]
             #     The number of processing units allocated to this instance partition.
             #
-            #     Users can set the processing_units field to specify the target number of
-            #     processing units allocated to the instance partition.
+            #     Users can set the `processing_units` field to specify the target number
+            #     of processing units allocated to the instance partition.
             #
-            #     This may be zero in API responses for instance partitions that are not
-            #     yet in state `READY`.
+            #     This might be zero in API responses for instance partitions that are not
+            #     yet in the `READY` state.
+            #
+            #     Note: The following fields are mutually exclusive: `processing_units`, `node_count`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [r] state
             #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::InstancePartition::State]
             #     Output only. The current instance partition state.
@@ -859,7 +1133,9 @@ module Google
             #     The existence of any referencing database prevents the instance partition
             #     from being deleted.
             # @!attribute [r] referencing_backups
+            #   @deprecated This field is deprecated and may be removed in the next major version update.
             #   @return [::Array<::String>]
+            #     Output only. Deprecated: This field is not populated.
             #     Output only. The names of the backups that reference this instance
             #     partition. Referencing backups should share the parent instance. The
             #     existence of any referencing backup prevents the instance partition from
@@ -1020,7 +1296,9 @@ module Google
             # @!attribute [rw] parent
             #   @return [::String]
             #     Required. The instance whose instance partitions should be listed. Values
-            #     are of the form `projects/<project>/instances/<instance>`.
+            #     are of the form `projects/<project>/instances/<instance>`. Use `{instance}
+            #     = '-'` to list instance partitions for all Instances in a project, e.g.,
+            #     `projects/myproject/instances/-`.
             # @!attribute [rw] page_size
             #   @return [::Integer]
             #     Number of instance partitions to be returned in the response. If 0 or less,
@@ -1056,9 +1334,9 @@ module Google
             #     call to fetch more of the matching instance partitions.
             # @!attribute [rw] unreachable
             #   @return [::Array<::String>]
-            #     The list of unreachable instance partitions.
-            #     It includes the names of instance partitions whose metadata could
-            #     not be retrieved within
+            #     The list of unreachable instances or instance partitions.
+            #     It includes the names of instances or instance partitions whose metadata
+            #     could not be retrieved within
             #     {::Google::Cloud::Spanner::Admin::Instance::V1::ListInstancePartitionsRequest#instance_partition_deadline instance_partition_deadline}.
             class ListInstancePartitionsResponse
               include ::Google::Protobuf::MessageExts
@@ -1081,8 +1359,7 @@ module Google
             #     must be one of: `<`, `>`, `<=`, `>=`, `!=`, `=`, or `:`.
             #     Colon `:` is the contains operator. Filter rules are not case sensitive.
             #
-            #     The following fields in the {::Google::Longrunning::Operation Operation}
-            #     are eligible for filtering:
+            #     The following fields in the Operation are eligible for filtering:
             #
             #       * `name` - The name of the long-running operation
             #       * `done` - False if the operation is in progress, else true.
@@ -1132,7 +1409,8 @@ module Google
             #     Optional. Deadline used while retrieving metadata for instance partition
             #     operations. Instance partitions whose operation metadata cannot be
             #     retrieved within this deadline will be added to
-            #     [unreachable][ListInstancePartitionOperationsResponse.unreachable] in
+            #     {::Google::Cloud::Spanner::Admin::Instance::V1::ListInstancePartitionOperationsResponse#unreachable_instance_partitions unreachable_instance_partitions}
+            #     in
             #     {::Google::Cloud::Spanner::Admin::Instance::V1::ListInstancePartitionOperationsResponse ListInstancePartitionOperationsResponse}.
             class ListInstancePartitionOperationsRequest
               include ::Google::Protobuf::MessageExts
@@ -1143,10 +1421,10 @@ module Google
             # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#list_instance_partition_operations ListInstancePartitionOperations}.
             # @!attribute [rw] operations
             #   @return [::Array<::Google::Longrunning::Operation>]
-            #     The list of matching instance partition [long-running
-            #     operations][google.longrunning.Operation]. Each operation's name will be
+            #     The list of matching instance partition long-running operations. Each
+            #     operation's name will be
             #     prefixed by the instance partition's name. The operation's
-            #     {::Google::Longrunning::Operation#metadata metadata} field type
+            #     metadata field type
             #     `metadata.type_url` describes the type of the metadata.
             # @!attribute [rw] next_page_token
             #   @return [::String]
@@ -1160,6 +1438,49 @@ module Google
             #     not be retrieved within
             #     {::Google::Cloud::Spanner::Admin::Instance::V1::ListInstancePartitionOperationsRequest#instance_partition_deadline instance_partition_deadline}.
             class ListInstancePartitionOperationsResponse
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # The request for
+            # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#move_instance MoveInstance}.
+            # @!attribute [rw] name
+            #   @return [::String]
+            #     Required. The instance to move.
+            #     Values are of the form `projects/<project>/instances/<instance>`.
+            # @!attribute [rw] target_config
+            #   @return [::String]
+            #     Required. The target instance configuration where to move the instance.
+            #     Values are of the form `projects/<project>/instanceConfigs/<config>`.
+            class MoveInstanceRequest
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # The response for
+            # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#move_instance MoveInstance}.
+            class MoveInstanceResponse
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Metadata type for the operation returned by
+            # {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#move_instance MoveInstance}.
+            # @!attribute [rw] target_config
+            #   @return [::String]
+            #     The target instance configuration where to move the instance.
+            #     Values are of the form `projects/<project>/instanceConfigs/<config>`.
+            # @!attribute [rw] progress
+            #   @return [::Google::Cloud::Spanner::Admin::Instance::V1::OperationProgress]
+            #     The progress of the
+            #     {::Google::Cloud::Spanner::Admin::Instance::V1::InstanceAdmin::Client#move_instance MoveInstance}
+            #     operation.
+            #     {::Google::Cloud::Spanner::Admin::Instance::V1::OperationProgress#progress_percent progress_percent}
+            #     is reset when cancellation is requested.
+            # @!attribute [rw] cancel_time
+            #   @return [::Google::Protobuf::Timestamp]
+            #     The time at which this operation was cancelled.
+            class MoveInstanceMetadata
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end

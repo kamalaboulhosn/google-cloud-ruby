@@ -38,11 +38,16 @@ module Google
               rpc :CreateDeliveryVehicle, ::Google::Maps::FleetEngine::Delivery::V1::CreateDeliveryVehicleRequest, ::Google::Maps::FleetEngine::Delivery::V1::DeliveryVehicle
               # Returns the specified `DeliveryVehicle` instance.
               rpc :GetDeliveryVehicle, ::Google::Maps::FleetEngine::Delivery::V1::GetDeliveryVehicleRequest, ::Google::Maps::FleetEngine::Delivery::V1::DeliveryVehicle
+              # Deletes a DeliveryVehicle from the Fleet Engine.
+              #
+              # Returns FAILED_PRECONDITION if the DeliveryVehicle has OPEN Tasks
+              # assigned to it.
+              rpc :DeleteDeliveryVehicle, ::Google::Maps::FleetEngine::Delivery::V1::DeleteDeliveryVehicleRequest, ::Google::Protobuf::Empty
               # Writes updated `DeliveryVehicle` data to Fleet Engine, and assigns
               # `Tasks` to the `DeliveryVehicle`. You cannot update the name of the
-              # `DeliveryVehicle`. You *can* update `remaining_vehicle_journey_segments`
-              # though, but it must contain all of the `VehicleJourneySegment`s currently
-              # on the `DeliveryVehicle`. The `task_id`s are retrieved from
+              # `DeliveryVehicle`. You *can* update `remaining_vehicle_journey_segments`,
+              # but it must contain all of the `VehicleJourneySegment`s to be persisted on
+              # the `DeliveryVehicle`. The `task_id`s are retrieved from
               # `remaining_vehicle_journey_segments`, and their corresponding `Tasks` are
               # assigned to the `DeliveryVehicle` if they have not yet been assigned.
               rpc :UpdateDeliveryVehicle, ::Google::Maps::FleetEngine::Delivery::V1::UpdateDeliveryVehicleRequest, ::Google::Maps::FleetEngine::Delivery::V1::DeliveryVehicle
@@ -52,6 +57,11 @@ module Google
               rpc :CreateTask, ::Google::Maps::FleetEngine::Delivery::V1::CreateTaskRequest, ::Google::Maps::FleetEngine::Delivery::V1::Task
               # Gets information about a `Task`.
               rpc :GetTask, ::Google::Maps::FleetEngine::Delivery::V1::GetTaskRequest, ::Google::Maps::FleetEngine::Delivery::V1::Task
+              # Deletes a single Task.
+              #
+              # Returns FAILED_PRECONDITION if the Task is OPEN and assigned to a
+              # DeliveryVehicle.
+              rpc :DeleteTask, ::Google::Maps::FleetEngine::Delivery::V1::DeleteTaskRequest, ::Google::Protobuf::Empty
               # Updates `Task` data.
               rpc :UpdateTask, ::Google::Maps::FleetEngine::Delivery::V1::UpdateTaskRequest, ::Google::Maps::FleetEngine::Delivery::V1::Task
               # Gets all `Task`s that meet the specified filtering criteria.

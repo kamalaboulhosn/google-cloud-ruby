@@ -85,6 +85,12 @@ module Google
         #     second worker pool.
         #
         #     The values are the URIs for each node's interactive shell.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
         class CustomJob
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -252,9 +258,13 @@ module Google
         # @!attribute [rw] container_spec
         #   @return [::Google::Cloud::AIPlatform::V1::ContainerSpec]
         #     The custom container task.
+        #
+        #     Note: The following fields are mutually exclusive: `container_spec`, `python_package_spec`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] python_package_spec
         #   @return [::Google::Cloud::AIPlatform::V1::PythonPackageSpec]
         #     The Python packaged task.
+        #
+        #     Note: The following fields are mutually exclusive: `python_package_spec`, `container_spec`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] machine_spec
         #   @return [::Google::Cloud::AIPlatform::V1::MachineSpec]
         #     Optional. Immutable. The specification of a single machine.
@@ -325,20 +335,54 @@ module Google
         # All parameters related to queuing and scheduling of custom jobs.
         # @!attribute [rw] timeout
         #   @return [::Google::Protobuf::Duration]
-        #     The maximum job running time. The default is 7 days.
+        #     Optional. The maximum job running time. The default is 7 days.
         # @!attribute [rw] restart_job_on_worker_restart
         #   @return [::Boolean]
-        #     Restarts the entire CustomJob if a worker gets restarted.
+        #     Optional. Restarts the entire CustomJob if a worker gets restarted.
         #     This feature can be used by distributed training jobs that are not
         #     resilient to workers leaving and joining a job.
+        # @!attribute [rw] strategy
+        #   @return [::Google::Cloud::AIPlatform::V1::Scheduling::Strategy]
+        #     Optional. This determines which type of scheduling strategy to use.
         # @!attribute [rw] disable_retries
         #   @return [::Boolean]
         #     Optional. Indicates if the job should retry for internal errors after the
         #     job starts running. If true, overrides
         #     `Scheduling.restart_job_on_worker_restart` to false.
+        # @!attribute [rw] max_wait_duration
+        #   @return [::Google::Protobuf::Duration]
+        #     Optional. This is the maximum duration that a job will wait for the
+        #     requested resources to be provisioned if the scheduling strategy is set to
+        #     [Strategy.DWS_FLEX_START].
+        #     If set to 0, the job will wait indefinitely. The default is 24 hours.
         class Scheduling
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Optional. This determines which type of scheduling strategy to use. Right
+          # now users have two options such as STANDARD which will use regular on
+          # demand resources to schedule the job, the other is SPOT which would
+          # leverage spot resources alongwith regular resources to schedule
+          # the job.
+          module Strategy
+            # Strategy will default to STANDARD.
+            STRATEGY_UNSPECIFIED = 0
+
+            # Deprecated. Regular on-demand provisioning strategy.
+            ON_DEMAND = 1
+
+            # Deprecated. Low cost by making potential use of spot resources.
+            LOW_COST = 2
+
+            # Standard provisioning strategy uses regular on-demand resources.
+            STANDARD = 3
+
+            # Spot provisioning strategy uses spot resources.
+            SPOT = 4
+
+            # Flex Start strategy uses DWS to queue for resources.
+            FLEX_START = 6
+          end
         end
       end
     end

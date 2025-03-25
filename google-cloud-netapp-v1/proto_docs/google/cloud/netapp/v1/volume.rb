@@ -73,9 +73,10 @@ module Google
         #     Required. Value for parent.
         # @!attribute [rw] volume_id
         #   @return [::String]
-        #     Required. Id of the requesting volume
-        #     If auto-generating Id server-side, remove this field and
-        #     Id from the method_signature of Create RPC
+        #     Required. Id of the requesting volume. Must be unique within the parent
+        #     resource. Must contain only letters, numbers and hyphen, with the first
+        #     character a letter, the last a letter or a number,
+        #     and a 63 character maximum.
         # @!attribute [rw] volume
         #   @return [::Google::Cloud::NetApp::V1::Volume]
         #     Required. The volume being created.
@@ -232,6 +233,30 @@ module Google
         # @!attribute [rw] restricted_actions
         #   @return [::Array<::Google::Cloud::NetApp::V1::RestrictedAction>]
         #     Optional. List of actions that are restricted on this volume.
+        # @!attribute [rw] large_capacity
+        #   @return [::Boolean]
+        #     Optional. Flag indicating if the volume will be a large capacity volume or
+        #     a regular volume.
+        # @!attribute [rw] multiple_endpoints
+        #   @return [::Boolean]
+        #     Optional. Flag indicating if the volume will have an IP address per node
+        #     for volumes supporting multiple IP endpoints. Only the volume with
+        #     large_capacity will be allowed to have multiple endpoints.
+        # @!attribute [rw] tiering_policy
+        #   @return [::Google::Cloud::NetApp::V1::TieringPolicy]
+        #     Tiering policy for the volume.
+        # @!attribute [r] replica_zone
+        #   @return [::String]
+        #     Output only. Specifies the replica zone for regional volume.
+        # @!attribute [r] zone
+        #   @return [::String]
+        #     Output only. Specifies the active zone for regional volume.
+        # @!attribute [r] cold_tier_size_gib
+        #   @return [::Integer]
+        #     Output only. Size of the volume cold tier data in GiB.
+        # @!attribute [rw] hybrid_replication_parameters
+        #   @return [::Google::Cloud::NetApp::V1::HybridReplicationParameters]
+        #     Optional. The Hybrid Replication parameters for the volume.
         class Volume
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -270,6 +295,14 @@ module Google
 
             # Volume State is Error
             ERROR = 7
+
+            # Volume State is Preparing. Note that this is different from CREATING
+            # where CREATING means the volume is being created, while PREPARING means
+            # the volume is created and now being prepared for the replication.
+            PREPARING = 8
+
+            # Volume State is Read Only
+            READ_ONLY = 9
           end
         end
 
@@ -441,6 +474,9 @@ module Google
         # @!attribute [rw] instructions
         #   @return [::String]
         #     Instructions for mounting
+        # @!attribute [r] ip_address
+        #   @return [::String]
+        #     Output only. IP Address.
         class MountOption
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -452,11 +488,15 @@ module Google
         #     Full name of the snapshot resource.
         #     Format:
         #     projects/\\{project}/locations/\\{location}/volumes/\\{volume}/snapshots/\\{snapshot}
+        #
+        #     Note: The following fields are mutually exclusive: `source_snapshot`, `source_backup`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] source_backup
         #   @return [::String]
         #     Full name of the backup resource.
         #     Format:
         #     projects/\\{project}/locations/\\{location}/backupVaults/\\{backup_vault_id}/backups/\\{backup_id}
+        #
+        #     Note: The following fields are mutually exclusive: `source_backup`, `source_snapshot`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class RestoreParameters
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -476,9 +516,83 @@ module Google
         #   @return [::Boolean]
         #     Optional. When set to true, scheduled backup is enabled on the volume.
         #     This field should be nil when there's no backup policy attached.
+        # @!attribute [r] backup_chain_bytes
+        #   @return [::Integer]
+        #     Output only. Total size of all backups in a chain in bytes = baseline
+        #     backup size + sum(incremental backup size).
         class BackupConfig
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Defines tiering policy for the volume.
+        # @!attribute [rw] tier_action
+        #   @return [::Google::Cloud::NetApp::V1::TieringPolicy::TierAction]
+        #     Optional. Flag indicating if the volume has tiering policy enable/pause.
+        #     Default is PAUSED.
+        # @!attribute [rw] cooling_threshold_days
+        #   @return [::Integer]
+        #     Optional. Time in days to mark the volume's data block as cold and make it
+        #     eligible for tiering, can be range from 7-183. Default is 31.
+        class TieringPolicy
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Tier action for the volume.
+          module TierAction
+            # Unspecified.
+            TIER_ACTION_UNSPECIFIED = 0
+
+            # When tiering is enabled, new cold data will be tiered.
+            ENABLED = 1
+
+            # When paused, tiering won't be performed on new data. Existing data stays
+            # tiered until accessed.
+            PAUSED = 2
+          end
+        end
+
+        # The Hybrid Replication parameters for the volume.
+        # @!attribute [rw] replication
+        #   @return [::String]
+        #     Required. Desired name for the replication of this volume.
+        # @!attribute [rw] peer_volume_name
+        #   @return [::String]
+        #     Required. Name of the user's local source volume to be peered with the
+        #     destination volume.
+        # @!attribute [rw] peer_cluster_name
+        #   @return [::String]
+        #     Required. Name of the user's local source cluster to be peered with the
+        #     destination cluster.
+        # @!attribute [rw] peer_svm_name
+        #   @return [::String]
+        #     Required. Name of the user's local source vserver svm to be peered with the
+        #     destination vserver svm.
+        # @!attribute [rw] peer_ip_addresses
+        #   @return [::Array<::String>]
+        #     Required. List of node ip addresses to be peered with.
+        # @!attribute [rw] cluster_location
+        #   @return [::String]
+        #     Optional. Name of source cluster location associated with the Hybrid
+        #     replication. This is a free-form field for the display purpose only.
+        # @!attribute [rw] description
+        #   @return [::String]
+        #     Optional. Description of the replication.
+        # @!attribute [rw] labels
+        #   @return [::Google::Protobuf::Map{::String => ::String}]
+        #     Optional. Labels to be added to the replication as the key value pairs.
+        class HybridReplicationParameters
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # @!attribute [rw] key
+          #   @return [::String]
+          # @!attribute [rw] value
+          #   @return [::String]
+          class LabelsEntry
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
         end
 
         # Protocols is an enum of all the supported network protocols for a volume.

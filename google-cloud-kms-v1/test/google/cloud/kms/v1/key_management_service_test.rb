@@ -41,9 +41,10 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::ClientTest < Minitest::Tes
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::ClientTest < Minitest::Tes
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -526,11 +535,13 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::ClientTest < Minitest::Tes
 
     # Create request parameters for a unary method.
     name = "hello world"
+    public_key_format = :PUBLIC_KEY_FORMAT_UNSPECIFIED
 
     get_public_key_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :get_public_key, name
       assert_kind_of ::Google::Cloud::Kms::V1::GetPublicKeyRequest, request
       assert_equal "hello world", request["name"]
+      assert_equal :PUBLIC_KEY_FORMAT_UNSPECIFIED, request["public_key_format"]
       refute_nil options
     end
 
@@ -541,31 +552,31 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::ClientTest < Minitest::Tes
       end
 
       # Use hash object
-      client.get_public_key({ name: name }) do |response, operation|
+      client.get_public_key({ name: name, public_key_format: public_key_format }) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.get_public_key name: name do |response, operation|
+      client.get_public_key name: name, public_key_format: public_key_format do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.get_public_key ::Google::Cloud::Kms::V1::GetPublicKeyRequest.new(name: name) do |response, operation|
+      client.get_public_key ::Google::Cloud::Kms::V1::GetPublicKeyRequest.new(name: name, public_key_format: public_key_format) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.get_public_key({ name: name }, grpc_options) do |response, operation|
+      client.get_public_key({ name: name, public_key_format: public_key_format }, grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.get_public_key(::Google::Cloud::Kms::V1::GetPublicKeyRequest.new(name: name), grpc_options) do |response, operation|
+      client.get_public_key(::Google::Cloud::Kms::V1::GetPublicKeyRequest.new(name: name, public_key_format: public_key_format), grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end

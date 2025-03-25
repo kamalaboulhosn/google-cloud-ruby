@@ -49,6 +49,10 @@ module Google
         #   @return [::String]
         #     Immutable. The topology of the TPUs. Corresponds to the TPU topologies
         #     available from GKE. (Example: tpu_topology: "2x2x1").
+        # @!attribute [rw] reservation_affinity
+        #   @return [::Google::Cloud::AIPlatform::V1::ReservationAffinity]
+        #     Optional. Immutable. Configuration controlling how this resource pool
+        #     consumes reservation.
         class MachineSpec
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -85,6 +89,14 @@ module Google
         #     quotas. Specifically, you will be charged for (max_replica_count *
         #     number of cores in the selected machine type) and (max_replica_count *
         #     number of GPUs per replica in the selected machine type).
+        # @!attribute [rw] required_replica_count
+        #   @return [::Integer]
+        #     Optional. Number of required available replicas for the deployment to
+        #     succeed. This field is only needed when partial model deployment/mutation
+        #     is desired. If set, the model deploy/mutate operation will succeed once
+        #     available_replica_count reaches required_replica_count, and the rest of
+        #     the replicas will be retried. If not set, the default
+        #     required_replica_count will be min_replica_count.
         # @!attribute [rw] autoscaling_metric_specs
         #   @return [::Array<::Google::Cloud::AIPlatform::V1::AutoscalingMetricSpec>]
         #     Immutable. The metric specifications that overrides a resource
@@ -110,6 +122,10 @@ module Google
         #     to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and
         #     {::Google::Cloud::AIPlatform::V1::AutoscalingMetricSpec#target autoscaling_metric_specs.target}
         #     to `80`.
+        # @!attribute [rw] spot
+        #   @return [::Boolean]
+        #     Optional. If true, schedule the deployment workload on [spot
+        #     VMs](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms).
         class DedicatedResources
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

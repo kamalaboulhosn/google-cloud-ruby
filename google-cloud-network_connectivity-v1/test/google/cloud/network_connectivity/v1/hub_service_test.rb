@@ -41,9 +41,10 @@ class ::Google::Cloud::NetworkConnectivity::V1::HubService::ClientTest < Minites
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::NetworkConnectivity::V1::HubService::ClientTest < Minites
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -460,6 +469,79 @@ class ::Google::Cloud::NetworkConnectivity::V1::HubService::ClientTest < Minites
     end
   end
 
+  def test_query_hub_status
+    # Create GRPC objects.
+    grpc_response = ::Google::Cloud::NetworkConnectivity::V1::QueryHubStatusResponse.new
+    grpc_operation = GRPC::ActiveCall::Operation.new nil
+    grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    grpc_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    page_size = 42
+    page_token = "hello world"
+    filter = "hello world"
+    order_by = "hello world"
+    group_by = "hello world"
+
+    query_hub_status_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
+      assert_equal :query_hub_status, name
+      assert_kind_of ::Google::Cloud::NetworkConnectivity::V1::QueryHubStatusRequest, request
+      assert_equal "hello world", request["name"]
+      assert_equal 42, request["page_size"]
+      assert_equal "hello world", request["page_token"]
+      assert_equal "hello world", request["filter"]
+      assert_equal "hello world", request["order_by"]
+      assert_equal "hello world", request["group_by"]
+      refute_nil options
+    end
+
+    Gapic::ServiceStub.stub :new, query_hub_status_client_stub do
+      # Create client
+      client = ::Google::Cloud::NetworkConnectivity::V1::HubService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      # Use hash object
+      client.query_hub_status({ name: name, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by, group_by: group_by }) do |response, operation|
+        assert_kind_of Gapic::PagedEnumerable, response
+        assert_equal grpc_response, response.response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use named arguments
+      client.query_hub_status name: name, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by, group_by: group_by do |response, operation|
+        assert_kind_of Gapic::PagedEnumerable, response
+        assert_equal grpc_response, response.response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object
+      client.query_hub_status ::Google::Cloud::NetworkConnectivity::V1::QueryHubStatusRequest.new(name: name, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by, group_by: group_by) do |response, operation|
+        assert_kind_of Gapic::PagedEnumerable, response
+        assert_equal grpc_response, response.response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use hash object with options
+      client.query_hub_status({ name: name, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by, group_by: group_by }, grpc_options) do |response, operation|
+        assert_kind_of Gapic::PagedEnumerable, response
+        assert_equal grpc_response, response.response
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object with options
+      client.query_hub_status(::Google::Cloud::NetworkConnectivity::V1::QueryHubStatusRequest.new(name: name, page_size: page_size, page_token: page_token, filter: filter, order_by: order_by, group_by: group_by), grpc_options) do |response, operation|
+        assert_kind_of Gapic::PagedEnumerable, response
+        assert_equal grpc_response, response.response
+        assert_equal grpc_operation, operation
+      end
+
+      # Verify method calls
+      assert_equal 5, query_hub_status_client_stub.call_rpc_count
+    end
+  end
+
   def test_list_spokes
     # Create GRPC objects.
     grpc_response = ::Google::Cloud::NetworkConnectivity::V1::ListSpokesResponse.new
@@ -858,6 +940,146 @@ class ::Google::Cloud::NetworkConnectivity::V1::HubService::ClientTest < Minites
 
       # Verify method calls
       assert_equal 5, accept_hub_spoke_client_stub.call_rpc_count
+    end
+  end
+
+  def test_accept_spoke_update
+    # Create GRPC objects.
+    grpc_response = ::Google::Longrunning::Operation.new
+    grpc_operation = GRPC::ActiveCall::Operation.new nil
+    grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    grpc_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    spoke_uri = "hello world"
+    spoke_etag = "hello world"
+    request_id = "hello world"
+
+    accept_spoke_update_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
+      assert_equal :accept_spoke_update, name
+      assert_kind_of ::Google::Cloud::NetworkConnectivity::V1::AcceptSpokeUpdateRequest, request
+      assert_equal "hello world", request["name"]
+      assert_equal "hello world", request["spoke_uri"]
+      assert_equal "hello world", request["spoke_etag"]
+      assert_equal "hello world", request["request_id"]
+      refute_nil options
+    end
+
+    Gapic::ServiceStub.stub :new, accept_spoke_update_client_stub do
+      # Create client
+      client = ::Google::Cloud::NetworkConnectivity::V1::HubService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      # Use hash object
+      client.accept_spoke_update({ name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, request_id: request_id }) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use named arguments
+      client.accept_spoke_update name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, request_id: request_id do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object
+      client.accept_spoke_update ::Google::Cloud::NetworkConnectivity::V1::AcceptSpokeUpdateRequest.new(name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, request_id: request_id) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use hash object with options
+      client.accept_spoke_update({ name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, request_id: request_id }, grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object with options
+      client.accept_spoke_update(::Google::Cloud::NetworkConnectivity::V1::AcceptSpokeUpdateRequest.new(name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, request_id: request_id), grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Verify method calls
+      assert_equal 5, accept_spoke_update_client_stub.call_rpc_count
+    end
+  end
+
+  def test_reject_spoke_update
+    # Create GRPC objects.
+    grpc_response = ::Google::Longrunning::Operation.new
+    grpc_operation = GRPC::ActiveCall::Operation.new nil
+    grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    grpc_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    spoke_uri = "hello world"
+    spoke_etag = "hello world"
+    details = "hello world"
+    request_id = "hello world"
+
+    reject_spoke_update_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
+      assert_equal :reject_spoke_update, name
+      assert_kind_of ::Google::Cloud::NetworkConnectivity::V1::RejectSpokeUpdateRequest, request
+      assert_equal "hello world", request["name"]
+      assert_equal "hello world", request["spoke_uri"]
+      assert_equal "hello world", request["spoke_etag"]
+      assert_equal "hello world", request["details"]
+      assert_equal "hello world", request["request_id"]
+      refute_nil options
+    end
+
+    Gapic::ServiceStub.stub :new, reject_spoke_update_client_stub do
+      # Create client
+      client = ::Google::Cloud::NetworkConnectivity::V1::HubService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      # Use hash object
+      client.reject_spoke_update({ name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, details: details, request_id: request_id }) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use named arguments
+      client.reject_spoke_update name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, details: details, request_id: request_id do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object
+      client.reject_spoke_update ::Google::Cloud::NetworkConnectivity::V1::RejectSpokeUpdateRequest.new(name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, details: details, request_id: request_id) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use hash object with options
+      client.reject_spoke_update({ name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, details: details, request_id: request_id }, grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object with options
+      client.reject_spoke_update(::Google::Cloud::NetworkConnectivity::V1::RejectSpokeUpdateRequest.new(name: name, spoke_uri: spoke_uri, spoke_etag: spoke_etag, details: details, request_id: request_id), grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Verify method calls
+      assert_equal 5, reject_spoke_update_client_stub.call_rpc_count
     end
   end
 
@@ -1310,6 +1532,73 @@ class ::Google::Cloud::NetworkConnectivity::V1::HubService::ClientTest < Minites
 
       # Verify method calls
       assert_equal 5, list_groups_client_stub.call_rpc_count
+    end
+  end
+
+  def test_update_group
+    # Create GRPC objects.
+    grpc_response = ::Google::Longrunning::Operation.new
+    grpc_operation = GRPC::ActiveCall::Operation.new nil
+    grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    grpc_options = {}
+
+    # Create request parameters for a unary method.
+    update_mask = {}
+    group = {}
+    request_id = "hello world"
+
+    update_group_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
+      assert_equal :update_group, name
+      assert_kind_of ::Google::Cloud::NetworkConnectivity::V1::UpdateGroupRequest, request
+      assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Protobuf::FieldMask), request["update_mask"]
+      assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Cloud::NetworkConnectivity::V1::Group), request["group"]
+      assert_equal "hello world", request["request_id"]
+      refute_nil options
+    end
+
+    Gapic::ServiceStub.stub :new, update_group_client_stub do
+      # Create client
+      client = ::Google::Cloud::NetworkConnectivity::V1::HubService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      # Use hash object
+      client.update_group({ update_mask: update_mask, group: group, request_id: request_id }) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use named arguments
+      client.update_group update_mask: update_mask, group: group, request_id: request_id do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object
+      client.update_group ::Google::Cloud::NetworkConnectivity::V1::UpdateGroupRequest.new(update_mask: update_mask, group: group, request_id: request_id) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use hash object with options
+      client.update_group({ update_mask: update_mask, group: group, request_id: request_id }, grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object with options
+      client.update_group(::Google::Cloud::NetworkConnectivity::V1::UpdateGroupRequest.new(update_mask: update_mask, group: group, request_id: request_id), grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Verify method calls
+      assert_equal 5, update_group_client_stub.call_rpc_count
     end
   end
 

@@ -172,14 +172,26 @@ module Google
                   universe_domain: @config.universe_domain,
                   channel_args: @config.channel_args,
                   interceptors: @config.interceptors,
-                  channel_pool_config: @config.channel_pool
+                  channel_pool_config: @config.channel_pool,
+                  logger: @config.logger
                 )
+
+                @test_cases_stub.stub_logger&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @test_cases_stub.endpoint
                   config.universe_domain = @test_cases_stub.universe_domain
+                  config.logger = @test_cases_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -196,6 +208,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @test_cases_stub.logger
+              end
 
               # Service calls
 
@@ -219,7 +240,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The agent to list all pages for.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param page_size [::Integer]
               #     The maximum number of items to return in a single page. By default 20.
               #     Note that when TestCaseView = FULL, the maximum page size allowed is 20.
@@ -293,7 +314,7 @@ module Google
                 @test_cases_stub.call_rpc :list_test_cases, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @test_cases_stub, :list_test_cases, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -319,10 +340,10 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The agent to delete test cases from.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param names [::Array<::String>]
-              #     Required. Format of test case names: `projects/<Project ID>/locations/
-              #     <Location ID>/agents/<AgentID>/testCases/<TestCase ID>`.
+              #     Required. Format of test case names:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Google::Protobuf::Empty]
@@ -383,7 +404,6 @@ module Google
 
                 @test_cases_stub.call_rpc :batch_delete_test_cases, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -409,8 +429,8 @@ module Google
               #
               #   @param name [::String]
               #     Required. The name of the testcase.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/testCases/<TestCase ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Google::Cloud::Dialogflow::CX::V3::TestCase]
@@ -471,7 +491,6 @@ module Google
 
                 @test_cases_stub.call_rpc :get_test_case, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -497,7 +516,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The agent to create the test case for.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param test_case [::Google::Cloud::Dialogflow::CX::V3::TestCase, ::Hash]
               #     Required. The test case to create.
               #
@@ -560,7 +579,6 @@ module Google
 
                 @test_cases_stub.call_rpc :create_test_case, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -651,7 +669,6 @@ module Google
 
                 @test_cases_stub.call_rpc :update_test_case, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -685,12 +702,12 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
-              #     Required. Format of test case name to run: `projects/<Project
-              #     ID>/locations/ <Location ID>/agents/<AgentID>/testCases/<TestCase ID>`.
+              #     Required. Format of test case name to run:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
               #   @param environment [::String]
               #     Optional. Environment name. If not set, draft environment is assumed.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/environments/<Environment ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>`.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Gapic::Operation]
@@ -759,7 +776,7 @@ module Google
                 @test_cases_stub.call_rpc :run_test_case, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -793,15 +810,14 @@ module Google
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param parent [::String]
-              #     Required. Agent name. Format: `projects/<Project ID>/locations/<Location
-              #     ID>/agents/ <AgentID>`.
+              #     Required. Agent name. Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param environment [::String]
               #     Optional. If not set, draft environment is assumed. Format:
-              #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/environments/<Environment ID>`.
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>`.
               #   @param test_cases [::Array<::String>]
-              #     Required. Format: `projects/<Project ID>/locations/<Location
-              #     ID>/agents/<Agent ID>/testCases/<TestCase ID>`.
+              #     Required. Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Gapic::Operation]
@@ -870,7 +886,7 @@ module Google
                 @test_cases_stub.call_rpc :batch_run_test_cases, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -896,7 +912,7 @@ module Google
               #
               #   @param agent [::String]
               #     Required. The agent to calculate coverage for.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param type [::Google::Cloud::Dialogflow::CX::V3::CalculateCoverageRequest::CoverageType]
               #     Required. The type of coverage requested.
               #
@@ -959,7 +975,6 @@ module Google
 
                 @test_cases_stub.call_rpc :calculate_coverage, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -996,7 +1011,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The agent to import test cases to.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param gcs_uri [::String]
               #     The [Google Cloud Storage](https://cloud.google.com/storage/docs/) URI
               #     to import test cases from. The format of this URI must be
@@ -1007,8 +1022,12 @@ module Google
               #     have read permissions for the object. For more information, see
               #     [Dialogflow access
               #     control](https://cloud.google.com/dialogflow/cx/docs/concept/access-control#storage).
+              #
+              #     Note: The following fields are mutually exclusive: `gcs_uri`, `content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param content [::String]
               #     Uncompressed raw byte content for test cases.
+              #
+              #     Note: The following fields are mutually exclusive: `content`, `gcs_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Gapic::Operation]
@@ -1077,7 +1096,7 @@ module Google
                 @test_cases_stub.call_rpc :import_test_cases, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1113,7 +1132,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The agent where to export test cases from.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+              #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
               #   @param gcs_uri [::String]
               #     The [Google Cloud Storage](https://cloud.google.com/storage/docs/) URI to
               #     export the test cases to. The format of this URI must be
@@ -1207,7 +1226,7 @@ module Google
                 @test_cases_stub.call_rpc :export_test_cases, request, options: options do |response, operation|
                   response = ::Gapic::Operation.new response, @operations_client, options: options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1234,9 +1253,10 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The test case to list results for.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/
-              #     testCases/<TestCase ID>`. Specify a `-` as a wildcard for TestCase ID to
-              #     list results across multiple test cases.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>`.
+              #     Specify a `-` as a wildcard for TestCase ID to
+              #      list results across multiple test cases.
               #   @param page_size [::Integer]
               #     The maximum number of items to return in a single page. By default 100 and
               #     at most 1000.
@@ -1332,7 +1352,7 @@ module Google
                 @test_cases_stub.call_rpc :list_test_case_results, request, options: options do |response, operation|
                   response = ::Gapic::PagedEnumerable.new @test_cases_stub, :list_test_case_results, request, response, operation, options
                   yield response, operation if block_given?
-                  return response
+                  throw :response, response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1358,8 +1378,8 @@ module Google
               #
               #   @param name [::String]
               #     Required. The name of the testcase.
-              #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-              #     ID>/testCases/<TestCase ID>/results/<TestCaseResult ID>`.
+              #     Format:
+              #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/testCases/<TestCaseID>/results/<TestCaseResultID>`.
               #
               # @yield [response, operation] Access the result along with the RPC operation
               # @yieldparam response [::Google::Cloud::Dialogflow::CX::V3::TestCaseResult]
@@ -1420,7 +1440,6 @@ module Google
 
                 @test_cases_stub.call_rpc :get_test_case_result, request, options: options do |response, operation|
                   yield response, operation if block_given?
-                  return response
                 end
               rescue ::GRPC::BadStatus => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1470,6 +1489,13 @@ module Google
               #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
               #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1509,6 +1535,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1533,6 +1564,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

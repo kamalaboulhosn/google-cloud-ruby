@@ -1,5 +1,58 @@
 # Release History
 
+### 2.19.1 (2025-03-20)
+
+#### Bug Fixes
+
+* Corrected the type of ManagedInstanceLastAttempt#errors ([#29385](https://github.com/googleapis/google-cloud-ruby/issues/29385)) 
+
+### 2.19.0 (2025-03-14)
+
+#### Features
+
+* Update the API to revision 20250302, including the report_host_as_faulty call ([#29350](https://github.com/googleapis/google-cloud-ruby/issues/29350)) 
+
+### 2.18.0 (2025-02-25)
+
+#### Features
+
+* Updated Compute Engine API to revision 20250211 ([#29167](https://github.com/googleapis/google-cloud-ruby/issues/29167)) 
+
+### 2.17.0 (2025-01-31)
+
+#### Features
+
+* Update Compute Engine API to revision 20250119 ([#28793](https://github.com/googleapis/google-cloud-ruby/issues/28793)) 
+
+### 2.16.0 (2025-01-28)
+
+#### Features
+
+* Support aggregated_list RPC in the NetworkFirewallPolicies service ([#28253](https://github.com/googleapis/google-cloud-ruby/issues/28253)) 
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Include note about validating externally-provided credentials 
+
+### 2.15.0 (2024-12-11)
+
+#### Features
+
+* Provided opt-in debug logging 
+* Updated Compute Engine API to revision 20241201 
+
+### 2.14.0 (2024-12-04)
+
+#### Features
+
+* Update Compute Engine API to revision 20241105 [#27613](https://github.com/googleapis/google-cloud-ruby/issues/27613) 
+
+### 2.13.0 (2024-11-14)
+
+#### Features
+
+* Update Compute Engine API to revision 20241105 ([#954](https://github.com/googleapis/google-cloud-ruby/issues/954)) ([#27609](https://github.com/googleapis/google-cloud-ruby/issues/27609)) 
+
 ### 2.12.0 (2024-05-16)
 
 #### Features

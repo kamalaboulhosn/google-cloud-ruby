@@ -1,5 +1,66 @@
 # Changelog
 
+### 1.3.2 (2025-03-13)
+
+#### Documentation
+
+* Minor documentation improvements ([#29333](https://github.com/googleapis/google-cloud-ruby/issues/29333)) 
+
+### 1.3.1 (2025-03-10)
+
+#### Documentation
+
+* Minor documentation improvements ([#29292](https://github.com/googleapis/google-cloud-ruby/issues/29292)) 
+
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-11-07)
+
+#### Features
+
+* Add AdvancedCompleteQuery API 
+* Add BillingEstimation in data store 
+* Add GroundedGenerationService API ([#27537](https://github.com/googleapis/google-cloud-ruby/issues/27537)) 
+* Add lite search API to allow public website search with API key 
+* Add one_box_page_size on search 
+* Add Sitemap APIs to preview channel 
+* Support advanced boost search 
+* Support Google Workspace search 
+* Support natural language understanding search 
+* support query regex in control match rules 
+* Support search personalization to preview channel 
+#### Documentation
+
+* deprecate asynchronous mode in answer generation 
+* deprecate extractive_answers in answer generation 
+* keep the API doc up-to-date with recent changes 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.9.0 (2024-02-26)
 
 #### Features

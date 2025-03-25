@@ -31,6 +31,14 @@ class ::Google::Cloud::Bigquery::Reservation::V1::ReservationService::ClientPath
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_assignment_path

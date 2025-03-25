@@ -244,8 +244,28 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @cluster_manager_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @cluster_manager_stub.logger
             end
 
             # Service calls
@@ -342,7 +362,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :list_clusters, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -441,7 +460,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :get_cluster, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -553,7 +571,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :create_cluster, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -654,7 +671,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :update_cluster, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -673,7 +689,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload update_node_pool(project_id: nil, zone: nil, cluster_id: nil, node_pool_id: nil, node_version: nil, image_type: nil, name: nil, locations: nil, workload_metadata_config: nil, upgrade_settings: nil, tags: nil, taints: nil, labels: nil, linux_node_config: nil, kubelet_config: nil, node_network_config: nil, gcfs_config: nil, confidential_nodes: nil, gvnic: nil, etag: nil, fast_socket: nil, logging_config: nil, resource_labels: nil, windows_node_config: nil, machine_type: nil, disk_type: nil, disk_size_gb: nil, resource_manager_tags: nil, queued_provisioning: nil)
+            # @overload update_node_pool(project_id: nil, zone: nil, cluster_id: nil, node_pool_id: nil, node_version: nil, image_type: nil, name: nil, locations: nil, workload_metadata_config: nil, upgrade_settings: nil, tags: nil, taints: nil, labels: nil, linux_node_config: nil, kubelet_config: nil, node_network_config: nil, gcfs_config: nil, confidential_nodes: nil, gvnic: nil, etag: nil, fast_socket: nil, logging_config: nil, resource_labels: nil, windows_node_config: nil, accelerators: nil, machine_type: nil, disk_type: nil, disk_size_gb: nil, resource_manager_tags: nil, containerd_config: nil, queued_provisioning: nil, storage_pools: nil)
             #   Pass arguments to `update_node_pool` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -761,6 +777,10 @@ module Google
             #     Google Compute Engine resources.
             #   @param windows_node_config [::Google::Cloud::Container::V1::WindowsNodeConfig, ::Hash]
             #     Parameters that can be configured on Windows nodes.
+            #   @param accelerators [::Array<::Google::Cloud::Container::V1::AcceleratorConfig, ::Hash>]
+            #     A list of hardware accelerators to be attached to each node.
+            #     See https://cloud.google.com/compute/docs/gpus for more information about
+            #     support for GPUs.
             #   @param machine_type [::String]
             #     Optional. The desired [Google Compute Engine machine
             #     type](https://cloud.google.com/compute/docs/machine-types) for nodes in the
@@ -780,8 +800,15 @@ module Google
             #     Desired resource manager tag keys and values to be attached to the nodes
             #     for managing Compute Engine firewalls using Network Firewall Policies.
             #     Existing tags will be replaced with new values.
+            #   @param containerd_config [::Google::Cloud::Container::V1::ContainerdConfig, ::Hash]
+            #     The desired containerd config for nodes in the node pool.
+            #     Initiates an upgrade operation that recreates the nodes with the new
+            #     config.
             #   @param queued_provisioning [::Google::Cloud::Container::V1::NodePool::QueuedProvisioning, ::Hash]
             #     Specifies the configuration of queued provisioning.
+            #   @param storage_pools [::Array<::String>]
+            #     List of Storage Pools where boot disks are provisioned.
+            #     Existing Storage Pools will be replaced with storage-pools.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Container::V1::Operation]
@@ -842,7 +869,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :update_node_pool, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -947,7 +973,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_node_pool_autoscaling, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1058,7 +1083,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_logging_service, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1169,7 +1193,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_monitoring_service, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1271,7 +1294,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_addons_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1383,7 +1405,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_locations, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1493,7 +1514,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :update_master, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1598,7 +1618,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_master_auth, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1705,7 +1724,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :delete_cluster, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1802,7 +1820,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :list_operations, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1901,7 +1918,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :get_operation, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2000,7 +2016,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :cancel_operation, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2096,7 +2111,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :get_server_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2184,7 +2198,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :get_json_web_keys, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2283,7 +2296,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :list_node_pools, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2386,7 +2398,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :get_node_pool, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2488,7 +2499,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :create_node_pool, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2591,7 +2601,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :delete_node_pool, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2680,7 +2689,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :complete_node_pool_upgrade, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2787,7 +2795,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :rollback_node_pool_upgrade, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2892,7 +2899,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_node_pool_management, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3000,7 +3006,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_labels, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3101,7 +3106,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_legacy_abac, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3202,7 +3206,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :start_ip_rotation, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3301,7 +3304,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :complete_ip_rotation, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3408,7 +3410,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_node_pool_size, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3509,7 +3510,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_network_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3609,7 +3609,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :set_maintenance_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3714,7 +3713,7 @@ module Google
               @cluster_manager_stub.call_rpc :list_usable_subnetworks, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @cluster_manager_stub, :list_usable_subnetworks, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3802,7 +3801,6 @@ module Google
 
               @cluster_manager_stub.call_rpc :check_autopilot_compatibility, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3852,6 +3850,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -3891,6 +3896,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -3915,6 +3925,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

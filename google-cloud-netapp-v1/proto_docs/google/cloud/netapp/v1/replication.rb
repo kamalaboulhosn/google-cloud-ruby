@@ -24,10 +24,11 @@ module Google
         # TransferStats reports all statistics related to replication transfer.
         # @!attribute [rw] transfer_bytes
         #   @return [::Integer]
-        #     bytes trasferred so far in current transfer.
+        #     Cumulative bytes trasferred so far for the replication relatinonship.
         # @!attribute [rw] total_transfer_duration
         #   @return [::Google::Protobuf::Duration]
-        #     Total time taken during transfer.
+        #     Cumulative time taken across all transfers for the replication
+        #     relationship.
         # @!attribute [rw] last_transfer_bytes
         #   @return [::Integer]
         #     Last transfer size in bytes.
@@ -105,6 +106,15 @@ module Google
         #   @return [::String]
         #     Output only. Full name of source volume resource.
         #     Example : "projects/\\{project}/locations/\\{location}/volumes/\\{volume_id}"
+        # @!attribute [r] hybrid_peering_details
+        #   @return [::Google::Cloud::NetApp::V1::HybridPeeringDetails]
+        #     Output only. Hybrid peering details.
+        # @!attribute [rw] cluster_location
+        #   @return [::String]
+        #     Optional. Location of the user cluster.
+        # @!attribute [r] hybrid_replication_type
+        #   @return [::Google::Cloud::NetApp::V1::Replication::HybridReplicationType]
+        #     Output only. Type of the hybrid replication.
         class Replication
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -138,6 +148,12 @@ module Google
 
             # Replication is in error state.
             ERROR = 6
+
+            # Replication is waiting for cluster peering to be established.
+            PENDING_CLUSTER_PEERING = 8
+
+            # Replication is waiting for SVM peering to be established.
+            PENDING_SVM_PEERING = 9
           end
 
           # New enum values may be added in future to support different replication
@@ -186,9 +202,59 @@ module Google
             # Destination volume is not receiving replication transfers.
             STOPPED = 3
 
-            # Replication is in progress.
+            # Incremental replication is in progress.
             TRANSFERRING = 4
+
+            # Baseline replication is in progress.
+            BASELINE_TRANSFERRING = 5
+
+            # Replication is aborted.
+            ABORTED = 6
           end
+
+          # Hybrid replication type.
+          module HybridReplicationType
+            # Unspecified hybrid replication type.
+            HYBRID_REPLICATION_TYPE_UNSPECIFIED = 0
+
+            # Hybrid replication type for migration.
+            MIGRATION = 1
+
+            # Hybrid replication type for continuous replication.
+            CONTINUOUS_REPLICATION = 2
+          end
+        end
+
+        # HybridPeeringDetails contains details about the hybrid peering.
+        # @!attribute [rw] subnet_ip
+        #   @return [::String]
+        #     Optional. IP address of the subnet.
+        # @!attribute [rw] command
+        #   @return [::String]
+        #     Optional. Copy-paste-able commands to be used on user's ONTAP to accept
+        #     peering requests.
+        # @!attribute [rw] command_expiry_time
+        #   @return [::Google::Protobuf::Timestamp]
+        #     Optional. Expiration time for the peering command to be executed on user's
+        #     ONTAP.
+        # @!attribute [rw] passphrase
+        #   @return [::String]
+        #     Optional. Temporary passphrase generated to accept cluster peering command.
+        # @!attribute [rw] peer_volume_name
+        #   @return [::String]
+        #     Optional. Name of the user's local source volume to be peered with the
+        #     destination volume.
+        # @!attribute [rw] peer_cluster_name
+        #   @return [::String]
+        #     Optional. Name of the user's local source cluster to be peered with the
+        #     destination cluster.
+        # @!attribute [rw] peer_svm_name
+        #   @return [::String]
+        #     Optional. Name of the user's local source vserver svm to be peered with the
+        #     destination vserver svm.
+        class HybridPeeringDetails
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
         # ListReplications lists replications.
@@ -259,6 +325,9 @@ module Google
         # @!attribute [rw] description
         #   @return [::String]
         #     Description for the destination volume.
+        # @!attribute [rw] tiering_policy
+        #   @return [::Google::Cloud::NetApp::V1::TieringPolicy]
+        #     Optional. Tiering policy for the volume.
         class DestinationVolumeParameters
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -274,9 +343,10 @@ module Google
         #     Required. A replication resource
         # @!attribute [rw] replication_id
         #   @return [::String]
-        #     Required. ID of the replication to create.
-        #     This value must start with a lowercase letter followed by up to 62
-        #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
+        #     Required. ID of the replication to create. Must be unique within the parent
+        #     resource. Must contain only letters, numbers and hyphen, with the first
+        #     character a letter, the last a letter or a
+        #     number, and a 63 character maximum.
         class CreateReplicationRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -340,6 +410,42 @@ module Google
         #     Required. The resource name of the replication, in the format of
         #     projects/\\{project_id}/locations/\\{location}/volumes/\\{volume_id}/replications/\\{replication_id}.
         class ReverseReplicationDirectionRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # EstablishPeeringRequest establishes cluster and svm peerings between the
+        # source and the destination replications.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. The resource name of the replication, in the format of
+        #     projects/\\{project_id}/locations/\\{location}/volumes/\\{volume_id}/replications/\\{replication_id}.
+        # @!attribute [rw] peer_cluster_name
+        #   @return [::String]
+        #     Required. Name of the user's local source cluster to be peered with the
+        #     destination cluster.
+        # @!attribute [rw] peer_svm_name
+        #   @return [::String]
+        #     Required. Name of the user's local source vserver svm to be peered with the
+        #     destination vserver svm.
+        # @!attribute [rw] peer_ip_addresses
+        #   @return [::Array<::String>]
+        #     Optional. List of IPv4 ip addresses to be used for peering.
+        # @!attribute [rw] peer_volume_name
+        #   @return [::String]
+        #     Required. Name of the user's local source volume to be peered with the
+        #     destination volume.
+        class EstablishPeeringRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # SyncReplicationRequest syncs the replication from source to destination.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. The resource name of the replication, in the format of
+        #     projects/\\{project_id}/locations/\\{location}/volumes/\\{volume_id}/replications/\\{replication_id}.
+        class SyncReplicationRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end

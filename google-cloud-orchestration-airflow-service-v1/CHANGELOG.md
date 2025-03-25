@@ -1,5 +1,64 @@
 # Changelog
 
+### 1.3.2 (2025-03-20)
+
+#### Documentation
+
+* Fixed a minor typo ([#29386](https://github.com/googleapis/google-cloud-ruby/issues/29386)) 
+
+### 1.3.1 (2025-03-13)
+
+#### Documentation
+
+* Fixed Composer 3 image version format ([#29331](https://github.com/googleapis/google-cloud-ruby/issues/29331)) 
+
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+* Minor docs correction ([#28236](https://github.com/googleapis/google-cloud-ruby/issues/28236)) 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+#### Documentation
+
+* Minor documentation updates ([#27757](https://github.com/googleapis/google-cloud-ruby/issues/27757)) 
+
+### 1.1.0 (2024-09-19)
+
+#### Features
+
+* A new field `airflow_metadata_retention_config` is added to message `.google.cloud.orchestration.airflow.service.v1.DataRetentionConfig` 
+* A new field `satisfies_pzi` is added to message `.google.cloud.orchestration.airflow.service.v1.Environment` 
+* A new message `AirflowMetadataRetentionPolicyConfig` is added 
+* A new message `CheckUpgradeRequest` is added 
+* A new method `CheckUpgrade` is added to service `Environments` ([#27323](https://github.com/googleapis/google-cloud-ruby/issues/27323)) 
+#### Documentation
+
+* A comment for field `maintenance_window` in message `.google.cloud.orchestration.airflow.service.v1.EnvironmentConfig` is changed 
+* A comment for field `storage_mode` in message `.google.cloud.orchestration.airflow.service.v1.TaskLogsRetentionConfig` is changed 
+* A comment for message `WorkloadsConfig` is changed 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27010](https://github.com/googleapis/google-cloud-ruby/issues/27010)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.11.0 (2024-02-26)
 
 #### Features

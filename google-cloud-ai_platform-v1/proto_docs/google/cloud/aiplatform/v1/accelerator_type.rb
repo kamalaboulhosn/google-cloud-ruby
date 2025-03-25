@@ -26,7 +26,8 @@ module Google
           # Unspecified accelerator type, which means no accelerator.
           ACCELERATOR_TYPE_UNSPECIFIED = 0
 
-          # Nvidia Tesla K80 GPU.
+          # Deprecated: Nvidia Tesla K80 GPU has reached end of support,
+          # see https://cloud.google.com/compute/docs/eol/k80-eol.
           NVIDIA_TESLA_K80 = 1
 
           # Nvidia Tesla P100 GPU.
@@ -52,6 +53,9 @@ module Google
 
           # Nvidia H100 80Gb GPU.
           NVIDIA_H100_80GB = 13
+
+          # Nvidia H100 Mega 80Gb GPU.
+          NVIDIA_H100_MEGA_80GB = 14
 
           # TPU v2.
           TPU_V2 = 6

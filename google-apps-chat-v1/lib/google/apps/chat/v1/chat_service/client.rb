@@ -121,6 +121,11 @@ module Google
                   initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
                 }
 
+                default_config.rpcs.search_spaces.timeout = 30.0
+                default_config.rpcs.search_spaces.retry_policy = {
+                  initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
+                }
+
                 default_config.rpcs.get_space.timeout = 30.0
                 default_config.rpcs.get_space.retry_policy = {
                   initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
@@ -198,6 +203,26 @@ module Google
 
                 default_config.rpcs.get_thread_read_state.timeout = 30.0
                 default_config.rpcs.get_thread_read_state.retry_policy = {
+                  initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
+                }
+
+                default_config.rpcs.get_space_event.timeout = 30.0
+                default_config.rpcs.get_space_event.retry_policy = {
+                  initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
+                }
+
+                default_config.rpcs.list_space_events.timeout = 30.0
+                default_config.rpcs.list_space_events.retry_policy = {
+                  initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
+                }
+
+                default_config.rpcs.get_space_notification_setting.timeout = 30.0
+                default_config.rpcs.get_space_notification_setting.retry_policy = {
+                  initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
+                }
+
+                default_config.rpcs.update_space_notification_setting.timeout = 30.0
+                default_config.rpcs.update_space_notification_setting.retry_policy = {
                   initial_delay: 1.0, max_delay: 10.0, multiplier: 1.3, retry_codes: [14]
                 }
 
@@ -288,25 +313,66 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @chat_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
+            end
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @chat_service_stub.logger
             end
 
             # Service calls
 
             ##
-            # Creates a message in a Google Chat space. The maximum message size,
-            # including text and cards, is 32,000 bytes. For an example, see [Send a
+            # Creates a message in a Google Chat space. For an example, see [Send a
             # message](https://developers.google.com/workspace/chat/create-messages).
             #
-            # Calling this method requires
-            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize)
-            # and supports the following authentication types:
+            # The `create()` method requires either [user
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            # or [app
+            # authentication](https://developers.google.com/workspace/chat/authorize-import).
+            # Chat attributes the message sender differently depending on the type of
+            # authentication that you use in your request.
             #
-            # - For text messages, user authentication or app authentication are
-            # supported.
-            # - For card messages, only app authentication is supported. (Only Chat apps
-            # can create card messages.)
+            # The following image shows how Chat attributes a message when you use app
+            # authentication. Chat displays the Chat app as the message
+            # sender. The content of the message can contain text (`text`), cards
+            # (`cardsV2`), and accessory widgets (`accessoryWidgets`).
+            #
+            # ![Message sent with app
+            # authentication](https://developers.google.com/workspace/chat/images/message-app-auth.svg)
+            #
+            # The following image shows how Chat attributes a message when you use user
+            # authentication. Chat displays the user as the message sender and attributes
+            # the Chat app to the message by displaying its name. The content of message
+            # can only contain text (`text`).
+            #
+            # ![Message sent with user
+            # authentication](https://developers.google.com/workspace/chat/images/message-user-auth.svg)
+            #
+            # The maximum message size, including the message contents, is 32,000 bytes.
+            #
+            # For
+            # [webhook](https://developers.google.com/workspace/chat/quickstart/webhooks)
+            # requests, the response doesn't contain the full message. The response only
+            # populates the `name` and `thread.name` fields in addition to the
+            # information that was in the request.
             #
             # @overload create_message(request, options = nil)
             #   Pass arguments to `create_message` via a request object, either of type
@@ -344,6 +410,12 @@ module Google
             #   @param message_reply_option [::Google::Apps::Chat::V1::CreateMessageRequest::MessageReplyOption]
             #     Optional. Specifies whether a message starts a thread or replies to one.
             #     Only supported in named spaces.
+            #
+            #     When [responding to user
+            #     interactions](https://developers.google.com/workspace/chat/receive-respond-interactions),
+            #     this field is ignored. For interactions within a thread, the reply is
+            #     created in the same thread. Otherwise, the reply is created as a new
+            #     thread.
             #   @param message_id [::String]
             #     Optional. A custom ID for a message. Lets Chat apps get, update, or delete
             #     a message without needing to store the system-assigned ID in the message's
@@ -420,7 +492,6 @@ module Google
 
               @chat_service_stub.call_rpc :create_message, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -428,8 +499,13 @@ module Google
 
             ##
             # Lists messages in a space that the caller is a member of, including
-            # messages from blocked members and spaces. For an example, see
-            # [List messages](/chat/api/guides/v1/messages/list).
+            # messages from blocked members and spaces. If you list messages from a
+            # space with no messages, the response is an empty object. When using a
+            # REST/HTTP interface, the response contains an empty JSON object, `{}`.
+            # For an example, see
+            # [List
+            # messages](https://developers.google.com/workspace/chat/api/guides/v1/messages/list).
+            #
             # Requires [user
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
             #
@@ -453,8 +529,8 @@ module Google
             #
             #     Format: `spaces/{space}`
             #   @param page_size [::Integer]
-            #     The maximum number of messages returned. The service might return fewer
-            #     messages than this value.
+            #     Optional. The maximum number of messages returned. The service might return
+            #     fewer messages than this value.
             #
             #     If unspecified, at most 25 are returned.
             #
@@ -463,16 +539,14 @@ module Google
             #
             #     Negative values return an `INVALID_ARGUMENT` error.
             #   @param page_token [::String]
-            #     Optional, if resuming from a previous query.
-            #
-            #     A page token received from a previous list messages call. Provide this
-            #     parameter to retrieve the subsequent page.
+            #     Optional. A page token received from a previous list messages call. Provide
+            #     this parameter to retrieve the subsequent page.
             #
             #     When paginating, all other parameters provided should match the call that
             #     provided the page token. Passing different values to the other parameters
             #     might lead to unexpected results.
             #   @param filter [::String]
-            #     A query filter.
+            #     Optional. A query filter.
             #
             #     You can filter messages by date (`create_time`) and thread (`thread.name`).
             #
@@ -510,10 +584,8 @@ module Google
             #     Invalid queries are rejected by the server with an `INVALID_ARGUMENT`
             #     error.
             #   @param order_by [::String]
-            #     Optional, if resuming from a previous query.
-            #
-            #     How the list of messages is ordered. Specify a value to order by an
-            #     ordering operation. Valid ordering operation values are as follows:
+            #     Optional. How the list of messages is ordered. Specify a value to order by
+            #     an ordering operation. Valid ordering operation values are as follows:
             #
             #     - `ASC` for ascending.
             #
@@ -521,8 +593,9 @@ module Google
             #
             #     The default ordering is `create_time ASC`.
             #   @param show_deleted [::Boolean]
-            #     Whether to include deleted messages. Deleted messages include deleted time
-            #     and metadata about their deletion, but message content is unavailable.
+            #     Optional. Whether to include deleted messages. Deleted messages include
+            #     deleted time and metadata about their deletion, but message content is
+            #     unavailable.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::PagedEnumerable<::Google::Apps::Chat::V1::Message>]
@@ -588,7 +661,7 @@ module Google
               @chat_service_stub.call_rpc :list_messages, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @chat_service_stub, :list_messages, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -607,13 +680,16 @@ module Google
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
             # lists memberships in spaces that the authenticated user has access to.
             #
-            # Requires
-            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize).
-            # Supports
-            # [app
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
-            # and [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            # You can authenticate and authorize this method with administrator
+            # privileges by setting the `use_admin_access` field in the request.
             #
             # @overload list_memberships(request, options = nil)
             #   Pass arguments to `list_memberships` via a request object, either of type
@@ -625,7 +701,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload list_memberships(parent: nil, page_size: nil, page_token: nil, filter: nil, show_groups: nil, show_invited: nil)
+            # @overload list_memberships(parent: nil, page_size: nil, page_token: nil, filter: nil, show_groups: nil, show_invited: nil, use_admin_access: nil)
             #   Pass arguments to `list_memberships` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -662,16 +738,23 @@ module Google
             #
             #     To filter by role, set `role` to `ROLE_MEMBER` or `ROLE_MANAGER`.
             #
-            #     To filter by type, set `member.type` to `HUMAN` or `BOT`.
+            #     To filter by type, set `member.type` to `HUMAN` or `BOT`. You can also
+            #     filter for `member.type` using the `!=` operator.
             #
             #     To filter by both role and type, use the `AND` operator. To filter by
             #     either role or type, use the `OR` operator.
+            #
+            #     Either `member.type = "HUMAN"` or `member.type != "BOT"` is required
+            #     when `use_admin_access` is set to true. Other member type filters will be
+            #     rejected.
             #
             #     For example, the following queries are valid:
             #
             #     ```
             #     role = "ROLE_MANAGER" OR role = "ROLE_MEMBER"
             #     member.type = "HUMAN" AND role = "ROLE_MANAGER"
+            #
+            #     member.type != "BOT"
             #     ```
             #
             #     The following queries are invalid:
@@ -680,7 +763,6 @@ module Google
             #     member.type = "HUMAN" AND member.type = "BOT"
             #     role = "ROLE_MANAGER" AND role = "ROLE_MEMBER"
             #     ```
-            #
             #
             #     Invalid queries are rejected by the server with an `INVALID_ARGUMENT`
             #     error.
@@ -701,6 +783,19 @@ module Google
             #
             #     Currently requires [user
             #     authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #   @param use_admin_access [::Boolean]
+            #     Optional. When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires either the `chat.admin.memberships.readonly` or
+            #     `chat.admin.memberships` [OAuth 2.0
+            #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+            #
+            #     Listing app memberships in a space isn't supported when using admin access.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Gapic::PagedEnumerable<::Google::Apps::Chat::V1::Membership>]
@@ -766,7 +861,7 @@ module Google
               @chat_service_stub.call_rpc :list_memberships, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @chat_service_stub, :list_memberships, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -777,13 +872,16 @@ module Google
             # [Get details about a user's or Google Chat app's
             # membership](https://developers.google.com/workspace/chat/get-members).
             #
-            # Requires
-            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize).
-            # Supports
-            # [app
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
-            # and [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            # You can authenticate and authorize this method with administrator
+            # privileges by setting the `use_admin_access` field in the request.
             #
             # @overload get_membership(request, options = nil)
             #   Pass arguments to `get_membership` via a request object, either of type
@@ -795,7 +893,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload get_membership(name: nil)
+            # @overload get_membership(name: nil, use_admin_access: nil)
             #   Pass arguments to `get_membership` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -809,11 +907,22 @@ module Google
             #
             #     Format: `spaces/{space}/members/{member}` or `spaces/{space}/members/app`
             #
-            #     When [authenticated as a
-            #     user](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user),
-            #     you can use the user's email as an alias for `{member}`. For example,
+            #     You can use the user's email as an alias for `{member}`. For example,
             #     `spaces/{space}/members/example@gmail.com` where `example@gmail.com` is the
             #     email of the Google Chat user.
+            #   @param use_admin_access [::Boolean]
+            #     Optional. When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires the `chat.admin.memberships` or `chat.admin.memberships.readonly`
+            #     [OAuth 2.0
+            #     scopes](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+            #
+            #     Getting app memberships in a space isn't supported when using admin access.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Apps::Chat::V1::Membership]
@@ -874,7 +983,6 @@ module Google
 
               @chat_service_stub.call_rpc :get_membership, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -885,13 +993,14 @@ module Google
             # For an example, see [Get details about a
             # message](https://developers.google.com/workspace/chat/get-messages).
             #
-            # Requires
-            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize).
-            # Supports
-            # [app
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
-            # and [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
             #
             # Note: Might return a message from a blocked member or space.
             #
@@ -979,7 +1088,6 @@ module Google
 
               @chat_service_stub.call_rpc :get_message, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -993,13 +1101,15 @@ module Google
             # [Update a
             # message](https://developers.google.com/workspace/chat/update-messages).
             #
-            # Requires
-            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize).
-            # Supports
-            # [app
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
-            # and [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            #
             # When using app authentication, requests can only update messages
             # created by the calling Chat app.
             #
@@ -1103,7 +1213,6 @@ module Google
 
               @chat_service_stub.call_rpc :update_message, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1114,13 +1223,15 @@ module Google
             # For an example, see [Delete a
             # message](https://developers.google.com/workspace/chat/delete-messages).
             #
-            # Requires
-            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize).
-            # Supports
-            # [app
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
-            # and [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            #
             # When using app authentication, requests can only delete messages
             # created by the calling Chat app.
             #
@@ -1149,8 +1260,8 @@ module Google
             #     message]
             #     (https://developers.google.com/workspace/chat/create-messages#name_a_created_message).
             #   @param force [::Boolean]
-            #     When `true`, deleting a message also deletes its threaded replies. When
-            #     `false`, if a message has threaded replies, deletion fails.
+            #     Optional. When `true`, deleting a message also deletes its threaded
+            #     replies. When `false`, if a message has threaded replies, deletion fails.
             #
             #     Only applies when [authenticating as a
             #     user](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
@@ -1216,7 +1327,6 @@ module Google
 
               @chat_service_stub.call_rpc :delete_message, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1249,7 +1359,7 @@ module Google
             #
             #   @param name [::String]
             #     Required. Resource name of the attachment, in the form
-            #     `spaces/*/messages/*/attachments/*`.
+            #     `spaces/{space}/messages/{message}/attachments/{attachment}`.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Apps::Chat::V1::Attachment]
@@ -1310,7 +1420,6 @@ module Google
 
               @chat_service_stub.call_rpc :get_attachment, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1320,6 +1429,7 @@ module Google
             # Uploads an attachment. For an example, see
             # [Upload media as a file
             # attachment](https://developers.google.com/workspace/chat/upload-media-attachments).
+            #
             # Requires user
             # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
             #
@@ -1407,7 +1517,6 @@ module Google
 
               @chat_service_stub.call_rpc :upload_attachment, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1419,16 +1528,18 @@ module Google
             # [List
             # spaces](https://developers.google.com/workspace/chat/list-spaces).
             #
-            # Requires
-            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize).
-            # Supports
-            # [app
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
-            # and [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
             #
-            # Lists spaces visible to the caller or authenticated user. Group chats
-            # and DMs aren't listed until the first message is sent.
+            # - [App
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            #
+            # To list all named spaces by Google Workspace organization, use the
+            # [`spaces.search()`](https://developers.google.com/workspace/chat/api/reference/rest/v1/spaces/search)
+            # method using Workspace administrator privileges instead.
             #
             # @overload list_spaces(request, options = nil)
             #   Pass arguments to `list_spaces` via a request object, either of type
@@ -1538,7 +1649,217 @@ module Google
               @chat_service_stub.call_rpc :list_spaces, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @chat_service_stub, :list_spaces, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Returns a list of spaces in a Google Workspace organization based on an
+            # administrator's search.
+            #
+            # Requires [user
+            # authentication with administrator
+            # privileges](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user#admin-privileges).
+            # In the request, set `use_admin_access` to `true`.
+            #
+            # @overload search_spaces(request, options = nil)
+            #   Pass arguments to `search_spaces` via a request object, either of type
+            #   {::Google::Apps::Chat::V1::SearchSpacesRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Apps::Chat::V1::SearchSpacesRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload search_spaces(use_admin_access: nil, page_size: nil, page_token: nil, query: nil, order_by: nil)
+            #   Pass arguments to `search_spaces` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param use_admin_access [::Boolean]
+            #     When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires either the `chat.admin.spaces.readonly` or `chat.admin.spaces`
+            #     [OAuth 2.0
+            #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+            #
+            #     This method currently only supports admin access, thus only `true` is
+            #     accepted for this field.
+            #   @param page_size [::Integer]
+            #     The maximum number of spaces to return. The service may return fewer than
+            #     this value.
+            #
+            #     If unspecified, at most 100 spaces are returned.
+            #
+            #     The maximum value is 1000. If you use a value more than 1000, it's
+            #     automatically changed to 1000.
+            #   @param page_token [::String]
+            #     A token, received from the previous search spaces call. Provide this
+            #     parameter to retrieve the subsequent page.
+            #
+            #     When paginating, all other parameters provided should match the call that
+            #     provided the page token. Passing different values to the other parameters
+            #     might lead to unexpected results.
+            #   @param query [::String]
+            #     Required. A search query.
+            #
+            #     You can search by using the following parameters:
+            #
+            #     - `create_time`
+            #     - `customer`
+            #     - `display_name`
+            #     - `external_user_allowed`
+            #     - `last_active_time`
+            #     - `space_history_state`
+            #     - `space_type`
+            #
+            #     `create_time` and `last_active_time` accept a timestamp in
+            #     [RFC-3339](https://www.rfc-editor.org/rfc/rfc3339) format and the supported
+            #     comparison operators are: `=`, `<`, `>`, `<=`, `>=`.
+            #
+            #     `customer` is required and is used to indicate which customer
+            #     to fetch spaces from. `customers/my_customer` is the only supported value.
+            #
+            #     `display_name` only accepts the `HAS` (`:`) operator. The text to
+            #     match is first tokenized into tokens and each token is prefix-matched
+            #     case-insensitively and independently as a substring anywhere in the space's
+            #     `display_name`. For example, `Fun Eve` matches `Fun event` or `The
+            #     evening was fun`, but not `notFun event` or `even`.
+            #
+            #     `external_user_allowed` accepts either `true` or `false`.
+            #
+            #     `space_history_state` only accepts values from the [`historyState`]
+            #     (https://developers.google.com/workspace/chat/api/reference/rest/v1/spaces#Space.HistoryState)
+            #     field of a `space` resource.
+            #
+            #     `space_type` is required and the only valid value is `SPACE`.
+            #
+            #     Across different fields, only `AND` operators are supported. A valid
+            #     example is `space_type = "SPACE" AND display_name:"Hello"` and an invalid
+            #     example is `space_type = "SPACE" OR display_name:"Hello"`.
+            #
+            #     Among the same field,
+            #     `space_type` doesn't support `AND` or `OR` operators.
+            #     `display_name`, 'space_history_state', and 'external_user_allowed' only
+            #     support `OR` operators.
+            #     `last_active_time` and `create_time` support both `AND` and `OR` operators.
+            #     `AND` can only be used to represent an interval, such as `last_active_time
+            #     < "2022-01-01T00:00:00+00:00" AND last_active_time >
+            #     "2023-01-01T00:00:00+00:00"`.
+            #
+            #     The following example queries are valid:
+            #
+            #     ```
+            #     customer = "customers/my_customer" AND space_type = "SPACE"
+            #
+            #     customer = "customers/my_customer" AND space_type = "SPACE" AND
+            #     display_name:"Hello World"
+            #
+            #     customer = "customers/my_customer" AND space_type = "SPACE" AND
+            #     (last_active_time < "2020-01-01T00:00:00+00:00" OR last_active_time >
+            #     "2022-01-01T00:00:00+00:00")
+            #
+            #     customer = "customers/my_customer" AND space_type = "SPACE" AND
+            #     (display_name:"Hello World" OR display_name:"Fun event") AND
+            #     (last_active_time > "2020-01-01T00:00:00+00:00" AND last_active_time <
+            #     "2022-01-01T00:00:00+00:00")
+            #
+            #     customer = "customers/my_customer" AND space_type = "SPACE" AND
+            #     (create_time > "2019-01-01T00:00:00+00:00" AND create_time <
+            #     "2020-01-01T00:00:00+00:00") AND (external_user_allowed = "true") AND
+            #     (space_history_state = "HISTORY_ON" OR space_history_state = "HISTORY_OFF")
+            #     ```
+            #   @param order_by [::String]
+            #     Optional. How the list of spaces is ordered.
+            #
+            #     Supported attributes to order by are:
+            #
+            #     - `membership_count.joined_direct_human_user_count` — Denotes the count of
+            #     human users that have directly joined a space.
+            #     - `last_active_time` — Denotes the time when last eligible item is added to
+            #     any topic of this space.
+            #     - `create_time` — Denotes the time of the space creation.
+            #
+            #     Valid ordering operation values are:
+            #
+            #     - `ASC` for ascending. Default value.
+            #
+            #     - `DESC` for descending.
+            #
+            #     The supported syntax are:
+            #
+            #     - `membership_count.joined_direct_human_user_count DESC`
+            #     - `membership_count.joined_direct_human_user_count ASC`
+            #     - `last_active_time DESC`
+            #     - `last_active_time ASC`
+            #     - `create_time DESC`
+            #     - `create_time ASC`
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Gapic::PagedEnumerable<::Google::Apps::Chat::V1::Space>]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Gapic::PagedEnumerable<::Google::Apps::Chat::V1::Space>]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/apps/chat/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Apps::Chat::V1::ChatService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Apps::Chat::V1::SearchSpacesRequest.new
+            #
+            #   # Call the search_spaces method.
+            #   result = client.search_spaces request
+            #
+            #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+            #   # over elements, and API calls will be issued to fetch pages as needed.
+            #   result.each do |item|
+            #     # Each element is of type ::Google::Apps::Chat::V1::Space.
+            #     p item
+            #   end
+            #
+            def search_spaces request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Apps::Chat::V1::SearchSpacesRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.search_spaces.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Apps::Chat::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              options.apply_defaults timeout:      @config.rpcs.search_spaces.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.search_spaces.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @chat_service_stub.call_rpc :search_spaces, request, options: options do |response, operation|
+                response = ::Gapic::PagedEnumerable.new @chat_service_stub, :search_spaces, request, response, operation, options
+                yield response, operation if block_given?
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1549,13 +1870,16 @@ module Google
             # [Get details about a
             # space](https://developers.google.com/workspace/chat/get-spaces).
             #
-            # Requires
-            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize).
-            # Supports
-            # [app
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
-            # and [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            # You can authenticate and authorize this method with administrator
+            # privileges by setting the `use_admin_access` field in the request.
             #
             # @overload get_space(request, options = nil)
             #   Pass arguments to `get_space` via a request object, either of type
@@ -1567,15 +1891,25 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload get_space(name: nil)
+            # @overload get_space(name: nil, use_admin_access: nil)
             #   Pass arguments to `get_space` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param name [::String]
-            #     Required. Resource name of the space, in the form "spaces/*".
+            #     Required. Resource name of the space, in the form `spaces/{space}`.
             #
             #     Format: `spaces/{space}`
+            #   @param use_admin_access [::Boolean]
+            #     Optional. When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires the `chat.admin.spaces` or `chat.admin.spaces.readonly` [OAuth 2.0
+            #     scopes](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Apps::Chat::V1::Space]
@@ -1636,23 +1970,33 @@ module Google
 
               @chat_service_stub.call_rpc :get_space, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Creates a named space. Spaces grouped by topics aren't supported. For an
-            # example, see [Create a
+            # Creates a space with no members. Can be used to create a named space, or a
+            # group chat in `Import mode`. For an example, see [Create a
             # space](https://developers.google.com/workspace/chat/create-spaces).
             #
             #  If you receive the error message `ALREADY_EXISTS` when creating
             #  a space, try a different `displayName`. An existing space within
             #  the Google Workspace organization might already use this display name.
             #
-            # Requires [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            # with [administrator approval](https://support.google.com/a?p=chat-app-auth)
+            # in [Developer Preview](https://developers.google.com/workspace/preview)
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            #
+            # When authenticating as an app, the `space.customer` field must be set in
+            # the request.
             #
             # @overload create_space(request, options = nil)
             #   Pass arguments to `create_space` via a request object, either of type
@@ -1671,11 +2015,13 @@ module Google
             #
             #   @param space [::Google::Apps::Chat::V1::Space, ::Hash]
             #     Required. The `displayName` and `spaceType` fields must be populated.  Only
-            #     `SpaceType.SPACE` is supported.
+            #     `SpaceType.SPACE`  and `SpaceType.GROUP_CHAT` are supported.
+            #     `SpaceType.GROUP_CHAT` can only be used if `importMode` is set to true.
             #
-            #     If you receive the error message `ALREADY_EXISTS` when creating a space,
+            #     If you receive the error message `ALREADY_EXISTS`,
             #     try a different `displayName`. An existing space within the Google
             #     Workspace organization might already use this display name.
+            #
             #
             #     The space `name` is assigned on the server so anything specified in this
             #     field will be ignored.
@@ -1738,7 +2084,6 @@ module Google
 
               @chat_service_stub.call_rpc :create_space, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1759,6 +2104,17 @@ module Google
             # if the People API Person profile ID for `user@example.com` is `123456789`,
             # you can add the user to the space by setting the `membership.member.name`
             # to `users/user@example.com` or `users/123456789`.
+            #
+            # To specify the Google groups to add, add memberships with the
+            # appropriate `membership.group_member.name`. To add or invite a Google
+            # group, use `groups/{group}`, where `{group}` is the `id` for the group from
+            # the Cloud Identity Groups API. For example, you can use [Cloud Identity
+            # Groups lookup
+            # API](https://cloud.google.com/identity/docs/reference/rest/v1/groups/lookup)
+            # to retrieve the ID `123456789` for group email `group@example.com`, then
+            # you can add the group to the space by setting the
+            # `membership.group_member.name` to `groups/123456789`. Group email is not
+            # supported, and Google groups can only be added as members in named spaces.
             #
             # For a named space or group chat, if the caller blocks, or is blocked
             # by some members, or doesn't have permission to add some members, then
@@ -1834,8 +2190,8 @@ module Google
             #     Specifying an existing request ID from the same Chat app with a different
             #     authenticated user returns an error.
             #   @param memberships [::Array<::Google::Apps::Chat::V1::Membership, ::Hash>]
-            #     Optional. The Google Chat users to invite to join the space. Omit the
-            #     calling user, as they are added automatically.
+            #     Optional. The Google Chat users or groups to invite to join the space. Omit
+            #     the calling user, as they are added automatically.
             #
             #     The set currently allows up to 20 memberships (in addition to the caller).
             #
@@ -1847,6 +2203,10 @@ module Google
             #     for \\{user}. For example, the `user.name` can be `users/example@gmail.com`.
             #     To invite Gmail users or users from external Google Workspace domains,
             #     user's email must be used for `{user}`.
+            #
+            #     For Google group membership, the `Membership.group_member` field must
+            #     contain a `group` with `name` populated (format `groups/{group}`). You
+            #     can only add Google groups when setting `Space.spaceType` to `SPACE`.
             #
             #     Optional when setting `Space.spaceType` to `SPACE`.
             #
@@ -1911,7 +2271,6 @@ module Google
 
               @chat_service_stub.call_rpc :set_up_space, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1926,8 +2285,18 @@ module Google
             # `ALREADY_EXISTS`, try a different display name.. An existing space within
             # the Google Workspace organization might already use this display name.
             #
-            # Requires [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            # with [administrator approval](https://support.google.com/a?p=chat-app-auth)
+            # in [Developer Preview](https://developers.google.com/workspace/preview)
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            # You can authenticate and authorize this method with administrator
+            # privileges by setting the `use_admin_access` field in the request.
             #
             # @overload update_space(request, options = nil)
             #   Pass arguments to `update_space` via a request object, either of type
@@ -1939,7 +2308,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload update_space(space: nil, update_mask: nil)
+            # @overload update_space(space: nil, update_mask: nil, use_admin_access: nil)
             #   Pass arguments to `update_space` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1952,38 +2321,77 @@ module Google
             #     Required. The updated field paths, comma separated if there are
             #     multiple.
             #
-            #     Currently supported field paths:
+            #     You can update the following fields for a space:
             #
-            #     - `display_name` (Only supports changing the display name of a space with
-            #     the `SPACE` type, or when also including the `space_type` mask to change a
-            #     `GROUP_CHAT` space type to `SPACE`. Trying to update the display name of a
-            #     `GROUP_CHAT` or a `DIRECT_MESSAGE` space results in an invalid argument
-            #     error. If you receive the error message `ALREADY_EXISTS` when updating the
-            #     `displayName`, try a different `displayName`. An existing space within the
-            #     Google Workspace organization might already use this display name.)
+            #     `space_details`: Updates the space's description. Supports up to 150
+            #     characters.
             #
-            #     - `space_type` (Only supports changing a `GROUP_CHAT` space type to
+            #     `display_name`: Only supports updating the display name for spaces where
+            #     `spaceType` field is `SPACE`.
+            #      If you receive the error message `ALREADY_EXISTS`, try a different
+            #      value. An existing space within the
+            #     Google Workspace organization might already use this display name.
+            #
+            #     `space_type`: Only supports changing a `GROUP_CHAT` space type to
             #     `SPACE`. Include `display_name` together
             #     with `space_type` in the update mask and ensure that the specified space
             #     has a non-empty display name and the `SPACE` space type. Including the
             #     `space_type` mask and the `SPACE` type in the specified space when updating
             #     the display name is optional if the existing space already has the `SPACE`
             #     type. Trying to update the space type in other ways results in an invalid
-            #     argument error).
+            #     argument error.
+            #     `space_type` is not supported with `useAdminAccess`.
             #
-            #     - `space_details`
+            #     `space_history_state`: Updates [space history
+            #     settings](https://support.google.com/chat/answer/7664687) by turning
+            #     history on or off for the space. Only supported if history settings are
+            #     enabled for the Google Workspace organization. To update the
+            #     space history state, you must omit all other field masks in your request.
+            #     `space_history_state` is not supported with `useAdminAccess`.
             #
-            #     - `space_history_state` (Supports [turning history on or off for the
-            #     space](https://support.google.com/chat/answer/7664687) if [the organization
-            #     allows users to change their history
-            #     setting](https://support.google.com/a/answer/7664184).
-            #     Warning: mutually exclusive with all other field paths.)
+            #     `access_settings.audience`: Updates the [access
+            #     setting](https://support.google.com/chat/answer/11971020) of who can
+            #     discover the space, join the space, and preview the messages in named space
+            #     where `spaceType` field is `SPACE`. If the existing space has a
+            #     target audience, you can remove the audience and restrict space access by
+            #     omitting a value for this field mask. To update access settings for a
+            #     space, the authenticating user must be a space manager and omit all other
+            #     field masks in your request. You can't update this field if the space is in
+            #     [import
+            #     mode](https://developers.google.com/workspace/chat/import-data-overview).
+            #     To learn more, see [Make a space discoverable to specific
+            #     users](https://developers.google.com/workspace/chat/space-target-audience).
+            #     `access_settings.audience` is not supported with `useAdminAccess`.
             #
-            #     - Developer Preview: `access_settings.audience` (Supports changing the
-            #     [access setting](https://support.google.com/chat/answer/11971020) of a
-            #     space. If no audience is specified in the access setting, the space's
-            #     access setting is updated to restricted. Warning: mutually exclusive with
-            #     all other field paths.)
+            #     `permission_settings`: Supports changing the
+            #     [permission settings](https://support.google.com/chat/answer/13340792)
+            #     of a space.
+            #     When updating permission settings, you can only specify
+            #     `permissionSettings` field masks; you cannot update other field masks
+            #     at the same time. `permissionSettings` is not supported with
+            #     `useAdminAccess`.
+            #     The supported field masks include:
+            #
+            #     - `permission_settings.manageMembersAndGroups`
+            #     - `permission_settings.modifySpaceDetails`
+            #     - `permission_settings.toggleHistory`
+            #     - `permission_settings.useAtMentionAll`
+            #     - `permission_settings.manageApps`
+            #     - `permission_settings.manageWebhooks`
+            #     - `permission_settings.replyMessages`
+            #   @param use_admin_access [::Boolean]
+            #     Optional. When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires the `chat.admin.spaces` [OAuth 2.0
+            #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+            #
+            #     Some `FieldMask` values are not supported using admin access. For details,
+            #     see the description of `update_mask`.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Apps::Chat::V1::Space]
@@ -2044,7 +2452,6 @@ module Google
 
               @chat_service_stub.call_rpc :update_space, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2056,9 +2463,19 @@ module Google
             # memberships in the space—are also deleted. For an example, see
             # [Delete a
             # space](https://developers.google.com/workspace/chat/delete-spaces).
-            # Requires [user
+            #
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            # with [administrator approval](https://support.google.com/a?p=chat-app-auth)
+            # in [Developer Preview](https://developers.google.com/workspace/preview)
+            #
+            # - [User
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
-            # from a user who has permission to delete the space.
+            # You can authenticate and authorize this method with administrator
+            # privileges by setting the `use_admin_access` field in the request.
             #
             # @overload delete_space(request, options = nil)
             #   Pass arguments to `delete_space` via a request object, either of type
@@ -2070,7 +2487,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload delete_space(name: nil)
+            # @overload delete_space(name: nil, use_admin_access: nil)
             #   Pass arguments to `delete_space` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -2079,6 +2496,16 @@ module Google
             #     Required. Resource name of the space to delete.
             #
             #     Format: `spaces/{space}`
+            #   @param use_admin_access [::Boolean]
+            #     Optional. When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires the `chat.admin.delete` [OAuth 2.0
+            #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Protobuf::Empty]
@@ -2139,7 +2566,6 @@ module Google
 
               @chat_service_stub.call_rpc :delete_space, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2149,8 +2575,11 @@ module Google
             # Completes the
             # [import process](https://developers.google.com/workspace/chat/import-data)
             # for the specified space and makes it visible to users.
-            # Requires app authentication and domain-wide delegation. For more
-            # information, see [Authorize Google Chat apps to import
+            #
+            # Requires [app
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            # and domain-wide delegation. For more information, see [Authorize Google
+            # Chat apps to import
             # data](https://developers.google.com/workspace/chat/authorize-import).
             #
             # @overload complete_import_space(request, options = nil)
@@ -2232,7 +2661,6 @@ module Google
 
               @chat_service_stub.call_rpc :complete_import_space, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2244,20 +2672,24 @@ module Google
             # see
             # [Find a direct message](/chat/api/guides/v1/spaces/find-direct-message).
             #
-            # With [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user),
-            # returns the direct message space between the specified user and the
-            # authenticated user.
-            #
             # With [app
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app),
             # returns the direct message space between the specified user and the calling
             # Chat app.
             #
-            # Requires [user
+            # With [user
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user),
+            # returns the direct message space between the specified user and the
+            # authenticated user.
+            #
+            # // Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            #
+            # - [User
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
-            # or [app
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app).
             #
             # @overload find_direct_message(request, options = nil)
             #   Pass arguments to `find_direct_message` via a request object, either of type
@@ -2340,37 +2772,42 @@ module Google
 
               @chat_service_stub.call_rpc :find_direct_message, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Creates a human membership or app membership for the calling app. Creating
-            # memberships for other apps isn't supported. For an example, see
-            # [Invite or add a user or a Google Chat app to a
-            # space](https://developers.google.com/workspace/chat/create-members).
+            # Creates a membership for the calling Chat app, a user, or a Google Group.
+            # Creating memberships for other Chat apps isn't supported.
             # When creating a membership, if the specified member has their auto-accept
             # policy turned off, then they're invited, and must accept the space
             # invitation before joining. Otherwise, creating a membership adds the member
-            # directly to the specified space. Requires [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            # directly to the specified space.
             #
-            # To specify the member to add, set the `membership.member.name` for the
-            # human or app member.
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
             #
-            # - To add the calling app to a space or a direct message between two human
-            #   users, use `users/app`. Unable to add other
-            #   apps to the space.
+            # - [App
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            # with [administrator approval](https://support.google.com/a?p=chat-app-auth)
+            # in [Developer Preview](https://developers.google.com/workspace/preview)
             #
-            # - To add a human user, use `users/{user}`, where `{user}` can be the email
-            # address for the user. For users in the same Workspace organization `{user}`
-            # can also be the `id` for the person from the People API, or the `id` for
-            # the user in the Directory API. For example, if the People API Person
-            # profile ID for `user@example.com` is `123456789`, you can add the user to
-            # the space by setting the `membership.member.name` to
-            # `users/user@example.com` or `users/123456789`.
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            # You can authenticate and authorize this method with administrator
+            # privileges by setting the `use_admin_access` field in the request.
+            #
+            # For example usage, see:
+            #
+            # - [Invite or add a user to a
+            # space](https://developers.google.com/workspace/chat/create-members#create-user-membership).
+            #
+            # - [Invite or add a Google Group to a
+            # space](https://developers.google.com/workspace/chat/create-members#create-group-membership).
+            #
+            # - [Add the Chat app to a
+            # space](https://developers.google.com/workspace/chat/create-members#create-membership-calling-api).
             #
             # @overload create_membership(request, options = nil)
             #   Pass arguments to `create_membership` via a request object, either of type
@@ -2382,7 +2819,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload create_membership(parent: nil, membership: nil)
+            # @overload create_membership(parent: nil, membership: nil, use_admin_access: nil)
             #   Pass arguments to `create_membership` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -2394,21 +2831,56 @@ module Google
             #     Format: spaces/\\{space}
             #   @param membership [::Google::Apps::Chat::V1::Membership, ::Hash]
             #     Required. The membership relation to create.
+            #
             #     The `memberType` field must contain a user with the `user.name` and
             #     `user.type` fields populated. The server will assign a resource name
             #     and overwrite anything specified.
+            #
             #     When a Chat app creates a membership relation for a human user, it must use
-            #     the `chat.memberships` scope, set `user.type` to `HUMAN`, and set
-            #     `user.name` with format `users/{user}`, where `{user}` can be the email
-            #     address for the user. For users in the same Workspace organization `{user}`
-            #     can also be the `id` of the
-            #     [person](https://developers.google.com/people/api/rest/v1/people) from the
-            #     People API, or the `id` for the user in the Directory API. For example, if
-            #     the People API Person profile ID for `user@example.com` is `123456789`, you
-            #     can add the user to the space by setting the `membership.member.name` to
-            #     `users/user@example.com` or `users/123456789`. When a Chat app creates a
-            #     membership relation for itself, it must use the `chat.memberships.app`
-            #     scope, set `user.type` to `BOT`, and set `user.name` to `users/app`.
+            #     certain authorization scopes and set specific values for certain fields:
+            #
+            #     - When [authenticating as a
+            #     user](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user),
+            #     the `chat.memberships` authorization scope is required.
+            #
+            #     - When [authenticating as an
+            #     app](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app),
+            #     the `chat.app.memberships` authorization scope is required.
+            #     Authenticating as an app is available in [Developer
+            #     Preview](https://developers.google.com/workspace/preview).
+            #
+            #     - Set `user.type` to `HUMAN`, and set `user.name` with format
+            #     `users/{user}`, where `{user}` can be the email address for the user. For
+            #     users in the same Workspace organization `{user}` can also be the `id` of
+            #     the [person](https://developers.google.com/people/api/rest/v1/people) from
+            #     the People API, or the `id` for the user in the Directory API. For example,
+            #     if the People API Person profile ID for `user@example.com` is `123456789`,
+            #     you can add the user to the space by setting the `membership.member.name`
+            #     to `users/user@example.com` or `users/123456789`.
+            #
+            #     Inviting users external to the Workspace organization that owns the space
+            #     requires [user
+            #     authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            #     When a Chat app creates a membership relation for itself, it must
+            #     [authenticate as a
+            #     user](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            #     and use the `chat.memberships.app` scope, set `user.type` to `BOT`, and set
+            #     `user.name` to `users/app`.
+            #   @param use_admin_access [::Boolean]
+            #     Optional. When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires the `chat.admin.memberships` [OAuth 2.0
+            #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+            #
+            #     Creating app memberships or creating memberships for users outside the
+            #     administrator's Google Workspace organization isn't supported using admin
+            #     access.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Apps::Chat::V1::Membership]
@@ -2469,7 +2941,6 @@ module Google
 
               @chat_service_stub.call_rpc :create_membership, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2479,8 +2950,18 @@ module Google
             # Updates a membership. For an example, see [Update a user's membership in
             # a space](https://developers.google.com/workspace/chat/update-members).
             #
-            # Requires [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            # with [administrator approval](https://support.google.com/a?p=chat-app-auth)
+            # in [Developer Preview](https://developers.google.com/workspace/preview)
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            # You can authenticate and authorize this method with administrator
+            # privileges by setting the `use_admin_access` field in the request.
             #
             # @overload update_membership(request, options = nil)
             #   Pass arguments to `update_membership` via a request object, either of type
@@ -2492,7 +2973,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload update_membership(membership: nil, update_mask: nil)
+            # @overload update_membership(membership: nil, update_mask: nil, use_admin_access: nil)
             #   Pass arguments to `update_membership` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -2507,6 +2988,16 @@ module Google
             #     Currently supported field paths:
             #
             #     - `role`
+            #   @param use_admin_access [::Boolean]
+            #     Optional. When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires the `chat.admin.memberships` [OAuth 2.0
+            #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Apps::Chat::V1::Membership]
@@ -2567,7 +3058,6 @@ module Google
 
               @chat_service_stub.call_rpc :update_membership, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2578,8 +3068,18 @@ module Google
             # [Remove a user or a Google Chat app from a
             # space](https://developers.google.com/workspace/chat/delete-members).
             #
-            # Requires [user
-            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            # Supports the following types of
+            # [authentication](https://developers.google.com/workspace/chat/authenticate-authorize):
+            #
+            # - [App
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-app)
+            # with [administrator approval](https://support.google.com/a?p=chat-app-auth)
+            # in [Developer Preview](https://developers.google.com/workspace/preview)
+            #
+            # - [User
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user)
+            # You can authenticate and authorize this method with administrator
+            # privileges by setting the `use_admin_access` field in the request.
             #
             # @overload delete_membership(request, options = nil)
             #   Pass arguments to `delete_membership` via a request object, either of type
@@ -2591,7 +3091,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload delete_membership(name: nil)
+            # @overload delete_membership(name: nil, use_admin_access: nil)
             #   Pass arguments to `delete_membership` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -2611,6 +3111,18 @@ module Google
             #     and `spaces/{space}/members/app` format.
             #
             #     Format: `spaces/{space}/members/{member}` or `spaces/{space}/members/app`.
+            #   @param use_admin_access [::Boolean]
+            #     Optional. When `true`, the method runs using the user's Google Workspace
+            #     administrator privileges.
+            #
+            #     The calling user must be a Google Workspace administrator with the
+            #     [manage chat and spaces conversations
+            #     privilege](https://support.google.com/a/answer/13369245).
+            #
+            #     Requires the `chat.admin.memberships` [OAuth 2.0
+            #     scope](https://developers.google.com/workspace/chat/authenticate-authorize#chat-api-scopes).
+            #
+            #     Deleting app memberships in a space isn't supported using admin access.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Apps::Chat::V1::Membership]
@@ -2671,17 +3183,16 @@ module Google
 
               @chat_service_stub.call_rpc :delete_membership, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Creates a reaction and adds it to a message. Only unicode emojis are
-            # supported. For an example, see
+            # Creates a reaction and adds it to a message. For an example, see
             # [Add a reaction to a
             # message](https://developers.google.com/workspace/chat/create-reactions).
+            #
             # Requires [user
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
             #
@@ -2766,7 +3277,6 @@ module Google
 
               @chat_service_stub.call_rpc :create_reaction, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2776,6 +3286,7 @@ module Google
             # Lists reactions to a message. For an example, see
             # [List reactions for a
             # message](https://developers.google.com/workspace/chat/list-reactions).
+            #
             # Requires [user
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
             #
@@ -2920,17 +3431,17 @@ module Google
               @chat_service_stub.call_rpc :list_reactions, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @chat_service_stub, :list_reactions, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
             end
 
             ##
-            # Deletes a reaction to a message. Only unicode emojis are supported.
-            # For an example, see
+            # Deletes a reaction to a message. For an example, see
             # [Delete a
             # reaction](https://developers.google.com/workspace/chat/delete-reactions).
+            #
             # Requires [user
             # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
             #
@@ -3013,7 +3524,6 @@ module Google
 
               @chat_service_stub.call_rpc :delete_reaction, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3119,7 +3629,6 @@ module Google
 
               @chat_service_stub.call_rpc :get_space_read_state, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3238,7 +3747,6 @@ module Google
 
               @chat_service_stub.call_rpc :update_space_read_state, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3345,7 +3853,476 @@ module Google
 
               @chat_service_stub.call_rpc :get_thread_read_state, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Returns an event from a Google Chat space. The [event
+            # payload](https://developers.google.com/workspace/chat/api/reference/rest/v1/spaces.spaceEvents#SpaceEvent.FIELDS.oneof_payload)
+            # contains the most recent version of the resource that changed. For example,
+            # if you request an event about a new message but the message was later
+            # updated, the server returns the updated `Message` resource in the event
+            # payload.
+            #
+            # Note: The `permissionSettings` field is not returned in the Space
+            # object of the Space event data for this request.
+            #
+            # Requires [user
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            # To get an event, the authenticated user must be a member of the space.
+            #
+            # For an example, see [Get details about an
+            # event from a Google Chat
+            # space](https://developers.google.com/workspace/chat/get-space-event).
+            #
+            # @overload get_space_event(request, options = nil)
+            #   Pass arguments to `get_space_event` via a request object, either of type
+            #   {::Google::Apps::Chat::V1::GetSpaceEventRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Apps::Chat::V1::GetSpaceEventRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload get_space_event(name: nil)
+            #   Pass arguments to `get_space_event` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param name [::String]
+            #     Required. The resource name of the space event.
+            #
+            #     Format: `spaces/{space}/spaceEvents/{spaceEvent}`
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Google::Apps::Chat::V1::SpaceEvent]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Google::Apps::Chat::V1::SpaceEvent]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/apps/chat/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Apps::Chat::V1::ChatService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Apps::Chat::V1::GetSpaceEventRequest.new
+            #
+            #   # Call the get_space_event method.
+            #   result = client.get_space_event request
+            #
+            #   # The returned object is of type Google::Apps::Chat::V1::SpaceEvent.
+            #   p result
+            #
+            def get_space_event request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Apps::Chat::V1::GetSpaceEventRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.get_space_event.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Apps::Chat::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.name
+                header_params["name"] = request.name
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.get_space_event.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.get_space_event.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @chat_service_stub.call_rpc :get_space_event, request, options: options do |response, operation|
+                yield response, operation if block_given?
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Lists events from a Google Chat space. For each event, the
+            # [payload](https://developers.google.com/workspace/chat/api/reference/rest/v1/spaces.spaceEvents#SpaceEvent.FIELDS.oneof_payload)
+            # contains the most recent version of the Chat resource. For example, if you
+            # list events about new space members, the server returns `Membership`
+            # resources that contain the latest membership details. If new members were
+            # removed during the requested period, the event payload contains an empty
+            # `Membership` resource.
+            #
+            # Requires [user
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            # To list events, the authenticated user must be a member of the space.
+            #
+            # For an example, see [List events from a Google Chat
+            # space](https://developers.google.com/workspace/chat/list-space-events).
+            #
+            # @overload list_space_events(request, options = nil)
+            #   Pass arguments to `list_space_events` via a request object, either of type
+            #   {::Google::Apps::Chat::V1::ListSpaceEventsRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Apps::Chat::V1::ListSpaceEventsRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload list_space_events(parent: nil, page_size: nil, page_token: nil, filter: nil)
+            #   Pass arguments to `list_space_events` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param parent [::String]
+            #     Required. Resource name of the [Google Chat
+            #     space](https://developers.google.com/workspace/chat/api/reference/rest/v1/spaces)
+            #     where the events occurred.
+            #
+            #     Format: `spaces/{space}`.
+            #   @param page_size [::Integer]
+            #     Optional. The maximum number of space events returned. The service might
+            #     return fewer than this value.
+            #
+            #     Negative values return an `INVALID_ARGUMENT` error.
+            #   @param page_token [::String]
+            #     Optional. A page token, received from a previous list space events call.
+            #     Provide this to retrieve the subsequent page.
+            #
+            #     When paginating, all other parameters provided to list space events must
+            #     match the call that provided the page token. Passing different values to
+            #     the other parameters might lead to unexpected results.
+            #   @param filter [::String]
+            #     Required. A query filter.
+            #
+            #     You must specify at least one event type (`event_type`)
+            #     using the has `:` operator. To filter by multiple event types, use the `OR`
+            #     operator. Omit batch event types in your filter. The request automatically
+            #     returns any related batch events. For example, if you filter by new
+            #     reactions
+            #     (`google.workspace.chat.reaction.v1.created`), the server also returns
+            #     batch new reactions events
+            #     (`google.workspace.chat.reaction.v1.batchCreated`). For a list of supported
+            #     event types, see the [`SpaceEvents` reference
+            #     documentation](https://developers.google.com/workspace/chat/api/reference/rest/v1/spaces.spaceEvents#SpaceEvent.FIELDS.event_type).
+            #
+            #     Optionally, you can also filter by start time (`start_time`) and
+            #     end time (`end_time`):
+            #
+            #     * `start_time`: Exclusive timestamp from which to start listing space
+            #     events.
+            #      You can list events that occurred up to 28 days ago. If unspecified, lists
+            #      space events from the past 28 days.
+            #     * `end_time`: Inclusive timestamp until which space events are listed.
+            #      If unspecified, lists events up to the time of the request.
+            #
+            #     To specify a start or end time, use the equals `=` operator and format in
+            #     [RFC-3339](https://www.rfc-editor.org/rfc/rfc3339). To filter by both
+            #     `start_time` and `end_time`, use the `AND` operator.
+            #
+            #     For example, the following queries are valid:
+            #
+            #     ```
+            #     start_time="2023-08-23T19:20:33+00:00" AND
+            #     end_time="2023-08-23T19:21:54+00:00"
+            #     ```
+            #     ```
+            #     start_time="2023-08-23T19:20:33+00:00" AND
+            #     (event_types:"google.workspace.chat.space.v1.updated" OR
+            #     event_types:"google.workspace.chat.message.v1.created")
+            #     ```
+            #
+            #     The following queries are invalid:
+            #
+            #     ```
+            #     start_time="2023-08-23T19:20:33+00:00" OR
+            #     end_time="2023-08-23T19:21:54+00:00"
+            #     ```
+            #     ```
+            #     event_types:"google.workspace.chat.space.v1.updated" AND
+            #     event_types:"google.workspace.chat.message.v1.created"
+            #     ```
+            #
+            #     Invalid queries are rejected by the server with an `INVALID_ARGUMENT`
+            #     error.
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Gapic::PagedEnumerable<::Google::Apps::Chat::V1::SpaceEvent>]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Gapic::PagedEnumerable<::Google::Apps::Chat::V1::SpaceEvent>]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/apps/chat/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Apps::Chat::V1::ChatService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Apps::Chat::V1::ListSpaceEventsRequest.new
+            #
+            #   # Call the list_space_events method.
+            #   result = client.list_space_events request
+            #
+            #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+            #   # over elements, and API calls will be issued to fetch pages as needed.
+            #   result.each do |item|
+            #     # Each element is of type ::Google::Apps::Chat::V1::SpaceEvent.
+            #     p item
+            #   end
+            #
+            def list_space_events request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Apps::Chat::V1::ListSpaceEventsRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.list_space_events.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Apps::Chat::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.parent
+                header_params["parent"] = request.parent
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.list_space_events.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.list_space_events.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @chat_service_stub.call_rpc :list_space_events, request, options: options do |response, operation|
+                response = ::Gapic::PagedEnumerable.new @chat_service_stub, :list_space_events, request, response, operation, options
+                yield response, operation if block_given?
+                throw :response, response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Gets the space notification setting. For an example, see [Get the
+            # caller's space notification
+            # setting](https://developers.google.com/workspace/chat/get-space-notification-setting).
+            #
+            # Requires [user
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            # @overload get_space_notification_setting(request, options = nil)
+            #   Pass arguments to `get_space_notification_setting` via a request object, either of type
+            #   {::Google::Apps::Chat::V1::GetSpaceNotificationSettingRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Apps::Chat::V1::GetSpaceNotificationSettingRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload get_space_notification_setting(name: nil)
+            #   Pass arguments to `get_space_notification_setting` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param name [::String]
+            #     Required. Format: users/\\{user}/spaces/\\{space}/spaceNotificationSetting
+            #
+            #     - `users/me/spaces/{space}/spaceNotificationSetting`, OR
+            #     - `users/user@example.com/spaces/{space}/spaceNotificationSetting`, OR
+            #     - `users/123456789/spaces/{space}/spaceNotificationSetting`.
+            #     Note: Only the caller's user id or email is allowed in the path.
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Google::Apps::Chat::V1::SpaceNotificationSetting]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Google::Apps::Chat::V1::SpaceNotificationSetting]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/apps/chat/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Apps::Chat::V1::ChatService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Apps::Chat::V1::GetSpaceNotificationSettingRequest.new
+            #
+            #   # Call the get_space_notification_setting method.
+            #   result = client.get_space_notification_setting request
+            #
+            #   # The returned object is of type Google::Apps::Chat::V1::SpaceNotificationSetting.
+            #   p result
+            #
+            def get_space_notification_setting request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Apps::Chat::V1::GetSpaceNotificationSettingRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.get_space_notification_setting.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Apps::Chat::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.name
+                header_params["name"] = request.name
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.get_space_notification_setting.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.get_space_notification_setting.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @chat_service_stub.call_rpc :get_space_notification_setting, request, options: options do |response, operation|
+                yield response, operation if block_given?
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Updates the space notification setting. For an example, see [Update
+            # the caller's space notification
+            # setting](https://developers.google.com/workspace/chat/update-space-notification-setting).
+            #
+            # Requires [user
+            # authentication](https://developers.google.com/workspace/chat/authenticate-authorize-chat-user).
+            #
+            # @overload update_space_notification_setting(request, options = nil)
+            #   Pass arguments to `update_space_notification_setting` via a request object, either of type
+            #   {::Google::Apps::Chat::V1::UpdateSpaceNotificationSettingRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Apps::Chat::V1::UpdateSpaceNotificationSettingRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload update_space_notification_setting(space_notification_setting: nil, update_mask: nil)
+            #   Pass arguments to `update_space_notification_setting` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param space_notification_setting [::Google::Apps::Chat::V1::SpaceNotificationSetting, ::Hash]
+            #     Required. The resource name for the space notification settings must be
+            #     populated in the form of
+            #     `users/{user}/spaces/{space}/spaceNotificationSetting`. Only fields
+            #     specified by `update_mask` are updated.
+            #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+            #     Required. Supported field paths:
+            #
+            #     - `notification_setting`
+            #
+            #     - `mute_setting`
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Google::Apps::Chat::V1::SpaceNotificationSetting]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Google::Apps::Chat::V1::SpaceNotificationSetting]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/apps/chat/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Apps::Chat::V1::ChatService::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Apps::Chat::V1::UpdateSpaceNotificationSettingRequest.new
+            #
+            #   # Call the update_space_notification_setting method.
+            #   result = client.update_space_notification_setting request
+            #
+            #   # The returned object is of type Google::Apps::Chat::V1::SpaceNotificationSetting.
+            #   p result
+            #
+            def update_space_notification_setting request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Apps::Chat::V1::UpdateSpaceNotificationSettingRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.update_space_notification_setting.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Apps::Chat::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.space_notification_setting&.name
+                header_params["space_notification_setting.name"] = request.space_notification_setting.name
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.update_space_notification_setting.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.update_space_notification_setting.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @chat_service_stub.call_rpc :update_space_notification_setting, request, options: options do |response, operation|
+                yield response, operation if block_given?
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3395,6 +4372,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -3434,6 +4418,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -3458,6 +4447,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil
@@ -3555,6 +4545,11 @@ module Google
                 #
                 attr_reader :list_spaces
                 ##
+                # RPC-specific configuration for `search_spaces`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :search_spaces
+                ##
                 # RPC-specific configuration for `get_space`
                 # @return [::Gapic::Config::Method]
                 #
@@ -3634,6 +4629,26 @@ module Google
                 # @return [::Gapic::Config::Method]
                 #
                 attr_reader :get_thread_read_state
+                ##
+                # RPC-specific configuration for `get_space_event`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :get_space_event
+                ##
+                # RPC-specific configuration for `list_space_events`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :list_space_events
+                ##
+                # RPC-specific configuration for `get_space_notification_setting`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :get_space_notification_setting
+                ##
+                # RPC-specific configuration for `update_space_notification_setting`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :update_space_notification_setting
 
                 # @private
                 def initialize parent_rpcs = nil
@@ -3657,6 +4672,8 @@ module Google
                   @upload_attachment = ::Gapic::Config::Method.new upload_attachment_config
                   list_spaces_config = parent_rpcs.list_spaces if parent_rpcs.respond_to? :list_spaces
                   @list_spaces = ::Gapic::Config::Method.new list_spaces_config
+                  search_spaces_config = parent_rpcs.search_spaces if parent_rpcs.respond_to? :search_spaces
+                  @search_spaces = ::Gapic::Config::Method.new search_spaces_config
                   get_space_config = parent_rpcs.get_space if parent_rpcs.respond_to? :get_space
                   @get_space = ::Gapic::Config::Method.new get_space_config
                   create_space_config = parent_rpcs.create_space if parent_rpcs.respond_to? :create_space
@@ -3689,6 +4706,14 @@ module Google
                   @update_space_read_state = ::Gapic::Config::Method.new update_space_read_state_config
                   get_thread_read_state_config = parent_rpcs.get_thread_read_state if parent_rpcs.respond_to? :get_thread_read_state
                   @get_thread_read_state = ::Gapic::Config::Method.new get_thread_read_state_config
+                  get_space_event_config = parent_rpcs.get_space_event if parent_rpcs.respond_to? :get_space_event
+                  @get_space_event = ::Gapic::Config::Method.new get_space_event_config
+                  list_space_events_config = parent_rpcs.list_space_events if parent_rpcs.respond_to? :list_space_events
+                  @list_space_events = ::Gapic::Config::Method.new list_space_events_config
+                  get_space_notification_setting_config = parent_rpcs.get_space_notification_setting if parent_rpcs.respond_to? :get_space_notification_setting
+                  @get_space_notification_setting = ::Gapic::Config::Method.new get_space_notification_setting_config
+                  update_space_notification_setting_config = parent_rpcs.update_space_notification_setting if parent_rpcs.respond_to? :update_space_notification_setting
+                  @update_space_notification_setting = ::Gapic::Config::Method.new update_space_notification_setting_config
 
                   yield self if block_given?
                 end

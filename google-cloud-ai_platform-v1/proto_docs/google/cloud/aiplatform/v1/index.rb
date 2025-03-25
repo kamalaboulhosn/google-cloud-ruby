@@ -91,6 +91,12 @@ module Google
         #   @return [::Google::Cloud::AIPlatform::V1::EncryptionSpec]
         #     Immutable. Customer-managed encryption key spec for an Index. If set, this
         #     Index and all sub-resources of this Index will be secured by this key.
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use.
         class Index
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -126,8 +132,11 @@ module Google
         #     Required. Unique identifier of the datapoint.
         # @!attribute [rw] feature_vector
         #   @return [::Array<::Float>]
-        #     Required. Feature embedding vector. An array of numbers with the length of
-        #     [NearestNeighborSearchConfig.dimensions].
+        #     Required. Feature embedding vector for dense index. An array of numbers
+        #     with the length of [NearestNeighborSearchConfig.dimensions].
+        # @!attribute [rw] sparse_embedding
+        #   @return [::Google::Cloud::AIPlatform::V1::IndexDatapoint::SparseEmbedding]
+        #     Optional. Feature embedding vector for sparse index.
         # @!attribute [rw] restricts
         #   @return [::Array<::Google::Cloud::AIPlatform::V1::IndexDatapoint::Restriction>]
         #     Optional. List of Restrict of the datapoint, used to perform "restricted
@@ -146,6 +155,20 @@ module Google
         class IndexDatapoint
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Feature embedding vector for sparse index. An array of numbers whose values
+          # are located in the specified dimensions.
+          # @!attribute [rw] values
+          #   @return [::Array<::Float>]
+          #     Required. The list of embedding values of the sparse vector.
+          # @!attribute [rw] dimensions
+          #   @return [::Array<::Integer>]
+          #     Required. The list of indexes for the embedding values of the sparse
+          #     vector.
+          class SparseEmbedding
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
 
           # Restriction of a datapoint which describe its attributes(tokens) from each
           # of several attribute categories(namespaces).
@@ -168,12 +191,18 @@ module Google
           # @!attribute [rw] value_int
           #   @return [::Integer]
           #     Represents 64 bit integer.
+          #
+          #     Note: The following fields are mutually exclusive: `value_int`, `value_float`, `value_double`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] value_float
           #   @return [::Float]
           #     Represents 32 bit float.
+          #
+          #     Note: The following fields are mutually exclusive: `value_float`, `value_int`, `value_double`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] value_double
           #   @return [::Float]
           #     Represents 64 bit float.
+          #
+          #     Note: The following fields are mutually exclusive: `value_double`, `value_int`, `value_float`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] namespace
           #   @return [::String]
           #     The namespace of this restriction. e.g.: cost.
@@ -233,7 +262,10 @@ module Google
         # Stats of the Index.
         # @!attribute [r] vectors_count
         #   @return [::Integer]
-        #     Output only. The number of vectors in the Index.
+        #     Output only. The number of dense vectors in the Index.
+        # @!attribute [r] sparse_vectors_count
+        #   @return [::Integer]
+        #     Output only. The number of sparse vectors in the Index.
         # @!attribute [r] shards_count
         #   @return [::Integer]
         #     Output only. The number of shards in the Index.

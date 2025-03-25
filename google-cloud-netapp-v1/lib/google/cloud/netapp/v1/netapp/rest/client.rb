@@ -314,8 +314,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @net_app_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -323,6 +334,7 @@ module Google
                   config.endpoint = @net_app_stub.endpoint
                   config.universe_domain = @net_app_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @net_app_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -339,6 +351,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @net_app_stub.logger
+              end
 
               # Service calls
 
@@ -373,10 +394,10 @@ module Google
               #   @param filter [::String]
               #     Optional. List filter.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListStoragePoolsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::StoragePool>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListStoragePoolsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::StoragePool>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -428,8 +449,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_storage_pools request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_storage_pools, "storage_pools", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -456,9 +478,10 @@ module Google
               #   @param parent [::String]
               #     Required. Value for parent.
               #   @param storage_pool_id [::String]
-              #     Required. Id of the requesting storage pool
-              #     If auto-generating Id server-side, remove this field and
-              #     id from the method_signature of Create RPC
+              #     Required. Id of the requesting storage pool. Must be unique within the
+              #     parent resource. Must contain only letters, numbers and hyphen, with the
+              #     first character a letter, the last a letter or a number, and a 63 character
+              #     maximum.
               #   @param storage_pool [::Google::Cloud::NetApp::V1::StoragePool, ::Hash]
               #     Required. The required parameters to create a new storage pool.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -522,7 +545,7 @@ module Google
                 @net_app_stub.create_storage_pool request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -601,7 +624,6 @@ module Google
 
                 @net_app_stub.get_storage_pool request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -694,7 +716,7 @@ module Google
                 @net_app_stub.update_storage_pool request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -781,7 +803,185 @@ module Google
                 @net_app_stub.delete_storage_pool request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # ValidateDirectoryService does a connectivity check for a directory service
+              # policy attached to the storage pool.
+              #
+              # @overload validate_directory_service(request, options = nil)
+              #   Pass arguments to `validate_directory_service` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::ValidateDirectoryServiceRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::ValidateDirectoryServiceRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload validate_directory_service(name: nil, directory_service_type: nil)
+              #   Pass arguments to `validate_directory_service` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Name of the storage pool
+              #   @param directory_service_type [::Google::Cloud::NetApp::V1::DirectoryServiceType]
+              #     Type of directory service policy attached to the storage pool.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::ValidateDirectoryServiceRequest.new
+              #
+              #   # Call the validate_directory_service method.
+              #   result = client.validate_directory_service request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def validate_directory_service request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::ValidateDirectoryServiceRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.validate_directory_service.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.validate_directory_service.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.validate_directory_service.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.validate_directory_service request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # This operation will switch the active/replica zone for a regional
+              # storagePool.
+              #
+              # @overload switch_active_replica_zone(request, options = nil)
+              #   Pass arguments to `switch_active_replica_zone` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::SwitchActiveReplicaZoneRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::SwitchActiveReplicaZoneRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload switch_active_replica_zone(name: nil)
+              #   Pass arguments to `switch_active_replica_zone` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Name of the storage pool
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::SwitchActiveReplicaZoneRequest.new
+              #
+              #   # Call the switch_active_replica_zone method.
+              #   result = client.switch_active_replica_zone request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def switch_active_replica_zone request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::SwitchActiveReplicaZoneRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.switch_active_replica_zone.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.switch_active_replica_zone.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.switch_active_replica_zone.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.switch_active_replica_zone request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -817,10 +1017,10 @@ module Google
               #   @param order_by [::String]
               #     Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListVolumesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::Volume>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListVolumesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::Volume>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -872,8 +1072,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_volumes request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_volumes, "volumes", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -952,7 +1153,6 @@ module Google
 
                 @net_app_stub.get_volume request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -979,9 +1179,10 @@ module Google
               #   @param parent [::String]
               #     Required. Value for parent.
               #   @param volume_id [::String]
-              #     Required. Id of the requesting volume
-              #     If auto-generating Id server-side, remove this field and
-              #     Id from the method_signature of Create RPC
+              #     Required. Id of the requesting volume. Must be unique within the parent
+              #     resource. Must contain only letters, numbers and hyphen, with the first
+              #     character a letter, the last a letter or a number,
+              #     and a 63 character maximum.
               #   @param volume [::Google::Cloud::NetApp::V1::Volume, ::Hash]
               #     Required. The volume being created.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -1045,7 +1246,7 @@ module Google
                 @net_app_stub.create_volume request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1138,7 +1339,7 @@ module Google
                 @net_app_stub.update_volume request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1229,7 +1430,7 @@ module Google
                 @net_app_stub.delete_volume request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1323,7 +1524,7 @@ module Google
                 @net_app_stub.revert_volume request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1361,10 +1562,10 @@ module Google
               #   @param filter [::String]
               #     List filter.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListSnapshotsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::Snapshot>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListSnapshotsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::Snapshot>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1416,8 +1617,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_snapshots request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_snapshots, "snapshots", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1497,7 +1699,6 @@ module Google
 
                 @net_app_stub.get_snapshot request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1527,9 +1728,10 @@ module Google
               #   @param snapshot [::Google::Cloud::NetApp::V1::Snapshot, ::Hash]
               #     Required. A snapshot resource
               #   @param snapshot_id [::String]
-              #     Required. ID of the snapshot to create.
-              #     This value must start with a lowercase letter followed by up to 62
-              #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
+              #     Required. ID of the snapshot to create. Must be unique within the parent
+              #     resource. Must contain only letters, numbers and hyphen, with the first
+              #     character a letter, the last a letter or a
+              #     number, and a 63 character maximum.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1591,7 +1793,7 @@ module Google
                 @net_app_stub.create_snapshot request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1679,7 +1881,7 @@ module Google
                 @net_app_stub.delete_snapshot request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1769,7 +1971,7 @@ module Google
                 @net_app_stub.update_snapshot request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1805,10 +2007,10 @@ module Google
               #   @param order_by [::String]
               #     Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListActiveDirectoriesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::ActiveDirectory>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListActiveDirectoriesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::ActiveDirectory>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -1860,8 +2062,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_active_directories request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_active_directories, "active_directories", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1940,7 +2143,6 @@ module Google
 
                 @net_app_stub.get_active_directory request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1970,7 +2172,10 @@ module Google
               #   @param active_directory [::Google::Cloud::NetApp::V1::ActiveDirectory, ::Hash]
               #     Required. Fields of the to be created active directory.
               #   @param active_directory_id [::String]
-              #     Required. ID of the active directory to create.
+              #     Required. ID of the active directory to create. Must be unique within the
+              #     parent resource. Must contain only letters, numbers and hyphen, with the
+              #     first character a letter , the last a letter or a number, and a 63
+              #     character maximum.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -2032,7 +2237,7 @@ module Google
                 @net_app_stub.create_active_directory request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2125,7 +2330,7 @@ module Google
                 @net_app_stub.update_active_directory request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2212,7 +2417,7 @@ module Google
                 @net_app_stub.delete_active_directory request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2248,10 +2453,10 @@ module Google
               #   @param filter [::String]
               #     List filter.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListKmsConfigsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::KmsConfig>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListKmsConfigsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::KmsConfig>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2303,8 +2508,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_kms_configs request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_kms_configs, "kms_configs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2331,9 +2537,10 @@ module Google
               #   @param parent [::String]
               #     Required. Value for parent.
               #   @param kms_config_id [::String]
-              #     Required. Id of the requesting KmsConfig
-              #     If auto-generating Id server-side, remove this field and
-              #     id from the method_signature of Create RPC
+              #     Required. Id of the requesting KmsConfig. Must be unique within the parent
+              #     resource. Must contain only letters, numbers and hyphen, with the first
+              #     character a letter, the last a letter or a
+              #     number, and a 63 character maximum.
               #   @param kms_config [::Google::Cloud::NetApp::V1::KmsConfig, ::Hash]
               #     Required. The required parameters to create a new KmsConfig.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -2397,7 +2604,7 @@ module Google
                 @net_app_stub.create_kms_config request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2476,7 +2683,6 @@ module Google
 
                 @net_app_stub.get_kms_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2569,7 +2775,7 @@ module Google
                 @net_app_stub.update_kms_config request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2657,7 +2863,7 @@ module Google
                 @net_app_stub.encrypt_volumes request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2736,7 +2942,6 @@ module Google
 
                 @net_app_stub.verify_kms_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2823,7 +3028,7 @@ module Google
                 @net_app_stub.delete_kms_config request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2861,10 +3066,10 @@ module Google
               #   @param filter [::String]
               #     List filter.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListReplicationsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::Replication>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListReplicationsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::Replication>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -2916,8 +3121,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_replications request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_replications, "replications", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2997,7 +3203,6 @@ module Google
 
                 @net_app_stub.get_replication request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3027,9 +3232,10 @@ module Google
               #   @param replication [::Google::Cloud::NetApp::V1::Replication, ::Hash]
               #     Required. A replication resource
               #   @param replication_id [::String]
-              #     Required. ID of the replication to create.
-              #     This value must start with a lowercase letter followed by up to 62
-              #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
+              #     Required. ID of the replication to create. Must be unique within the parent
+              #     resource. Must contain only letters, numbers and hyphen, with the first
+              #     character a letter, the last a letter or a
+              #     number, and a 63 character maximum.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -3091,7 +3297,7 @@ module Google
                 @net_app_stub.create_replication request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3179,7 +3385,7 @@ module Google
                 @net_app_stub.delete_replication request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3269,7 +3475,7 @@ module Google
                 @net_app_stub.update_replication request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3364,7 +3570,7 @@ module Google
                 @net_app_stub.stop_replication request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3452,7 +3658,7 @@ module Google
                 @net_app_stub.resume_replication request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3541,7 +3747,195 @@ module Google
                 @net_app_stub.reverse_replication_direction request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Establish replication peering.
+              #
+              # @overload establish_peering(request, options = nil)
+              #   Pass arguments to `establish_peering` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::EstablishPeeringRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::EstablishPeeringRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload establish_peering(name: nil, peer_cluster_name: nil, peer_svm_name: nil, peer_ip_addresses: nil, peer_volume_name: nil)
+              #   Pass arguments to `establish_peering` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The resource name of the replication, in the format of
+              #     projects/\\{project_id}/locations/\\{location}/volumes/\\{volume_id}/replications/\\{replication_id}.
+              #   @param peer_cluster_name [::String]
+              #     Required. Name of the user's local source cluster to be peered with the
+              #     destination cluster.
+              #   @param peer_svm_name [::String]
+              #     Required. Name of the user's local source vserver svm to be peered with the
+              #     destination vserver svm.
+              #   @param peer_ip_addresses [::Array<::String>]
+              #     Optional. List of IPv4 ip addresses to be used for peering.
+              #   @param peer_volume_name [::String]
+              #     Required. Name of the user's local source volume to be peered with the
+              #     destination volume.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::EstablishPeeringRequest.new
+              #
+              #   # Call the establish_peering method.
+              #   result = client.establish_peering request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def establish_peering request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::EstablishPeeringRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.establish_peering.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.establish_peering.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.establish_peering.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.establish_peering request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Syncs the replication. This will invoke one time volume data transfer from
+              # source to destination.
+              #
+              # @overload sync_replication(request, options = nil)
+              #   Pass arguments to `sync_replication` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::SyncReplicationRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::SyncReplicationRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload sync_replication(name: nil)
+              #   Pass arguments to `sync_replication` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The resource name of the replication, in the format of
+              #     projects/\\{project_id}/locations/\\{location}/volumes/\\{volume_id}/replications/\\{replication_id}.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::SyncReplicationRequest.new
+              #
+              #   # Call the sync_replication method.
+              #   result = client.sync_replication request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def sync_replication request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::SyncReplicationRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.sync_replication.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.sync_replication.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.sync_replication.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.sync_replication request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3571,11 +3965,9 @@ module Google
               #   @param backup_vault_id [::String]
               #     Required. The ID to use for the backupVault.
               #     The ID must be unique within the specified location.
-              #     The max supported length is 63 characters.
-              #     This value must start with a lowercase letter followed by up to 62
-              #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
-              #     Values that do not match this pattern will trigger an INVALID_ARGUMENT
-              #     error.
+              #     Must contain only letters, numbers and hyphen, with the first
+              #     character a letter, the last a letter or a
+              #     number, and a 63 character maximum.
               #   @param backup_vault [::Google::Cloud::NetApp::V1::BackupVault, ::Hash]
               #     Required. A backupVault resource
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -3639,7 +4031,7 @@ module Google
                 @net_app_stub.create_backup_vault request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3719,7 +4111,6 @@ module Google
 
                 @net_app_stub.get_backup_vault request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3757,10 +4148,10 @@ module Google
               #   @param filter [::String]
               #     List filter.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListBackupVaultsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::BackupVault>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListBackupVaultsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::BackupVault>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -3812,8 +4203,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_backup_vaults request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_backup_vaults, "backup_vaults", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3906,7 +4298,7 @@ module Google
                 @net_app_stub.update_backup_vault request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -3994,7 +4386,7 @@ module Google
                 @net_app_stub.delete_backup_vault request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4027,10 +4419,9 @@ module Google
               #   @param backup_id [::String]
               #     Required. The ID to use for the backup.
               #     The ID must be unique within the specified backupVault.
-              #     This value must start with a lowercase letter followed by up to 62
-              #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
-              #     Values that do not match this pattern will trigger an INVALID_ARGUMENT
-              #     error.
+              #     Must contain only letters, numbers and hyphen, with the first
+              #     character a letter, the last a letter or a
+              #     number, and a 63 character maximum.
               #   @param backup [::Google::Cloud::NetApp::V1::Backup, ::Hash]
               #     Required. A backup resource
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -4094,7 +4485,7 @@ module Google
                 @net_app_stub.create_backup request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4174,7 +4565,6 @@ module Google
 
                 @net_app_stub.get_backup request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4223,10 +4613,10 @@ module Google
               #     matches the filter expression. If empty, then no backups are filtered out.
               #     See https://google.aip.dev/160
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListBackupsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::Backup>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListBackupsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::Backup>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -4278,8 +4668,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_backups request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_backups, "backups", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4367,7 +4758,7 @@ module Google
                 @net_app_stub.delete_backup request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4460,7 +4851,7 @@ module Google
                 @net_app_stub.update_backup request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4492,8 +4883,9 @@ module Google
               #   @param backup_policy_id [::String]
               #     Required. The ID to use for the backup policy.
               #     The ID must be unique within the specified location.
-              #     This value must start with a lowercase letter followed by up to 62
-              #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
+              #     Must contain only letters, numbers and hyphen, with the first
+              #     character a letter, the last a letter or a
+              #     number, and a 63 character maximum.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -4555,7 +4947,7 @@ module Google
                 @net_app_stub.create_backup_policy request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4635,7 +5027,6 @@ module Google
 
                 @net_app_stub.get_backup_policy request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4671,10 +5062,10 @@ module Google
               #   @param order_by [::String]
               #     Hint for how to order the results
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::NetApp::V1::ListBackupPoliciesResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::BackupPolicy>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::NetApp::V1::ListBackupPoliciesResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::BackupPolicy>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -4726,8 +5117,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @net_app_stub.list_backup_policies request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_backup_policies, "backup_policies", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4820,7 +5212,7 @@ module Google
                 @net_app_stub.update_backup_policy request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4908,7 +5300,452 @@ module Google
                 @net_app_stub.delete_backup_policy request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Returns list of all quota rules in a location.
+              #
+              # @overload list_quota_rules(request, options = nil)
+              #   Pass arguments to `list_quota_rules` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::ListQuotaRulesRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::ListQuotaRulesRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_quota_rules(parent: nil, page_size: nil, page_token: nil, filter: nil, order_by: nil)
+              #   Pass arguments to `list_quota_rules` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Parent value for ListQuotaRulesRequest
+              #   @param page_size [::Integer]
+              #     Optional. Requested page size. Server may return fewer items than
+              #     requested. If unspecified, the server will pick an appropriate default.
+              #   @param page_token [::String]
+              #     Optional. A token identifying a page of results the server should return.
+              #   @param filter [::String]
+              #     Optional. Filtering results
+              #   @param order_by [::String]
+              #     Optional. Hint for how to order the results
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::QuotaRule>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::NetApp::V1::QuotaRule>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::ListQuotaRulesRequest.new
+              #
+              #   # Call the list_quota_rules method.
+              #   result = client.list_quota_rules request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::NetApp::V1::QuotaRule.
+              #     p item
+              #   end
+              #
+              def list_quota_rules request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::ListQuotaRulesRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_quota_rules.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_quota_rules.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_quota_rules.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.list_quota_rules request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @net_app_stub, :list_quota_rules, "quota_rules", request, result, options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Returns details of the specified quota rule.
+              #
+              # @overload get_quota_rule(request, options = nil)
+              #   Pass arguments to `get_quota_rule` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::GetQuotaRuleRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::GetQuotaRuleRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_quota_rule(name: nil)
+              #   Pass arguments to `get_quota_rule` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Name of the quota rule
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::NetApp::V1::QuotaRule]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::NetApp::V1::QuotaRule]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::GetQuotaRuleRequest.new
+              #
+              #   # Call the get_quota_rule method.
+              #   result = client.get_quota_rule request
+              #
+              #   # The returned object is of type Google::Cloud::NetApp::V1::QuotaRule.
+              #   p result
+              #
+              def get_quota_rule request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::GetQuotaRuleRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_quota_rule.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_quota_rule.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_quota_rule.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.get_quota_rule request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Creates a new quota rule.
+              #
+              # @overload create_quota_rule(request, options = nil)
+              #   Pass arguments to `create_quota_rule` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::CreateQuotaRuleRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::CreateQuotaRuleRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload create_quota_rule(parent: nil, quota_rule: nil, quota_rule_id: nil)
+              #   Pass arguments to `create_quota_rule` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Parent value for CreateQuotaRuleRequest
+              #   @param quota_rule [::Google::Cloud::NetApp::V1::QuotaRule, ::Hash]
+              #     Required. Fields of the to be created quota rule.
+              #   @param quota_rule_id [::String]
+              #     Required. ID of the quota rule to create. Must be unique within the parent
+              #     resource. Must contain only letters, numbers, underscore and hyphen, with
+              #     the first character a letter or underscore, the last a letter or underscore
+              #     or a number, and a 63 character maximum.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::CreateQuotaRuleRequest.new
+              #
+              #   # Call the create_quota_rule method.
+              #   result = client.create_quota_rule request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def create_quota_rule request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::CreateQuotaRuleRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.create_quota_rule.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.create_quota_rule.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.create_quota_rule.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.create_quota_rule request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Updates a quota rule.
+              #
+              # @overload update_quota_rule(request, options = nil)
+              #   Pass arguments to `update_quota_rule` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::UpdateQuotaRuleRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::UpdateQuotaRuleRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_quota_rule(update_mask: nil, quota_rule: nil)
+              #   Pass arguments to `update_quota_rule` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Optional. Field mask is used to specify the fields to be overwritten in the
+              #     Quota Rule resource by the update.
+              #     The fields specified in the update_mask are relative to the resource, not
+              #     the full request. A field will be overwritten if it is in the mask. If the
+              #     user does not provide a mask then all fields will be overwritten.
+              #   @param quota_rule [::Google::Cloud::NetApp::V1::QuotaRule, ::Hash]
+              #     Required. The quota rule being updated
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::UpdateQuotaRuleRequest.new
+              #
+              #   # Call the update_quota_rule method.
+              #   result = client.update_quota_rule request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def update_quota_rule request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::UpdateQuotaRuleRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_quota_rule.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_quota_rule.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_quota_rule.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.update_quota_rule request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Deletes a quota rule.
+              #
+              # @overload delete_quota_rule(request, options = nil)
+              #   Pass arguments to `delete_quota_rule` via a request object, either of type
+              #   {::Google::Cloud::NetApp::V1::DeleteQuotaRuleRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::NetApp::V1::DeleteQuotaRuleRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_quota_rule(name: nil)
+              #   Pass arguments to `delete_quota_rule` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. Name of the quota rule.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/netapp/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::NetApp::V1::NetApp::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::NetApp::V1::DeleteQuotaRuleRequest.new
+              #
+              #   # Call the delete_quota_rule method.
+              #   result = client.delete_quota_rule request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def delete_quota_rule request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::NetApp::V1::DeleteQuotaRuleRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_quota_rule.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::NetApp::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_quota_rule.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_quota_rule.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @net_app_stub.delete_quota_rule request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -4956,6 +5793,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -4988,6 +5832,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -5016,6 +5865,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -5079,6 +5929,16 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :delete_storage_pool
+                  ##
+                  # RPC-specific configuration for `validate_directory_service`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :validate_directory_service
+                  ##
+                  # RPC-specific configuration for `switch_active_replica_zone`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :switch_active_replica_zone
                   ##
                   # RPC-specific configuration for `list_volumes`
                   # @return [::Gapic::Config::Method]
@@ -5235,6 +6095,16 @@ module Google
                   #
                   attr_reader :reverse_replication_direction
                   ##
+                  # RPC-specific configuration for `establish_peering`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :establish_peering
+                  ##
+                  # RPC-specific configuration for `sync_replication`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :sync_replication
+                  ##
                   # RPC-specific configuration for `create_backup_vault`
                   # @return [::Gapic::Config::Method]
                   #
@@ -5309,6 +6179,31 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :delete_backup_policy
+                  ##
+                  # RPC-specific configuration for `list_quota_rules`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_quota_rules
+                  ##
+                  # RPC-specific configuration for `get_quota_rule`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_quota_rule
+                  ##
+                  # RPC-specific configuration for `create_quota_rule`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :create_quota_rule
+                  ##
+                  # RPC-specific configuration for `update_quota_rule`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_quota_rule
+                  ##
+                  # RPC-specific configuration for `delete_quota_rule`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_quota_rule
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -5322,6 +6217,10 @@ module Google
                     @update_storage_pool = ::Gapic::Config::Method.new update_storage_pool_config
                     delete_storage_pool_config = parent_rpcs.delete_storage_pool if parent_rpcs.respond_to? :delete_storage_pool
                     @delete_storage_pool = ::Gapic::Config::Method.new delete_storage_pool_config
+                    validate_directory_service_config = parent_rpcs.validate_directory_service if parent_rpcs.respond_to? :validate_directory_service
+                    @validate_directory_service = ::Gapic::Config::Method.new validate_directory_service_config
+                    switch_active_replica_zone_config = parent_rpcs.switch_active_replica_zone if parent_rpcs.respond_to? :switch_active_replica_zone
+                    @switch_active_replica_zone = ::Gapic::Config::Method.new switch_active_replica_zone_config
                     list_volumes_config = parent_rpcs.list_volumes if parent_rpcs.respond_to? :list_volumes
                     @list_volumes = ::Gapic::Config::Method.new list_volumes_config
                     get_volume_config = parent_rpcs.get_volume if parent_rpcs.respond_to? :get_volume
@@ -5384,6 +6283,10 @@ module Google
                     @resume_replication = ::Gapic::Config::Method.new resume_replication_config
                     reverse_replication_direction_config = parent_rpcs.reverse_replication_direction if parent_rpcs.respond_to? :reverse_replication_direction
                     @reverse_replication_direction = ::Gapic::Config::Method.new reverse_replication_direction_config
+                    establish_peering_config = parent_rpcs.establish_peering if parent_rpcs.respond_to? :establish_peering
+                    @establish_peering = ::Gapic::Config::Method.new establish_peering_config
+                    sync_replication_config = parent_rpcs.sync_replication if parent_rpcs.respond_to? :sync_replication
+                    @sync_replication = ::Gapic::Config::Method.new sync_replication_config
                     create_backup_vault_config = parent_rpcs.create_backup_vault if parent_rpcs.respond_to? :create_backup_vault
                     @create_backup_vault = ::Gapic::Config::Method.new create_backup_vault_config
                     get_backup_vault_config = parent_rpcs.get_backup_vault if parent_rpcs.respond_to? :get_backup_vault
@@ -5414,6 +6317,16 @@ module Google
                     @update_backup_policy = ::Gapic::Config::Method.new update_backup_policy_config
                     delete_backup_policy_config = parent_rpcs.delete_backup_policy if parent_rpcs.respond_to? :delete_backup_policy
                     @delete_backup_policy = ::Gapic::Config::Method.new delete_backup_policy_config
+                    list_quota_rules_config = parent_rpcs.list_quota_rules if parent_rpcs.respond_to? :list_quota_rules
+                    @list_quota_rules = ::Gapic::Config::Method.new list_quota_rules_config
+                    get_quota_rule_config = parent_rpcs.get_quota_rule if parent_rpcs.respond_to? :get_quota_rule
+                    @get_quota_rule = ::Gapic::Config::Method.new get_quota_rule_config
+                    create_quota_rule_config = parent_rpcs.create_quota_rule if parent_rpcs.respond_to? :create_quota_rule
+                    @create_quota_rule = ::Gapic::Config::Method.new create_quota_rule_config
+                    update_quota_rule_config = parent_rpcs.update_quota_rule if parent_rpcs.respond_to? :update_quota_rule
+                    @update_quota_rule = ::Gapic::Config::Method.new update_quota_rule_config
+                    delete_quota_rule_config = parent_rpcs.delete_quota_rule if parent_rpcs.respond_to? :delete_quota_rule
+                    @delete_quota_rule = ::Gapic::Config::Method.new delete_quota_rule_config
 
                     yield self if block_given?
                   end

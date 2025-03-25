@@ -24,7 +24,7 @@ module Google
         # The create assessment request message.
         # @!attribute [rw] parent
         #   @return [::String]
-        #     Required. The name of the project in which the assessment will be created,
+        #     Required. The name of the project in which the assessment is created,
         #     in the format `projects/{project}`.
         # @!attribute [rw] assessment
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::Assessment]
@@ -162,8 +162,8 @@ module Google
         #     `projects/{project}/assessments/{assessment}`.
         # @!attribute [rw] annotation
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::AnnotateAssessmentRequest::Annotation]
-        #     Optional. The annotation that will be assigned to the Event. This field can
-        #     be left empty to provide reasons that apply to an event without concluding
+        #     Optional. The annotation that is assigned to the Event. This field can be
+        #     left empty to provide reasons that apply to an event without concluding
         #     whether the event is legitimate or fraudulent.
         # @!attribute [rw] reasons
         #   @return [::Array<::Google::Cloud::RecaptchaEnterprise::V1::AnnotateAssessmentRequest::Reason>]
@@ -211,7 +211,7 @@ module Google
 
           # Enum that represents potential reasons for annotating an assessment.
           module Reason
-            # Default unspecified reason.
+            # Unspecified reason. Do not use.
             REASON_UNSPECIFIED = 0
 
             # Indicates that the transaction had a chargeback issued with no other
@@ -285,10 +285,14 @@ module Google
         # @!attribute [rw] email_address
         #   @return [::String]
         #     Email address for which to trigger a verification request.
+        #
+        #     Note: The following fields are mutually exclusive: `email_address`, `phone_number`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] phone_number
         #   @return [::String]
         #     Phone number for which to trigger a verification request. Should be given
         #     in E.164 format.
+        #
+        #     Note: The following fields are mutually exclusive: `phone_number`, `email_address`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] request_token
         #   @return [::String]
         #     Output only. Token to provide to the client to trigger endpoint
@@ -431,6 +435,16 @@ module Google
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FraudSignals]
         #     Output only. Fraud Signals specific to the users involved in a payment
         #     transaction.
+        # @!attribute [r] phone_fraud_assessment
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1::PhoneFraudAssessment]
+        #     Output only. Assessment returned when a site key, a token, and a phone
+        #     number as `user_id` are provided. Account defender and SMS toll fraud
+        #     protection need to be enabled.
+        # @!attribute [rw] assessment_environment
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1::AssessmentEnvironment]
+        #     Optional. The environment creating the assessment. This describes your
+        #     environment (the system invoking CreateAssessment), NOT the environment of
+        #     your user.
         class Assessment
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -467,8 +481,7 @@ module Google
         # @!attribute [rw] express
         #   @return [::Boolean]
         #     Optional. Flag for a reCAPTCHA express request for an assessment without a
-        #     token. If enabled, `site_key` must reference a SCORE key with WAF feature
-        #     set to EXPRESS.
+        #     token. If enabled, `site_key` must reference an Express site key.
         # @!attribute [rw] requested_uri
         #   @return [::String]
         #     Optional. The URI resource the user requested that triggered an assessment.
@@ -479,15 +492,20 @@ module Google
         #     WAF-enabled key.
         # @!attribute [rw] ja3
         #   @return [::String]
-        #     Optional. JA3 fingerprint for SSL clients.
+        #     Optional. JA3 fingerprint for SSL clients. To learn how to compute this
+        #     fingerprint, please refer to https://github.com/salesforce/ja3.
+        # @!attribute [rw] ja4
+        #   @return [::String]
+        #     Optional. JA4 fingerprint for SSL clients. To learn how to compute this
+        #     fingerprint, please refer to https://github.com/FoxIO-LLC/ja4.
         # @!attribute [rw] headers
         #   @return [::Array<::String>]
         #     Optional. HTTP header information about the request.
         # @!attribute [rw] firewall_policy_evaluation
         #   @return [::Boolean]
         #     Optional. Flag for enabling firewall policy config assessment.
-        #     If this flag is enabled, the firewall policy will be evaluated and a
-        #     suggested firewall action will be returned in the response.
+        #     If this flag is enabled, the firewall policy is evaluated and a
+        #     suggested firewall action is returned in the response.
         # @!attribute [rw] transaction_data
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::TransactionData]
         #     Optional. Data describing a payment transaction to be assessed. Sending
@@ -508,10 +526,8 @@ module Google
 
           # Setting that controls Fraud Prevention assessments.
           module FraudPrevention
-            # Default, unspecified setting. If opted in for automatic detection,
-            # `fraud_prevention_assessment` is returned based on the request.
-            # Otherwise, `fraud_prevention_assessment` is returned if
-            # `transaction_data` is present in the `Event` and Fraud Prevention is
+            # Default, unspecified setting. `fraud_prevention_assessment` is returned
+            # if `transaction_data` is present in `Event` and Fraud Prevention is
             # enabled in the Google Cloud console.
             FRAUD_PREVENTION_UNSPECIFIED = 0
 
@@ -519,8 +535,8 @@ module Google
             # enabled in the Google Cloud console.
             ENABLED = 1
 
-            # Disable Fraud Prevention for this assessment, regardless of opt-in
-            # status or Google Cloud console settings.
+            # Disable Fraud Prevention for this assessment, regardless of the Google
+            # Cloud console settings.
             DISABLED = 2
           end
         end
@@ -707,14 +723,20 @@ module Google
         # @!attribute [rw] email
         #   @return [::String]
         #     Optional. An email address.
+        #
+        #     Note: The following fields are mutually exclusive: `email`, `phone_number`, `username`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] phone_number
         #   @return [::String]
         #     Optional. A phone number. Should use the E.164 format.
+        #
+        #     Note: The following fields are mutually exclusive: `phone_number`, `email`, `username`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] username
         #   @return [::String]
         #     Optional. A unique username, if different from all the other identifiers
         #     and `account_id` that are provided. Can be a unique login handle or
         #     display name for a user.
+        #
+        #     Note: The following fields are mutually exclusive: `username`, `email`, `phone_number`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class UserId
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -733,6 +755,10 @@ module Google
         #   @return [::Array<::String>]
         #     Output only. Extended verdict reasons to be used for experimentation only.
         #     The set of possible reasons is subject to change.
+        # @!attribute [r] challenge
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1::RiskAnalysis::Challenge]
+        #     Output only. Challenge information for SCORE_AND_CHALLENGE and INVISIBLE
+        #     keys
         class RiskAnalysis
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -764,6 +790,22 @@ module Google
 
             # The request matches behavioral characteristics of chargebacks for fraud.
             SUSPECTED_CHARGEBACK = 7
+          end
+
+          # Challenge information for SCORE_AND_CHALLENGE and INVISIBLE keys
+          module Challenge
+            # Default unspecified type.
+            CHALLENGE_UNSPECIFIED = 0
+
+            # No challenge was presented for solving.
+            NOCAPTCHA = 1
+
+            # A solution was submitted that was correct.
+            PASSED = 2
+
+            # A solution was submitted that was incorrect or otherwise
+            # deemed suspicious.
+            FAILED = 3
           end
         end
 
@@ -936,6 +978,37 @@ module Google
           end
         end
 
+        # Information about SMS toll fraud.
+        # @!attribute [r] risk
+        #   @return [::Float]
+        #     Output only. Probability of an SMS event being fraudulent.
+        #     Values are from 0.0 (lowest) to 1.0 (highest).
+        # @!attribute [r] reasons
+        #   @return [::Array<::Google::Cloud::RecaptchaEnterprise::V1::SmsTollFraudVerdict::SmsTollFraudReason>]
+        #     Output only. Reasons contributing to the SMS toll fraud verdict.
+        class SmsTollFraudVerdict
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Reasons contributing to the SMS toll fraud verdict.
+          module SmsTollFraudReason
+            # Default unspecified reason
+            SMS_TOLL_FRAUD_REASON_UNSPECIFIED = 0
+
+            # The provided phone number was invalid
+            INVALID_PHONE_NUMBER = 1
+          end
+        end
+
+        # Assessment for Phone Fraud
+        # @!attribute [r] sms_toll_fraud_verdict
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1::SmsTollFraudVerdict]
+        #     Output only. Assessment of this phone event for risk of SMS toll fraud.
+        class PhoneFraudAssessment
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # Account defender risk assessment.
         # @!attribute [r] labels
         #   @return [::Array<::Google::Cloud::RecaptchaEnterprise::V1::AccountDefenderAssessment::AccountDefenderLabel>]
@@ -970,7 +1043,7 @@ module Google
         # The create key request message.
         # @!attribute [rw] parent
         #   @return [::String]
-        #     Required. The name of the project in which the key will be created, in the
+        #     Required. The name of the project in which the key is created, in the
         #     format `projects/{project}`.
         # @!attribute [rw] key
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::Key]
@@ -983,7 +1056,7 @@ module Google
         # The list keys request message.
         # @!attribute [rw] parent
         #   @return [::String]
-        #     Required. The name of the project that contains the keys that will be
+        #     Required. The name of the project that contains the keys that is
         #     listed, in the format `projects/{project}`.
         # @!attribute [rw] page_size
         #   @return [::Integer]
@@ -1038,7 +1111,7 @@ module Google
         # @!attribute [rw] update_mask
         #   @return [::Google::Protobuf::FieldMask]
         #     Optional. The mask to control which fields of the key get updated. If the
-        #     mask is not present, all fields will be updated.
+        #     mask is not present, all fields are updated.
         class UpdateKeyRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1057,7 +1130,7 @@ module Google
         # The create firewall policy request message.
         # @!attribute [rw] parent
         #   @return [::String]
-        #     Required. The name of the project this policy will apply to, in the format
+        #     Required. The name of the project this policy applies to, in the format
         #     `projects/{project}`.
         # @!attribute [rw] firewall_policy
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FirewallPolicy]
@@ -1115,7 +1188,7 @@ module Google
         # @!attribute [rw] update_mask
         #   @return [::Google::Protobuf::FieldMask]
         #     Optional. The mask to control which fields of the policy get updated. If
-        #     the mask is not present, all fields will be updated.
+        #     the mask is not present, all fields are updated.
         class UpdateFirewallPolicyRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1161,11 +1234,11 @@ module Google
         #     Optional. If true, skips the billing check.
         #     A reCAPTCHA Enterprise key or migrated key behaves differently than a
         #     reCAPTCHA (non-Enterprise version) key when you reach a quota limit (see
-        #     https://cloud.google.com/recaptcha-enterprise/quotas#quota_limit). To avoid
+        #     https://cloud.google.com/recaptcha/quotas#quota_limit). To avoid
         #     any disruption of your usage, we check that a billing account is present.
         #     If your usage of reCAPTCHA is under the free quota, you can safely skip the
         #     billing check and proceed with the migration. See
-        #     https://cloud.google.com/recaptcha-enterprise/docs/billing-information.
+        #     https://cloud.google.com/recaptcha/docs/billing-information.
         class MigrateKeyRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1188,15 +1261,16 @@ module Google
         #     `projects/{project}/keys/{key}/metrics`.
         # @!attribute [rw] start_time
         #   @return [::Google::Protobuf::Timestamp]
-        #     Inclusive start time aligned to a day (UTC).
+        #     Inclusive start time aligned to a day in the America/Los_Angeles (Pacific)
+        #     timezone.
         # @!attribute [rw] score_metrics
         #   @return [::Array<::Google::Cloud::RecaptchaEnterprise::V1::ScoreMetrics>]
-        #     Metrics will be continuous and in order by dates, and in the granularity
+        #     Metrics are continuous and in order by dates, and in the granularity
         #     of day. All Key types should have score-based data.
         # @!attribute [rw] challenge_metrics
         #   @return [::Array<::Google::Cloud::RecaptchaEnterprise::V1::ChallengeMetrics>]
-        #     Metrics will be continuous and in order by dates, and in the granularity
-        #     of day. Only challenge-based keys (CHECKBOX, INVISIBLE), will have
+        #     Metrics are continuous and in order by dates, and in the granularity
+        #     of day. Only challenge-based keys (CHECKBOX, INVISIBLE) have
         #     challenge-based data.
         class Metrics
           include ::Google::Protobuf::MessageExts
@@ -1228,16 +1302,27 @@ module Google
         # @!attribute [rw] web_settings
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::WebKeySettings]
         #     Settings for keys that can be used by websites.
+        #
+        #     Note: The following fields are mutually exclusive: `web_settings`, `android_settings`, `ios_settings`, `express_settings`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] android_settings
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::AndroidKeySettings]
         #     Settings for keys that can be used by Android apps.
+        #
+        #     Note: The following fields are mutually exclusive: `android_settings`, `web_settings`, `ios_settings`, `express_settings`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] ios_settings
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::IOSKeySettings]
         #     Settings for keys that can be used by iOS apps.
+        #
+        #     Note: The following fields are mutually exclusive: `ios_settings`, `web_settings`, `android_settings`, `express_settings`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] express_settings
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1::ExpressKeySettings]
+        #     Settings for keys that can be used by reCAPTCHA Express.
+        #
+        #     Note: The following fields are mutually exclusive: `express_settings`, `web_settings`, `android_settings`, `ios_settings`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] labels
         #   @return [::Google::Protobuf::Map{::String => ::String}]
         #     Optional. See [Creating and managing labels]
-        #     (https://cloud.google.com/recaptcha-enterprise/docs/labels).
+        #     (https://cloud.google.com/recaptcha/docs/labels).
         # @!attribute [r] create_time
         #   @return [::Google::Protobuf::Timestamp]
         #     Output only. The timestamp corresponding to the creation of this key.
@@ -1264,12 +1349,12 @@ module Google
         # Options for user acceptance testing.
         # @!attribute [rw] testing_score
         #   @return [::Float]
-        #     Optional. All assessments for this Key will return this score. Must be
-        #     between 0 (likely not legitimate) and 1 (likely legitimate) inclusive.
+        #     Optional. All assessments for this Key return this score. Must be between 0
+        #     (likely not legitimate) and 1 (likely legitimate) inclusive.
         # @!attribute [rw] testing_challenge
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::TestingOptions::TestingChallenge]
         #     Optional. For challenge-based keys only (CHECKBOX, INVISIBLE), all
-        #     challenge requests for this site will return nocaptcha if NOCAPTCHA, or an
+        #     challenge requests for this site return nocaptcha if NOCAPTCHA, or an
         #     unsolvable challenge if CHALLENGE.
         class TestingOptions
           include ::Google::Protobuf::MessageExts
@@ -1295,7 +1380,7 @@ module Google
         # Settings specific to keys that can be used by websites.
         # @!attribute [rw] allow_all_domains
         #   @return [::Boolean]
-        #     Optional. If set to true, it means allowed_domains will not be enforced.
+        #     Optional. If set to true, it means allowed_domains are not enforced.
         # @!attribute [rw] allowed_domains
         #   @return [::Array<::String>]
         #     Optional. Domains or subdomains of websites allowed to use the key. All
@@ -1313,7 +1398,7 @@ module Google
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::WebKeySettings::ChallengeSecurityPreference]
         #     Optional. Settings for the frequency and difficulty at which this key
         #     triggers captcha challenges. This should only be specified for
-        #     IntegrationTypes CHECKBOX and INVISIBLE.
+        #     IntegrationTypes CHECKBOX and INVISIBLE and SCORE_AND_CHALLENGE.
         class WebKeySettings
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1384,11 +1469,17 @@ module Google
         # @!attribute [rw] apple_developer_id
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::AppleDeveloperId]
         #     Optional. Apple Developer account details for the app that is protected by
-        #     the reCAPTCHA Key. reCAPTCHA Enterprise leverages platform-specific checks
-        #     like Apple App Attest and Apple DeviceCheck to protect your app from abuse.
-        #     Providing these fields allows reCAPTCHA Enterprise to get a better
-        #     assessment of the integrity of your app.
+        #     the reCAPTCHA Key. reCAPTCHA leverages platform-specific checks like Apple
+        #     App Attest and Apple DeviceCheck to protect your app from abuse. Providing
+        #     these fields allows reCAPTCHA to get a better assessment of the integrity
+        #     of your app.
         class IOSKeySettings
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Settings specific to keys that can be used for reCAPTCHA Express.
+        class ExpressKeySettings
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
@@ -1478,13 +1569,13 @@ module Google
         # Policy config assessment.
         # @!attribute [r] error
         #   @return [::Google::Rpc::Status]
-        #     Output only. If the processing of a policy config fails, an error will be
-        #     populated and the firewall_policy will be left empty.
+        #     Output only. If the processing of a policy config fails, an error is
+        #     populated and the firewall_policy is left empty.
         # @!attribute [r] firewall_policy
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FirewallPolicy]
         #     Output only. The policy that matched the request. If more than one policy
         #     may match, this is the first match. If no policy matches the incoming
-        #     request, the policy field will be left empty.
+        #     request, the policy field is left empty.
         class FirewallPolicyAssessment
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1496,26 +1587,38 @@ module Google
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FirewallAction::AllowAction]
         #     The user request did not match any policy and should be allowed
         #     access to the requested resource.
+        #
+        #     Note: The following fields are mutually exclusive: `allow`, `block`, `include_recaptcha_script`, `redirect`, `substitute`, `set_header`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] block
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FirewallAction::BlockAction]
-        #     This action will deny access to a given page. The user will get an HTTP
+        #     This action denies access to a given page. The user gets an HTTP
         #     error code.
+        #
+        #     Note: The following fields are mutually exclusive: `block`, `allow`, `include_recaptcha_script`, `redirect`, `substitute`, `set_header`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] include_recaptcha_script
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FirewallAction::IncludeRecaptchaScriptAction]
-        #     This action will inject reCAPTCHA JavaScript code into the HTML page
+        #     This action injects reCAPTCHA JavaScript code into the HTML page
         #     returned by the site backend.
+        #
+        #     Note: The following fields are mutually exclusive: `include_recaptcha_script`, `allow`, `block`, `redirect`, `substitute`, `set_header`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] redirect
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FirewallAction::RedirectAction]
-        #     This action will redirect the request to a ReCaptcha interstitial to
+        #     This action redirects the request to a reCAPTCHA interstitial to
         #     attach a token.
+        #
+        #     Note: The following fields are mutually exclusive: `redirect`, `allow`, `block`, `include_recaptcha_script`, `substitute`, `set_header`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] substitute
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FirewallAction::SubstituteAction]
-        #     This action will transparently serve a different page to an offending
+        #     This action transparently serves a different page to an offending
         #     user.
+        #
+        #     Note: The following fields are mutually exclusive: `substitute`, `allow`, `block`, `include_recaptcha_script`, `redirect`, `set_header`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] set_header
         #   @return [::Google::Cloud::RecaptchaEnterprise::V1::FirewallAction::SetHeaderAction]
-        #     This action will set a custom header but allow the request to continue
+        #     This action sets a custom header but allow the request to continue
         #     to the customer backend.
+        #
+        #     Note: The following fields are mutually exclusive: `set_header`, `allow`, `block`, `include_recaptcha_script`, `redirect`, `substitute`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class FirewallAction
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1544,7 +1647,7 @@ module Google
           end
 
           # A redirect action returns a 307 (temporary redirect) response, pointing
-          # the user to a ReCaptcha interstitial page to attach a token.
+          # the user to a reCAPTCHA interstitial page to attach a token.
           class RedirectAction
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -1741,6 +1844,77 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # The AddIpOverride request message.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. The name of the key to which the IP override is added, in the
+        #     format `projects/{project}/keys/{key}`.
+        # @!attribute [rw] ip_override_data
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1::IpOverrideData]
+        #     Required. IP override added to the key.
+        class AddIpOverrideRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Response for AddIpOverride.
+        class AddIpOverrideResponse
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # The RemoveIpOverride request message.
+        # @!attribute [rw] name
+        #   @return [::String]
+        #     Required. The name of the key from which the IP override is removed, in the
+        #     format `projects/{project}/keys/{key}`.
+        # @!attribute [rw] ip_override_data
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1::IpOverrideData]
+        #     Required. IP override to be removed from the key.
+        class RemoveIpOverrideRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Response for RemoveIpOverride.
+        class RemoveIpOverrideResponse
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # The ListIpOverrides request message.
+        # @!attribute [rw] parent
+        #   @return [::String]
+        #     Required. The parent key for which the IP overrides are listed, in the
+        #     format `projects/{project}/keys/{key}`.
+        # @!attribute [rw] page_size
+        #   @return [::Integer]
+        #     Optional. The maximum number of overrides to return. Default is 10. Max
+        #     limit is 100. If the number of overrides is less than the page_size, all
+        #     overrides are returned. If the page size is more than 100, it is coerced to
+        #     100.
+        # @!attribute [rw] page_token
+        #   @return [::String]
+        #     Optional. The next_page_token value returned from a previous
+        #     ListIpOverridesRequest, if any.
+        class ListIpOverridesRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Response for ListIpOverrides.
+        # @!attribute [rw] ip_overrides
+        #   @return [::Array<::Google::Cloud::RecaptchaEnterprise::V1::IpOverrideData>]
+        #     IP Overrides details.
+        # @!attribute [rw] next_page_token
+        #   @return [::String]
+        #     Token to retrieve the next page of results. If this field is empty, no keys
+        #     remain in the results.
+        class ListIpOverridesResponse
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # A membership in a group of related accounts.
         # @!attribute [rw] name
         #   @return [::String]
@@ -1787,7 +1961,7 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
 
           # Supported WAF features. For more information, see
-          # https://cloud.google.com/recaptcha-enterprise/docs/usecase#comparison_of_features.
+          # https://cloud.google.com/recaptcha/docs/usecase#comparison_of_features.
           module WafFeature
             # Undefined feature.
             WAF_FEATURE_UNSPECIFIED = 0
@@ -1807,7 +1981,7 @@ module Google
             EXPRESS = 5
           end
 
-          # Web Application Firewalls supported by reCAPTCHA Enterprise.
+          # Web Application Firewalls supported by reCAPTCHA.
           module WafService
             # Undefined WAF
             WAF_SERVICE_UNSPECIFIED = 0
@@ -1820,6 +1994,56 @@ module Google
 
             # Cloudflare
             CLOUDFLARE = 4
+
+            # Akamai
+            AKAMAI = 5
+          end
+        end
+
+        # The environment creating the assessment. This describes your environment
+        # (the system invoking CreateAssessment), NOT the environment of your user.
+        # @!attribute [rw] client
+        #   @return [::String]
+        #     Optional. Identifies the client module initiating the CreateAssessment
+        #     request. This can be the link to the client module's project. Examples
+        #     include:
+        #     - "github.com/GoogleCloudPlatform/recaptcha-enterprise-google-tag-manager"
+        #     - "cloud.google.com/recaptcha/docs/implement-waf-akamai"
+        #     - "cloud.google.com/recaptcha/docs/implement-waf-cloudflare"
+        #     - "wordpress.org/plugins/recaptcha-something"
+        # @!attribute [rw] version
+        #   @return [::String]
+        #     Optional. The version of the client module. For example, "1.0.0".
+        class AssessmentEnvironment
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Information about the IP or IP range override.
+        # @!attribute [rw] ip
+        #   @return [::String]
+        #     Required. The IP address to override (can be IPv4, IPv6 or CIDR).
+        #     The IP override must be a valid IPv4 or IPv6 address, or a CIDR range.
+        #     The IP override must be a public IP address.
+        #     Example of IPv4: 168.192.5.6
+        #     Example of IPv6: 2001:0000:130F:0000:0000:09C0:876A:130B
+        #     Example of IPv4 with CIDR: 168.192.5.0/24
+        #     Example of IPv6 with CIDR: 2001:0DB8:1234::/48
+        # @!attribute [rw] override_type
+        #   @return [::Google::Cloud::RecaptchaEnterprise::V1::IpOverrideData::OverrideType]
+        #     Required. Describes the type of IP override.
+        class IpOverrideData
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Enum that represents the type of IP override.
+          module OverrideType
+            # Default override type that indicates this enum hasn't been specified.
+            OVERRIDE_TYPE_UNSPECIFIED = 0
+
+            # Allowlist the IP address; i.e. give a `risk_analysis.score` of 0.9 for
+            # all valid assessments.
+            ALLOW = 1
           end
         end
       end

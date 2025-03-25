@@ -156,14 +156,26 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @conversational_search_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
                   config.quota_project = @quota_project_id
                   config.endpoint = @conversational_search_service_stub.endpoint
                   config.universe_domain = @conversational_search_service_stub.universe_domain
+                  config.logger = @conversational_search_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -173,6 +185,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @conversational_search_service_stub.logger
+              end
 
               # Service calls
 
@@ -196,16 +217,16 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Conversation to get. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`.
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`.
               #     Use
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/-`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/-`
               #     to activate auto session mode, which automatically creates a new
               #     conversation inside a ConverseConversation session.
               #   @param query [::Google::Cloud::DiscoveryEngine::V1::TextInput, ::Hash]
               #     Required. Current user input.
               #   @param serving_config [::String]
               #     The resource name of the Serving Config to use. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/servingConfigs/{serving_config_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/servingConfigs/{serving_config_id}`
               #     If this is not set, the default serving config will be used.
               #   @param conversation [::Google::Cloud::DiscoveryEngine::V1::Conversation, ::Hash]
               #     The conversation to be used by auto session only. The name field will be
@@ -307,7 +328,6 @@ module Google
 
                 @conversational_search_service_stub.converse_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -336,7 +356,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. Full resource name of parent data store. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
               #   @param conversation [::Google::Cloud::DiscoveryEngine::V1::Conversation, ::Hash]
               #     Required. The conversation to create.
               # @yield [result, operation] Access the result along with the TransportOperation object
@@ -392,7 +412,6 @@ module Google
 
                 @conversational_search_service_stub.create_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -421,7 +440,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Conversation to delete. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Protobuf::Empty]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -475,7 +494,6 @@ module Google
 
                 @conversational_search_service_stub.delete_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -567,7 +585,6 @@ module Google
 
                 @conversational_search_service_stub.update_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -593,7 +610,7 @@ module Google
               #
               #   @param name [::String]
               #     Required. The resource name of the Conversation to get. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1::Conversation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -647,7 +664,6 @@ module Google
 
                 @conversational_search_service_stub.get_conversation request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -674,7 +690,7 @@ module Google
               #
               #   @param parent [::String]
               #     Required. The data store resource name. Format:
-              #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
               #   @param page_size [::Integer]
               #     Maximum number of results to return. If unspecified, defaults
               #     to 50. Max allowed value is 1000.
@@ -756,7 +772,673 @@ module Google
                 @conversational_search_service_stub.list_conversations request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @conversational_search_service_stub, :list_conversations, "conversations", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Answer query method.
+              #
+              # @overload answer_query(request, options = nil)
+              #   Pass arguments to `answer_query` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload answer_query(serving_config: nil, query: nil, session: nil, safety_spec: nil, related_questions_spec: nil, answer_generation_spec: nil, search_spec: nil, query_understanding_spec: nil, asynchronous_mode: nil, user_pseudo_id: nil, user_labels: nil)
+              #   Pass arguments to `answer_query` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param serving_config [::String]
+              #     Required. The resource name of the Search serving config, such as
+              #     `projects/*/locations/global/collections/default_collection/engines/*/servingConfigs/default_serving_config`,
+              #     or
+              #     `projects/*/locations/global/collections/default_collection/dataStores/*/servingConfigs/default_serving_config`.
+              #     This field is used to identify the serving configuration name, set
+              #     of models used to make the search.
+              #   @param query [::Google::Cloud::DiscoveryEngine::V1::Query, ::Hash]
+              #     Required. Current user query.
+              #   @param session [::String]
+              #     The session resource name. Not required.
+              #
+              #     When session field is not set, the API is in sessionless mode.
+              #
+              #     We support auto session mode: users can use the wildcard symbol `-` as
+              #     session ID.  A new ID will be automatically generated and assigned.
+              #   @param safety_spec [::Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest::SafetySpec, ::Hash]
+              #     Model specification.
+              #   @param related_questions_spec [::Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest::RelatedQuestionsSpec, ::Hash]
+              #     Related questions specification.
+              #   @param answer_generation_spec [::Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest::AnswerGenerationSpec, ::Hash]
+              #     Answer generation specification.
+              #   @param search_spec [::Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest::SearchSpec, ::Hash]
+              #     Search specification.
+              #   @param query_understanding_spec [::Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest::QueryUnderstandingSpec, ::Hash]
+              #     Query understanding specification.
+              #   @param asynchronous_mode [::Boolean]
+              #     Deprecated: This field is deprecated. Streaming Answer API will be
+              #     supported.
+              #
+              #     Asynchronous mode control.
+              #
+              #     If enabled, the response will be returned with answer/session resource
+              #     name without final answer. The API users need to do the polling to get
+              #     the latest status of answer/session by calling
+              #     {::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client#get_answer ConversationalSearchService.GetAnswer}
+              #     or
+              #     {::Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client#get_session ConversationalSearchService.GetSession}
+              #     method.
+              #   @param user_pseudo_id [::String]
+              #     A unique identifier for tracking visitors. For example, this could be
+              #     implemented with an HTTP cookie, which should be able to uniquely identify
+              #     a visitor on a single device. This unique identifier should not change if
+              #     the visitor logs in or out of the website.
+              #
+              #     This field should NOT have a fixed value such as `unknown_visitor`.
+              #
+              #     The field must be a UTF-8 encoded string with a length limit of 128
+              #     characters. Otherwise, an  `INVALID_ARGUMENT`  error is returned.
+              #   @param user_labels [::Hash{::String => ::String}]
+              #     The user labels applied to a resource must meet the following requirements:
+              #
+              #     * Each resource can have multiple labels, up to a maximum of 64.
+              #     * Each label must be a key-value pair.
+              #     * Keys have a minimum length of 1 character and a maximum length of 63
+              #       characters and cannot be empty. Values can be empty and have a maximum
+              #       length of 63 characters.
+              #     * Keys and values can contain only lowercase letters, numeric characters,
+              #       underscores, and dashes. All characters must use UTF-8 encoding, and
+              #       international characters are allowed.
+              #     * The key portion of a label must be unique. However, you can use the same
+              #       key with multiple resources.
+              #     * Keys must start with a lowercase letter or international character.
+              #
+              #     See [Google Cloud
+              #     Document](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements)
+              #     for more details.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1::AnswerQueryResponse]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DiscoveryEngine::V1::AnswerQueryResponse]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest.new
+              #
+              #   # Call the answer_query method.
+              #   result = client.answer_query request
+              #
+              #   # The returned object is of type Google::Cloud::DiscoveryEngine::V1::AnswerQueryResponse.
+              #   p result
+              #
+              def answer_query request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1::AnswerQueryRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.answer_query.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.answer_query.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.answer_query.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversational_search_service_stub.answer_query request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets a Answer.
+              #
+              # @overload get_answer(request, options = nil)
+              #   Pass arguments to `get_answer` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1::GetAnswerRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1::GetAnswerRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_answer(name: nil)
+              #   Pass arguments to `get_answer` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The resource name of the Answer to get. Format:
+              #     `projects/{project}/locations/{location}/collections/{collection}/engines/{engine_id}/sessions/{session_id}/answers/{answer_id}`
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1::Answer]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DiscoveryEngine::V1::Answer]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1::GetAnswerRequest.new
+              #
+              #   # Call the get_answer method.
+              #   result = client.get_answer request
+              #
+              #   # The returned object is of type Google::Cloud::DiscoveryEngine::V1::Answer.
+              #   p result
+              #
+              def get_answer request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1::GetAnswerRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_answer.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_answer.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_answer.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversational_search_service_stub.get_answer request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Creates a Session.
+              #
+              # If the {::Google::Cloud::DiscoveryEngine::V1::Session Session} to create already
+              # exists, an ALREADY_EXISTS error is returned.
+              #
+              # @overload create_session(request, options = nil)
+              #   Pass arguments to `create_session` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1::CreateSessionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1::CreateSessionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload create_session(parent: nil, session: nil)
+              #   Pass arguments to `create_session` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. Full resource name of parent data store. Format:
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
+              #   @param session [::Google::Cloud::DiscoveryEngine::V1::Session, ::Hash]
+              #     Required. The session to create.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1::Session]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DiscoveryEngine::V1::Session]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1::CreateSessionRequest.new
+              #
+              #   # Call the create_session method.
+              #   result = client.create_session request
+              #
+              #   # The returned object is of type Google::Cloud::DiscoveryEngine::V1::Session.
+              #   p result
+              #
+              def create_session request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1::CreateSessionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.create_session.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.create_session.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.create_session.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversational_search_service_stub.create_session request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Deletes a Session.
+              #
+              # If the {::Google::Cloud::DiscoveryEngine::V1::Session Session} to delete does
+              # not exist, a NOT_FOUND error is returned.
+              #
+              # @overload delete_session(request, options = nil)
+              #   Pass arguments to `delete_session` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1::DeleteSessionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1::DeleteSessionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_session(name: nil)
+              #   Pass arguments to `delete_session` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The resource name of the Session to delete. Format:
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Protobuf::Empty]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Protobuf::Empty]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1::DeleteSessionRequest.new
+              #
+              #   # Call the delete_session method.
+              #   result = client.delete_session request
+              #
+              #   # The returned object is of type Google::Protobuf::Empty.
+              #   p result
+              #
+              def delete_session request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1::DeleteSessionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_session.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_session.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_session.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversational_search_service_stub.delete_session request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Updates a Session.
+              #
+              # {::Google::Cloud::DiscoveryEngine::V1::Session Session} action type cannot be
+              # changed. If the {::Google::Cloud::DiscoveryEngine::V1::Session Session} to
+              # update does not exist, a NOT_FOUND error is returned.
+              #
+              # @overload update_session(request, options = nil)
+              #   Pass arguments to `update_session` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1::UpdateSessionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1::UpdateSessionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_session(session: nil, update_mask: nil)
+              #   Pass arguments to `update_session` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param session [::Google::Cloud::DiscoveryEngine::V1::Session, ::Hash]
+              #     Required. The Session to update.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Indicates which fields in the provided
+              #     {::Google::Cloud::DiscoveryEngine::V1::Session Session} to update. The following
+              #     are NOT supported:
+              #
+              #     * {::Google::Cloud::DiscoveryEngine::V1::Session#name Session.name}
+              #
+              #     If not set or empty, all supported fields are updated.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1::Session]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DiscoveryEngine::V1::Session]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1::UpdateSessionRequest.new
+              #
+              #   # Call the update_session method.
+              #   result = client.update_session request
+              #
+              #   # The returned object is of type Google::Cloud::DiscoveryEngine::V1::Session.
+              #   p result
+              #
+              def update_session request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1::UpdateSessionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_session.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_session.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_session.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversational_search_service_stub.update_session request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets a Session.
+              #
+              # @overload get_session(request, options = nil)
+              #   Pass arguments to `get_session` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1::GetSessionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1::GetSessionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_session(name: nil)
+              #   Pass arguments to `get_session` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The resource name of the Session to get. Format:
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::DiscoveryEngine::V1::Session]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::DiscoveryEngine::V1::Session]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1::GetSessionRequest.new
+              #
+              #   # Call the get_session method.
+              #   result = client.get_session request
+              #
+              #   # The returned object is of type Google::Cloud::DiscoveryEngine::V1::Session.
+              #   p result
+              #
+              def get_session request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1::GetSessionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_session.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_session.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_session.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversational_search_service_stub.get_session request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists all Sessions by their parent
+              # {::Google::Cloud::DiscoveryEngine::V1::DataStore DataStore}.
+              #
+              # @overload list_sessions(request, options = nil)
+              #   Pass arguments to `list_sessions` via a request object, either of type
+              #   {::Google::Cloud::DiscoveryEngine::V1::ListSessionsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::DiscoveryEngine::V1::ListSessionsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_sessions(parent: nil, page_size: nil, page_token: nil, filter: nil, order_by: nil)
+              #   Pass arguments to `list_sessions` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The data store resource name. Format:
+              #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
+              #   @param page_size [::Integer]
+              #     Maximum number of results to return. If unspecified, defaults
+              #     to 50. Max allowed value is 1000.
+              #   @param page_token [::String]
+              #     A page token, received from a previous `ListSessions` call.
+              #     Provide this to retrieve the subsequent page.
+              #   @param filter [::String]
+              #     A filter to apply on the list results. The supported features are:
+              #     user_pseudo_id, state.
+              #
+              #     Example:
+              #     "user_pseudo_id = some_id"
+              #   @param order_by [::String]
+              #     A comma-separated list of fields to order by, sorted in ascending order.
+              #     Use "desc" after a field name for descending.
+              #     Supported fields:
+              #       * `update_time`
+              #       * `create_time`
+              #       * `session_name`
+              #
+              #     Example:
+              #     "update_time desc"
+              #     "create_time"
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::DiscoveryEngine::V1::Session>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::DiscoveryEngine::V1::Session>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/discovery_engine/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::DiscoveryEngine::V1::ConversationalSearchService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::DiscoveryEngine::V1::ListSessionsRequest.new
+              #
+              #   # Call the list_sessions method.
+              #   result = client.list_sessions request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::DiscoveryEngine::V1::Session.
+              #     p item
+              #   end
+              #
+              def list_sessions request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DiscoveryEngine::V1::ListSessionsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_sessions.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::DiscoveryEngine::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_sessions.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_sessions.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @conversational_search_service_stub.list_sessions request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @conversational_search_service_stub, :list_sessions, "sessions", request, result, options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -804,6 +1486,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -836,6 +1525,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -857,6 +1551,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -925,6 +1620,41 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :list_conversations
+                  ##
+                  # RPC-specific configuration for `answer_query`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :answer_query
+                  ##
+                  # RPC-specific configuration for `get_answer`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_answer
+                  ##
+                  # RPC-specific configuration for `create_session`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :create_session
+                  ##
+                  # RPC-specific configuration for `delete_session`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_session
+                  ##
+                  # RPC-specific configuration for `update_session`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_session
+                  ##
+                  # RPC-specific configuration for `get_session`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_session
+                  ##
+                  # RPC-specific configuration for `list_sessions`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_sessions
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -940,6 +1670,20 @@ module Google
                     @get_conversation = ::Gapic::Config::Method.new get_conversation_config
                     list_conversations_config = parent_rpcs.list_conversations if parent_rpcs.respond_to? :list_conversations
                     @list_conversations = ::Gapic::Config::Method.new list_conversations_config
+                    answer_query_config = parent_rpcs.answer_query if parent_rpcs.respond_to? :answer_query
+                    @answer_query = ::Gapic::Config::Method.new answer_query_config
+                    get_answer_config = parent_rpcs.get_answer if parent_rpcs.respond_to? :get_answer
+                    @get_answer = ::Gapic::Config::Method.new get_answer_config
+                    create_session_config = parent_rpcs.create_session if parent_rpcs.respond_to? :create_session
+                    @create_session = ::Gapic::Config::Method.new create_session_config
+                    delete_session_config = parent_rpcs.delete_session if parent_rpcs.respond_to? :delete_session
+                    @delete_session = ::Gapic::Config::Method.new delete_session_config
+                    update_session_config = parent_rpcs.update_session if parent_rpcs.respond_to? :update_session
+                    @update_session = ::Gapic::Config::Method.new update_session_config
+                    get_session_config = parent_rpcs.get_session if parent_rpcs.respond_to? :get_session
+                    @get_session = ::Gapic::Config::Method.new get_session_config
+                    list_sessions_config = parent_rpcs.list_sessions if parent_rpcs.respond_to? :list_sessions
+                    @list_sessions = ::Gapic::Config::Method.new list_sessions_config
 
                     yield self if block_given?
                   end

@@ -41,9 +41,10 @@ class ::Google::Cloud::AIPlatform::V1::ModelGardenService::ClientTest < Minitest
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::AIPlatform::V1::ModelGardenService::ClientTest < Minitest
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -66,6 +75,8 @@ class ::Google::Cloud::AIPlatform::V1::ModelGardenService::ClientTest < Minitest
     name = "hello world"
     language_code = "hello world"
     view = :PUBLISHER_MODEL_VIEW_UNSPECIFIED
+    is_hugging_face_model = true
+    hugging_face_token = "hello world"
 
     get_publisher_model_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :get_publisher_model, name
@@ -73,6 +84,8 @@ class ::Google::Cloud::AIPlatform::V1::ModelGardenService::ClientTest < Minitest
       assert_equal "hello world", request["name"]
       assert_equal "hello world", request["language_code"]
       assert_equal :PUBLISHER_MODEL_VIEW_UNSPECIFIED, request["view"]
+      assert_equal true, request["is_hugging_face_model"]
+      assert_equal "hello world", request["hugging_face_token"]
       refute_nil options
     end
 
@@ -83,31 +96,31 @@ class ::Google::Cloud::AIPlatform::V1::ModelGardenService::ClientTest < Minitest
       end
 
       # Use hash object
-      client.get_publisher_model({ name: name, language_code: language_code, view: view }) do |response, operation|
+      client.get_publisher_model({ name: name, language_code: language_code, view: view, is_hugging_face_model: is_hugging_face_model, hugging_face_token: hugging_face_token }) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.get_publisher_model name: name, language_code: language_code, view: view do |response, operation|
+      client.get_publisher_model name: name, language_code: language_code, view: view, is_hugging_face_model: is_hugging_face_model, hugging_face_token: hugging_face_token do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.get_publisher_model ::Google::Cloud::AIPlatform::V1::GetPublisherModelRequest.new(name: name, language_code: language_code, view: view) do |response, operation|
+      client.get_publisher_model ::Google::Cloud::AIPlatform::V1::GetPublisherModelRequest.new(name: name, language_code: language_code, view: view, is_hugging_face_model: is_hugging_face_model, hugging_face_token: hugging_face_token) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.get_publisher_model({ name: name, language_code: language_code, view: view }, grpc_options) do |response, operation|
+      client.get_publisher_model({ name: name, language_code: language_code, view: view, is_hugging_face_model: is_hugging_face_model, hugging_face_token: hugging_face_token }, grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.get_publisher_model(::Google::Cloud::AIPlatform::V1::GetPublisherModelRequest.new(name: name, language_code: language_code, view: view), grpc_options) do |response, operation|
+      client.get_publisher_model(::Google::Cloud::AIPlatform::V1::GetPublisherModelRequest.new(name: name, language_code: language_code, view: view, is_hugging_face_model: is_hugging_face_model, hugging_face_token: hugging_face_token), grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end

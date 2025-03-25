@@ -164,8 +164,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @function_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -173,6 +184,7 @@ module Google
                   config.endpoint = @function_service_stub.endpoint
                   config.universe_domain = @function_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @function_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -181,6 +193,7 @@ module Google
                   config.endpoint = @function_service_stub.endpoint
                   config.universe_domain = @function_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @function_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -205,6 +218,15 @@ module Google
               #
               attr_reader :iam_policy_client
 
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @function_service_stub.logger
+              end
+
               # Service calls
 
               ##
@@ -220,13 +242,20 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload get_function(name: nil)
+              # @overload get_function(name: nil, revision: nil)
               #   Pass arguments to `get_function` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
               #
               #   @param name [::String]
               #     Required. The name of the function which details should be obtained.
+              #   @param revision [::String]
+              #     Optional. The version of the 1st gen function whose details should
+              #     be obtained. The version of a 1st gen function is an integer that starts
+              #     from 1 and gets incremented on redeployments. GCF may keep historical
+              #     configs for old versions of 1st gen function. This field can be specified
+              #     to fetch the historical configs. This field is valid only for GCF 1st gen
+              #     function.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Functions::V2::Function]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -280,7 +309,6 @@ module Google
 
                 @function_service_stub.get_function request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -329,10 +357,10 @@ module Google
               #     separated list of fields. The default sorting oder is ascending.
               #     See https://google.aip.dev/132#ordering.
               # @yield [result, operation] Access the result along with the TransportOperation object
-              # @yieldparam result [::Google::Cloud::Functions::V2::ListFunctionsResponse]
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Functions::V2::Function>]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
               #
-              # @return [::Google::Cloud::Functions::V2::ListFunctionsResponse]
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::Functions::V2::Function>]
               #
               # @raise [::Google::Cloud::Error] if the REST call is aborted.
               #
@@ -384,8 +412,9 @@ module Google
                                        retry_policy: @config.retry_policy
 
                 @function_service_stub.list_functions request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @function_service_stub, :list_functions, "functions", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -483,7 +512,7 @@ module Google
                 @function_service_stub.create_function request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -511,8 +540,7 @@ module Google
               #     Required. New version of the function.
               #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
               #     The list of fields to be updated.
-              #     If no field mask is provided, all provided fields in the request will be
-              #     updated.
+              #     If no field mask is provided, all fields will be updated.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -574,7 +602,7 @@ module Google
                 @function_service_stub.update_function request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -663,7 +691,7 @@ module Google
                 @function_service_stub.delete_function request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -686,11 +714,11 @@ module Google
               #   attached, the identity from the credentials would be used, but that
               #   identity does not have permissions to upload files to the URL.
               #
-              # When making a HTTP PUT request, these two headers need to be specified:
+              # When making a HTTP PUT request, specify this header:
               #
               # * `content-type: application/zip`
               #
-              # And this header SHOULD NOT be specified:
+              # Do not specify this header:
               #
               # * `Authorization: Bearer YOUR_TOKEN`
               #
@@ -704,7 +732,7 @@ module Google
               #   @param options [::Gapic::CallOptions, ::Hash]
               #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
               #
-              # @overload generate_upload_url(parent: nil, kms_key_name: nil)
+              # @overload generate_upload_url(parent: nil, kms_key_name: nil, environment: nil)
               #   Pass arguments to `generate_upload_url` via keyword arguments. Note that at
               #   least one keyword argument is required. To specify no parameters, or to keep all
               #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -728,6 +756,11 @@ module Google
               #     granted the role 'Cloud KMS CryptoKey Encrypter/Decrypter
               #     (roles/cloudkms.cryptoKeyEncrypterDecrypter)' on the
               #     Key/KeyRing/Project/Organization (least access preferred).
+              #   @param environment [::Google::Cloud::Functions::V2::Environment]
+              #     The function environment the generated upload url will be used for.
+              #     The upload url for 2nd Gen functions can also be used for 1st gen
+              #     functions, but not vice versa. If not specified, 2nd generation-style
+              #     upload URLs are generated.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Functions::V2::GenerateUploadUrlResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -781,7 +814,6 @@ module Google
 
                 @function_service_stub.generate_upload_url request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -865,7 +897,6 @@ module Google
 
                 @function_service_stub.generate_download_url request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -948,7 +979,6 @@ module Google
 
                 @function_service_stub.list_runtimes request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -996,6 +1026,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1028,6 +1065,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1056,6 +1098,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

@@ -1,5 +1,106 @@
 # Changelog
 
+### 2.0.1 (2025-02-12)
+
+#### Bug Fixes
+
+* Fixed some http bindings for IAM calls using REST ([#28964](https://github.com/googleapis/google-cloud-ruby/issues/28964)) 
+
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28824](https://github.com/googleapis/google-cloud-ruby/issues/28824)) 
+
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.4.0 (2024-12-04)
+
+#### Features
+
+* A new field `timed_promote_release_condition` is added to message `.google.cloud.deploy.v1.AutomationRuleCondition` 
+* A new field `timed_promote_release_operation` is added to message `.google.cloud.deploy.v1.AutomationRun` 
+* A new field `timed_promote_release_rule` is added to message `.google.cloud.deploy.v1.AutomationRule` ([#27606](https://github.com/googleapis/google-cloud-ruby/issues/27606)) 
+* A new message `TimedPromoteReleaseCondition` is added 
+* A new message `TimedPromoteReleaseOperation` is added 
+* A new message `TimedPromoteReleaseRule` is added 
+* added new fields for the Automation Repair rule ([#27525](https://github.com/googleapis/google-cloud-ruby/issues/27525)) 
+* added route destination related fields to Gateway service mesh message 
+* Support for GkeCluster#dns_endpoint ([#27685](https://github.com/googleapis/google-cloud-ruby/issues/27685)) 
+
+#### Documentation
+
+* A comment for field `target_id` in message `.google.cloud.deploy.v1.AutomationRun` is changed 
+
+### 1.3.0 (2024-09-30)
+
+#### Features
+
+* Added support for deploy policies ([#27370](https://github.com/googleapis/google-cloud-ruby/issues/27370)) 
+
+### 1.2.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.2.1 (2024-08-08)
+
+#### Documentation
+
+* Minor documentation updates ([#26622](https://github.com/googleapis/google-cloud-ruby/issues/26622)) 
+
+### 1.2.0 (2024-08-02)
+
+#### Features
+
+* add support for different Pod selector labels when doing canaries 
+#### Bug Fixes
+
+* Remove deploy policy RPCs that were mistakenly released when not yet available ([#26538](https://github.com/googleapis/google-cloud-ruby/issues/26538)) 
+* removed fields related to automatic repair actions which is not yet available in the API 
+
+### 1.1.0 (2024-07-22)
+
+#### Features
+
+* AutomationRun resources now contain information about which policies prevented the run from proceeding 
+* Include protobuf notification event types for custom target type failure, deploy policy evaluation, and pub/sub failure 
+* Support for a proxy URL in a GKE cluster 
+* Support for operations on DeployPolicy resources ([#26461](https://github.com/googleapis/google-cloud-ruby/issues/26461)) 
+* Support for overriding deploy policies in several calls 
+* Support for the ABORTED AutomationRun state 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.20.0 (2024-05-23)
+
+#### Features
+
+* add Skaffold verbose support to Execution Environment properties ([#25912](https://github.com/googleapis/google-cloud-ruby/issues/25912)) 
+
 ### 0.19.1 (2024-05-15)
 
 #### Documentation

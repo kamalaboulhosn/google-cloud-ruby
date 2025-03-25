@@ -1,5 +1,47 @@
 # Changelog
 
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-11-01)
+
+#### Features
+
+* Add Artifact Registry attachment API ([#27509](https://github.com/googleapis/google-cloud-ruby/issues/27509)) 
+* Add Artifact Registry custom remote support 
+* Add Artifact Registry generic repository support 
+* Add Artifact Registry rule APIs 
+* Add Artifact Registry server side resource filtering and sorting 
+* Add Artifact Registry UpdateFile and DeleteFile APIs 
+#### Documentation
+
+* Include max page size for all Artifact Registry APIs 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27007](https://github.com/googleapis/google-cloud-ruby/issues/27007)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.13.0 (2024-02-26)
 
 #### Features

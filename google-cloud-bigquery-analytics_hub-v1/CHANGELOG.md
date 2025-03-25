@@ -1,5 +1,38 @@
 # Changelog
 
+### 0.10.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.9.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.8.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 0.8.0 (2024-07-08)
+
+#### Features
+
+* support Direct Table Access Toggle (Egress GA) 
+* support public directory self service for Listings/Exchanges ([#26270](https://github.com/googleapis/google-cloud-ruby/issues/26270)) 
+#### Documentation
+
+* A comment for message `DataExchange` is changed 
+* A comment for message `Listing` is changed 
+
 ### 0.7.0 (2024-03-18)
 
 #### Features

@@ -33,24 +33,24 @@ class ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ClientTest < Mi
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ClientTest < Mi
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_tuning_job
@@ -81,7 +89,7 @@ class ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ClientTest < Mi
     parent = "hello world"
     tuning_job = {}
 
-    create_tuning_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_tuning_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -135,7 +143,7 @@ class ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_tuning_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_tuning_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -192,7 +200,7 @@ class ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_tuning_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_tuning_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -246,7 +254,7 @@ class ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    cancel_tuning_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    cancel_tuning_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -286,6 +294,64 @@ class ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ClientTest < Mi
 
         # Verify method calls
         assert_equal 5, cancel_tuning_job_client_stub.call_count
+      end
+    end
+  end
+
+  def test_rebase_tuned_model
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    tuned_model_ref = {}
+    tuning_job = {}
+    artifact_destination = {}
+    deploy_to_same_endpoint = true
+
+    rebase_tuned_model_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::ServiceStub.stub :transcode_rebase_tuned_model_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, rebase_tuned_model_client_stub do
+        # Create client
+        client = ::Google::Cloud::AIPlatform::V1::GenAiTuningService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.rebase_tuned_model({ parent: parent, tuned_model_ref: tuned_model_ref, tuning_job: tuning_job, artifact_destination: artifact_destination, deploy_to_same_endpoint: deploy_to_same_endpoint }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.rebase_tuned_model parent: parent, tuned_model_ref: tuned_model_ref, tuning_job: tuning_job, artifact_destination: artifact_destination, deploy_to_same_endpoint: deploy_to_same_endpoint do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.rebase_tuned_model ::Google::Cloud::AIPlatform::V1::RebaseTunedModelRequest.new(parent: parent, tuned_model_ref: tuned_model_ref, tuning_job: tuning_job, artifact_destination: artifact_destination, deploy_to_same_endpoint: deploy_to_same_endpoint) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.rebase_tuned_model({ parent: parent, tuned_model_ref: tuned_model_ref, tuning_job: tuning_job, artifact_destination: artifact_destination, deploy_to_same_endpoint: deploy_to_same_endpoint }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.rebase_tuned_model(::Google::Cloud::AIPlatform::V1::RebaseTunedModelRequest.new(parent: parent, tuned_model_ref: tuned_model_ref, tuning_job: tuning_job, artifact_destination: artifact_destination, deploy_to_same_endpoint: deploy_to_same_endpoint), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, rebase_tuned_model_client_stub.call_count
       end
     end
   end

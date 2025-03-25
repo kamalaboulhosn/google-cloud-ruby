@@ -55,6 +55,21 @@
                 "migrate_key"
               ]
             },
+            "AddIpOverride": {
+              "methods": [
+                "add_ip_override"
+              ]
+            },
+            "RemoveIpOverride": {
+              "methods": [
+                "remove_ip_override"
+              ]
+            },
+            "ListIpOverrides": {
+              "methods": [
+                "list_ip_overrides"
+              ]
+            },
             "GetMetrics": {
               "methods": [
                 "get_metrics"

@@ -20,7 +20,7 @@
 module Google
   module Cloud
     module Notebooks
-      VERSION = "2.4.0"
+      VERSION = "3.0.0"
     end
   end
 end

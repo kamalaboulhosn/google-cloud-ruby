@@ -1,5 +1,47 @@
 # Changelog
 
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-12-04)
+
+#### Features
+
+* Support for dynamic routes 
+* Support for IP ranges allowed to be included during import from hub 
+* Support for the auto_accept and route_table fields on the Group resource 
+* Support for the linked_producer_vpc_network field on the Spoke resource 
+* Support for the policy_mode, preset_topology, and export_psc fields on the Hub resource 
+* Support for the priority, next_hop_vpn_tunnel, next_hop_router_appliance_instance, and next_hop_interconnect_attachment fields on the Route resource 
+* Support for the producer_vpc_spokes field on the LinkedVpcNetwork resource 
+* Support for the query_hub_status RPC 
+* Support for the update_group RPC 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.10.0 (2024-02-26)
 
 #### Features

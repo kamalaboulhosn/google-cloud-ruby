@@ -159,8 +159,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @dataset_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -168,6 +179,7 @@ module Google
                   config.endpoint = @dataset_service_stub.endpoint
                   config.universe_domain = @dataset_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @dataset_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -176,6 +188,7 @@ module Google
                   config.endpoint = @dataset_service_stub.endpoint
                   config.universe_domain = @dataset_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @dataset_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -199,6 +212,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @dataset_service_stub.logger
+              end
 
               # Service calls
 
@@ -286,7 +308,7 @@ module Google
                 @dataset_service_stub.create_dataset request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -367,7 +389,6 @@ module Google
 
                 @dataset_service_stub.get_dataset request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -454,7 +475,6 @@ module Google
 
                 @dataset_service_stub.update_dataset request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -568,7 +588,7 @@ module Google
                 @dataset_service_stub.list_datasets request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataset_service_stub, :list_datasets, "datasets", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -657,7 +677,7 @@ module Google
                 @dataset_service_stub.delete_dataset request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -749,7 +769,7 @@ module Google
                 @dataset_service_stub.import_data request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -840,7 +860,7 @@ module Google
                 @dataset_service_stub.export_data request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -933,7 +953,91 @@ module Google
                 @dataset_service_stub.create_dataset_version request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Updates a DatasetVersion.
+              #
+              # @overload update_dataset_version(request, options = nil)
+              #   Pass arguments to `update_dataset_version` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::UpdateDatasetVersionRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::UpdateDatasetVersionRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_dataset_version(dataset_version: nil, update_mask: nil)
+              #   Pass arguments to `update_dataset_version` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param dataset_version [::Google::Cloud::AIPlatform::V1::DatasetVersion, ::Hash]
+              #     Required. The DatasetVersion which replaces the resource on the server.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Required. The update mask applies to the resource.
+              #     For the `FieldMask` definition, see
+              #     {::Google::Protobuf::FieldMask google.protobuf.FieldMask}. Updatable fields:
+              #
+              #       * `display_name`
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::AIPlatform::V1::DatasetVersion]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::AIPlatform::V1::DatasetVersion]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::DatasetService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::UpdateDatasetVersionRequest.new
+              #
+              #   # Call the update_dataset_version method.
+              #   result = client.update_dataset_version request
+              #
+              #   # The returned object is of type Google::Cloud::AIPlatform::V1::DatasetVersion.
+              #   p result
+              #
+              def update_dataset_version request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::UpdateDatasetVersionRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_dataset_version.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_dataset_version.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_dataset_version.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @dataset_service_stub.update_dataset_version request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1022,7 +1126,7 @@ module Google
                 @dataset_service_stub.delete_dataset_version request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1105,7 +1209,6 @@ module Google
 
                 @dataset_service_stub.get_dataset_version request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1202,7 +1305,7 @@ module Google
                 @dataset_service_stub.list_dataset_versions request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataset_service_stub, :list_dataset_versions, "dataset_versions", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1291,7 +1394,7 @@ module Google
                 @dataset_service_stub.restore_dataset_version request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1388,7 +1491,7 @@ module Google
                 @dataset_service_stub.list_data_items request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataset_service_stub, :list_data_items, "data_items", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1415,8 +1518,12 @@ module Google
               #   @param order_by_data_item [::String]
               #     A comma-separated list of data item fields to order by, sorted in
               #     ascending order. Use "desc" after a field name for descending.
+              #
+              #     Note: The following fields are mutually exclusive: `order_by_data_item`, `order_by_annotation`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param order_by_annotation [::Google::Cloud::AIPlatform::V1::SearchDataItemsRequest::OrderByAnnotation, ::Hash]
               #     Expression that allows ranking results based on annotation's property.
+              #
+              #     Note: The following fields are mutually exclusive: `order_by_annotation`, `order_by_data_item`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param dataset [::String]
               #     Required. The resource name of the Dataset from which to search DataItems.
               #     Format:
@@ -1533,7 +1640,7 @@ module Google
                 @dataset_service_stub.search_data_items request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataset_service_stub, :search_data_items, "data_item_views", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1630,7 +1737,7 @@ module Google
                 @dataset_service_stub.list_saved_queries request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataset_service_stub, :list_saved_queries, "saved_queries", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1719,7 +1826,7 @@ module Google
                 @dataset_service_stub.delete_saved_query request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1802,7 +1909,6 @@ module Google
 
                 @dataset_service_stub.get_annotation_spec request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1810,6 +1916,8 @@ module Google
 
               ##
               # Lists Annotations belongs to a dataitem
+              # This RPC is only available in InternalDatasetService. It is only used for
+              # exporting conversation data to CCAI Insights.
               #
               # @overload list_annotations(request, options = nil)
               #   Pass arguments to `list_annotations` via a request object, either of type
@@ -1899,7 +2007,7 @@ module Google
                 @dataset_service_stub.list_annotations request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @dataset_service_stub, :list_annotations, "annotations", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1947,6 +2055,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1979,6 +2094,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -2007,6 +2127,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -2086,6 +2207,11 @@ module Google
                   #
                   attr_reader :create_dataset_version
                   ##
+                  # RPC-specific configuration for `update_dataset_version`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_dataset_version
+                  ##
                   # RPC-specific configuration for `delete_dataset_version`
                   # @return [::Gapic::Config::Method]
                   #
@@ -2154,6 +2280,8 @@ module Google
                     @export_data = ::Gapic::Config::Method.new export_data_config
                     create_dataset_version_config = parent_rpcs.create_dataset_version if parent_rpcs.respond_to? :create_dataset_version
                     @create_dataset_version = ::Gapic::Config::Method.new create_dataset_version_config
+                    update_dataset_version_config = parent_rpcs.update_dataset_version if parent_rpcs.respond_to? :update_dataset_version
+                    @update_dataset_version = ::Gapic::Config::Method.new update_dataset_version_config
                     delete_dataset_version_config = parent_rpcs.delete_dataset_version if parent_rpcs.respond_to? :delete_dataset_version
                     @delete_dataset_version = ::Gapic::Config::Method.new delete_dataset_version_config
                     get_dataset_version_config = parent_rpcs.get_dataset_version if parent_rpcs.respond_to? :get_dataset_version

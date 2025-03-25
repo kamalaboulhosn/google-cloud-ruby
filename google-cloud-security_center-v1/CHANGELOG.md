@@ -1,5 +1,57 @@
 # Release History
 
+### 1.4.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.3.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.2.0 (2024-08-30)
+
+#### Features
+
+* Support local binding for variables with keyword name collision ([#27028](https://github.com/googleapis/google-cloud-ruby/issues/27028)) 
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 1.1.0 (2024-08-08)
+
+#### Features
+
+* added attack path API methods 
+* added cloud provider field to list findings response 
+* added etd custom module protos and API methods 
+* added ResourceValueConfig protos and API methods 
+* added toxic combination field to finding 
+* enable Dynamic Mute ([#26358](https://github.com/googleapis/google-cloud-ruby/issues/26358)) 
+#### Documentation
+
+* update examples in comments to use backticks 
+* update toxic combinations comments 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.41.0 (2024-06-26)
+
+#### Features
+
+* Add toxic_combination and group_memberships fields to finding ([#26160](https://github.com/googleapis/google-cloud-ruby/issues/26160)) 
+
 ### 0.40.0 (2024-04-19)
 
 #### Features

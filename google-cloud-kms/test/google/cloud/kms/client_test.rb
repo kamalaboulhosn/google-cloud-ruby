@@ -31,9 +31,60 @@ class Google::Cloud::Kms::ClientConstructionMinitest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
+  end
+
+  def test_autokey_grpc
+    skip unless Google::Cloud::Kms.autokey_available? transport: :grpc
+    Gapic::ServiceStub.stub :new, DummyStub.new do
+      grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+      client = Google::Cloud::Kms.autokey transport: :grpc do |config|
+        config.credentials = grpc_channel
+      end
+      assert_kind_of Google::Cloud::Kms::V1::Autokey::Client, client
+    end
+  end
+
+  def test_autokey_rest
+    skip unless Google::Cloud::Kms.autokey_available? transport: :rest
+    Gapic::Rest::ClientStub.stub :new, DummyStub.new do
+      client = Google::Cloud::Kms.autokey transport: :rest do |config|
+        config.credentials = :dummy_credentials
+      end
+      assert_kind_of Google::Cloud::Kms::V1::Autokey::Rest::Client, client
+    end
+  end
+
+  def test_autokey_admin_grpc
+    skip unless Google::Cloud::Kms.autokey_admin_available? transport: :grpc
+    Gapic::ServiceStub.stub :new, DummyStub.new do
+      grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+      client = Google::Cloud::Kms.autokey_admin transport: :grpc do |config|
+        config.credentials = grpc_channel
+      end
+      assert_kind_of Google::Cloud::Kms::V1::AutokeyAdmin::Client, client
+    end
+  end
+
+  def test_autokey_admin_rest
+    skip unless Google::Cloud::Kms.autokey_admin_available? transport: :rest
+    Gapic::Rest::ClientStub.stub :new, DummyStub.new do
+      client = Google::Cloud::Kms.autokey_admin transport: :rest do |config|
+        config.credentials = :dummy_credentials
+      end
+      assert_kind_of Google::Cloud::Kms::V1::AutokeyAdmin::Rest::Client, client
+    end
   end
 
   def test_ekm_service_grpc
+    skip unless Google::Cloud::Kms.ekm_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Kms.ekm_service transport: :grpc do |config|
@@ -44,6 +95,7 @@ class Google::Cloud::Kms::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_ekm_service_rest
+    skip unless Google::Cloud::Kms.ekm_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Kms.ekm_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -53,6 +105,7 @@ class Google::Cloud::Kms::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_key_management_service_grpc
+    skip unless Google::Cloud::Kms.key_management_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Kms.key_management_service transport: :grpc do |config|
@@ -63,6 +116,7 @@ class Google::Cloud::Kms::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_key_management_service_rest
+    skip unless Google::Cloud::Kms.key_management_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Kms.key_management_service transport: :rest do |config|
         config.credentials = :dummy_credentials

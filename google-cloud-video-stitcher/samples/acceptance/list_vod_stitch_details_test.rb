@@ -18,6 +18,9 @@ describe "#list_vod_stitch_details", :stitcher_snippet do
   it "lists the stitch details for a VOD session" do
     sample = SampleLoader.load "list_vod_stitch_details.rb"
 
+    refute_nil vod_config
+    @vod_config_created = true
+
     refute_nil vod_session
     @session_id = vod_session.name.split("/").last
 

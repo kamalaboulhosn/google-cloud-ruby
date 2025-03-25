@@ -33,24 +33,24 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -67,6 +67,14 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -87,7 +95,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     return_partial_success = true
     service_project_number = 42
 
-    aggregated_list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    aggregated_list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -144,7 +152,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     router = "hello world"
 
-    delete_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -188,6 +196,64 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     end
   end
 
+  def test_delete_route_policy
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    policy = "hello world"
+    project = "hello world"
+    region = "hello world"
+    request_id = "hello world"
+    router = "hello world"
+
+    delete_route_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::Routers::Rest::ServiceStub.stub :transcode_delete_route_policy_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_route_policy_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::Routers::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_route_policy({ policy: policy, project: project, region: region, request_id: request_id, router: router }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_route_policy policy: policy, project: project, region: region, request_id: request_id, router: router do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_route_policy ::Google::Cloud::Compute::V1::DeleteRoutePolicyRouterRequest.new(policy: policy, project: project, region: region, request_id: request_id, router: router) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_route_policy({ policy: policy, project: project, region: region, request_id: request_id, router: router }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_route_policy(::Google::Cloud::Compute::V1::DeleteRoutePolicyRouterRequest.new(policy: policy, project: project, region: region, request_id: request_id, router: router), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_route_policy_client_stub.call_count
+      end
+    end
+  end
+
   def test_get
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::Router.new
@@ -200,7 +266,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     region = "hello world"
     router = "hello world"
 
-    get_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -257,7 +323,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     region = "hello world"
     router = "hello world"
 
-    get_nat_ip_info_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_nat_ip_info_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -319,7 +385,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     return_partial_success = true
     router = "hello world"
 
-    get_nat_mapping_info_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_nat_mapping_info_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -363,6 +429,63 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     end
   end
 
+  def test_get_route_policy
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::RoutersGetRoutePolicyResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    policy = "hello world"
+    project = "hello world"
+    region = "hello world"
+    router = "hello world"
+
+    get_route_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::Routers::Rest::ServiceStub.stub :transcode_get_route_policy_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_route_policy_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::Routers::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_route_policy({ policy: policy, project: project, region: region, router: router }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_route_policy policy: policy, project: project, region: region, router: router do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_route_policy ::Google::Cloud::Compute::V1::GetRoutePolicyRouterRequest.new(policy: policy, project: project, region: region, router: router) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_route_policy({ policy: policy, project: project, region: region, router: router }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_route_policy(::Google::Cloud::Compute::V1::GetRoutePolicyRouterRequest.new(policy: policy, project: project, region: region, router: router), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_route_policy_client_stub.call_count
+      end
+    end
+  end
+
   def test_get_router_status
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::RouterStatusResponse.new
@@ -375,7 +498,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     region = "hello world"
     router = "hello world"
 
-    get_router_status_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_router_status_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -432,7 +555,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     request_id = "hello world"
     router_resource = {}
 
-    insert_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    insert_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -492,7 +615,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     region = "hello world"
     return_partial_success = true
 
-    list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -536,6 +659,133 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     end
   end
 
+  def test_list_bgp_routes
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::RoutersListBgpRoutes.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    address_family = "hello world"
+    destination_prefix = "hello world"
+    filter = "hello world"
+    max_results = 42
+    order_by = "hello world"
+    page_token = "hello world"
+    peer = "hello world"
+    policy_applied = true
+    project = "hello world"
+    region = "hello world"
+    return_partial_success = true
+    route_type = "hello world"
+    router = "hello world"
+
+    list_bgp_routes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::Routers::Rest::ServiceStub.stub :transcode_list_bgp_routes_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_bgp_routes_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::Routers::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_bgp_routes({ address_family: address_family, destination_prefix: destination_prefix, filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, peer: peer, policy_applied: policy_applied, project: project, region: region, return_partial_success: return_partial_success, route_type: route_type, router: router }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_bgp_routes address_family: address_family, destination_prefix: destination_prefix, filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, peer: peer, policy_applied: policy_applied, project: project, region: region, return_partial_success: return_partial_success, route_type: route_type, router: router do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_bgp_routes ::Google::Cloud::Compute::V1::ListBgpRoutesRoutersRequest.new(address_family: address_family, destination_prefix: destination_prefix, filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, peer: peer, policy_applied: policy_applied, project: project, region: region, return_partial_success: return_partial_success, route_type: route_type, router: router) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_bgp_routes({ address_family: address_family, destination_prefix: destination_prefix, filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, peer: peer, policy_applied: policy_applied, project: project, region: region, return_partial_success: return_partial_success, route_type: route_type, router: router }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_bgp_routes(::Google::Cloud::Compute::V1::ListBgpRoutesRoutersRequest.new(address_family: address_family, destination_prefix: destination_prefix, filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, peer: peer, policy_applied: policy_applied, project: project, region: region, return_partial_success: return_partial_success, route_type: route_type, router: router), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_bgp_routes_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_route_policies
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::RoutersListRoutePolicies.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    filter = "hello world"
+    max_results = 42
+    order_by = "hello world"
+    page_token = "hello world"
+    project = "hello world"
+    region = "hello world"
+    return_partial_success = true
+    router = "hello world"
+
+    list_route_policies_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::Routers::Rest::ServiceStub.stub :transcode_list_route_policies_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_route_policies_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::Routers::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_route_policies({ filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, project: project, region: region, return_partial_success: return_partial_success, router: router }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_route_policies filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, project: project, region: region, return_partial_success: return_partial_success, router: router do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_route_policies ::Google::Cloud::Compute::V1::ListRoutePoliciesRoutersRequest.new(filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, project: project, region: region, return_partial_success: return_partial_success, router: router) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_route_policies({ filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, project: project, region: region, return_partial_success: return_partial_success, router: router }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_route_policies(::Google::Cloud::Compute::V1::ListRoutePoliciesRoutersRequest.new(filter: filter, max_results: max_results, order_by: order_by, page_token: page_token, project: project, region: region, return_partial_success: return_partial_success, router: router), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_route_policies_client_stub.call_count
+      end
+    end
+  end
+
   def test_patch
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::Operation.new
@@ -550,7 +800,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     router = "hello world"
     router_resource = {}
 
-    patch_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    patch_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -594,6 +844,64 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     end
   end
 
+  def test_patch_route_policy
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    project = "hello world"
+    region = "hello world"
+    request_id = "hello world"
+    route_policy_resource = {}
+    router = "hello world"
+
+    patch_route_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::Routers::Rest::ServiceStub.stub :transcode_patch_route_policy_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, patch_route_policy_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::Routers::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.patch_route_policy({ project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.patch_route_policy project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.patch_route_policy ::Google::Cloud::Compute::V1::PatchRoutePolicyRouterRequest.new(project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.patch_route_policy({ project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.patch_route_policy(::Google::Cloud::Compute::V1::PatchRoutePolicyRouterRequest.new(project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, patch_route_policy_client_stub.call_count
+      end
+    end
+  end
+
   def test_preview
     # Create test objects.
     client_result = ::Google::Cloud::Compute::V1::RoutersPreviewResponse.new
@@ -607,7 +915,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     router = "hello world"
     router_resource = {}
 
-    preview_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    preview_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -665,7 +973,7 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
     router = "hello world"
     router_resource = {}
 
-    update_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -705,6 +1013,64 @@ class ::Google::Cloud::Compute::V1::Routers::Rest::ClientTest < Minitest::Test
 
         # Verify method calls
         assert_equal 5, update_client_stub.call_count
+      end
+    end
+  end
+
+  def test_update_route_policy
+    # Create test objects.
+    client_result = ::Google::Cloud::Compute::V1::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    project = "hello world"
+    region = "hello world"
+    request_id = "hello world"
+    route_policy_resource = {}
+    router = "hello world"
+
+    update_route_policy_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Compute::V1::Routers::Rest::ServiceStub.stub :transcode_update_route_policy_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_route_policy_client_stub do
+        # Create client
+        client = ::Google::Cloud::Compute::V1::Routers::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_route_policy({ project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_route_policy project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_route_policy ::Google::Cloud::Compute::V1::UpdateRoutePolicyRouterRequest.new(project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_route_policy({ project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_route_policy(::Google::Cloud::Compute::V1::UpdateRoutePolicyRouterRequest.new(project: project, region: region, request_id: request_id, route_policy_resource: route_policy_resource, router: router), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_route_policy_client_stub.call_count
       end
     end
   end

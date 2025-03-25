@@ -27,39 +27,83 @@ module Google
           # familiarity and consistency across products and features.
           #
           # For compatibility with Bigtable's existing untyped APIs, each `Type` includes
-          # an `Encoding` which describes how to convert to/from the underlying data.
-          # This might involve composing a series of steps into an "encoding chain," for
-          # example to convert from INT64 -> STRING -> raw bytes. In most cases, a "link"
-          # in the encoding chain will be based an on existing GoogleSQL conversion
-          # function like `CAST`.
+          # an `Encoding` which describes how to convert to or from the underlying data.
           #
-          # Each link in the encoding chain also defines the following properties:
-          #  * Natural sort: Does the encoded value sort consistently with the original
-          #    typed value? Note that Bigtable will always sort data based on the raw
-          #    encoded value, *not* the decoded type.
-          #     - Example: STRING values sort in the same order as their UTF-8 encodings.
-          #     - Counterexample: Encoding INT64 to a fixed-width STRING does *not*
-          #       preserve sort order when dealing with negative numbers.
-          #       INT64(1) > INT64(-1), but STRING("-00001") > STRING("00001).
-          #     - The overall encoding chain sorts naturally if *every* link does.
-          #  * Self-delimiting: If we concatenate two encoded values, can we always tell
-          #    where the first one ends and the second one begins?
-          #     - Example: If we encode INT64s to fixed-width STRINGs, the first value
-          #       will always contain exactly N digits, possibly preceded by a sign.
-          #     - Counterexample: If we concatenate two UTF-8 encoded STRINGs, we have
-          #       no way to tell where the first one ends.
-          #     - The overall encoding chain is self-delimiting if *any* link is.
-          #  * Compatibility: Which other systems have matching encoding schemes? For
-          #    example, does this encoding have a GoogleSQL equivalent? HBase? Java?
+          # Each encoding can operate in one of two modes:
+          #
+          #  - Sorted: In this mode, Bigtable guarantees that `Encode(X) <= Encode(Y)`
+          #    if and only if `X <= Y`. This is useful anywhere sort order is important,
+          #    for example when encoding keys.
+          #  - Distinct: In this mode, Bigtable guarantees that if `X != Y` then
+          #   `Encode(X) != Encode(Y)`. However, the converse is not guaranteed. For
+          #    example, both "\\{'foo': '1', 'bar': '2'}" and "\\{'bar': '2', 'foo': '1'}"
+          #    are valid encodings of the same JSON value.
+          #
+          # The API clearly documents which mode is used wherever an encoding can be
+          # configured. Each encoding also documents which values are supported in which
+          # modes. For example, when encoding INT64 as a numeric STRING, negative numbers
+          # cannot be encoded in sorted mode. This is because `INT64(1) > INT64(-1)`, but
+          # `STRING("-00001") > STRING("00001")`.
           # @!attribute [rw] bytes_type
           #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Bytes]
           #     Bytes
+          #
+          #     Note: The following fields are mutually exclusive: `bytes_type`, `string_type`, `int64_type`, `float32_type`, `float64_type`, `bool_type`, `timestamp_type`, `date_type`, `aggregate_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] string_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::String]
+          #     String
+          #
+          #     Note: The following fields are mutually exclusive: `string_type`, `bytes_type`, `int64_type`, `float32_type`, `float64_type`, `bool_type`, `timestamp_type`, `date_type`, `aggregate_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] int64_type
           #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Int64]
           #     Int64
+          #
+          #     Note: The following fields are mutually exclusive: `int64_type`, `bytes_type`, `string_type`, `float32_type`, `float64_type`, `bool_type`, `timestamp_type`, `date_type`, `aggregate_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] float32_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Float32]
+          #     Float32
+          #
+          #     Note: The following fields are mutually exclusive: `float32_type`, `bytes_type`, `string_type`, `int64_type`, `float64_type`, `bool_type`, `timestamp_type`, `date_type`, `aggregate_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] float64_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Float64]
+          #     Float64
+          #
+          #     Note: The following fields are mutually exclusive: `float64_type`, `bytes_type`, `string_type`, `int64_type`, `float32_type`, `bool_type`, `timestamp_type`, `date_type`, `aggregate_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] bool_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Bool]
+          #     Bool
+          #
+          #     Note: The following fields are mutually exclusive: `bool_type`, `bytes_type`, `string_type`, `int64_type`, `float32_type`, `float64_type`, `timestamp_type`, `date_type`, `aggregate_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] timestamp_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Timestamp]
+          #     Timestamp
+          #
+          #     Note: The following fields are mutually exclusive: `timestamp_type`, `bytes_type`, `string_type`, `int64_type`, `float32_type`, `float64_type`, `bool_type`, `date_type`, `aggregate_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] date_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Date]
+          #     Date
+          #
+          #     Note: The following fields are mutually exclusive: `date_type`, `bytes_type`, `string_type`, `int64_type`, `float32_type`, `float64_type`, `bool_type`, `timestamp_type`, `aggregate_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] aggregate_type
           #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Aggregate]
           #     Aggregate
+          #
+          #     Note: The following fields are mutually exclusive: `aggregate_type`, `bytes_type`, `string_type`, `int64_type`, `float32_type`, `float64_type`, `bool_type`, `timestamp_type`, `date_type`, `struct_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] struct_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Struct]
+          #     Struct
+          #
+          #     Note: The following fields are mutually exclusive: `struct_type`, `bytes_type`, `string_type`, `int64_type`, `float32_type`, `float64_type`, `bool_type`, `timestamp_type`, `date_type`, `aggregate_type`, `array_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] array_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Array]
+          #     Array
+          #
+          #     Note: The following fields are mutually exclusive: `array_type`, `bytes_type`, `string_type`, `int64_type`, `float32_type`, `float64_type`, `bool_type`, `timestamp_type`, `date_type`, `aggregate_type`, `struct_type`, `map_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] map_type
+          #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Map]
+          #     Map
+          #
+          #     Note: The following fields are mutually exclusive: `map_type`, `bytes_type`, `string_type`, `int64_type`, `float32_type`, `float64_type`, `bool_type`, `timestamp_type`, `date_type`, `aggregate_type`, `struct_type`, `array_type`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class Type
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -68,12 +112,12 @@ module Google
             # Values of type `Bytes` are stored in `Value.bytes_value`.
             # @!attribute [rw] encoding
             #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Bytes::Encoding]
-            #     The encoding to use when converting to/from lower level types.
+            #     The encoding to use when converting to or from lower level types.
             class Bytes
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
 
-              # Rules used to convert to/from lower level types.
+              # Rules used to convert to or from lower level types.
               # @!attribute [rw] raw
               #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Bytes::Encoding::Raw]
               #     Use `Raw` encoding.
@@ -81,11 +125,64 @@ module Google
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
 
-                # Leaves the value "as-is"
-                # * Natural sort? Yes
-                # * Self-delimiting? No
-                # * Compatibility? N/A
+                # Leaves the value as-is.
+                #
+                # Sorted mode: all values are supported.
+                #
+                # Distinct mode: all values are supported.
                 class Raw
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
+              end
+            end
+
+            # String
+            # Values of type `String` are stored in `Value.string_value`.
+            # @!attribute [rw] encoding
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::String::Encoding]
+            #     The encoding to use when converting to or from lower level types.
+            class String
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Rules used to convert to or from lower level types.
+              # @!attribute [rw] utf8_raw
+              #   @deprecated This field is deprecated and may be removed in the next major version update.
+              #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::String::Encoding::Utf8Raw]
+              #     Deprecated: if set, converts to an empty `utf8_bytes`.
+              #
+              #     Note: The following fields are mutually exclusive: `utf8_raw`, `utf8_bytes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              # @!attribute [rw] utf8_bytes
+              #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::String::Encoding::Utf8Bytes]
+              #     Use `Utf8Bytes` encoding.
+              #
+              #     Note: The following fields are mutually exclusive: `utf8_bytes`, `utf8_raw`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              class Encoding
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+
+                # Deprecated: prefer the equivalent `Utf8Bytes`.
+                # @deprecated This message is deprecated and may be removed in the next major version update.
+                class Utf8Raw
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
+
+                # UTF-8 encoding.
+                #
+                # Sorted mode:
+                #  - All values are supported.
+                #  - Code point order is preserved.
+                #
+                # Distinct mode: all values are supported.
+                #
+                # Compatible with:
+                #
+                #  - BigQuery `TEXT` encoding
+                #  - HBase `Bytes.toBytes`
+                #  - Java `String#getBytes(StandardCharsets.UTF_8)`
+                class Utf8Bytes
                   include ::Google::Protobuf::MessageExts
                   extend ::Google::Protobuf::MessageExts::ClassMethods
                 end
@@ -96,35 +193,265 @@ module Google
             # Values of type `Int64` are stored in `Value.int_value`.
             # @!attribute [rw] encoding
             #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Int64::Encoding]
-            #     The encoding to use when converting to/from lower level types.
+            #     The encoding to use when converting to or from lower level types.
             class Int64
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
 
-              # Rules used to convert to/from lower level types.
+              # Rules used to convert to or from lower level types.
               # @!attribute [rw] big_endian_bytes
               #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Int64::Encoding::BigEndianBytes]
               #     Use `BigEndianBytes` encoding.
+              #
+              #     Note: The following fields are mutually exclusive: `big_endian_bytes`, `ordered_code_bytes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              # @!attribute [rw] ordered_code_bytes
+              #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Int64::Encoding::OrderedCodeBytes]
+              #     Use `OrderedCodeBytes` encoding.
+              #
+              #     Note: The following fields are mutually exclusive: `ordered_code_bytes`, `big_endian_bytes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               class Encoding
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
 
-                # Encodes the value as an 8-byte big endian twos complement `Bytes`
-                # value.
-                # * Natural sort? No (positive values only)
-                # * Self-delimiting? Yes
-                # * Compatibility?
-                #    - BigQuery Federation `BINARY` encoding
-                #    - HBase `Bytes.toBytes`
-                #    - Java `ByteBuffer.putLong()` with `ByteOrder.BIG_ENDIAN`
+                # Encodes the value as an 8-byte big-endian two's complement value.
+                #
+                # Sorted mode: non-negative values are supported.
+                #
+                # Distinct mode: all values are supported.
+                #
+                # Compatible with:
+                #
+                #  - BigQuery `BINARY` encoding
+                #  - HBase `Bytes.toBytes`
+                #  - Java `ByteBuffer.putLong()` with `ByteOrder.BIG_ENDIAN`
                 # @!attribute [rw] bytes_type
+                #   @deprecated This field is deprecated and may be removed in the next major version update.
                 #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Bytes]
-                #     The underlying `Bytes` type, which may be able to encode further.
+                #     Deprecated: ignored if set.
                 class BigEndianBytes
                   include ::Google::Protobuf::MessageExts
                   extend ::Google::Protobuf::MessageExts::ClassMethods
                 end
+
+                # Encodes the value in a variable length binary format of up to 10 bytes.
+                # Values that are closer to zero use fewer bytes.
+                #
+                # Sorted mode: all values are supported.
+                #
+                # Distinct mode: all values are supported.
+                class OrderedCodeBytes
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
               end
+            end
+
+            # bool
+            # Values of type `Bool` are stored in `Value.bool_value`.
+            class Bool
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Float32
+            # Values of type `Float32` are stored in `Value.float_value`.
+            class Float32
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Float64
+            # Values of type `Float64` are stored in `Value.float_value`.
+            class Float64
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Timestamp
+            # Values of type `Timestamp` are stored in `Value.timestamp_value`.
+            # @!attribute [rw] encoding
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Timestamp::Encoding]
+            #     The encoding to use when converting to or from lower level types.
+            class Timestamp
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Rules used to convert to or from lower level types.
+              # @!attribute [rw] unix_micros_int64
+              #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Int64::Encoding]
+              #     Encodes the number of microseconds since the Unix epoch using the
+              #     given `Int64` encoding. Values must be microsecond-aligned.
+              #
+              #     Compatible with:
+              #
+              #      - Java `Instant.truncatedTo()` with `ChronoUnit.MICROS`
+              class Encoding
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+            end
+
+            # Date
+            # Values of type `Date` are stored in `Value.date_value`.
+            class Date
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # A structured data value, consisting of fields which map to dynamically
+            # typed values.
+            # Values of type `Struct` are stored in `Value.array_value` where entries are
+            # in the same order and number as `field_types`.
+            # @!attribute [rw] fields
+            #   @return [::Array<::Google::Cloud::Bigtable::Admin::V2::Type::Struct::Field>]
+            #     The names and types of the fields in this struct.
+            # @!attribute [rw] encoding
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Struct::Encoding]
+            #     The encoding to use when converting to or from lower level types.
+            class Struct
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # A struct field and its type.
+              # @!attribute [rw] field_name
+              #   @return [::String]
+              #     The field name (optional). Fields without a `field_name` are considered
+              #     anonymous and cannot be referenced by name.
+              # @!attribute [rw] type
+              #   @return [::Google::Cloud::Bigtable::Admin::V2::Type]
+              #     The type of values in this field.
+              class Field
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Rules used to convert to or from lower level types.
+              # @!attribute [rw] singleton
+              #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Struct::Encoding::Singleton]
+              #     Use `Singleton` encoding.
+              #
+              #     Note: The following fields are mutually exclusive: `singleton`, `delimited_bytes`, `ordered_code_bytes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              # @!attribute [rw] delimited_bytes
+              #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Struct::Encoding::DelimitedBytes]
+              #     Use `DelimitedBytes` encoding.
+              #
+              #     Note: The following fields are mutually exclusive: `delimited_bytes`, `singleton`, `ordered_code_bytes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              # @!attribute [rw] ordered_code_bytes
+              #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Struct::Encoding::OrderedCodeBytes]
+              #     User `OrderedCodeBytes` encoding.
+              #
+              #     Note: The following fields are mutually exclusive: `ordered_code_bytes`, `singleton`, `delimited_bytes`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+              class Encoding
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+
+                # Uses the encoding of `fields[0].type` as-is.
+                # Only valid if `fields.size == 1`.
+                class Singleton
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
+
+                # Fields are encoded independently and concatenated with a configurable
+                # `delimiter` in between.
+                #
+                # A struct with no fields defined is encoded as a single `delimiter`.
+                #
+                # Sorted mode:
+                #
+                #  - Fields are encoded in sorted mode.
+                #  - Encoded field values must not contain any bytes <= `delimiter[0]`
+                #  - Element-wise order is preserved: `A < B` if `A[0] < B[0]`, or if
+                #    `A[0] == B[0] && A[1] < B[1]`, etc. Strict prefixes sort first.
+                #
+                # Distinct mode:
+                #
+                #  - Fields are encoded in distinct mode.
+                #  - Encoded field values must not contain `delimiter[0]`.
+                # @!attribute [rw] delimiter
+                #   @return [::String]
+                #     Byte sequence used to delimit concatenated fields. The delimiter must
+                #     contain at least 1 character and at most 50 characters.
+                class DelimitedBytes
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
+
+                # Fields are encoded independently and concatenated with the fixed byte
+                # pair \\{0x00, 0x01} in between.
+                #
+                # Any null (0x00) byte in an encoded field is replaced by the fixed byte
+                # pair \\{0x00, 0xFF}.
+                #
+                # Fields that encode to the empty string "" have special handling:
+                #
+                #  - If *every* field encodes to "", or if the STRUCT has no fields
+                #    defined, then the STRUCT is encoded as the fixed byte pair
+                #    \\{0x00, 0x00}.
+                #  - Otherwise, the STRUCT only encodes until the last non-empty field,
+                #    omitting any trailing empty fields. Any empty fields that aren't
+                #    omitted are replaced with the fixed byte pair \\{0x00, 0x00}.
+                #
+                # Examples:
+                #
+                #  - STRUCT()             -> "\00\00"
+                #  - STRUCT("")           -> "\00\00"
+                #  - STRUCT("", "")       -> "\00\00"
+                #  - STRUCT("", "B")      -> "\00\00" + "\00\01" + "B"
+                #  - STRUCT("A", "")      -> "A"
+                #  - STRUCT("", "B", "")  -> "\00\00" + "\00\01" + "B"
+                #  - STRUCT("A", "", "C") -> "A" + "\00\01" + "\00\00" + "\00\01" + "C"
+                #
+                #
+                # Since null bytes are always escaped, this encoding can cause size
+                # blowup for encodings like `Int64.BigEndianBytes` that are likely to
+                # produce many such bytes.
+                #
+                # Sorted mode:
+                #
+                #  - Fields are encoded in sorted mode.
+                #  - All values supported by the field encodings are allowed
+                #  - Element-wise order is preserved: `A < B` if `A[0] < B[0]`, or if
+                #    `A[0] == B[0] && A[1] < B[1]`, etc. Strict prefixes sort first.
+                #
+                # Distinct mode:
+                #
+                #  - Fields are encoded in distinct mode.
+                #  - All values supported by the field encodings are allowed.
+                class OrderedCodeBytes
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
+              end
+            end
+
+            # An ordered list of elements of a given type.
+            # Values of type `Array` are stored in `Value.array_value`.
+            # @!attribute [rw] element_type
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type]
+            #     The type of the elements in the array. This must not be `Array`.
+            class Array
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # A mapping of keys to values of a given type.
+            # Values of type `Map` are stored in a `Value.array_value` where each entry
+            # is another `Value.array_value` with two elements (the key and the value,
+            # in that order).
+            # Normally encoded Map values won't have repeated keys, however, clients are
+            # expected to handle the case in which they do. If the same key appears
+            # multiple times, the _last_ value takes precedence.
+            # @!attribute [rw] key_type
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type]
+            #     The type of a map key.
+            #     Only `Bytes`, `String`, and `Int64` are allowed as key types.
+            # @!attribute [rw] value_type
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type]
+            #     The type of the values in a map.
+            class Map
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
             end
 
             # A value that combines incremental updates into a summarized value.
@@ -145,6 +472,23 @@ module Google
             # @!attribute [rw] sum
             #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Aggregate::Sum]
             #     Sum aggregator.
+            #
+            #     Note: The following fields are mutually exclusive: `sum`, `hllpp_unique_count`, `max`, `min`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] hllpp_unique_count
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Aggregate::HyperLogLogPlusPlusUniqueCount]
+            #     HyperLogLogPlusPlusUniqueCount aggregator.
+            #
+            #     Note: The following fields are mutually exclusive: `hllpp_unique_count`, `sum`, `max`, `min`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] max
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Aggregate::Max]
+            #     Max aggregator.
+            #
+            #     Note: The following fields are mutually exclusive: `max`, `sum`, `hllpp_unique_count`, `min`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] min
+            #   @return [::Google::Cloud::Bigtable::Admin::V2::Type::Aggregate::Min]
+            #     Min aggregator.
+            #
+            #     Note: The following fields are mutually exclusive: `min`, `sum`, `hllpp_unique_count`, `max`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             class Aggregate
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -153,6 +497,34 @@ module Google
               # Allowed input: `Int64`
               # State: same as input
               class Sum
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Computes the max of the input values.
+              # Allowed input: `Int64`
+              # State: same as input
+              class Max
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Computes the min of the input values.
+              # Allowed input: `Int64`
+              # State: same as input
+              class Min
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Computes an approximate unique count over the input values. When using
+              # raw data as input, be careful to use a consistent encoding. Otherwise
+              # the same value encoded differently could count more than once, or two
+              # distinct values could count as identical.
+              # Input: Any, or omit for Raw
+              # State: TBD
+              # Special state conversions: `Int64` (the unique count estimate)
+              class HyperLogLogPlusPlusUniqueCount
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
               end

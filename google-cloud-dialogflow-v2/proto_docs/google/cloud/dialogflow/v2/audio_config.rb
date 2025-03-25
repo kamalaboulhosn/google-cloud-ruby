@@ -159,6 +159,9 @@ module Google
         # @!attribute [rw] enable_automatic_punctuation
         #   @return [::Boolean]
         #     Enable automatic punctuation option at the speech backend.
+        # @!attribute [rw] phrase_sets
+        #   @return [::Array<::String>]
+        #     A collection of phrase set resources to use for speech adaptation.
         # @!attribute [rw] opt_out_conformer_model_migration
         #   @return [::Boolean]
         #     If `true`, the request will opt out for STT conformer model migration.
@@ -291,9 +294,38 @@ module Google
         #     [Agent Speech
         #     settings](https://cloud.google.com/dialogflow/cx/docs/concept/agent#settings-speech)
         #     for model selection.
+        # @!attribute [rw] phrase_sets
+        #   @return [::Array<::String>]
+        #     List of names of Cloud Speech phrase sets that are used for transcription.
+        #     For phrase set limitations, please refer to [Cloud Speech API quotas and
+        #     limits](https://cloud.google.com/speech-to-text/quotas#content).
+        # @!attribute [rw] audio_encoding
+        #   @return [::Google::Cloud::Dialogflow::V2::AudioEncoding]
+        #     Audio encoding of the audio content to process.
+        # @!attribute [rw] sample_rate_hertz
+        #   @return [::Integer]
+        #     Sample rate (in Hertz) of the audio content sent in the query.
+        #     Refer to [Cloud Speech API
+        #     documentation](https://cloud.google.com/speech-to-text/docs/basics) for
+        #     more details.
+        # @!attribute [rw] language_code
+        #   @return [::String]
+        #     The language of the supplied audio. Dialogflow does not do
+        #     translations. See [Language
+        #     Support](https://cloud.google.com/dialogflow/docs/reference/language)
+        #     for a list of the currently supported language codes. Note that queries in
+        #     the same session do not necessarily need to specify the same language.
+        # @!attribute [rw] enable_word_info
+        #   @return [::Boolean]
+        #     If `true`, Dialogflow returns
+        #     {::Google::Cloud::Dialogflow::V2::SpeechWordInfo SpeechWordInfo} in
+        #     {::Google::Cloud::Dialogflow::V2::StreamingRecognitionResult StreamingRecognitionResult}
+        #     with information about the recognized speech words, e.g. start and end time
+        #     offsets. If false or unspecified, Speech doesn't return any word-level
+        #     information.
         # @!attribute [rw] use_timeout_based_endpointing
         #   @return [::Boolean]
-        #     Use timeout based endpointing, interpreting endpointer sensitivy as
+        #     Use timeout based endpointing, interpreting endpointer sensitivity as
         #     seconds of timeout value.
         class SpeechToTextConfig
           include ::Google::Protobuf::MessageExts
@@ -402,6 +434,9 @@ module Google
           # is replaced with a single byte containing the block length. Only Speex
           # wideband is supported. `sample_rate_hertz` must be 16000.
           AUDIO_ENCODING_SPEEX_WITH_HEADER_BYTE = 7
+
+          # 8-bit samples that compand 13-bit audio samples using G.711 PCMU/a-law.
+          AUDIO_ENCODING_ALAW = 8
         end
 
         # Variant of the specified [Speech
@@ -417,8 +452,8 @@ module Google
           # USE_BEST_AVAILABLE.
           SPEECH_MODEL_VARIANT_UNSPECIFIED = 0
 
-          # Use the best available variant of the [Speech
-          # model][InputAudioConfig.model] that the caller is eligible for.
+          # Use the best available variant of the [Speech model][model] that the caller
+          # is eligible for.
           #
           # Please see the [Dialogflow
           # docs](https://cloud.google.com/dialogflow/docs/data-logging) for
@@ -488,6 +523,9 @@ module Google
 
           # 8-bit samples that compand 14-bit audio samples using G.711 PCMU/mu-law.
           OUTPUT_AUDIO_ENCODING_MULAW = 5
+
+          # 8-bit samples that compand 13-bit audio samples using G.711 PCMU/a-law.
+          OUTPUT_AUDIO_ENCODING_ALAW = 6
         end
       end
     end

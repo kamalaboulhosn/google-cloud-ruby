@@ -208,8 +208,19 @@ module Google
                     endpoint: @config.endpoint,
                     endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                     universe_domain: @config.universe_domain,
-                    credentials: credentials
+                    credentials: credentials,
+                    logger: @config.logger
                   )
+
+                  @data_transfer_service_stub.logger(stub: true)&.info do |entry|
+                    entry.set_system_name
+                    entry.set_service
+                    entry.message = "Created client for #{entry.service}"
+                    entry.set_credentials_fields credentials
+                    entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                    entry.set "defaultTimeout", @config.timeout if @config.timeout
+                    entry.set "quotaProject", @quota_project_id if @quota_project_id
+                  end
 
                   @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                     config.credentials = credentials
@@ -217,6 +228,7 @@ module Google
                     config.endpoint = @data_transfer_service_stub.endpoint
                     config.universe_domain = @data_transfer_service_stub.universe_domain
                     config.bindings_override = @config.bindings_override
+                    config.logger = @data_transfer_service_stub.logger if config.respond_to? :logger=
                   end
                 end
 
@@ -226,6 +238,15 @@ module Google
                 # @return [Google::Cloud::Location::Locations::Rest::Client]
                 #
                 attr_reader :location_client
+
+                ##
+                # The logger used for request/response debug logging.
+                #
+                # @return [Logger]
+                #
+                def logger
+                  @data_transfer_service_stub.logger
+                end
 
                 # Service calls
 
@@ -304,7 +325,6 @@ module Google
 
                   @data_transfer_service_stub.get_data_source request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -398,7 +418,7 @@ module Google
                   @data_transfer_service_stub.list_data_sources request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @data_transfer_service_stub, :list_data_sources, "data_sources", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -431,14 +451,18 @@ module Google
                 #   @param transfer_config [::Google::Cloud::Bigquery::DataTransfer::V1::TransferConfig, ::Hash]
                 #     Required. Data transfer configuration to create.
                 #   @param authorization_code [::String]
+                #     Deprecated: Authorization code was required when
+                #     `transferConfig.dataSourceId` is 'youtube_channel' but it is no longer used
+                #     in any data sources. Use `version_info` instead.
+                #
                 #     Optional OAuth2 authorization code to use with this transfer configuration.
                 #     This is required only if `transferConfig.dataSourceId` is 'youtube_channel'
                 #     and new credentials are needed, as indicated by `CheckValidCreds`. In order
                 #     to obtain authorization_code, make a request to the following URL:
                 #     <pre class="prettyprint" suppresswarning="true">
-                #     https://www.gstatic.com/bigquerydatatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
+                #     https://bigquery.cloud.google.com/datatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
                 #     </pre>
-                #     * The <var>client_id</var> is the OAuth client_id of the a data source as
+                #     * The <var>client_id</var> is the OAuth client_id of the data source as
                 #     returned by ListDataSources method.
                 #     * <var>data_source_scopes</var> are the scopes returned by ListDataSources
                 #     method.
@@ -446,14 +470,15 @@ module Google
                 #     Note that this should not be set when `service_account_name` is used to
                 #     create the transfer config.
                 #   @param version_info [::String]
-                #     Optional version info. This is required only if
-                #     `transferConfig.dataSourceId` is not 'youtube_channel' and new credentials
+                #     Optional version info. This parameter replaces `authorization_code` which
+                #     is no longer used in any data sources. This is required only if
+                #     `transferConfig.dataSourceId` is 'youtube_channel' *or* new credentials
                 #     are needed, as indicated by `CheckValidCreds`. In order to obtain version
                 #     info, make a request to the following URL:
                 #     <pre class="prettyprint" suppresswarning="true">
-                #     https://www.gstatic.com/bigquerydatatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
+                #     https://bigquery.cloud.google.com/datatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
                 #     </pre>
-                #     * The <var>client_id</var> is the OAuth client_id of the a data source as
+                #     * The <var>client_id</var> is the OAuth client_id of the data source as
                 #     returned by ListDataSources method.
                 #     * <var>data_source_scopes</var> are the scopes returned by ListDataSources
                 #     method.
@@ -523,7 +548,6 @@ module Google
 
                   @data_transfer_service_stub.create_transfer_config request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -551,14 +575,18 @@ module Google
                 #   @param transfer_config [::Google::Cloud::Bigquery::DataTransfer::V1::TransferConfig, ::Hash]
                 #     Required. Data transfer configuration to create.
                 #   @param authorization_code [::String]
+                #     Deprecated: Authorization code was required when
+                #     `transferConfig.dataSourceId` is 'youtube_channel' but it is no longer used
+                #     in any data sources. Use `version_info` instead.
+                #
                 #     Optional OAuth2 authorization code to use with this transfer configuration.
                 #     This is required only if `transferConfig.dataSourceId` is 'youtube_channel'
                 #     and new credentials are needed, as indicated by `CheckValidCreds`. In order
                 #     to obtain authorization_code, make a request to the following URL:
                 #     <pre class="prettyprint" suppresswarning="true">
-                #     https://www.gstatic.com/bigquerydatatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
+                #     https://bigquery.cloud.google.com/datatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
                 #     </pre>
-                #     * The <var>client_id</var> is the OAuth client_id of the a data source as
+                #     * The <var>client_id</var> is the OAuth client_id of the data source as
                 #     returned by ListDataSources method.
                 #     * <var>data_source_scopes</var> are the scopes returned by ListDataSources
                 #     method.
@@ -568,14 +596,15 @@ module Google
                 #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
                 #     Required. Required list of fields to be updated in this request.
                 #   @param version_info [::String]
-                #     Optional version info. This is required only if
-                #     `transferConfig.dataSourceId` is not 'youtube_channel' and new credentials
+                #     Optional version info. This parameter replaces `authorization_code` which
+                #     is no longer used in any data sources. This is required only if
+                #     `transferConfig.dataSourceId` is 'youtube_channel' *or* new credentials
                 #     are needed, as indicated by `CheckValidCreds`. In order to obtain version
                 #     info, make a request to the following URL:
                 #     <pre class="prettyprint" suppresswarning="true">
-                #     https://www.gstatic.com/bigquerydatatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
+                #     https://bigquery.cloud.google.com/datatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
                 #     </pre>
-                #     * The <var>client_id</var> is the OAuth client_id of the a data source as
+                #     * The <var>client_id</var> is the OAuth client_id of the data source as
                 #     returned by ListDataSources method.
                 #     * <var>data_source_scopes</var> are the scopes returned by ListDataSources
                 #     method.
@@ -645,7 +674,6 @@ module Google
 
                   @data_transfer_service_stub.update_transfer_config request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -727,7 +755,6 @@ module Google
 
                   @data_transfer_service_stub.delete_transfer_config request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -808,7 +835,6 @@ module Google
 
                   @data_transfer_service_stub.get_transfer_config request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -905,7 +931,7 @@ module Google
                   @data_transfer_service_stub.list_transfer_configs request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @data_transfer_service_stub, :list_transfer_configs, "transfer_configs", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -996,7 +1022,6 @@ module Google
 
                   @data_transfer_service_stub.schedule_transfer_runs request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1032,11 +1057,15 @@ module Google
                 #     that are scheduled to be transferred by the scheduled transfer run.
                 #     requested_time_range must be a past time and cannot include future time
                 #     values.
+                #
+                #     Note: The following fields are mutually exclusive: `requested_time_range`, `requested_run_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
                 #   @param requested_run_time [::Google::Protobuf::Timestamp, ::Hash]
                 #     A run_time timestamp for historical data files or reports
                 #     that are scheduled to be transferred by the scheduled transfer run.
                 #     requested_run_time must be a past time and cannot include future time
                 #     values.
+                #
+                #     Note: The following fields are mutually exclusive: `requested_run_time`, `requested_time_range`. If a field in that set is populated, all other fields in the set will automatically be cleared.
                 # @yield [result, operation] Access the result along with the TransportOperation object
                 # @yieldparam result [::Google::Cloud::Bigquery::DataTransfer::V1::StartManualTransferRunsResponse]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1090,7 +1119,6 @@ module Google
 
                   @data_transfer_service_stub.start_manual_transfer_runs request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1172,7 +1200,6 @@ module Google
 
                   @data_transfer_service_stub.get_transfer_run request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1254,7 +1281,6 @@ module Google
 
                   @data_transfer_service_stub.delete_transfer_run request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1353,7 +1379,7 @@ module Google
                   @data_transfer_service_stub.list_transfer_runs request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @data_transfer_service_stub, :list_transfer_runs, "transfer_runs", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1450,7 +1476,7 @@ module Google
                   @data_transfer_service_stub.list_transfer_logs request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @data_transfer_service_stub, :list_transfer_logs, "transfer_messages", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1532,7 +1558,6 @@ module Google
 
                   @data_transfer_service_stub.check_valid_creds request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1622,7 +1647,6 @@ module Google
 
                   @data_transfer_service_stub.enroll_data_sources request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1709,7 +1733,6 @@ module Google
 
                   @data_transfer_service_stub.unenroll_data_sources request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1757,6 +1780,13 @@ module Google
                 #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
                 #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -1789,6 +1819,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -1817,6 +1852,7 @@ module Google
                   # by the host service.
                   # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                   config_attr :bindings_override, {}, ::Hash, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil

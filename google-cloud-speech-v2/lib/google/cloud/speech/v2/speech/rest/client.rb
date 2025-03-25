@@ -163,8 +163,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @speech_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -172,6 +183,7 @@ module Google
                   config.endpoint = @speech_stub.endpoint
                   config.universe_domain = @speech_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @speech_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -188,6 +200,15 @@ module Google
               # @return [Google::Cloud::Location::Locations::Rest::Client]
               #
               attr_reader :location_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @speech_stub.logger
+              end
 
               # Service calls
 
@@ -284,7 +305,7 @@ module Google
                 @speech_stub.create_recognizer request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -383,7 +404,7 @@ module Google
                 @speech_stub.list_recognizers request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @speech_stub, :list_recognizers, "recognizers", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -466,7 +487,6 @@ module Google
 
                 @speech_stub.get_recognizer request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -562,7 +582,7 @@ module Google
                 @speech_stub.update_recognizer request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -660,7 +680,7 @@ module Google
                 @speech_stub.delete_recognizer request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -755,7 +775,7 @@ module Google
                 @speech_stub.undelete_recognizer request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -811,6 +831,8 @@ module Google
               #     {::Google::Cloud::Speech::V2::RecognitionConfig RecognitionConfig}. As
               #     with all bytes fields, proto buffers use a pure binary representation,
               #     whereas JSON representations use base64.
+              #
+              #     Note: The following fields are mutually exclusive: `content`, `uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               #   @param uri [::String]
               #     URI that points to a file that contains audio data bytes as specified in
               #     {::Google::Cloud::Speech::V2::RecognitionConfig RecognitionConfig}. The file
@@ -820,6 +842,8 @@ module Google
               #     [INVALID_ARGUMENT][google.rpc.Code.INVALID_ARGUMENT]). For more
               #     information, see [Request
               #     URIs](https://cloud.google.com/storage/docs/reference-uris).
+              #
+              #     Note: The following fields are mutually exclusive: `uri`, `content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Cloud::Speech::V2::RecognizeResponse]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -873,7 +897,6 @@ module Google
 
                 @speech_stub.recognize request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -927,7 +950,7 @@ module Google
               #     request.
               #   @param files [::Array<::Google::Cloud::Speech::V2::BatchRecognizeFileMetadata, ::Hash>]
               #     Audio files with file metadata for ASR.
-              #     The maximum number of files allowed to be specified is 5.
+              #     The maximum number of files allowed to be specified is 15.
               #   @param recognition_output_config [::Google::Cloud::Speech::V2::RecognitionOutputConfig, ::Hash]
               #     Configuration options for where to output the transcripts of each file.
               #   @param processing_strategy [::Google::Cloud::Speech::V2::BatchRecognizeRequest::ProcessingStrategy]
@@ -993,7 +1016,7 @@ module Google
                 @speech_stub.batch_recognize request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1074,7 +1097,6 @@ module Google
 
                 @speech_stub.get_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1158,7 +1180,6 @@ module Google
 
                 @speech_stub.update_config request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1257,7 +1278,7 @@ module Google
                 @speech_stub.create_custom_class request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1357,7 +1378,7 @@ module Google
                 @speech_stub.list_custom_classes request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @speech_stub, :list_custom_classes, "custom_classes", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1438,7 +1459,6 @@ module Google
 
                 @speech_stub.get_custom_class request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1535,7 +1555,7 @@ module Google
                 @speech_stub.update_custom_class request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1634,7 +1654,7 @@ module Google
                 @speech_stub.delete_custom_class request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1730,7 +1750,7 @@ module Google
                 @speech_stub.undelete_custom_class request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1829,7 +1849,7 @@ module Google
                 @speech_stub.create_phrase_set request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1928,7 +1948,7 @@ module Google
                 @speech_stub.list_phrase_sets request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @speech_stub, :list_phrase_sets, "phrase_sets", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2009,7 +2029,6 @@ module Google
 
                 @speech_stub.get_phrase_set request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2105,7 +2124,7 @@ module Google
                 @speech_stub.update_phrase_set request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2203,7 +2222,7 @@ module Google
                 @speech_stub.delete_phrase_set request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2298,7 +2317,7 @@ module Google
                 @speech_stub.undelete_phrase_set request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -2346,6 +2365,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -2378,6 +2404,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -2406,6 +2437,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

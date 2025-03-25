@@ -160,8 +160,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @feature_online_store_admin_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -169,6 +180,7 @@ module Google
                   config.endpoint = @feature_online_store_admin_service_stub.endpoint
                   config.universe_domain = @feature_online_store_admin_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @feature_online_store_admin_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -177,6 +189,7 @@ module Google
                   config.endpoint = @feature_online_store_admin_service_stub.endpoint
                   config.universe_domain = @feature_online_store_admin_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @feature_online_store_admin_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -200,6 +213,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @feature_online_store_admin_service_stub.logger
+              end
 
               # Service calls
 
@@ -296,7 +318,7 @@ module Google
                 @feature_online_store_admin_service_stub.create_feature_online_store request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -375,7 +397,6 @@ module Google
 
                 @feature_online_store_admin_service_stub.get_feature_online_store request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -499,7 +520,7 @@ module Google
                 @feature_online_store_admin_service_stub.list_feature_online_stores request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @feature_online_store_admin_service_stub, :list_feature_online_stores, "feature_online_stores", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -538,10 +559,11 @@ module Google
               #
               #     Updatable fields:
               #
-              #       * `big_query_source`
-              #       * `bigtable`
               #       * `labels`
-              #       * `sync_config`
+              #       * `description`
+              #       * `bigtable`
+              #       * `bigtable.auto_scaling`
+              #       * `bigtable.enable_multi_region_replica`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -603,7 +625,7 @@ module Google
                 @feature_online_store_admin_service_stub.update_feature_online_store request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -697,7 +719,7 @@ module Google
                 @feature_online_store_admin_service_stub.delete_feature_online_store request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -801,7 +823,7 @@ module Google
                 @feature_online_store_admin_service_stub.create_feature_view request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -882,7 +904,6 @@ module Google
 
                 @feature_online_store_admin_service_stub.get_feature_view request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1009,7 +1030,7 @@ module Google
                 @feature_online_store_admin_service_stub.list_feature_views request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @feature_online_store_admin_service_stub, :list_feature_views, "feature_views", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1049,7 +1070,15 @@ module Google
               #     Updatable fields:
               #
               #       * `labels`
-              #       * `serviceAgentType`
+              #       * `service_agent_type`
+              #       * `big_query_source`
+              #       * `big_query_source.uri`
+              #       * `big_query_source.entity_id_columns`
+              #       * `feature_registry_source`
+              #       * `feature_registry_source.feature_groups`
+              #       * `sync_config`
+              #       * `sync_config.cron`
+              #       * `optimized_config.automatic_resources`
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Gapic::Operation]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1111,7 +1140,7 @@ module Google
                 @feature_online_store_admin_service_stub.update_feature_view request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1200,7 +1229,7 @@ module Google
                 @feature_online_store_admin_service_stub.delete_feature_view request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1280,7 +1309,6 @@ module Google
 
                 @feature_online_store_admin_service_stub.sync_feature_view request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1361,7 +1389,6 @@ module Google
 
                 @feature_online_store_admin_service_stub.get_feature_view_sync request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1478,7 +1505,7 @@ module Google
                 @feature_online_store_admin_service_stub.list_feature_view_syncs request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @feature_online_store_admin_service_stub, :list_feature_view_syncs, "feature_view_syncs", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1526,6 +1553,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1558,6 +1592,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1586,6 +1625,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

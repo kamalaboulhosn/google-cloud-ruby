@@ -1,5 +1,50 @@
 # Changelog
 
+### 0.14.1 (2025-03-05)
+
+#### Documentation
+
+* fixed bigquery migration product link ([#29288](https://github.com/googleapis/google-cloud-ruby/issues/29288)) 
+
+### 0.14.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.13.0 (2025-01-08)
+
+#### Features
+
+* Support reason and localized message strings on FieldViolation ([#28124](https://github.com/googleapis/google-cloud-ruby/issues/28124)) 
+
+### 0.12.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.11.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 0.11.0 (2024-07-22)
+
+#### Features
+
+* Support for DB2, SQLite, and Greenplum dialects 
+* Support for metrics and results for MigrationTask 
+* Support for MigrationTask details for unified SQL Translation 
+* Support for REST transport ([#26457](https://github.com/googleapis/google-cloud-ruby/issues/26457)) 
+* Support for SourceEnv#metadata_store_dataset 
+* Support for TranslationConfigDetails#target_types 
+
 ### 0.10.0 (2024-02-26)
 
 #### Features

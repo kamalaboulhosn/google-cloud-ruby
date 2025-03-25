@@ -33,24 +33,24 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_list_key_rings
@@ -84,7 +92,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_key_rings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_key_rings_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -143,7 +151,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_crypto_keys_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_crypto_keys_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -202,7 +210,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_crypto_key_versions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_crypto_key_versions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -260,7 +268,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_import_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_import_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -314,7 +322,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_key_ring_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_key_ring_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -368,7 +376,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_crypto_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_crypto_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -422,7 +430,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -475,8 +483,9 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
 
     # Create request parameters for a unary method.
     name = "hello world"
+    public_key_format = :PUBLIC_KEY_FORMAT_UNSPECIFIED
 
-    get_public_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_public_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -490,27 +499,27 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
         end
 
         # Use hash object
-        client.get_public_key({ name: name }) do |_result, response|
+        client.get_public_key({ name: name, public_key_format: public_key_format }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.get_public_key name: name do |_result, response|
+        client.get_public_key name: name, public_key_format: public_key_format do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.get_public_key ::Google::Cloud::Kms::V1::GetPublicKeyRequest.new(name: name) do |_result, response|
+        client.get_public_key ::Google::Cloud::Kms::V1::GetPublicKeyRequest.new(name: name, public_key_format: public_key_format) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.get_public_key({ name: name }, call_options) do |_result, response|
+        client.get_public_key({ name: name, public_key_format: public_key_format }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.get_public_key(::Google::Cloud::Kms::V1::GetPublicKeyRequest.new(name: name), call_options) do |_result, response|
+        client.get_public_key(::Google::Cloud::Kms::V1::GetPublicKeyRequest.new(name: name, public_key_format: public_key_format), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -530,7 +539,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_import_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_import_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -586,7 +595,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     key_ring_id = "hello world"
     key_ring = {}
 
-    create_key_ring_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_key_ring_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -643,7 +652,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     crypto_key = {}
     skip_initial_version_creation = true
 
-    create_crypto_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_crypto_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -698,7 +707,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     parent = "hello world"
     crypto_key_version = {}
 
-    create_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -757,7 +766,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     wrapped_key = "hello world"
     rsa_aes_wrapped_key = "hello world"
 
-    import_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    import_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -813,7 +822,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     import_job_id = "hello world"
     import_job = {}
 
-    create_import_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_import_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -868,7 +877,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     crypto_key = {}
     update_mask = {}
 
-    update_crypto_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_crypto_key_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -923,7 +932,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     crypto_key_version = {}
     update_mask = {}
 
-    update_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -978,7 +987,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     name = "hello world"
     crypto_key_version_id = "hello world"
 
-    update_crypto_key_primary_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_crypto_key_primary_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1032,7 +1041,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    destroy_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    destroy_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1086,7 +1095,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    restore_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    restore_crypto_key_version_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1144,7 +1153,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     plaintext_crc32c = {}
     additional_authenticated_data_crc32c = {}
 
-    encrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    encrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1202,7 +1211,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     ciphertext_crc32c = {}
     additional_authenticated_data_crc32c = {}
 
-    decrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    decrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1262,7 +1271,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     initialization_vector = "hello world"
     initialization_vector_crc32c = {}
 
-    raw_encrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    raw_encrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1323,7 +1332,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     additional_authenticated_data_crc32c = {}
     initialization_vector_crc32c = {}
 
-    raw_decrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    raw_decrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1381,7 +1390,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     data = "hello world"
     data_crc32c = {}
 
-    asymmetric_sign_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    asymmetric_sign_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1437,7 +1446,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     ciphertext = "hello world"
     ciphertext_crc32c = {}
 
-    asymmetric_decrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    asymmetric_decrypt_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1493,7 +1502,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     data = "hello world"
     data_crc32c = {}
 
-    mac_sign_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    mac_sign_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1551,7 +1560,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     mac = "hello world"
     mac_crc32c = {}
 
-    mac_verify_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    mac_verify_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1607,7 +1616,7 @@ class ::Google::Cloud::Kms::V1::KeyManagementService::Rest::ClientTest < Minites
     length_bytes = 42
     protection_level = :PROTECTION_LEVEL_UNSPECIFIED
 
-    generate_random_bytes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    generate_random_bytes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

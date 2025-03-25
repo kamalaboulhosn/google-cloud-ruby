@@ -25,7 +25,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Full resource name of the Simulation:
-        #     organizations/123/simulations/456
+        #     `organizations/123/simulations/456`
         # @!attribute [r] create_time
         #   @return [::Google::Protobuf::Timestamp]
         #     Output only. Time simulation was created
@@ -33,6 +33,9 @@ module Google
         #   @return [::Array<::Google::Cloud::SecurityCenter::V2::ResourceValueConfigMetadata>]
         #     Resource value configurations' metadata used in this simulation. Maximum of
         #     100.
+        # @!attribute [rw] cloud_provider
+        #   @return [::Google::Cloud::SecurityCenter::V2::CloudProvider]
+        #     Indicates which cloud provider was used in this simulation.
         class Simulation
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods

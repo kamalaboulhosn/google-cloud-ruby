@@ -31,6 +31,14 @@ class ::Google::Cloud::AIPlatform::V1::ScheduleService::ClientPathsTest < Minite
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_artifact_path
@@ -105,6 +113,30 @@ class ::Google::Cloud::AIPlatform::V1::ScheduleService::ClientPathsTest < Minite
     end
   end
 
+  def test_notebook_execution_job_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::AIPlatform::V1::ScheduleService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.notebook_execution_job_path project: "value0", location: "value1", notebook_execution_job: "value2"
+      assert_equal "projects/value0/locations/value1/notebookExecutionJobs/value2", path
+    end
+  end
+
+  def test_notebook_runtime_template_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::AIPlatform::V1::ScheduleService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.notebook_runtime_template_path project: "value0", location: "value1", notebook_runtime_template: "value2"
+      assert_equal "projects/value0/locations/value1/notebookRuntimeTemplates/value2", path
+    end
+  end
+
   def test_pipeline_job_path
     grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
     ::Gapic::ServiceStub.stub :new, DummyStub.new do
@@ -117,6 +149,18 @@ class ::Google::Cloud::AIPlatform::V1::ScheduleService::ClientPathsTest < Minite
     end
   end
 
+  def test_reservation_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::AIPlatform::V1::ScheduleService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.reservation_path project_id_or_number: "value0", zone: "value1", reservation_name: "value2"
+      assert_equal "projects/value0/zones/value1/reservations/value2", path
+    end
+  end
+
   def test_schedule_path
     grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
     ::Gapic::ServiceStub.stub :new, DummyStub.new do
@@ -126,6 +170,18 @@ class ::Google::Cloud::AIPlatform::V1::ScheduleService::ClientPathsTest < Minite
 
       path = client.schedule_path project: "value0", location: "value1", schedule: "value2"
       assert_equal "projects/value0/locations/value1/schedules/value2", path
+    end
+  end
+
+  def test_subnetwork_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::AIPlatform::V1::ScheduleService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.subnetwork_path project: "value0", region: "value1", subnetwork: "value2"
+      assert_equal "projects/value0/regions/value1/subnetworks/value2", path
     end
   end
 end

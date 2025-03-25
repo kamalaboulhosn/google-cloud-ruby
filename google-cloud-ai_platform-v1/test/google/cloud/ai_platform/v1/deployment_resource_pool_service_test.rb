@@ -41,9 +41,10 @@ class ::Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::ClientTest
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::ClientTest
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -244,6 +253,71 @@ class ::Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::ClientTest
 
       # Verify method calls
       assert_equal 5, list_deployment_resource_pools_client_stub.call_rpc_count
+    end
+  end
+
+  def test_update_deployment_resource_pool
+    # Create GRPC objects.
+    grpc_response = ::Google::Longrunning::Operation.new
+    grpc_operation = GRPC::ActiveCall::Operation.new nil
+    grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    grpc_options = {}
+
+    # Create request parameters for a unary method.
+    deployment_resource_pool = {}
+    update_mask = {}
+
+    update_deployment_resource_pool_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
+      assert_equal :update_deployment_resource_pool, name
+      assert_kind_of ::Google::Cloud::AIPlatform::V1::UpdateDeploymentResourcePoolRequest, request
+      assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Cloud::AIPlatform::V1::DeploymentResourcePool), request["deployment_resource_pool"]
+      assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Protobuf::FieldMask), request["update_mask"]
+      refute_nil options
+    end
+
+    Gapic::ServiceStub.stub :new, update_deployment_resource_pool_client_stub do
+      # Create client
+      client = ::Google::Cloud::AIPlatform::V1::DeploymentResourcePoolService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      # Use hash object
+      client.update_deployment_resource_pool({ deployment_resource_pool: deployment_resource_pool, update_mask: update_mask }) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use named arguments
+      client.update_deployment_resource_pool deployment_resource_pool: deployment_resource_pool, update_mask: update_mask do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object
+      client.update_deployment_resource_pool ::Google::Cloud::AIPlatform::V1::UpdateDeploymentResourcePoolRequest.new(deployment_resource_pool: deployment_resource_pool, update_mask: update_mask) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use hash object with options
+      client.update_deployment_resource_pool({ deployment_resource_pool: deployment_resource_pool, update_mask: update_mask }, grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object with options
+      client.update_deployment_resource_pool(::Google::Cloud::AIPlatform::V1::UpdateDeploymentResourcePoolRequest.new(deployment_resource_pool: deployment_resource_pool, update_mask: update_mask), grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Verify method calls
+      assert_equal 5, update_deployment_resource_pool_client_stub.call_rpc_count
     end
   end
 

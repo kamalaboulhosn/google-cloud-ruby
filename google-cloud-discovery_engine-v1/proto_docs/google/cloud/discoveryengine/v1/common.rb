@@ -25,15 +25,23 @@ module Google
         # @!attribute [rw] minimum
         #   @return [::Float]
         #     Inclusive lower bound.
+        #
+        #     Note: The following fields are mutually exclusive: `minimum`, `exclusive_minimum`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] exclusive_minimum
         #   @return [::Float]
         #     Exclusive lower bound.
+        #
+        #     Note: The following fields are mutually exclusive: `exclusive_minimum`, `minimum`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] maximum
         #   @return [::Float]
         #     Inclusive upper bound.
+        #
+        #     Note: The following fields are mutually exclusive: `maximum`, `exclusive_maximum`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] exclusive_maximum
         #   @return [::Float]
         #     Exclusive upper bound.
+        #
+        #     Note: The following fields are mutually exclusive: `exclusive_maximum`, `maximum`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class Interval
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -136,6 +144,22 @@ module Google
           # It's used for Generative chat engine only, the associated data stores
           # must enrolled with `SOLUTION_TYPE_CHAT` solution.
           SOLUTION_TYPE_GENERATIVE_CHAT = 4
+        end
+
+        # Defines a further subdivision of `SolutionType`.
+        # Specifically applies to
+        # {::Google::Cloud::DiscoveryEngine::V1::SolutionType::SOLUTION_TYPE_SEARCH SOLUTION_TYPE_SEARCH}.
+        module SearchUseCase
+          # Value used when unset. Will not occur in CSS.
+          SEARCH_USE_CASE_UNSPECIFIED = 0
+
+          # Search use case. Expects the traffic has a non-empty
+          # {::Google::Cloud::DiscoveryEngine::V1::SearchRequest#query query}.
+          SEARCH_USE_CASE_SEARCH = 1
+
+          # Browse use case. Expects the traffic has an empty
+          # {::Google::Cloud::DiscoveryEngine::V1::SearchRequest#query query}.
+          SEARCH_USE_CASE_BROWSE = 2
         end
 
         # Tiers of search features. Different tiers might have different

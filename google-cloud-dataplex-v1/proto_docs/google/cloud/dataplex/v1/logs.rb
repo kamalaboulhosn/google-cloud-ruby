@@ -37,21 +37,37 @@ module Google
         # @!attribute [rw] data_location
         #   @return [::String]
         #     The data location associated with the event.
+        # @!attribute [rw] datascan_id
+        #   @return [::String]
+        #     The id of the associated datascan for standalone discovery.
         # @!attribute [rw] type
         #   @return [::Google::Cloud::Dataplex::V1::DiscoveryEvent::EventType]
         #     The type of the event being logged.
         # @!attribute [rw] config
         #   @return [::Google::Cloud::Dataplex::V1::DiscoveryEvent::ConfigDetails]
         #     Details about discovery configuration in effect.
+        #
+        #     Note: The following fields are mutually exclusive: `config`, `entity`, `partition`, `action`, `table`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] entity
         #   @return [::Google::Cloud::Dataplex::V1::DiscoveryEvent::EntityDetails]
         #     Details about the entity associated with the event.
+        #
+        #     Note: The following fields are mutually exclusive: `entity`, `config`, `partition`, `action`, `table`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] partition
         #   @return [::Google::Cloud::Dataplex::V1::DiscoveryEvent::PartitionDetails]
         #     Details about the partition associated with the event.
+        #
+        #     Note: The following fields are mutually exclusive: `partition`, `config`, `entity`, `action`, `table`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] action
         #   @return [::Google::Cloud::Dataplex::V1::DiscoveryEvent::ActionDetails]
         #     Details about the action associated with the event.
+        #
+        #     Note: The following fields are mutually exclusive: `action`, `config`, `entity`, `partition`, `table`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] table
+        #   @return [::Google::Cloud::Dataplex::V1::DiscoveryEvent::TableDetails]
+        #     Details about the BigQuery table publishing associated with the event.
+        #
+        #     Note: The following fields are mutually exclusive: `table`, `config`, `entity`, `partition`, `action`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class DiscoveryEvent
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -90,6 +106,18 @@ module Google
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
 
+          # Details about the published table.
+          # @!attribute [rw] table
+          #   @return [::String]
+          #     The fully-qualified resource name of the table resource.
+          # @!attribute [rw] type
+          #   @return [::Google::Cloud::Dataplex::V1::DiscoveryEvent::TableType]
+          #     The type of the table resource.
+          class TableDetails
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
           # Details about the partition.
           # @!attribute [rw] partition
           #   @return [::String]
@@ -116,6 +144,9 @@ module Google
           #   @return [::String]
           #     The type of action.
           #     Eg. IncompatibleDataSchema, InvalidDataFormat
+          # @!attribute [rw] issue
+          #   @return [::String]
+          #     The human readable issue associated with the action.
           class ActionDetails
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -146,6 +177,18 @@ module Google
 
             # An event representing a partition being deleted.
             PARTITION_DELETED = 7
+
+            # An event representing a table being published.
+            TABLE_PUBLISHED = 10
+
+            # An event representing a table being updated.
+            TABLE_UPDATED = 11
+
+            # An event representing a table being skipped in publishing.
+            TABLE_IGNORED = 12
+
+            # An event representing a table being deleted.
+            TABLE_DELETED = 13
           end
 
           # The type of the entity.
@@ -158,6 +201,21 @@ module Google
 
             # Entities representing unstructured data.
             FILESET = 2
+          end
+
+          # The type of the published table.
+          module TableType
+            # An unspecified table type.
+            TABLE_TYPE_UNSPECIFIED = 0
+
+            # External table type.
+            EXTERNAL_TABLE = 1
+
+            # BigLake table type.
+            BIGLAKE_TABLE = 2
+
+            # Object table type for unstructured data.
+            OBJECT_TABLE = 3
           end
         end
 
@@ -436,7 +494,6 @@ module Google
 
         # These messages contain information about the execution of a datascan.
         # The monitored resource is 'DataScan'
-        # Next ID: 13
         # @!attribute [rw] data_source
         #   @return [::String]
         #     The data source of the data scan
@@ -473,15 +530,23 @@ module Google
         # @!attribute [rw] data_profile
         #   @return [::Google::Cloud::Dataplex::V1::DataScanEvent::DataProfileResult]
         #     Data profile result for data profile type data scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_profile`, `data_quality`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] data_quality
         #   @return [::Google::Cloud::Dataplex::V1::DataScanEvent::DataQualityResult]
         #     Data quality result for data quality type data scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_quality`, `data_profile`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] data_profile_configs
         #   @return [::Google::Cloud::Dataplex::V1::DataScanEvent::DataProfileAppliedConfigs]
         #     Applied configs for data profile type data scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_profile_configs`, `data_quality_configs`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] data_quality_configs
         #   @return [::Google::Cloud::Dataplex::V1::DataScanEvent::DataQualityAppliedConfigs]
         #     Applied configs for data quality type data scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_quality_configs`, `data_profile_configs`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] post_scan_actions_result
         #   @return [::Google::Cloud::Dataplex::V1::DataScanEvent::PostScanActionsResult]
         #     The result of post scan actions.
@@ -646,6 +711,9 @@ module Google
 
             # Data scan for data quality.
             DATA_QUALITY = 2
+
+            # Data scan for data discovery.
+            DATA_DISCOVERY = 4
           end
 
           # The job state of the data scan.
@@ -736,8 +804,8 @@ module Google
         #     The number of rows with null values in the specified column.
         # @!attribute [rw] assertion_row_count
         #   @return [::Integer]
-        #     The number of rows returned by the sql statement in the SqlAssertion rule.
-        #     This field is only valid for SqlAssertion rules.
+        #     The number of rows returned by the SQL statement in a SQL assertion rule.
+        #     This field is only valid for SQL assertion rules.
         class DataQualityScanRuleResult
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -747,40 +815,40 @@ module Google
             # An unspecified rule type.
             RULE_TYPE_UNSPECIFIED = 0
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#nonnullexpectation.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::NonNullExpectation DataQualityRule.NonNullExpectation}.
             NON_NULL_EXPECTATION = 1
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#rangeexpectation.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::RangeExpectation DataQualityRule.RangeExpectation}.
             RANGE_EXPECTATION = 2
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#regexexpectation.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::RegexExpectation DataQualityRule.RegexExpectation}.
             REGEX_EXPECTATION = 3
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#rowconditionexpectation.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::RowConditionExpectation DataQualityRule.RowConditionExpectation}.
             ROW_CONDITION_EXPECTATION = 4
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#setexpectation.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::SetExpectation DataQualityRule.SetExpectation}.
             SET_EXPECTATION = 5
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#statisticrangeexpectation.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::StatisticRangeExpectation DataQualityRule.StatisticRangeExpectation}.
             STATISTIC_RANGE_EXPECTATION = 6
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#tableconditionexpectation.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::TableConditionExpectation DataQualityRule.TableConditionExpectation}.
             TABLE_CONDITION_EXPECTATION = 7
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#uniquenessexpectation.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::UniquenessExpectation DataQualityRule.UniquenessExpectation}.
             UNIQUENESS_EXPECTATION = 8
 
-            # Please see
-            # https://cloud.google.com/dataplex/docs/reference/rest/v1/DataQualityRule#sqlAssertion.
+            # See
+            # {::Google::Cloud::Dataplex::V1::DataQualityRule::SqlAssertion DataQualityRule.SqlAssertion}.
             SQL_ASSERTION = 9
           end
 
@@ -806,6 +874,54 @@ module Google
 
             # The data quality rule failed.
             FAILED = 2
+          end
+        end
+
+        # Payload associated with Business Glossary related log events.
+        # @!attribute [rw] message
+        #   @return [::String]
+        #     The log message.
+        # @!attribute [rw] event_type
+        #   @return [::Google::Cloud::Dataplex::V1::BusinessGlossaryEvent::EventType]
+        #     The type of the event.
+        # @!attribute [rw] resource
+        #   @return [::String]
+        #     Name of the resource.
+        class BusinessGlossaryEvent
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # Type of glossary log event.
+          module EventType
+            # An unspecified event type.
+            EVENT_TYPE_UNSPECIFIED = 0
+
+            # Glossary create event.
+            GLOSSARY_CREATE = 1
+
+            # Glossary update event.
+            GLOSSARY_UPDATE = 2
+
+            # Glossary delete event.
+            GLOSSARY_DELETE = 3
+
+            # Glossary category create event.
+            GLOSSARY_CATEGORY_CREATE = 4
+
+            # Glossary category update event.
+            GLOSSARY_CATEGORY_UPDATE = 5
+
+            # Glossary category delete event.
+            GLOSSARY_CATEGORY_DELETE = 6
+
+            # Glossary term create event.
+            GLOSSARY_TERM_CREATE = 7
+
+            # Glossary term update event.
+            GLOSSARY_TERM_UPDATE = 8
+
+            # Glossary term delete event.
+            GLOSSARY_TERM_DELETE = 9
           end
         end
       end

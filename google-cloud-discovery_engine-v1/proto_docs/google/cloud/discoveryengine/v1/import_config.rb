@@ -24,7 +24,7 @@ module Google
         # Cloud Storage location for input content.
         # @!attribute [rw] input_uris
         #   @return [::Array<::String>]
-        #     Required. Cloud Storage URIs to input files. URI can be up to
+        #     Required. Cloud Storage URIs to input files. Each URI can be up to
         #     2000 characters long. URIs can match the full object path (for example,
         #     `gs://bucket/directory/object.json`) or a pattern matching one or more
         #     files, such as `gs://bucket/directory/*.json`.
@@ -53,7 +53,7 @@ module Google
         #       data store. Each entry after the header is imported as a Document.
         #       This can only be used by the GENERIC Data Store vertical.
         #
-        #     Supported values for user even imports:
+        #     Supported values for user event imports:
         #
         #     * `user_event` (default): One JSON
         #     {::Google::Cloud::DiscoveryEngine::V1::UserEvent UserEvent} per line.
@@ -68,7 +68,7 @@ module Google
         #     BigQuery time partitioned table's _PARTITIONDATE in YYYY-MM-DD format.
         # @!attribute [rw] project_id
         #   @return [::String]
-        #     The project ID (can be project # or ID) that the BigQuery source is in with
+        #     The project ID or the project number that contains the BigQuery source. Has
         #     a length limit of 128 characters. If not specified, inherits the project
         #     ID from the parent request.
         # @!attribute [rw] dataset_id
@@ -113,7 +113,7 @@ module Google
         # The Spanner source for importing data
         # @!attribute [rw] project_id
         #   @return [::String]
-        #     The project ID that the Spanner source is in with a length limit of 128
+        #     The project ID that contains the Spanner source. Has a length limit of 128
         #     characters. If not specified, inherits the project ID from the parent
         #     request.
         # @!attribute [rw] instance_id
@@ -268,7 +268,7 @@ module Google
         # The Cloud Bigtable source for importing data.
         # @!attribute [rw] project_id
         #   @return [::String]
-        #     The project ID that the Bigtable source is in with a length limit of 128
+        #     The project ID that contains the Bigtable source. Has a length limit of 128
         #     characters. If not specified, inherits the project ID from the parent
         #     request.
         # @!attribute [rw] instance_id
@@ -297,6 +297,12 @@ module Google
         #     Intermediate Cloud Storage directory used for the import with a length
         #     limit of 2,000 characters. Can be specified if one wants to have the
         #     FhirStore export to a specific Cloud Storage directory.
+        # @!attribute [rw] resource_types
+        #   @return [::Array<::String>]
+        #     The FHIR resource types to import. The resource types should be a subset of
+        #     all [supported FHIR resource
+        #     types](https://cloud.google.com/generative-ai-app-builder/docs/fhir-schema-reference#resource-level-specification).
+        #     Default to all supported FHIR resource types if empty.
         class FhirStoreSource
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -305,8 +311,8 @@ module Google
         # Cloud SQL source import data from.
         # @!attribute [rw] project_id
         #   @return [::String]
-        #     The project ID that the Cloud SQL source is in with a length limit of 128
-        #     characters. If not specified, inherits the project ID from the parent
+        #     The project ID that contains the Cloud SQL source. Has a length limit of
+        #     128 characters. If not specified, inherits the project ID from the parent
         #     request.
         # @!attribute [rw] instance_id
         #   @return [::String]
@@ -338,6 +344,41 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
+        # AlloyDB source import data from.
+        # @!attribute [rw] project_id
+        #   @return [::String]
+        #     The project ID that contains the AlloyDB source.
+        #     Has a length limit of 128 characters. If not specified, inherits the
+        #     project ID from the parent request.
+        # @!attribute [rw] location_id
+        #   @return [::String]
+        #     Required. The AlloyDB location to copy the data from with a length limit of
+        #     256 characters.
+        # @!attribute [rw] cluster_id
+        #   @return [::String]
+        #     Required. The AlloyDB cluster to copy the data from with a length limit of
+        #     256 characters.
+        # @!attribute [rw] database_id
+        #   @return [::String]
+        #     Required. The AlloyDB database to copy the data from with a length limit of
+        #     256 characters.
+        # @!attribute [rw] table_id
+        #   @return [::String]
+        #     Required. The AlloyDB table to copy the data from with a length limit of
+        #     256 characters.
+        # @!attribute [rw] gcs_staging_dir
+        #   @return [::String]
+        #     Intermediate Cloud Storage directory used for the import with a length
+        #     limit of 2,000 characters. Can be specified if one wants to have the
+        #     AlloyDB export to a specific Cloud Storage directory.
+        #
+        #     Ensure that the AlloyDB service account has the necessary Cloud
+        #     Storage Admin permissions to access the specified Cloud Storage directory.
+        class AlloyDbSource
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
         # Firestore source import data from.
         # @!attribute [rw] project_id
         #   @return [::String]
@@ -350,8 +391,8 @@ module Google
         #     of 256 characters.
         # @!attribute [rw] collection_id
         #   @return [::String]
-        #     Required. The Firestore collection to copy the data from with a length
-        #     limit of 1,500 characters.
+        #     Required. The Firestore collection (or entity) to copy the data from with a
+        #     length limit of 1,500 characters.
         # @!attribute [rw] gcs_staging_dir
         #   @return [::String]
         #     Intermediate Cloud Storage directory used for the import with a length
@@ -381,12 +422,18 @@ module Google
         # @!attribute [rw] inline_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::ImportUserEventsRequest::InlineSource]
         #     The Inline source for the input content for UserEvents.
+        #
+        #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] gcs_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::GcsSource]
         #     Cloud Storage location for the input content.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] bigquery_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::BigQuerySource]
         #     BigQuery input source.
+        #
+        #     Note: The following fields are mutually exclusive: `bigquery_source`, `inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Parent DataStore resource name, of the form
@@ -478,27 +525,48 @@ module Google
         # @!attribute [rw] inline_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::ImportDocumentsRequest::InlineSource]
         #     The Inline source for the input content for documents.
+        #
+        #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] gcs_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::GcsSource]
         #     Cloud Storage location for the input content.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] bigquery_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::BigQuerySource]
         #     BigQuery input source.
+        #
+        #     Note: The following fields are mutually exclusive: `bigquery_source`, `inline_source`, `gcs_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] fhir_store_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::FhirStoreSource]
         #     FhirStore input source.
+        #
+        #     Note: The following fields are mutually exclusive: `fhir_store_source`, `inline_source`, `gcs_source`, `bigquery_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] spanner_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::SpannerSource]
         #     Spanner input source.
+        #
+        #     Note: The following fields are mutually exclusive: `spanner_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] cloud_sql_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::CloudSqlSource]
         #     Cloud SQL input source.
+        #
+        #     Note: The following fields are mutually exclusive: `cloud_sql_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `firestore_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] firestore_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::FirestoreSource]
         #     Firestore input source.
+        #
+        #     Note: The following fields are mutually exclusive: `firestore_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `alloy_db_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] alloy_db_source
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::AlloyDbSource]
+        #     AlloyDB input source.
+        #
+        #     Note: The following fields are mutually exclusive: `alloy_db_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `bigtable_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] bigtable_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::BigtableSource]
         #     Cloud Bigtable input source.
+        #
+        #     Note: The following fields are mutually exclusive: `bigtable_source`, `inline_source`, `gcs_source`, `bigquery_source`, `fhir_store_source`, `spanner_source`, `cloud_sql_source`, `firestore_source`, `alloy_db_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The parent branch resource name, such as
@@ -630,6 +698,8 @@ module Google
         # @!attribute [rw] inline_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::ImportSuggestionDenyListEntriesRequest::InlineSource]
         #     The Inline source for the input content for suggestion deny list entries.
+        #
+        #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] gcs_source
         #   @return [::Google::Cloud::DiscoveryEngine::V1::GcsSource]
         #     Cloud Storage location for the input content.
@@ -640,6 +710,8 @@ module Google
         #
         #     * `suggestion_deny_list` (default): One JSON [SuggestionDenyListEntry]
         #     per line.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The parent data store resource name for which to import denylist
@@ -686,6 +758,88 @@ module Google
         #     Operation last update time. If the operation is done, this is also the
         #     finish time.
         class ImportSuggestionDenyListEntriesMetadata
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Request message for
+        # {::Google::Cloud::DiscoveryEngine::V1::CompletionService::Client#import_completion_suggestions CompletionService.ImportCompletionSuggestions}
+        # method.
+        # @!attribute [rw] inline_source
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::ImportCompletionSuggestionsRequest::InlineSource]
+        #     The Inline source for suggestion entries.
+        #
+        #     Note: The following fields are mutually exclusive: `inline_source`, `gcs_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] gcs_source
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::GcsSource]
+        #     Cloud Storage location for the input content.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs_source`, `inline_source`, `bigquery_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] bigquery_source
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::BigQuerySource]
+        #     BigQuery input source.
+        #
+        #     Note: The following fields are mutually exclusive: `bigquery_source`, `inline_source`, `gcs_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] parent
+        #   @return [::String]
+        #     Required. The parent data store resource name for which to import customer
+        #     autocomplete suggestions.
+        #
+        #     Follows pattern `projects/*/locations/*/collections/*/dataStores/*`
+        # @!attribute [rw] error_config
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::ImportErrorConfig]
+        #     The desired location of errors incurred during the Import.
+        class ImportCompletionSuggestionsRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # The inline source for CompletionSuggestions.
+          # @!attribute [rw] suggestions
+          #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1::CompletionSuggestion>]
+          #     Required. A list of all denylist entries to import. Max of 1000 items.
+          class InlineSource
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+        end
+
+        # Response of the
+        # {::Google::Cloud::DiscoveryEngine::V1::CompletionService::Client#import_completion_suggestions CompletionService.ImportCompletionSuggestions}
+        # method. If the long running operation is done, this message is returned by
+        # the google.longrunning.Operations.response field if the operation is
+        # successful.
+        # @!attribute [rw] error_samples
+        #   @return [::Array<::Google::Rpc::Status>]
+        #     A sample of errors encountered while processing the request.
+        # @!attribute [rw] error_config
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::ImportErrorConfig]
+        #     The desired location of errors incurred during the Import.
+        class ImportCompletionSuggestionsResponse
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Metadata related to the progress of the ImportCompletionSuggestions
+        # operation. This will be returned by the google.longrunning.Operation.metadata
+        # field.
+        # @!attribute [rw] create_time
+        #   @return [::Google::Protobuf::Timestamp]
+        #     Operation create time.
+        # @!attribute [rw] update_time
+        #   @return [::Google::Protobuf::Timestamp]
+        #     Operation last update time. If the operation is done, this is also the
+        #     finish time.
+        # @!attribute [rw] success_count
+        #   @return [::Integer]
+        #     Count of
+        #     {::Google::Cloud::DiscoveryEngine::V1::CompletionSuggestion CompletionSuggestion}s
+        #     successfully imported.
+        # @!attribute [rw] failure_count
+        #   @return [::Integer]
+        #     Count of
+        #     {::Google::Cloud::DiscoveryEngine::V1::CompletionSuggestion CompletionSuggestion}s
+        #     that failed to be imported.
+        class ImportCompletionSuggestionsMetadata
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end

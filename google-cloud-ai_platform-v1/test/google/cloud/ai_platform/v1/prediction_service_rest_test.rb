@@ -33,24 +33,24 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_predict
@@ -82,7 +90,7 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     instances = [{}]
     parameters = {}
 
-    predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -137,7 +145,7 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     endpoint = "hello world"
     http_body = {}
 
-    raw_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    raw_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -192,7 +200,7 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     endpoint = "hello world"
     http_body = {}
 
-    stream_raw_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, is_server_streaming:|
+    stream_raw_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, is_server_streaming:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -248,7 +256,7 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     inputs = [{}]
     parameters = {}
 
-    direct_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    direct_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -304,7 +312,7 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     method_name = "hello world"
     input = "hello world"
 
-    direct_raw_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    direct_raw_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -360,7 +368,7 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     inputs = [{}]
     parameters = {}
 
-    server_streaming_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, is_server_streaming:|
+    server_streaming_predict_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, is_server_streaming:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -418,7 +426,7 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     explanation_spec_override = {}
     deployed_model_id = "hello world"
 
-    explain_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    explain_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -473,11 +481,14 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     model = "hello world"
     contents = [{}]
     system_instruction = {}
+    cached_content = "hello world"
     tools = [{}]
+    tool_config = {}
+    labels = {}
     safety_settings = [{}]
     generation_config = {}
 
-    generate_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    generate_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -491,27 +502,27 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
         end
 
         # Use hash object
-        client.generate_content({ model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config }) do |_result, response|
+        client.generate_content({ model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.generate_content model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config do |_result, response|
+        client.generate_content model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.generate_content ::Google::Cloud::AIPlatform::V1::GenerateContentRequest.new(model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config) do |_result, response|
+        client.generate_content ::Google::Cloud::AIPlatform::V1::GenerateContentRequest.new(model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.generate_content({ model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config }, call_options) do |_result, response|
+        client.generate_content({ model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.generate_content(::Google::Cloud::AIPlatform::V1::GenerateContentRequest.new(model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config), call_options) do |_result, response|
+        client.generate_content(::Google::Cloud::AIPlatform::V1::GenerateContentRequest.new(model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -532,11 +543,14 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
     model = "hello world"
     contents = [{}]
     system_instruction = {}
+    cached_content = "hello world"
     tools = [{}]
+    tool_config = {}
+    labels = {}
     safety_settings = [{}]
     generation_config = {}
 
-    stream_generate_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, is_server_streaming:|
+    stream_generate_content_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, is_server_streaming:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -550,27 +564,27 @@ class ::Google::Cloud::AIPlatform::V1::PredictionService::Rest::ClientTest < Min
         end
 
         # Use hash object
-        client.stream_generate_content({ model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config }) do |_result, response|
+        client.stream_generate_content({ model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end.first
 
         # Use named arguments
-        client.stream_generate_content model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config do |_result, response|
+        client.stream_generate_content model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config do |_result, response|
           assert_equal http_response, response.underlying_op
         end.first
 
         # Use protobuf object
-        client.stream_generate_content ::Google::Cloud::AIPlatform::V1::GenerateContentRequest.new(model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config) do |_result, response|
+        client.stream_generate_content ::Google::Cloud::AIPlatform::V1::GenerateContentRequest.new(model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config) do |_result, response|
           assert_equal http_response, response.underlying_op
         end.first
 
         # Use hash object with options
-        client.stream_generate_content({ model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config }, call_options) do |_result, response|
+        client.stream_generate_content({ model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end.first
 
         # Use protobuf object with options
-        client.stream_generate_content(::Google::Cloud::AIPlatform::V1::GenerateContentRequest.new(model: model, contents: contents, system_instruction: system_instruction, tools: tools, safety_settings: safety_settings, generation_config: generation_config), call_options) do |_result, response|
+        client.stream_generate_content(::Google::Cloud::AIPlatform::V1::GenerateContentRequest.new(model: model, contents: contents, system_instruction: system_instruction, cached_content: cached_content, tools: tools, tool_config: tool_config, labels: labels, safety_settings: safety_settings, generation_config: generation_config), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end.first
 

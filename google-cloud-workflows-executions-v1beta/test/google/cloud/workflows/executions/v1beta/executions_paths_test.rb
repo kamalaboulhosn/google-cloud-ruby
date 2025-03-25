@@ -31,6 +31,14 @@ class ::Google::Cloud::Workflows::Executions::V1beta::Executions::ClientPathsTes
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_execution_path

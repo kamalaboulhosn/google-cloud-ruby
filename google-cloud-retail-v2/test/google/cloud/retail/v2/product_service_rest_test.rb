@@ -33,24 +33,24 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_product
@@ -82,7 +90,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     product = {}
     product_id = "hello world"
 
-    create_product_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_product_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -136,7 +144,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_product_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_product_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -194,7 +202,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     filter = "hello world"
     read_mask = {}
 
-    list_products_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_products_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -250,7 +258,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     update_mask = {}
     allow_missing = true
 
-    update_product_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_product_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -304,7 +312,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_product_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_product_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -348,6 +356,62 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     end
   end
 
+  def test_purge_products
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    filter = "hello world"
+    force = true
+
+    purge_products_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Retail::V2::ProductService::Rest::ServiceStub.stub :transcode_purge_products_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, purge_products_client_stub do
+        # Create client
+        client = ::Google::Cloud::Retail::V2::ProductService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.purge_products({ parent: parent, filter: filter, force: force }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.purge_products parent: parent, filter: filter, force: force do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.purge_products ::Google::Cloud::Retail::V2::PurgeProductsRequest.new(parent: parent, filter: filter, force: force) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.purge_products({ parent: parent, filter: filter, force: force }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.purge_products(::Google::Cloud::Retail::V2::PurgeProductsRequest.new(parent: parent, filter: filter, force: force), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, purge_products_client_stub.call_count
+      end
+    end
+  end
+
   def test_import_products
     # Create test objects.
     client_result = ::Google::Longrunning::Operation.new
@@ -364,7 +428,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     reconciliation_mode = :RECONCILIATION_MODE_UNSPECIFIED
     notification_pubsub_topic = "hello world"
 
-    import_products_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    import_products_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -421,7 +485,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     set_time = {}
     allow_missing = true
 
-    set_inventory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    set_inventory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -479,7 +543,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     add_time = {}
     allow_missing = true
 
-    add_fulfillment_places_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    add_fulfillment_places_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -537,7 +601,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     remove_time = {}
     allow_missing = true
 
-    remove_fulfillment_places_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    remove_fulfillment_places_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -595,7 +659,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     add_time = {}
     allow_missing = true
 
-    add_local_inventories_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    add_local_inventories_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -652,7 +716,7 @@ class ::Google::Cloud::Retail::V2::ProductService::Rest::ClientTest < Minitest::
     remove_time = {}
     allow_missing = true
 
-    remove_local_inventories_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    remove_local_inventories_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

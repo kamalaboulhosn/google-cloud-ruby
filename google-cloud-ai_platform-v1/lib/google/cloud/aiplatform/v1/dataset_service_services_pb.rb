@@ -49,6 +49,8 @@ module Google
             rpc :ExportData, ::Google::Cloud::AIPlatform::V1::ExportDataRequest, ::Google::Longrunning::Operation
             # Create a version from a Dataset.
             rpc :CreateDatasetVersion, ::Google::Cloud::AIPlatform::V1::CreateDatasetVersionRequest, ::Google::Longrunning::Operation
+            # Updates a DatasetVersion.
+            rpc :UpdateDatasetVersion, ::Google::Cloud::AIPlatform::V1::UpdateDatasetVersionRequest, ::Google::Cloud::AIPlatform::V1::DatasetVersion
             # Deletes a Dataset version.
             rpc :DeleteDatasetVersion, ::Google::Cloud::AIPlatform::V1::DeleteDatasetVersionRequest, ::Google::Longrunning::Operation
             # Gets a Dataset version.
@@ -68,6 +70,8 @@ module Google
             # Gets an AnnotationSpec.
             rpc :GetAnnotationSpec, ::Google::Cloud::AIPlatform::V1::GetAnnotationSpecRequest, ::Google::Cloud::AIPlatform::V1::AnnotationSpec
             # Lists Annotations belongs to a dataitem
+            # This RPC is only available in InternalDatasetService. It is only used for
+            # exporting conversation data to CCAI Insights.
             rpc :ListAnnotations, ::Google::Cloud::AIPlatform::V1::ListAnnotationsRequest, ::Google::Cloud::AIPlatform::V1::ListAnnotationsResponse
           end
 

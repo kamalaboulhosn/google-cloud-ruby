@@ -240,14 +240,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @subscriber_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @iam_policy_client = Google::Iam::V1::IAMPolicy::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @subscriber_stub.endpoint
                 config.universe_domain = @subscriber_stub.universe_domain
+                config.logger = @subscriber_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -257,6 +269,15 @@ module Google
             # @return [Google::Iam::V1::IAMPolicy::Client]
             #
             attr_reader :iam_policy_client
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @subscriber_stub.logger
+            end
 
             # Service calls
 
@@ -283,7 +304,7 @@ module Google
             #   @param options [::Gapic::CallOptions, ::Hash]
             #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
             #
-            # @overload create_subscription(name: nil, topic: nil, push_config: nil, bigquery_config: nil, cloud_storage_config: nil, ack_deadline_seconds: nil, retain_acked_messages: nil, message_retention_duration: nil, labels: nil, enable_message_ordering: nil, expiration_policy: nil, filter: nil, dead_letter_policy: nil, retry_policy: nil, detached: nil, enable_exactly_once_delivery: nil)
+            # @overload create_subscription(name: nil, topic: nil, push_config: nil, bigquery_config: nil, cloud_storage_config: nil, ack_deadline_seconds: nil, retain_acked_messages: nil, message_retention_duration: nil, labels: nil, enable_message_ordering: nil, expiration_policy: nil, filter: nil, dead_letter_policy: nil, retry_policy: nil, detached: nil, enable_exactly_once_delivery: nil, message_transforms: nil)
             #   Pass arguments to `create_subscription` via keyword arguments. Note that at
             #   least one keyword argument is required. To specify no parameters, or to keep all
             #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -341,7 +362,7 @@ module Google
             #     backlog, from the moment a message is published. If `retain_acked_messages`
             #     is true, then this also configures the retention of acknowledged messages,
             #     and thus configures how far back in time a `Seek` can be done. Defaults to
-            #     7 days. Cannot be more than 7 days or less than 10 minutes.
+            #     7 days. Cannot be more than 31 days or less than 10 minutes.
             #   @param labels [::Hash{::String => ::String}]
             #     Optional. See [Creating and managing
             #     labels](https://cloud.google.com/pubsub/docs/labels).
@@ -400,6 +421,9 @@ module Google
             #     when `enable_exactly_once_delivery` is true if the message was published
             #     multiple times by a publisher client. These copies are  considered distinct
             #     by Pub/Sub and have distinct `message_id` values.
+            #   @param message_transforms [::Array<::Google::Cloud::PubSub::V1::MessageTransform, ::Hash>]
+            #     Optional. Transforms to be applied to messages before they are delivered to
+            #     subscribers. Transforms are applied in the order specified.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::PubSub::V1::Subscription]
@@ -460,7 +484,6 @@ module Google
 
               @subscriber_stub.call_rpc :create_subscription, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -547,7 +570,6 @@ module Google
 
               @subscriber_stub.call_rpc :get_subscription, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -638,7 +660,6 @@ module Google
 
               @subscriber_stub.call_rpc :update_subscription, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -736,7 +757,7 @@ module Google
               @subscriber_stub.call_rpc :list_subscriptions, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @subscriber_stub, :list_subscriptions, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -827,7 +848,6 @@ module Google
 
               @subscriber_stub.call_rpc :delete_subscription, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -930,7 +950,6 @@ module Google
 
               @subscriber_stub.call_rpc :modify_ack_deadline, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1027,7 +1046,6 @@ module Google
 
               @subscriber_stub.call_rpc :acknowledge, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1126,7 +1144,6 @@ module Google
 
               @subscriber_stub.call_rpc :pull, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1211,7 +1228,6 @@ module Google
 
               @subscriber_stub.call_rpc :streaming_pull, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1310,7 +1326,6 @@ module Google
 
               @subscriber_stub.call_rpc :modify_push_config, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1401,7 +1416,6 @@ module Google
 
               @subscriber_stub.call_rpc :get_snapshot, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1503,7 +1517,7 @@ module Google
               @subscriber_stub.call_rpc :list_snapshots, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @subscriber_stub, :list_snapshots, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1622,7 +1636,6 @@ module Google
 
               @subscriber_stub.call_rpc :create_snapshot, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1716,7 +1729,6 @@ module Google
 
               @subscriber_stub.call_rpc :update_snapshot, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1811,7 +1823,6 @@ module Google
 
               @subscriber_stub.call_rpc :delete_snapshot, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1855,10 +1866,14 @@ module Google
             #     window (or to a point before the system's notion of the subscription
             #     creation time), only retained messages will be marked as unacknowledged,
             #     and already-expunged messages will not be restored.
+            #
+            #     Note: The following fields are mutually exclusive: `time`, `snapshot`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param snapshot [::String]
             #     Optional. The snapshot to seek to. The snapshot's topic must be the same
             #     as that of the provided subscription. Format is
             #     `projects/{project}/snapshots/{snap}`.
+            #
+            #     Note: The following fields are mutually exclusive: `snapshot`, `time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::PubSub::V1::SeekResponse]
@@ -1919,7 +1934,6 @@ module Google
 
               @subscriber_stub.call_rpc :seek, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1969,6 +1983,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -2008,6 +2029,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -2032,6 +2058,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

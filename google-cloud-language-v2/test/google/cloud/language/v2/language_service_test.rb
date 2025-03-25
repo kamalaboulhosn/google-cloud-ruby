@@ -41,9 +41,10 @@ class ::Google::Cloud::Language::V2::LanguageService::ClientTest < Minitest::Tes
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::Language::V2::LanguageService::ClientTest < Minitest::Tes
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -242,11 +251,13 @@ class ::Google::Cloud::Language::V2::LanguageService::ClientTest < Minitest::Tes
 
     # Create request parameters for a unary method.
     document = {}
+    model_version = :MODEL_VERSION_UNSPECIFIED
 
     moderate_text_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :moderate_text, name
       assert_kind_of ::Google::Cloud::Language::V2::ModerateTextRequest, request
       assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Cloud::Language::V2::Document), request["document"]
+      assert_equal :MODEL_VERSION_UNSPECIFIED, request["model_version"]
       refute_nil options
     end
 
@@ -257,31 +268,31 @@ class ::Google::Cloud::Language::V2::LanguageService::ClientTest < Minitest::Tes
       end
 
       # Use hash object
-      client.moderate_text({ document: document }) do |response, operation|
+      client.moderate_text({ document: document, model_version: model_version }) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.moderate_text document: document do |response, operation|
+      client.moderate_text document: document, model_version: model_version do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.moderate_text ::Google::Cloud::Language::V2::ModerateTextRequest.new(document: document) do |response, operation|
+      client.moderate_text ::Google::Cloud::Language::V2::ModerateTextRequest.new(document: document, model_version: model_version) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.moderate_text({ document: document }, grpc_options) do |response, operation|
+      client.moderate_text({ document: document, model_version: model_version }, grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.moderate_text(::Google::Cloud::Language::V2::ModerateTextRequest.new(document: document), grpc_options) do |response, operation|
+      client.moderate_text(::Google::Cloud::Language::V2::ModerateTextRequest.new(document: document, model_version: model_version), grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end

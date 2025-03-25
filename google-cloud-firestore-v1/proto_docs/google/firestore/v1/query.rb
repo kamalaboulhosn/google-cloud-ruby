@@ -30,6 +30,7 @@ module Google
         # 4. order_by + start_at + end_at
         # 5. offset
         # 6. limit
+        # 7. find_nearest
         # @!attribute [rw] select
         #   @return [::Google::Cloud::Firestore::V1::StructuredQuery::Projection]
         #     Optional sub-set of the fields to return.
@@ -130,7 +131,7 @@ module Google
         #     * The value must be greater than or equal to zero if specified.
         # @!attribute [rw] find_nearest
         #   @return [::Google::Cloud::Firestore::V1::StructuredQuery::FindNearest]
-        #     Optional. A potential Nearest Neighbors Search.
+        #     Optional. A potential nearest neighbors search.
         #
         #     Applies after all other filters and ordering.
         #
@@ -158,12 +159,18 @@ module Google
           # @!attribute [rw] composite_filter
           #   @return [::Google::Cloud::Firestore::V1::StructuredQuery::CompositeFilter]
           #     A composite filter.
+          #
+          #     Note: The following fields are mutually exclusive: `composite_filter`, `field_filter`, `unary_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] field_filter
           #   @return [::Google::Cloud::Firestore::V1::StructuredQuery::FieldFilter]
           #     A filter on a document field.
+          #
+          #     Note: The following fields are mutually exclusive: `field_filter`, `composite_filter`, `unary_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] unary_filter
           #   @return [::Google::Cloud::Firestore::V1::StructuredQuery::UnaryFilter]
           #     A filter that takes exactly one argument.
+          #
+          #     Note: The following fields are mutually exclusive: `unary_filter`, `composite_filter`, `field_filter`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class Filter
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -369,7 +376,10 @@ module Google
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
 
-          # Nearest Neighbors search config.
+          # Nearest Neighbors search config. The ordering provided by FindNearest
+          # supersedes the order_by stage. If multiple documents have the same vector
+          # distance, the returned document order is not guaranteed to be stable
+          # between queries.
           # @!attribute [rw] vector_field
           #   @return [::Google::Cloud::Firestore::V1::StructuredQuery::FieldReference]
           #     Required. An indexed vector field to search upon. Only documents which
@@ -381,11 +391,26 @@ module Google
           #     no more than 2048 dimensions.
           # @!attribute [rw] distance_measure
           #   @return [::Google::Cloud::Firestore::V1::StructuredQuery::FindNearest::DistanceMeasure]
-          #     Required. The Distance Measure to use, required.
+          #     Required. The distance measure to use, required.
           # @!attribute [rw] limit
           #   @return [::Google::Protobuf::Int32Value]
           #     Required. The number of nearest neighbors to return. Must be a positive
           #     integer of no more than 1000.
+          # @!attribute [rw] distance_result_field
+          #   @return [::String]
+          #     Optional. Optional name of the field to output the result of the vector
+          #     distance calculation. Must conform to [document field
+          #     name][google.firestore.v1.Document.fields] limitations.
+          # @!attribute [rw] distance_threshold
+          #   @return [::Google::Protobuf::DoubleValue]
+          #     Optional. Option to specify a threshold for which no less similar
+          #     documents will be returned. The behavior of the specified
+          #     `distance_measure` will affect the meaning of the distance threshold.
+          #     Since DOT_PRODUCT distances increase when the vectors are more similar,
+          #     the comparison is inverted.
+          #
+          #     * For EUCLIDEAN, COSINE: WHERE distance <= distance_threshold
+          #     * For DOT_PRODUCT:       WHERE distance >= distance_threshold
           class FindNearest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -397,20 +422,23 @@ module Google
 
               # Measures the EUCLIDEAN distance between the vectors. See
               # [Euclidean](https://en.wikipedia.org/wiki/Euclidean_distance) to learn
-              # more
+              # more. The resulting distance decreases the more similar two vectors
+              # are.
               EUCLIDEAN = 1
 
-              # Compares vectors based on the angle between them, which allows you to
-              # measure similarity that isn't based on the vectors magnitude.
-              # We recommend using DOT_PRODUCT with unit normalized vectors instead of
-              # COSINE distance, which is mathematically equivalent with better
-              # performance. See [Cosine
+              # COSINE distance compares vectors based on the angle between them, which
+              # allows you to measure similarity that isn't based on the vectors
+              # magnitude. We recommend using DOT_PRODUCT with unit normalized vectors
+              # instead of COSINE distance, which is mathematically equivalent with
+              # better performance. See [Cosine
               # Similarity](https://en.wikipedia.org/wiki/Cosine_similarity) to learn
-              # more.
+              # more about COSINE similarity and COSINE distance. The resulting
+              # COSINE distance decreases the more similar two vectors are.
               COSINE = 2
 
               # Similar to cosine but is affected by the magnitude of the vectors. See
               # [Dot Product](https://en.wikipedia.org/wiki/Dot_product) to learn more.
+              # The resulting distance increases the more similar two vectors are.
               DOT_PRODUCT = 3
             end
           end
@@ -449,12 +477,18 @@ module Google
           # @!attribute [rw] count
           #   @return [::Google::Cloud::Firestore::V1::StructuredAggregationQuery::Aggregation::Count]
           #     Count aggregator.
+          #
+          #     Note: The following fields are mutually exclusive: `count`, `sum`, `avg`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] sum
           #   @return [::Google::Cloud::Firestore::V1::StructuredAggregationQuery::Aggregation::Sum]
           #     Sum aggregator.
+          #
+          #     Note: The following fields are mutually exclusive: `sum`, `count`, `avg`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] avg
           #   @return [::Google::Cloud::Firestore::V1::StructuredAggregationQuery::Aggregation::Avg]
           #     Average aggregator.
+          #
+          #     Note: The following fields are mutually exclusive: `avg`, `count`, `sum`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] alias
           #   @return [::String]
           #     Optional. Optional name of the field to store the result of the

@@ -33,24 +33,24 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_notebook_runtime_template
@@ -82,7 +90,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     notebook_runtime_template = {}
     notebook_runtime_template_id = "hello world"
 
-    create_notebook_runtime_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_notebook_runtime_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -136,7 +144,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_notebook_runtime_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_notebook_runtime_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -195,7 +203,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     read_mask = {}
     order_by = "hello world"
 
-    list_notebook_runtime_templates_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_notebook_runtime_templates_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -249,7 +257,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_notebook_runtime_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_notebook_runtime_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -293,6 +301,61 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     end
   end
 
+  def test_update_notebook_runtime_template
+    # Create test objects.
+    client_result = ::Google::Cloud::AIPlatform::V1::NotebookRuntimeTemplate.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    notebook_runtime_template = {}
+    update_mask = {}
+
+    update_notebook_runtime_template_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ServiceStub.stub :transcode_update_notebook_runtime_template_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_notebook_runtime_template_client_stub do
+        # Create client
+        client = ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_notebook_runtime_template({ notebook_runtime_template: notebook_runtime_template, update_mask: update_mask }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_notebook_runtime_template notebook_runtime_template: notebook_runtime_template, update_mask: update_mask do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_notebook_runtime_template ::Google::Cloud::AIPlatform::V1::UpdateNotebookRuntimeTemplateRequest.new(notebook_runtime_template: notebook_runtime_template, update_mask: update_mask) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_notebook_runtime_template({ notebook_runtime_template: notebook_runtime_template, update_mask: update_mask }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_notebook_runtime_template(::Google::Cloud::AIPlatform::V1::UpdateNotebookRuntimeTemplateRequest.new(notebook_runtime_template: notebook_runtime_template, update_mask: update_mask), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_notebook_runtime_template_client_stub.call_count
+      end
+    end
+  end
+
   def test_assign_notebook_runtime
     # Create test objects.
     client_result = ::Google::Longrunning::Operation.new
@@ -306,7 +369,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     notebook_runtime = {}
     notebook_runtime_id = "hello world"
 
-    assign_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    assign_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -360,7 +423,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -419,7 +482,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     read_mask = {}
     order_by = "hello world"
 
-    list_notebook_runtimes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_notebook_runtimes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -473,7 +536,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -527,7 +590,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     # Create request parameters for a unary method.
     name = "hello world"
 
-    upgrade_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    upgrade_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -581,7 +644,7 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
     # Create request parameters for a unary method.
     name = "hello world"
 
-    start_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    start_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -621,6 +684,284 @@ class ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ClientTest < Minit
 
         # Verify method calls
         assert_equal 5, start_notebook_runtime_client_stub.call_count
+      end
+    end
+  end
+
+  def test_stop_notebook_runtime
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    stop_notebook_runtime_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ServiceStub.stub :transcode_stop_notebook_runtime_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, stop_notebook_runtime_client_stub do
+        # Create client
+        client = ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.stop_notebook_runtime({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.stop_notebook_runtime name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.stop_notebook_runtime ::Google::Cloud::AIPlatform::V1::StopNotebookRuntimeRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.stop_notebook_runtime({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.stop_notebook_runtime(::Google::Cloud::AIPlatform::V1::StopNotebookRuntimeRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, stop_notebook_runtime_client_stub.call_count
+      end
+    end
+  end
+
+  def test_create_notebook_execution_job
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    notebook_execution_job = {}
+    notebook_execution_job_id = "hello world"
+
+    create_notebook_execution_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ServiceStub.stub :transcode_create_notebook_execution_job_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, create_notebook_execution_job_client_stub do
+        # Create client
+        client = ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.create_notebook_execution_job({ parent: parent, notebook_execution_job: notebook_execution_job, notebook_execution_job_id: notebook_execution_job_id }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.create_notebook_execution_job parent: parent, notebook_execution_job: notebook_execution_job, notebook_execution_job_id: notebook_execution_job_id do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.create_notebook_execution_job ::Google::Cloud::AIPlatform::V1::CreateNotebookExecutionJobRequest.new(parent: parent, notebook_execution_job: notebook_execution_job, notebook_execution_job_id: notebook_execution_job_id) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.create_notebook_execution_job({ parent: parent, notebook_execution_job: notebook_execution_job, notebook_execution_job_id: notebook_execution_job_id }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.create_notebook_execution_job(::Google::Cloud::AIPlatform::V1::CreateNotebookExecutionJobRequest.new(parent: parent, notebook_execution_job: notebook_execution_job, notebook_execution_job_id: notebook_execution_job_id), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, create_notebook_execution_job_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_notebook_execution_job
+    # Create test objects.
+    client_result = ::Google::Cloud::AIPlatform::V1::NotebookExecutionJob.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+    view = :NOTEBOOK_EXECUTION_JOB_VIEW_UNSPECIFIED
+
+    get_notebook_execution_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ServiceStub.stub :transcode_get_notebook_execution_job_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_notebook_execution_job_client_stub do
+        # Create client
+        client = ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_notebook_execution_job({ name: name, view: view }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_notebook_execution_job name: name, view: view do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_notebook_execution_job ::Google::Cloud::AIPlatform::V1::GetNotebookExecutionJobRequest.new(name: name, view: view) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_notebook_execution_job({ name: name, view: view }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_notebook_execution_job(::Google::Cloud::AIPlatform::V1::GetNotebookExecutionJobRequest.new(name: name, view: view), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_notebook_execution_job_client_stub.call_count
+      end
+    end
+  end
+
+  def test_list_notebook_execution_jobs
+    # Create test objects.
+    client_result = ::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    parent = "hello world"
+    filter = "hello world"
+    page_size = 42
+    page_token = "hello world"
+    order_by = "hello world"
+    view = :NOTEBOOK_EXECUTION_JOB_VIEW_UNSPECIFIED
+
+    list_notebook_execution_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ServiceStub.stub :transcode_list_notebook_execution_jobs_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, list_notebook_execution_jobs_client_stub do
+        # Create client
+        client = ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.list_notebook_execution_jobs({ parent: parent, filter: filter, page_size: page_size, page_token: page_token, order_by: order_by, view: view }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.list_notebook_execution_jobs parent: parent, filter: filter, page_size: page_size, page_token: page_token, order_by: order_by, view: view do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.list_notebook_execution_jobs ::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsRequest.new(parent: parent, filter: filter, page_size: page_size, page_token: page_token, order_by: order_by, view: view) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.list_notebook_execution_jobs({ parent: parent, filter: filter, page_size: page_size, page_token: page_token, order_by: order_by, view: view }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.list_notebook_execution_jobs(::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsRequest.new(parent: parent, filter: filter, page_size: page_size, page_token: page_token, order_by: order_by, view: view), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, list_notebook_execution_jobs_client_stub.call_count
+      end
+    end
+  end
+
+  def test_delete_notebook_execution_job
+    # Create test objects.
+    client_result = ::Google::Longrunning::Operation.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    delete_notebook_execution_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::ServiceStub.stub :transcode_delete_notebook_execution_job_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, delete_notebook_execution_job_client_stub do
+        # Create client
+        client = ::Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.delete_notebook_execution_job({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.delete_notebook_execution_job name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.delete_notebook_execution_job ::Google::Cloud::AIPlatform::V1::DeleteNotebookExecutionJobRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.delete_notebook_execution_job({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.delete_notebook_execution_job(::Google::Cloud::AIPlatform::V1::DeleteNotebookExecutionJobRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, delete_notebook_execution_job_client_stub.call_count
       end
     end
   end

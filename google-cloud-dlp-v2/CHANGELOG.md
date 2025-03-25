@@ -1,5 +1,91 @@
 # Release History
 
+### 1.8.0 (2025-02-25)
+
+#### Features
+
+* Support for discovery of Vertex AI datasets ([#29172](https://github.com/googleapis/google-cloud-ruby/issues/29172)) 
+
+### 1.7.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.6.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.5.0 (2024-10-28)
+
+#### Features
+
+* discovery of BigQuery snapshots ([#27452](https://github.com/googleapis/google-cloud-ruby/issues/27452)) 
+#### Documentation
+
+* documentation revisions for data profiles 
+
+### 1.4.0 (2024-09-30)
+
+#### Features
+
+* Support for publishing findings to Google Security Operations and Security Command Center 
+* Support for starting locations and discovery targets in other clouds 
+
+### 1.3.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27007](https://github.com/googleapis/google-cloud-ruby/issues/27007)) 
+
+### 1.3.0 (2024-08-22)
+
+#### Features
+
+* file store data profiles can now be filtered by type and storage location 
+* inspect template modified cadence discovery config for Cloud SQL ([#26972](https://github.com/googleapis/google-cloud-ruby/issues/26972)) 
+#### Documentation
+
+* small improvements 
+
+### 1.2.0 (2024-08-06)
+
+#### Features
+
+* Support tags in profiled resources ([#26609](https://github.com/googleapis/google-cloud-ruby/issues/26609)) 
+
+### 1.1.0 (2024-08-05)
+
+#### Features
+
+* Support for additional file types used for profiling 
+* Support for Armenia and Belarus location categories 
+* Support for Cloud Storage target for Discovery 
+* Support for DiscoveryInspectTemplateModifiedCadence 
+* Support for extra information about errors 
+* Support for file store data profile columns 
+* Support for operations on FileStoreDataProfile resources 
+* Support for profile counts generated for a project 
+* Support for unknown sensitivity score levels 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.24.0 (2024-05-29)
+
+#### Features
+
+* Supports secrets discovery ([#25944](https://github.com/googleapis/google-cloud-ruby/issues/25944)) 
+
 ### 0.23.0 (2024-05-15)
 
 #### Features

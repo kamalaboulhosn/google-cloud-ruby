@@ -33,24 +33,24 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_list_repositories
@@ -84,7 +92,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     order_by = "hello world"
     filter = "hello world"
 
-    list_repositories_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_repositories_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -138,7 +146,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_repository_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_repository_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -194,7 +202,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     repository = {}
     repository_id = "hello world"
 
-    create_repository_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_repository_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -249,7 +257,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     update_mask = {}
     repository = {}
 
-    update_repository_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_repository_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -304,7 +312,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     name = "hello world"
     force = true
 
-    delete_repository_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_repository_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -350,7 +358,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
   def test_commit_repository_changes
     # Create test objects.
-    client_result = ::Google::Protobuf::Empty.new
+    client_result = ::Google::Cloud::Dataform::V1beta1::CommitRepositoryChangesResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
@@ -361,7 +369,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     required_head_commit_sha = "hello world"
     file_operations = {}
 
-    commit_repository_changes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    commit_repository_changes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -417,7 +425,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     commit_sha = "hello world"
     path = "hello world"
 
-    read_repository_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    read_repository_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -475,7 +483,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     page_size = 42
     page_token = "hello world"
 
-    query_repository_directory_contents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    query_repository_directory_contents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -531,7 +539,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     page_size = 42
     page_token = "hello world"
 
-    fetch_repository_history_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    fetch_repository_history_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -585,7 +593,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    compute_repository_access_token_status_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    compute_repository_access_token_status_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -639,7 +647,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    fetch_remote_branches_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    fetch_remote_branches_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -697,7 +705,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     order_by = "hello world"
     filter = "hello world"
 
-    list_workspaces_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_workspaces_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -751,7 +759,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_workspace_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_workspace_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -807,7 +815,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     workspace = {}
     workspace_id = "hello world"
 
-    create_workspace_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_workspace_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -861,7 +869,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_workspace_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_workspace_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -915,7 +923,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     workspace = "hello world"
 
-    install_npm_packages_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    install_npm_packages_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -961,7 +969,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
   def test_pull_git_commits
     # Create test objects.
-    client_result = ::Google::Protobuf::Empty.new
+    client_result = ::Google::Cloud::Dataform::V1beta1::PullGitCommitsResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
@@ -971,7 +979,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     remote_branch = "hello world"
     author = {}
 
-    pull_git_commits_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    pull_git_commits_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1017,7 +1025,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
   def test_push_git_commits
     # Create test objects.
-    client_result = ::Google::Protobuf::Empty.new
+    client_result = ::Google::Cloud::Dataform::V1beta1::PushGitCommitsResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
@@ -1026,7 +1034,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     name = "hello world"
     remote_branch = "hello world"
 
-    push_git_commits_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    push_git_commits_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1080,7 +1088,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    fetch_file_git_statuses_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    fetch_file_git_statuses_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1135,7 +1143,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     name = "hello world"
     remote_branch = "hello world"
 
-    fetch_git_ahead_behind_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    fetch_git_ahead_behind_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1181,7 +1189,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
   def test_commit_workspace_changes
     # Create test objects.
-    client_result = ::Google::Protobuf::Empty.new
+    client_result = ::Google::Cloud::Dataform::V1beta1::CommitWorkspaceChangesResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
@@ -1192,7 +1200,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     commit_message = "hello world"
     paths = ["hello world"]
 
-    commit_workspace_changes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    commit_workspace_changes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1238,7 +1246,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
   def test_reset_workspace_changes
     # Create test objects.
-    client_result = ::Google::Protobuf::Empty.new
+    client_result = ::Google::Cloud::Dataform::V1beta1::ResetWorkspaceChangesResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
@@ -1248,7 +1256,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     paths = ["hello world"]
     clean = true
 
-    reset_workspace_changes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    reset_workspace_changes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1303,7 +1311,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     workspace = "hello world"
     path = "hello world"
 
-    fetch_file_diff_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    fetch_file_diff_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1360,7 +1368,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     page_size = 42
     page_token = "hello world"
 
-    query_directory_contents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    query_directory_contents_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1404,6 +1412,63 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     end
   end
 
+  def test_search_files
+    # Create test objects.
+    client_result = ::Google::Cloud::Dataform::V1beta1::SearchFilesResponse.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    workspace = "hello world"
+    page_size = 42
+    page_token = "hello world"
+    filter = "hello world"
+
+    search_files_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ServiceStub.stub :transcode_search_files_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, search_files_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.search_files({ workspace: workspace, page_size: page_size, page_token: page_token, filter: filter }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.search_files workspace: workspace, page_size: page_size, page_token: page_token, filter: filter do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.search_files ::Google::Cloud::Dataform::V1beta1::SearchFilesRequest.new(workspace: workspace, page_size: page_size, page_token: page_token, filter: filter) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.search_files({ workspace: workspace, page_size: page_size, page_token: page_token, filter: filter }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.search_files(::Google::Cloud::Dataform::V1beta1::SearchFilesRequest.new(workspace: workspace, page_size: page_size, page_token: page_token, filter: filter), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, search_files_client_stub.call_count
+      end
+    end
+  end
+
   def test_make_directory
     # Create test objects.
     client_result = ::Google::Cloud::Dataform::V1beta1::MakeDirectoryResponse.new
@@ -1415,7 +1480,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     workspace = "hello world"
     path = "hello world"
 
-    make_directory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    make_directory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1461,7 +1526,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
   def test_remove_directory
     # Create test objects.
-    client_result = ::Google::Protobuf::Empty.new
+    client_result = ::Google::Cloud::Dataform::V1beta1::RemoveDirectoryResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
@@ -1470,7 +1535,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     workspace = "hello world"
     path = "hello world"
 
-    remove_directory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    remove_directory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1526,7 +1591,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     path = "hello world"
     new_path = "hello world"
 
-    move_directory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    move_directory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1580,8 +1645,9 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     workspace = "hello world"
     path = "hello world"
+    revision = "hello world"
 
-    read_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    read_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1595,27 +1661,27 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
         end
 
         # Use hash object
-        client.read_file({ workspace: workspace, path: path }) do |_result, response|
+        client.read_file({ workspace: workspace, path: path, revision: revision }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.read_file workspace: workspace, path: path do |_result, response|
+        client.read_file workspace: workspace, path: path, revision: revision do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.read_file ::Google::Cloud::Dataform::V1beta1::ReadFileRequest.new(workspace: workspace, path: path) do |_result, response|
+        client.read_file ::Google::Cloud::Dataform::V1beta1::ReadFileRequest.new(workspace: workspace, path: path, revision: revision) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.read_file({ workspace: workspace, path: path }, call_options) do |_result, response|
+        client.read_file({ workspace: workspace, path: path, revision: revision }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.read_file(::Google::Cloud::Dataform::V1beta1::ReadFileRequest.new(workspace: workspace, path: path), call_options) do |_result, response|
+        client.read_file(::Google::Cloud::Dataform::V1beta1::ReadFileRequest.new(workspace: workspace, path: path, revision: revision), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -1627,7 +1693,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
   def test_remove_file
     # Create test objects.
-    client_result = ::Google::Protobuf::Empty.new
+    client_result = ::Google::Cloud::Dataform::V1beta1::RemoveFileResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
@@ -1636,7 +1702,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     workspace = "hello world"
     path = "hello world"
 
-    remove_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    remove_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1692,7 +1758,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     path = "hello world"
     new_path = "hello world"
 
-    move_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    move_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1748,7 +1814,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     path = "hello world"
     contents = "hello world"
 
-    write_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    write_file_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1804,7 +1870,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     page_size = 42
     page_token = "hello world"
 
-    list_release_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_release_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1858,7 +1924,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_release_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_release_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1914,7 +1980,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     release_config = {}
     release_config_id = "hello world"
 
-    create_release_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_release_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1969,7 +2035,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     update_mask = {}
     release_config = {}
 
-    update_release_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_release_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2023,7 +2089,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_release_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_release_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2078,8 +2144,10 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     parent = "hello world"
     page_size = 42
     page_token = "hello world"
+    order_by = "hello world"
+    filter = "hello world"
 
-    list_compilation_results_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_compilation_results_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2093,27 +2161,27 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
         end
 
         # Use hash object
-        client.list_compilation_results({ parent: parent, page_size: page_size, page_token: page_token }) do |_result, response|
+        client.list_compilation_results({ parent: parent, page_size: page_size, page_token: page_token, order_by: order_by, filter: filter }) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use named arguments
-        client.list_compilation_results parent: parent, page_size: page_size, page_token: page_token do |_result, response|
+        client.list_compilation_results parent: parent, page_size: page_size, page_token: page_token, order_by: order_by, filter: filter do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object
-        client.list_compilation_results ::Google::Cloud::Dataform::V1beta1::ListCompilationResultsRequest.new(parent: parent, page_size: page_size, page_token: page_token) do |_result, response|
+        client.list_compilation_results ::Google::Cloud::Dataform::V1beta1::ListCompilationResultsRequest.new(parent: parent, page_size: page_size, page_token: page_token, order_by: order_by, filter: filter) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use hash object with options
-        client.list_compilation_results({ parent: parent, page_size: page_size, page_token: page_token }, call_options) do |_result, response|
+        client.list_compilation_results({ parent: parent, page_size: page_size, page_token: page_token, order_by: order_by, filter: filter }, call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
         # Use protobuf object with options
-        client.list_compilation_results(::Google::Cloud::Dataform::V1beta1::ListCompilationResultsRequest.new(parent: parent, page_size: page_size, page_token: page_token), call_options) do |_result, response|
+        client.list_compilation_results(::Google::Cloud::Dataform::V1beta1::ListCompilationResultsRequest.new(parent: parent, page_size: page_size, page_token: page_token, order_by: order_by, filter: filter), call_options) do |_result, response|
           assert_equal http_response, response.underlying_op
         end
 
@@ -2133,7 +2201,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_compilation_result_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_compilation_result_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2188,7 +2256,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     parent = "hello world"
     compilation_result = {}
 
-    create_compilation_result_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_compilation_result_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2245,7 +2313,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     page_token = "hello world"
     filter = "hello world"
 
-    query_compilation_result_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    query_compilation_result_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2301,7 +2369,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     page_size = 42
     page_token = "hello world"
 
-    list_workflow_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_workflow_configs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2355,7 +2423,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_workflow_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_workflow_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2411,7 +2479,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     workflow_config = {}
     workflow_config_id = "hello world"
 
-    create_workflow_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_workflow_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2466,7 +2534,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     update_mask = {}
     workflow_config = {}
 
-    update_workflow_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_workflow_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2520,7 +2588,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_workflow_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_workflow_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2578,7 +2646,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     order_by = "hello world"
     filter = "hello world"
 
-    list_workflow_invocations_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_workflow_invocations_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2632,7 +2700,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_workflow_invocation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_workflow_invocation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2687,7 +2755,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     parent = "hello world"
     workflow_invocation = {}
 
-    create_workflow_invocation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_workflow_invocation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2741,7 +2809,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_workflow_invocation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_workflow_invocation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2787,7 +2855,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
   def test_cancel_workflow_invocation
     # Create test objects.
-    client_result = ::Google::Protobuf::Empty.new
+    client_result = ::Google::Cloud::Dataform::V1beta1::CancelWorkflowInvocationResponse.new
     http_response = OpenStruct.new body: client_result.to_json
 
     call_options = {}
@@ -2795,7 +2863,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     # Create request parameters for a unary method.
     name = "hello world"
 
-    cancel_workflow_invocation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    cancel_workflow_invocation_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2851,7 +2919,7 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
     page_size = 42
     page_token = "hello world"
 
-    query_workflow_invocation_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    query_workflow_invocation_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -2891,6 +2959,115 @@ class ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ClientTest < Minitest:
 
         # Verify method calls
         assert_equal 5, query_workflow_invocation_actions_client_stub.call_count
+      end
+    end
+  end
+
+  def test_get_config
+    # Create test objects.
+    client_result = ::Google::Cloud::Dataform::V1beta1::Config.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    name = "hello world"
+
+    get_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ServiceStub.stub :transcode_get_config_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, get_config_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.get_config({ name: name }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.get_config name: name do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.get_config ::Google::Cloud::Dataform::V1beta1::GetConfigRequest.new(name: name) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.get_config({ name: name }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.get_config(::Google::Cloud::Dataform::V1beta1::GetConfigRequest.new(name: name), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, get_config_client_stub.call_count
+      end
+    end
+  end
+
+  def test_update_config
+    # Create test objects.
+    client_result = ::Google::Cloud::Dataform::V1beta1::Config.new
+    http_response = OpenStruct.new body: client_result.to_json
+
+    call_options = {}
+
+    # Create request parameters for a unary method.
+    config = {}
+    update_mask = {}
+
+    update_config_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
+      assert options.metadata.key? :"x-goog-api-client"
+      assert options.metadata[:"x-goog-api-client"].include? "rest"
+      refute options.metadata[:"x-goog-api-client"].include? "grpc"
+    end
+
+    ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::ServiceStub.stub :transcode_update_config_request, ["", "", {}] do
+      Gapic::Rest::ClientStub.stub :new, update_config_client_stub do
+        # Create client
+        client = ::Google::Cloud::Dataform::V1beta1::Dataform::Rest::Client.new do |config|
+          config.credentials = :dummy_value
+        end
+
+        # Use hash object
+        client.update_config({ config: config, update_mask: update_mask }) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use named arguments
+        client.update_config config: config, update_mask: update_mask do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object
+        client.update_config ::Google::Cloud::Dataform::V1beta1::UpdateConfigRequest.new(config: config, update_mask: update_mask) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use hash object with options
+        client.update_config({ config: config, update_mask: update_mask }, call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Use protobuf object with options
+        client.update_config(::Google::Cloud::Dataform::V1beta1::UpdateConfigRequest.new(config: config, update_mask: update_mask), call_options) do |_result, response|
+          assert_equal http_response, response.underlying_op
+        end
+
+        # Verify method calls
+        assert_equal 5, update_config_client_stub.call_count
       end
     end
   end

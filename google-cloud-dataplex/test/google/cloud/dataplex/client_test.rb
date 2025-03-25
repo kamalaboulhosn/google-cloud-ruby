@@ -31,9 +31,18 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_dataplex_service_grpc
+    skip unless Google::Cloud::Dataplex.dataplex_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Dataplex.dataplex_service transport: :grpc do |config|
@@ -44,6 +53,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_dataplex_service_rest
+    skip unless Google::Cloud::Dataplex.dataplex_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Dataplex.dataplex_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -53,6 +63,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_catalog_service_grpc
+    skip unless Google::Cloud::Dataplex.catalog_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Dataplex.catalog_service transport: :grpc do |config|
@@ -63,6 +74,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_catalog_service_rest
+    skip unless Google::Cloud::Dataplex.catalog_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Dataplex.catalog_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -72,6 +84,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_content_service_grpc
+    skip unless Google::Cloud::Dataplex.content_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Dataplex.content_service transport: :grpc do |config|
@@ -82,6 +95,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_content_service_rest
+    skip unless Google::Cloud::Dataplex.content_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Dataplex.content_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -91,6 +105,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_data_taxonomy_service_grpc
+    skip unless Google::Cloud::Dataplex.data_taxonomy_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Dataplex.data_taxonomy_service transport: :grpc do |config|
@@ -101,6 +116,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_data_taxonomy_service_rest
+    skip unless Google::Cloud::Dataplex.data_taxonomy_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Dataplex.data_taxonomy_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -110,6 +126,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_data_scan_service_grpc
+    skip unless Google::Cloud::Dataplex.data_scan_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Dataplex.data_scan_service transport: :grpc do |config|
@@ -120,6 +137,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_data_scan_service_rest
+    skip unless Google::Cloud::Dataplex.data_scan_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Dataplex.data_scan_service transport: :rest do |config|
         config.credentials = :dummy_credentials
@@ -129,6 +147,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_metadata_service_grpc
+    skip unless Google::Cloud::Dataplex.metadata_service_available? transport: :grpc
     Gapic::ServiceStub.stub :new, DummyStub.new do
       grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
       client = Google::Cloud::Dataplex.metadata_service transport: :grpc do |config|
@@ -139,6 +158,7 @@ class Google::Cloud::Dataplex::ClientConstructionMinitest < Minitest::Test
   end
 
   def test_metadata_service_rest
+    skip unless Google::Cloud::Dataplex.metadata_service_available? transport: :rest
     Gapic::Rest::ClientStub.stub :new, DummyStub.new do
       client = Google::Cloud::Dataplex.metadata_service transport: :rest do |config|
         config.credentials = :dummy_credentials

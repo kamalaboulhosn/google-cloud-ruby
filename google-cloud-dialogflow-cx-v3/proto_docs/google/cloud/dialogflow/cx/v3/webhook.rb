@@ -33,18 +33,22 @@ module Google
           #     {::Google::Cloud::Dialogflow::CX::V3::Webhooks::Client#update_webhook Webhooks.UpdateWebhook}
           #     method.
           #     {::Google::Cloud::Dialogflow::CX::V3::Webhooks::Client#create_webhook Webhooks.CreateWebhook}
-          #     populates the name automatically. Format: `projects/<Project
-          #     ID>/locations/<Location ID>/agents/<Agent ID>/webhooks/<Webhook ID>`.
+          #     populates the name automatically. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/webhooks/<WebhookID>`.
           # @!attribute [rw] display_name
           #   @return [::String]
           #     Required. The human-readable name of the webhook, unique within the agent.
           # @!attribute [rw] generic_web_service
           #   @return [::Google::Cloud::Dialogflow::CX::V3::Webhook::GenericWebService]
           #     Configuration for a generic web service.
+          #
+          #     Note: The following fields are mutually exclusive: `generic_web_service`, `service_directory`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] service_directory
           #   @return [::Google::Cloud::Dialogflow::CX::V3::Webhook::ServiceDirectoryConfig]
           #     Configuration for a [Service
           #     Directory](https://cloud.google.com/service-directory) service.
+          #
+          #     Note: The following fields are mutually exclusive: `service_directory`, `generic_web_service`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] timeout
           #   @return [::Google::Protobuf::Duration]
           #     Webhook execution timeout. Execution is considered failed if Dialogflow
@@ -72,8 +76,7 @@ module Google
             #     The password for HTTP Basic authentication.
             # @!attribute [rw] request_headers
             #   @return [::Google::Protobuf::Map{::String => ::String}]
-            #     The HTTP request headers to send together with webhook
-            #     requests.
+            #     The HTTP request headers to send together with webhook requests.
             # @!attribute [rw] allowed_ca_certs
             #   @return [::Array<::String>]
             #     Optional. Specifies a list of allowed custom CA certificates (in DER
@@ -88,6 +91,17 @@ module Google
             #          -out example.com.crt \
             #          -extfile <(printf "\nsubjectAltName='DNS:www.example.com'")
             #     ```
+            # @!attribute [rw] oauth_config
+            #   @return [::Google::Cloud::Dialogflow::CX::V3::Webhook::GenericWebService::OAuthConfig]
+            #     Optional. The OAuth configuration of the webhook. If specified,
+            #     Dialogflow will initiate the OAuth client credential flow to exchange an
+            #     access token from the 3rd party platform and put it in the auth header.
+            # @!attribute [rw] service_agent_auth
+            #   @return [::Google::Cloud::Dialogflow::CX::V3::Webhook::GenericWebService::ServiceAgentAuth]
+            #     Optional. Indicate the auth token type generated from the [Diglogflow
+            #     service
+            #     agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-service-agent).
+            #     The generated token is sent in the Authorization header.
             # @!attribute [rw] webhook_type
             #   @return [::Google::Cloud::Dialogflow::CX::V3::Webhook::GenericWebService::WebhookType]
             #     Optional. Type of the webhook.
@@ -109,6 +123,26 @@ module Google
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
 
+              # Represents configuration of OAuth client credential flow for 3rd party
+              # API authentication.
+              # @!attribute [rw] client_id
+              #   @return [::String]
+              #     Required. The client ID provided by the 3rd party platform.
+              # @!attribute [rw] client_secret
+              #   @return [::String]
+              #     Optional. The client secret provided by the 3rd party platform.
+              # @!attribute [rw] token_endpoint
+              #   @return [::String]
+              #     Required. The token endpoint provided by the 3rd party platform to
+              #     exchange an access token.
+              # @!attribute [rw] scopes
+              #   @return [::Array<::String>]
+              #     Optional. The OAuth scopes to grant.
+              class OAuthConfig
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
               # @!attribute [rw] key
               #   @return [::String]
               # @!attribute [rw] value
@@ -125,6 +159,30 @@ module Google
               class ParameterMappingEntry
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Indicate the auth token type generated from the [Diglogflow service
+              # agent](https://cloud.google.com/iam/docs/service-agents#dialogflow-service-agent).
+              module ServiceAgentAuth
+                # Service agent auth type unspecified. Default to ID_TOKEN.
+                SERVICE_AGENT_AUTH_UNSPECIFIED = 0
+
+                # No token used.
+                NONE = 1
+
+                # Use [ID
+                # token](https://cloud.google.com/docs/authentication/token-types#id)
+                # generated from service agent. This can be used to access Cloud Function
+                # and Cloud Run after you grant Invoker role to
+                # `service-<PROJECT-NUMBER>@gcp-sa-dialogflow.iam.gserviceaccount.com`.
+                ID_TOKEN = 2
+
+                # Use [access
+                # token](https://cloud.google.com/docs/authentication/token-types#access)
+                # generated from service agent. This can be used to access other Google
+                # Cloud APIs after you grant required roles to
+                # `service-<PROJECT-NUMBER>@gcp-sa-dialogflow.iam.gserviceaccount.com`.
+                ACCESS_TOKEN = 3
               end
 
               # Represents the type of webhook configuration.
@@ -173,8 +231,8 @@ module Google
             #   @return [::String]
             #     Required. The name of [Service
             #     Directory](https://cloud.google.com/service-directory) service.
-            #     Format: `projects/<Project ID>/locations/<Location
-            #     ID>/namespaces/<Namespace ID>/services/<Service ID>`.
+            #     Format:
+            #     `projects/<ProjectID>/locations/<LocationID>/namespaces/<NamespaceID>/services/<ServiceID>`.
             #     `Location ID` of the service directory must be the same as the location
             #     of the agent.
             # @!attribute [rw] generic_web_service
@@ -191,7 +249,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to list all webhooks for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] page_size
           #   @return [::Integer]
           #     The maximum number of items to return in a single page. By default 100 and
@@ -224,8 +282,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the webhook.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/webhooks/<Webhook ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/webhooks/<WebhookID>`.
           class GetWebhookRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -236,7 +294,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to create a webhook for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] webhook
           #   @return [::Google::Cloud::Dialogflow::CX::V3::Webhook]
           #     Required. The webhook to create.
@@ -264,8 +322,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the webhook to delete.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/webhooks/<Webhook ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/webhooks/<WebhookID>`.
           # @!attribute [rw] force
           #   @return [::Boolean]
           #     This field has no effect for webhook not being used.
@@ -297,25 +355,34 @@ module Google
           #   @return [::String]
           #     If {::Google::Cloud::Dialogflow::CX::V3::TextInput natural language text} was
           #     provided as input, this field will contain a copy of the text.
+          #
+          #     Note: The following fields are mutually exclusive: `text`, `trigger_intent`, `transcript`, `trigger_event`, `dtmf_digits`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] trigger_intent
           #   @return [::String]
           #     If an {::Google::Cloud::Dialogflow::CX::V3::IntentInput intent} was provided as
           #     input, this field will contain a copy of the intent identifier. Format:
-          #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/intents/<Intent ID>`.
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
+          #
+          #     Note: The following fields are mutually exclusive: `trigger_intent`, `text`, `transcript`, `trigger_event`, `dtmf_digits`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] transcript
           #   @return [::String]
           #     If [natural language speech
           #     audio][google.cloud.dialogflow.cx.v3.AudioInput] was provided as input,
           #     this field will contain the transcript for the audio.
+          #
+          #     Note: The following fields are mutually exclusive: `transcript`, `text`, `trigger_intent`, `trigger_event`, `dtmf_digits`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] trigger_event
           #   @return [::String]
           #     If an {::Google::Cloud::Dialogflow::CX::V3::EventInput event} was provided as
           #     input, this field will contain the name of the event.
+          #
+          #     Note: The following fields are mutually exclusive: `trigger_event`, `text`, `trigger_intent`, `transcript`, `dtmf_digits`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] dtmf_digits
           #   @return [::String]
           #     If {::Google::Cloud::Dialogflow::CX::V3::DtmfInput DTMF} was provided as input,
           #     this field will contain the DTMF digits.
+          #
+          #     Note: The following fields are mutually exclusive: `dtmf_digits`, `text`, `trigger_intent`, `transcript`, `trigger_event`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] language_code
           #   @return [::String]
           #     The language code specified in the [original
@@ -346,6 +413,9 @@ module Google
           #   @return [::Google::Cloud::Dialogflow::CX::V3::WebhookRequest::SentimentAnalysisResult]
           #     The sentiment analysis result of the current user request. The field is
           #     filled when sentiment analysis is configured to be enabled for the request.
+          # @!attribute [rw] language_info
+          #   @return [::Google::Cloud::Dialogflow::CX::V3::LanguageInfo]
+          #     Information about the language of the request.
           class WebhookRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -370,8 +440,8 @@ module Google
             #   @return [::String]
             #     Always present. The unique identifier of the last matched
             #     {::Google::Cloud::Dialogflow::CX::V3::Intent intent}.
-            #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-            #     ID>/intents/<Intent ID>`.
+            #     Format:
+            #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
             # @!attribute [rw] display_name
             #   @return [::String]
             #     Always present. The display name of the last matched
@@ -417,7 +487,7 @@ module Google
             # @!attribute [rw] score
             #   @return [::Float]
             #     Sentiment score between -1.0 (negative sentiment) and 1.0 (positive
-            #     sentiment).
+            #      sentiment).
             # @!attribute [rw] magnitude
             #   @return [::Float]
             #     A non-negative number in the [0, +inf) range, which represents the
@@ -449,13 +519,17 @@ module Google
           # @!attribute [rw] target_page
           #   @return [::String]
           #     The target page to transition to.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/flows/<Flow ID>/pages/<Page ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/pages/<PageID>`.
+          #
+          #     Note: The following fields are mutually exclusive: `target_page`, `target_flow`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] target_flow
           #   @return [::String]
           #     The target flow to transition to.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/flows/<Flow ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>`.
+          #
+          #     Note: The following fields are mutually exclusive: `target_flow`, `target_page`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class WebhookResponse
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -493,9 +567,8 @@ module Google
           #     Always present for
           #     {::Google::Cloud::Dialogflow::CX::V3::WebhookRequest WebhookRequest}. Ignored for
           #     {::Google::Cloud::Dialogflow::CX::V3::WebhookResponse WebhookResponse}. The
-          #     unique identifier of the current page. Format: `projects/<Project
-          #     ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>/pages/<Page
-          #     ID>`.
+          #     unique identifier of the current page. Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/flows/<FlowID>/pages/<PageID>`.
           # @!attribute [rw] display_name
           #   @return [::String]
           #     Always present for
@@ -598,9 +671,10 @@ module Google
           #     unique identifier of the
           #     {::Google::Cloud::Dialogflow::CX::V3::DetectIntentRequest#session session}. This
           #     field can be used by the webhook to identify a session.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/sessions/<Session ID>` or `projects/<Project ID>/locations/<Location
-          #     ID>/agents/<Agent ID>/environments/<Environment ID>/sessions/<Session ID>`
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/sessions/<SessionID>`
+          #     or
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/environments/<EnvironmentID>/sessions/<SessionID>`
           #     if environment is specified.
           # @!attribute [rw] parameters
           #   @return [::Google::Protobuf::Map{::String => ::Google::Protobuf::Value}]
@@ -624,6 +698,23 @@ module Google
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end
+          end
+
+          # Represents the language information of the request.
+          # @!attribute [rw] input_language_code
+          #   @return [::String]
+          #     The language code specified in the original
+          #     {::Google::Cloud::Dialogflow::CX::V3::QueryInput#language_code request}.
+          # @!attribute [rw] resolved_language_code
+          #   @return [::String]
+          #     The language code detected for this request based on the user
+          #     conversation.
+          # @!attribute [rw] confidence_score
+          #   @return [::Float]
+          #     The confidence score of the detected language between 0 and 1.
+          class LanguageInfo
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
           end
         end
       end

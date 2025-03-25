@@ -1,5 +1,61 @@
 # Release History
 
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28826](https://github.com/googleapis/google-cloud-ruby/issues/28826))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28826](https://github.com/googleapis/google-cloud-ruby/issues/28826)) 
+
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-10-15)
+
+#### Features
+
+* Support for GenerativeQuestionService 
+* Support for the conversational_search_spec and tile_navigation_spec search parameters 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27011](https://github.com/googleapis/google-cloud-ruby/issues/27011)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.21.0 (2024-06-07)
+
+#### Features
+
+* Support attribute suggestions in autocomplete 
+* Support frequently bought together model config 
+* Support merged facets 
+* Support page_categories in control condition 
+* Support product purge API 
+* Support skipping denylist postfiltering in recommendations 
+
 ### 0.20.0 (2024-02-26)
 
 #### Features

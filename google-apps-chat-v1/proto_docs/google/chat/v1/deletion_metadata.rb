@@ -30,7 +30,8 @@ module Google
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
 
-          # Who deleted the message and how it was deleted.
+          # Who deleted the message and how it was deleted. More values may be added in
+          # the future.
           module DeletionType
             # This value is unused.
             DELETION_TYPE_UNSPECIFIED = 0
@@ -52,6 +53,10 @@ module Google
 
             # A Chat app deleted the message on behalf of the space owner.
             SPACE_OWNER_VIA_APP = 6
+
+            # A member of the space deleted the message. Human users can delete
+            # messages sent by apps.
+            SPACE_MEMBER = 7
           end
         end
       end

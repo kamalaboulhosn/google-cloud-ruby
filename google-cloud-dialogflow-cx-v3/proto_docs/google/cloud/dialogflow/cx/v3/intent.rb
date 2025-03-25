@@ -35,8 +35,8 @@ module Google
           #     method.
           #     {::Google::Cloud::Dialogflow::CX::V3::Intents::Client#create_intent Intents.CreateIntent}
           #     populates the name automatically.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/intents/<Intent ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
           # @!attribute [rw] display_name
           #   @return [::String]
           #     Required. The human-readable name of the intent, unique within the agent.
@@ -88,7 +88,7 @@ module Google
             extend ::Google::Protobuf::MessageExts::ClassMethods
 
             # Represents an example that the agent is trained on to identify the intent.
-            # @!attribute [rw] id
+            # @!attribute [r] id
             #   @return [::String]
             #     Output only. The unique identifier of the training phrase.
             # @!attribute [rw] parts
@@ -145,11 +145,12 @@ module Google
             # @!attribute [rw] entity_type
             #   @return [::String]
             #     Required. The entity type of the parameter.
-            #     Format: `projects/-/locations/-/agents/-/entityTypes/<System Entity Type
-            #     ID>` for system entity types (for example,
+            #     Format:
+            #     `projects/-/locations/-/agents/-/entityTypes/<SystemEntityTypeID>` for
+            #     system entity types (for example,
             #     `projects/-/locations/-/agents/-/entityTypes/sys.date`), or
-            #     `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-            #     ID>/entityTypes/<Entity Type ID>` for developer entity types.
+            #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/entityTypes/<EntityTypeID>`
+            #     for developer entity types.
             # @!attribute [rw] is_list
             #   @return [::Boolean]
             #     Indicates whether the parameter represents a list of values.
@@ -181,7 +182,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to list all intents for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] language_code
           #   @return [::String]
           #     The language to list intents for. The following fields are language
@@ -229,8 +230,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the intent.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/intents/<Intent ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
           # @!attribute [rw] language_code
           #   @return [::String]
           #     The language to retrieve the intent for. The following fields are language
@@ -253,7 +254,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to create an intent for.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] intent
           #   @return [::Google::Cloud::Dialogflow::CX::V3::Intent]
           #     Required. The intent to create.
@@ -303,8 +304,8 @@ module Google
           # @!attribute [rw] name
           #   @return [::String]
           #     Required. The name of the intent to delete.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/intents/<Intent ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
           class DeleteIntentRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -315,7 +316,7 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The agent to import the intents into.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] intents_uri
           #   @return [::String]
           #     The [Google Cloud Storage](https://cloud.google.com/storage/docs/) URI
@@ -327,9 +328,13 @@ module Google
           #     have read permissions for the object. For more information, see
           #     [Dialogflow access
           #     control](https://cloud.google.com/dialogflow/cx/docs/concept/access-control#storage).
+          #
+          #     Note: The following fields are mutually exclusive: `intents_uri`, `intents_content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] intents_content
           #   @return [::Google::Cloud::Dialogflow::CX::V3::InlineSource]
           #     Uncompressed byte content of intents.
+          #
+          #     Note: The following fields are mutually exclusive: `intents_content`, `intents_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] merge_option
           #   @return [::Google::Cloud::Dialogflow::CX::V3::ImportIntentsRequest::MergeOption]
           #     Merge option for importing intents. If not specified, `REJECT` is assumed.
@@ -375,8 +380,8 @@ module Google
           # @!attribute [rw] intents
           #   @return [::Array<::String>]
           #     The unique identifier of the imported intents.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/intents/<Intent ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
           # @!attribute [rw] conflicting_resources
           #   @return [::Google::Cloud::Dialogflow::CX::V3::ImportIntentsResponse::ConflictingResources]
           #     Info which resources have conflicts when
@@ -414,13 +419,12 @@ module Google
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The name of the parent agent to export intents.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>`.
+          #     Format: `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>`.
           # @!attribute [rw] intents
           #   @return [::Array<::String>]
           #     Required. The name of the intents to export.
-          #     Format: `projects/<Project ID>/locations/<Location ID>/agents/<Agent
-          #     ID>/intents/<Intent ID>`.
+          #     Format:
+          #     `projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/intents/<IntentID>`.
           # @!attribute [rw] intents_uri
           #   @return [::String]
           #     Optional. The [Google Cloud
@@ -433,9 +437,13 @@ module Google
           #     have write permissions for the object. For more information, see
           #     [Dialogflow access
           #     control](https://cloud.google.com/dialogflow/cx/docs/concept/access-control#storage).
+          #
+          #     Note: The following fields are mutually exclusive: `intents_uri`, `intents_content_inline`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] intents_content_inline
           #   @return [::Boolean]
           #     Optional. The option to return the serialized intents inline.
+          #
+          #     Note: The following fields are mutually exclusive: `intents_content_inline`, `intents_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] data_format
           #   @return [::Google::Cloud::Dialogflow::CX::V3::ExportIntentsRequest::DataFormat]
           #     Optional. The data format of the exported intents. If not specified, `BLOB`
@@ -467,11 +475,15 @@ module Google
           #     The URI to a file containing the exported intents. This field is
           #     populated only if `intents_uri` is specified in
           #     {::Google::Cloud::Dialogflow::CX::V3::ExportIntentsRequest ExportIntentsRequest}.
+          #
+          #     Note: The following fields are mutually exclusive: `intents_uri`, `intents_content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] intents_content
           #   @return [::Google::Cloud::Dialogflow::CX::V3::InlineDestination]
           #     Uncompressed byte content for intents. This field is populated only if
           #     `intents_content_inline` is set to true in
           #     {::Google::Cloud::Dialogflow::CX::V3::ExportIntentsRequest ExportIntentsRequest}.
+          #
+          #     Note: The following fields are mutually exclusive: `intents_content`, `intents_uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class ExportIntentsResponse
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

@@ -1,5 +1,46 @@
 # Release History
 
+### 1.3.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.2.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.1.0 (2024-11-13)
+
+#### Features
+
+* Add FindNearest API to the stable branch 
+* Support for field update operators in the Datastore API and resolution strategies when there is a conflict at write time ([#27412](https://github.com/googleapis/google-cloud-ruby/issues/27412)) 
+
+### 1.0.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27007](https://github.com/googleapis/google-cloud-ruby/issues/27007)) 
+
+### 1.0.0 (2024-07-10)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.19.0 (2024-06-05)
+
+#### Features
+
+* Support property_mask parameter allowing partial commits, lookups and query results ([#25924](https://github.com/googleapis/google-cloud-ruby/issues/25924)) 
+
 ### 0.18.0 (2024-03-22)
 
 #### Features

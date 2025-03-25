@@ -31,6 +31,14 @@ class ::Google::Cloud::Billing::V1::CloudCatalog::ClientPathsTest < Minitest::Te
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_service_path

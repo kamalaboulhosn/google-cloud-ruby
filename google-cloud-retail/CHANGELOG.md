@@ -1,5 +1,34 @@
 # Release History
 
+### 2.0.0 (2025-02-13)
+
+### ⚠ BREAKING CHANGES
+
+* Updated google-cloud-retail-v2 dependency to version 2.x ([#29015](https://github.com/googleapis/google-cloud-ruby/issues/29015))
+
+#### Features
+
+* Updated google-cloud-retail-v2 dependency to version 2.x ([#29015](https://github.com/googleapis/google-cloud-ruby/issues/29015)) 
+
+### 1.11.0 (2025-01-29)
+
+#### Features
+
+* Provide methods to determine whether services are available with the currently installed versioned client ([#28532](https://github.com/googleapis/google-cloud-ruby/issues/28532)) 
+* Update Ruby version requirement to 3.0 
+
+### 1.10.0 (2024-10-24)
+
+#### Features
+
+* Support for GenerativeQuestionService ([#27424](https://github.com/googleapis/google-cloud-ruby/issues/27424)) 
+
+### 1.9.1 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26630](https://github.com/googleapis/google-cloud-ruby/issues/26630)) 
+
 ### 1.9.0 (2024-02-26)
 
 #### Features

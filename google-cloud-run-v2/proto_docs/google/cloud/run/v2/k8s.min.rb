@@ -77,6 +77,13 @@ module Google
         # @!attribute [rw] depends_on
         #   @return [::Array<::String>]
         #     Names of the containers that must start before this container.
+        # @!attribute [rw] base_image_uri
+        #   @return [::String]
+        #     Base image for this container. Only supported for services. If set, it
+        #     indicates that the service is enrolled into automatic base image update.
+        # @!attribute [r] build_info
+        #   @return [::Google::Cloud::Run::V2::BuildInfo]
+        #     Output only. The build info of the container image.
         class Container
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -124,17 +131,16 @@ module Google
         #     characters.
         # @!attribute [rw] value
         #   @return [::String]
-        #     Variable references $(VAR_NAME) are expanded
-        #     using the previous defined environment variables in the container and
-        #     any route environment variables. If a variable cannot be resolved,
-        #     the reference in the input string will be unchanged. The $(VAR_NAME)
-        #     syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped
-        #     references will never be expanded, regardless of whether the variable
-        #     exists or not.
+        #     Literal value of the environment variable.
         #     Defaults to "", and the maximum length is 32768 bytes.
+        #     Variable references are not supported in Cloud Run.
+        #
+        #     Note: The following fields are mutually exclusive: `value`, `value_source`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] value_source
         #   @return [::Google::Cloud::Run::V2::EnvVarSource]
         #     Source for the environment variable's value.
+        #
+        #     Note: The following fields are mutually exclusive: `value_source`, `value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class EnvVar
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -203,20 +209,30 @@ module Google
         # @!attribute [rw] secret
         #   @return [::Google::Cloud::Run::V2::SecretVolumeSource]
         #     Secret represents a secret that should populate this volume.
+        #
+        #     Note: The following fields are mutually exclusive: `secret`, `cloud_sql_instance`, `empty_dir`, `nfs`, `gcs`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] cloud_sql_instance
         #   @return [::Google::Cloud::Run::V2::CloudSqlInstance]
         #     For Cloud SQL volumes, contains the specific instances that should be
         #     mounted. Visit https://cloud.google.com/sql/docs/mysql/connect-run for
         #     more information on how to connect Cloud SQL and Cloud Run.
+        #
+        #     Note: The following fields are mutually exclusive: `cloud_sql_instance`, `secret`, `empty_dir`, `nfs`, `gcs`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] empty_dir
         #   @return [::Google::Cloud::Run::V2::EmptyDirVolumeSource]
         #     Ephemeral storage used as a shared volume.
+        #
+        #     Note: The following fields are mutually exclusive: `empty_dir`, `secret`, `cloud_sql_instance`, `nfs`, `gcs`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] nfs
         #   @return [::Google::Cloud::Run::V2::NFSVolumeSource]
         #     For NFS Voumes, contains the path to the nfs Volume
+        #
+        #     Note: The following fields are mutually exclusive: `nfs`, `secret`, `cloud_sql_instance`, `empty_dir`, `gcs`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] gcs
         #   @return [::Google::Cloud::Run::V2::GCSVolumeSource]
         #     Persistent storage backed by a Google Cloud Storage bucket.
+        #
+        #     Note: The following fields are mutually exclusive: `gcs`, `secret`, `cloud_sql_instance`, `empty_dir`, `nfs`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class Volume
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -249,10 +265,9 @@ module Google
         #     * Internally, a umask of 0222 will be applied to any non-zero value.
         #     * This is an integer representation of the mode bits. So, the octal
         #     integer value should look exactly as the chmod numeric notation with a
-        #     leading zero. Some examples: for chmod 777 (a=rwx), set to 0777 (octal) or
-        #     511 (base-10). For chmod 640 (u=rw,g=r), set to 0640 (octal) or
-        #     416 (base-10). For chmod 755 (u=rwx,g=rx,o=rx), set to 0755 (octal) or 493
-        #     (base-10).
+        #     leading zero. Some examples: for chmod 640 (u=rw,g=r), set to 0640 (octal)
+        #     or 416 (base-10). For chmod 755 (u=rwx,g=rx,o=rx), set to 0755 (octal) or
+        #     493 (base-10).
         #     * This might be in conflict with other options that affect the
         #     file mode, like fsGroup, and the result can be other mode bits set.
         #
@@ -284,10 +299,9 @@ module Google
         #     * Internally, a umask of 0222 will be applied to any non-zero value.
         #     * This is an integer representation of the mode bits. So, the octal
         #     integer value should look exactly as the chmod numeric notation with a
-        #     leading zero. Some examples: for chmod 777 (a=rwx), set to 0777 (octal) or
-        #     511 (base-10). For chmod 640 (u=rw,g=r), set to 0640 (octal) or
-        #     416 (base-10). For chmod 755 (u=rwx,g=rx,o=rx), set to 0755 (octal) or 493
-        #     (base-10).
+        #     leading zero. Some examples: for chmod 640 (u=rw,g=r), set to 0640 (octal)
+        #     or 416 (base-10). For chmod 755 (u=rwx,g=rx,o=rx), set to 0755 (octal) or
+        #     493 (base-10).
         #     * This might be in conflict with other options that affect the
         #     file mode, like fsGroup, and the result can be other mode bits set.
         class VersionToPath
@@ -354,19 +368,24 @@ module Google
         #     Path that is exported by the NFS server.
         # @!attribute [rw] read_only
         #   @return [::Boolean]
-        #     If true, mount the NFS volume as read only
+        #     If true, the volume will be mounted as read only for all mounts.
         class NFSVolumeSource
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Represents a GCS Bucket mounted as a volume.
+        # Represents a volume backed by a Cloud Storage bucket using Cloud Storage
+        # FUSE.
         # @!attribute [rw] bucket
         #   @return [::String]
-        #     GCS Bucket name
+        #     Cloud Storage Bucket name.
         # @!attribute [rw] read_only
         #   @return [::Boolean]
-        #     If true, mount the GCS bucket as read-only
+        #     If true, the volume will be mounted as read only for all mounts.
+        # @!attribute [rw] mount_options
+        #   @return [::Array<::String>]
+        #     A list of additional flags to pass to the gcsfuse CLI.
+        #     Options should be specified without the leading "--".
         class GCSVolumeSource
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -376,37 +395,42 @@ module Google
         # determine whether it is alive or ready to receive traffic.
         # @!attribute [rw] initial_delay_seconds
         #   @return [::Integer]
-        #     Number of seconds after the container has started before the probe is
-        #     initiated.
-        #     Defaults to 0 seconds. Minimum value is 0. Maximum value for liveness probe
-        #     is 3600. Maximum value for startup probe is 240.
+        #     Optional. Number of seconds after the container has started before the
+        #     probe is initiated. Defaults to 0 seconds. Minimum value is 0. Maximum
+        #     value for liveness probe is 3600. Maximum value for startup probe is 240.
         # @!attribute [rw] timeout_seconds
         #   @return [::Integer]
-        #     Number of seconds after which the probe times out.
+        #     Optional. Number of seconds after which the probe times out.
         #     Defaults to 1 second. Minimum value is 1. Maximum value is 3600.
         #     Must be smaller than period_seconds.
         # @!attribute [rw] period_seconds
         #   @return [::Integer]
-        #     How often (in seconds) to perform the probe.
+        #     Optional. How often (in seconds) to perform the probe.
         #     Default to 10 seconds. Minimum value is 1. Maximum value for liveness probe
         #     is 3600. Maximum value for startup probe is 240.
         #     Must be greater or equal than timeout_seconds.
         # @!attribute [rw] failure_threshold
         #   @return [::Integer]
-        #     Minimum consecutive failures for the probe to be considered failed after
-        #     having succeeded. Defaults to 3. Minimum value is 1.
+        #     Optional. Minimum consecutive failures for the probe to be considered
+        #     failed after having succeeded. Defaults to 3. Minimum value is 1.
         # @!attribute [rw] http_get
         #   @return [::Google::Cloud::Run::V2::HTTPGetAction]
-        #     HTTPGet specifies the http request to perform.
+        #     Optional. HTTPGet specifies the http request to perform.
         #     Exactly one of httpGet, tcpSocket, or grpc must be specified.
+        #
+        #     Note: The following fields are mutually exclusive: `http_get`, `tcp_socket`, `grpc`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] tcp_socket
         #   @return [::Google::Cloud::Run::V2::TCPSocketAction]
-        #     TCPSocket specifies an action involving a TCP port.
+        #     Optional. TCPSocket specifies an action involving a TCP port.
         #     Exactly one of httpGet, tcpSocket, or grpc must be specified.
+        #
+        #     Note: The following fields are mutually exclusive: `tcp_socket`, `http_get`, `grpc`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] grpc
         #   @return [::Google::Cloud::Run::V2::GRPCAction]
-        #     GRPC specifies an action involving a gRPC port.
+        #     Optional. GRPC specifies an action involving a gRPC port.
         #     Exactly one of httpGet, tcpSocket, or grpc must be specified.
+        #
+        #     Note: The following fields are mutually exclusive: `grpc`, `http_get`, `tcp_socket`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class Probe
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -415,15 +439,16 @@ module Google
         # HTTPGetAction describes an action based on HTTP Get requests.
         # @!attribute [rw] path
         #   @return [::String]
-        #     Path to access on the HTTP server. Defaults to '/'.
+        #     Optional. Path to access on the HTTP server. Defaults to '/'.
         # @!attribute [rw] http_headers
         #   @return [::Array<::Google::Cloud::Run::V2::HTTPHeader>]
-        #     Custom headers to set in the request. HTTP allows repeated headers.
+        #     Optional. Custom headers to set in the request. HTTP allows repeated
+        #     headers.
         # @!attribute [rw] port
         #   @return [::Integer]
-        #     Port number to access on the container. Must be in the range 1 to 65535.
-        #     If not specified, defaults to the exposed port of the container, which is
-        #     the value of container.ports[0].containerPort.
+        #     Optional. Port number to access on the container. Must be in the range 1 to
+        #     65535. If not specified, defaults to the exposed port of the container,
+        #     which is the value of container.ports[0].containerPort.
         class HTTPGetAction
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -435,7 +460,7 @@ module Google
         #     Required. The header field name
         # @!attribute [rw] value
         #   @return [::String]
-        #     The header field value
+        #     Optional. The header field value
         class HTTPHeader
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -444,9 +469,9 @@ module Google
         # TCPSocketAction describes an action based on opening a socket
         # @!attribute [rw] port
         #   @return [::Integer]
-        #     Port number to access on the container. Must be in the range 1 to 65535.
-        #     If not specified, defaults to the exposed port of the container, which is
-        #     the value of container.ports[0].containerPort.
+        #     Optional. Port number to access on the container. Must be in the range 1 to
+        #     65535. If not specified, defaults to the exposed port of the container,
+        #     which is the value of container.ports[0].containerPort.
         class TCPSocketAction
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -455,15 +480,29 @@ module Google
         # GRPCAction describes an action involving a GRPC port.
         # @!attribute [rw] port
         #   @return [::Integer]
-        #     Port number of the gRPC service. Number must be in the range 1 to 65535.
-        #     If not specified, defaults to the exposed port of the container, which is
-        #     the value of container.ports[0].containerPort.
+        #     Optional. Port number of the gRPC service. Number must be in the range 1 to
+        #     65535. If not specified, defaults to the exposed port of the container,
+        #     which is the value of container.ports[0].containerPort.
         # @!attribute [rw] service
         #   @return [::String]
-        #     Service is the name of the service to place in the gRPC HealthCheckRequest
-        #     (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md ). If
-        #     this is not specified, the default behavior is defined by gRPC.
+        #     Optional. Service is the name of the service to place in the gRPC
+        #     HealthCheckRequest (see
+        #     https://github.com/grpc/grpc/blob/master/doc/health-checking.md ). If this
+        #     is not specified, the default behavior is defined by gRPC.
         class GRPCAction
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Build information of the image.
+        # @!attribute [r] function_target
+        #   @return [::String]
+        #     Output only. Entry point of the function when the image is a Cloud Run
+        #     function.
+        # @!attribute [r] source_location
+        #   @return [::String]
+        #     Output only. Source code location of the image.
+        class BuildInfo
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end

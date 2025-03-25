@@ -41,9 +41,10 @@ class ::Google::Cloud::AIPlatform::V1::EndpointService::ClientTest < Minitest::T
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::AIPlatform::V1::EndpointService::ClientTest < Minitest::T
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -310,6 +319,69 @@ class ::Google::Cloud::AIPlatform::V1::EndpointService::ClientTest < Minitest::T
 
       # Verify method calls
       assert_equal 5, update_endpoint_client_stub.call_rpc_count
+    end
+  end
+
+  def test_update_endpoint_long_running
+    # Create GRPC objects.
+    grpc_response = ::Google::Longrunning::Operation.new
+    grpc_operation = GRPC::ActiveCall::Operation.new nil
+    grpc_channel = GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    grpc_options = {}
+
+    # Create request parameters for a unary method.
+    endpoint = {}
+
+    update_endpoint_long_running_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
+      assert_equal :update_endpoint_long_running, name
+      assert_kind_of ::Google::Cloud::AIPlatform::V1::UpdateEndpointLongRunningRequest, request
+      assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Cloud::AIPlatform::V1::Endpoint), request["endpoint"]
+      refute_nil options
+    end
+
+    Gapic::ServiceStub.stub :new, update_endpoint_long_running_client_stub do
+      # Create client
+      client = ::Google::Cloud::AIPlatform::V1::EndpointService::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      # Use hash object
+      client.update_endpoint_long_running({ endpoint: endpoint }) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use named arguments
+      client.update_endpoint_long_running endpoint: endpoint do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object
+      client.update_endpoint_long_running ::Google::Cloud::AIPlatform::V1::UpdateEndpointLongRunningRequest.new(endpoint: endpoint) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use hash object with options
+      client.update_endpoint_long_running({ endpoint: endpoint }, grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Use protobuf object with options
+      client.update_endpoint_long_running(::Google::Cloud::AIPlatform::V1::UpdateEndpointLongRunningRequest.new(endpoint: endpoint), grpc_options) do |response, operation|
+        assert_kind_of Gapic::Operation, response
+        assert_equal grpc_response, response.grpc_op
+        assert_equal grpc_operation, operation
+      end
+
+      # Verify method calls
+      assert_equal 5, update_endpoint_long_running_client_stub.call_rpc_count
     end
   end
 

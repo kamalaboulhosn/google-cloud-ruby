@@ -27,9 +27,9 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The resource name of the Conversation to get. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`.
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`.
         #     Use
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/-`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/-`
         #     to activate auto session mode, which automatically creates a new
         #     conversation inside a ConverseConversation session.
         # @!attribute [rw] query
@@ -38,7 +38,7 @@ module Google
         # @!attribute [rw] serving_config
         #   @return [::String]
         #     The resource name of the Serving Config to use. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/servingConfigs/{serving_config_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/servingConfigs/{serving_config_id}`
         #     If this is not set, the default serving config will be used.
         # @!attribute [rw] conversation
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Conversation]
@@ -131,7 +131,7 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Full resource name of parent data store. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
         # @!attribute [rw] conversation
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Conversation]
         #     Required. The conversation to create.
@@ -162,7 +162,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The resource name of the Conversation to delete. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
         class DeleteConversationRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -172,7 +172,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The resource name of the Conversation to get. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/conversations/{conversation_id}`
         class GetConversationRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -182,7 +182,7 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The data store resource name. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     Maximum number of results to return. If unspecified, defaults
@@ -247,14 +247,17 @@ module Google
         #
         #     When session field is not set, the API is in sessionless mode.
         #
-        #     We support auto session mode: users can use the wildcard symbol “-” as
-        #     session id.  A new id will be automatically generated and assigned.
+        #     We support auto session mode: users can use the wildcard symbol `-` as
+        #     session ID.  A new ID will be automatically generated and assigned.
         # @!attribute [rw] safety_spec
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SafetySpec]
         #     Model specification.
         # @!attribute [rw] related_questions_spec
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::RelatedQuestionsSpec]
         #     Related questions specification.
+        # @!attribute [rw] grounding_spec
+        #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::GroundingSpec]
+        #     Optional. Grounding specification.
         # @!attribute [rw] answer_generation_spec
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::AnswerGenerationSpec]
         #     Answer generation specification.
@@ -265,7 +268,11 @@ module Google
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::QueryUnderstandingSpec]
         #     Query understanding specification.
         # @!attribute [rw] asynchronous_mode
+        #   @deprecated This field is deprecated and may be removed in the next major version update.
         #   @return [::Boolean]
+        #     Deprecated: This field is deprecated. Streaming Answer API will be
+        #     supported.
+        #
         #     Asynchronous mode control.
         #
         #     If enabled, the response will be returned with answer/session resource
@@ -286,6 +293,25 @@ module Google
         #
         #     The field must be a UTF-8 encoded string with a length limit of 128
         #     characters. Otherwise, an  `INVALID_ARGUMENT`  error is returned.
+        # @!attribute [rw] user_labels
+        #   @return [::Google::Protobuf::Map{::String => ::String}]
+        #     The user labels applied to a resource must meet the following requirements:
+        #
+        #     * Each resource can have multiple labels, up to a maximum of 64.
+        #     * Each label must be a key-value pair.
+        #     * Keys have a minimum length of 1 character and a maximum length of 63
+        #       characters and cannot be empty. Values can be empty and have a maximum
+        #       length of 63 characters.
+        #     * Keys and values can contain only lowercase letters, numeric characters,
+        #       underscores, and dashes. All characters must use UTF-8 encoding, and
+        #       international characters are allowed.
+        #     * The key portion of a label must be unique. However, you can use the same
+        #       key with multiple resources.
+        #     * Keys must start with a lowercase letter or international character.
+        #
+        #     See [Google Cloud
+        #     Document](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements)
+        #     for more details.
         class AnswerQueryRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -307,6 +333,35 @@ module Google
           class RelatedQuestionsSpec
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Grounding specification.
+          # @!attribute [rw] include_grounding_supports
+          #   @return [::Boolean]
+          #     Optional. Specifies whether to include grounding_supports in the answer.
+          #     The default value is `false`.
+          #
+          #     When this field is set to `true`, returned answer will have
+          #     `grounding_score` and will contain GroundingSupports for each claim.
+          # @!attribute [rw] filtering_level
+          #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::GroundingSpec::FilteringLevel]
+          #     Optional. Specifies whether to enable the filtering based on grounding
+          #     score and at what level.
+          class GroundingSpec
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Level to filter based on answer grounding.
+            module FilteringLevel
+              # Default is no filter
+              FILTERING_LEVEL_UNSPECIFIED = 0
+
+              # Filter answers based on a low threshold.
+              FILTERING_LEVEL_LOW = 1
+
+              # Filter answers based on a high threshold.
+              FILTERING_LEVEL_HIGH = 2
+            end
           end
 
           # Answer generation specification.
@@ -347,6 +402,26 @@ module Google
           #     non-answer seeking query. If this field is set to `true`, we skip
           #     generating answers for non-answer seeking queries and return
           #     fallback messages instead.
+          # @!attribute [rw] ignore_low_relevant_content
+          #   @return [::Boolean]
+          #     Specifies whether to filter out queries that have low relevance.
+          #
+          #     If this field is set to `false`, all search results are used regardless
+          #     of relevance to generate answers. If set to `true` or unset, the behavior
+          #     will be determined automatically by the service.
+          # @!attribute [rw] ignore_jail_breaking_query
+          #   @return [::Boolean]
+          #     Optional. Specifies whether to filter out jail-breaking queries. The
+          #     default value is `false`.
+          #
+          #     Google employs search-query classification to detect jail-breaking
+          #     queries. No summary is returned if the search query is classified as a
+          #     jail-breaking query. A user might add instructions to the query to
+          #     change the tone, style, language, content of the answer, or ask the
+          #     model to act as a different entity, e.g. "Reply in the tone of a
+          #     competing company's CEO". If this field is set to `true`, we skip
+          #     generating summaries for jail-breaking queries and return fallback
+          #     messages instead.
           class AnswerGenerationSpec
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -375,9 +450,13 @@ module Google
           # @!attribute [rw] search_params
           #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec::SearchParams]
           #     Search parameters.
+          #
+          #     Note: The following fields are mutually exclusive: `search_params`, `search_result_list`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] search_result_list
           #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec::SearchResultList]
           #     Search result list.
+          #
+          #     Note: The following fields are mutually exclusive: `search_result_list`, `search_params`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class SearchSpec
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -421,6 +500,22 @@ module Google
             #     [Ordering](https://cloud.google.com/retail/docs/filter-and-order#order)
             #
             #     If this field is unrecognizable, an `INVALID_ARGUMENT` is returned.
+            # @!attribute [rw] search_result_mode
+            #   @return [::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::ContentSearchSpec::SearchResultMode]
+            #     Specifies the search result mode. If unspecified, the
+            #     search result mode defaults to `DOCUMENTS`.
+            #     See [parse and chunk
+            #     documents](https://cloud.google.com/generative-ai-app-builder/docs/parse-chunk-documents)
+            # @!attribute [rw] data_store_specs
+            #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::DataStoreSpec>]
+            #     Specs defining dataStores to filter on in a search call and
+            #     configurations for those dataStores. This is only considered for
+            #     engines with multiple dataStores use case. For single dataStore within
+            #     an engine, they should use the specs at the top level.
+            # @!attribute [rw] natural_language_query_understanding_spec
+            #   @return [::Google::Cloud::DiscoveryEngine::V1beta::SearchRequest::NaturalLanguageQueryUnderstandingSpec]
+            #     Optional. Specification to enable natural language understanding
+            #     capabilities for search requests.
             class SearchParams
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -438,9 +533,13 @@ module Google
               # @!attribute [rw] unstructured_document_info
               #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec::SearchResultList::SearchResult::UnstructuredDocumentInfo]
               #     Unstructured document information.
+              #
+              #     Note: The following fields are mutually exclusive: `unstructured_document_info`, `chunk_info`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               # @!attribute [rw] chunk_info
               #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec::SearchResultList::SearchResult::ChunkInfo]
               #     Chunk information.
+              #
+              #     Note: The following fields are mutually exclusive: `chunk_info`, `unstructured_document_info`. If a field in that set is populated, all other fields in the set will automatically be cleared.
               class SearchResult
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -457,12 +556,18 @@ module Google
                 #     Title.
                 # @!attribute [rw] document_contexts
                 #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec::SearchResultList::SearchResult::UnstructuredDocumentInfo::DocumentContext>]
-                #     List of document contexts.
+                #     List of document contexts. The content will be used for Answer
+                #     Generation. This is supposed to be the main content of the document
+                #     that can be long and comprehensive.
                 # @!attribute [rw] extractive_segments
                 #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec::SearchResultList::SearchResult::UnstructuredDocumentInfo::ExtractiveSegment>]
                 #     List of extractive segments.
                 # @!attribute [rw] extractive_answers
+                #   @deprecated This field is deprecated and may be removed in the next major version update.
                 #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec::SearchResultList::SearchResult::UnstructuredDocumentInfo::ExtractiveAnswer>]
+                #     Deprecated: This field is deprecated and will have no effect on
+                #     the Answer generation.
+                #     Please use document_contexts and extractive_segments fields.
                 #     List of extractive answers.
                 class UnstructuredDocumentInfo
                   include ::Google::Protobuf::MessageExts
@@ -474,7 +579,7 @@ module Google
                   #     Page identifier.
                   # @!attribute [rw] content
                   #   @return [::String]
-                  #     Document content.
+                  #     Document content to be used for answer generation.
                   class DocumentContext
                     include ::Google::Protobuf::MessageExts
                     extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -482,6 +587,8 @@ module Google
 
                   # Extractive segment.
                   # [Guide](https://cloud.google.com/generative-ai-app-builder/docs/snippets#extractive-segments)
+                  # Answer generation will only use it if document_contexts is empty.
+                  # This is supposed to be shorter snippets.
                   # @!attribute [rw] page_identifier
                   #   @return [::String]
                   #     Page identifier.
@@ -514,9 +621,25 @@ module Google
                 # @!attribute [rw] content
                 #   @return [::String]
                 #     Chunk textual content.
+                # @!attribute [rw] document_metadata
+                #   @return [::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::SearchSpec::SearchResultList::SearchResult::ChunkInfo::DocumentMetadata]
+                #     Metadata of the document from the current chunk.
                 class ChunkInfo
                   include ::Google::Protobuf::MessageExts
                   extend ::Google::Protobuf::MessageExts::ClassMethods
+
+                  # Document metadata contains the information of the document of the
+                  # current chunk.
+                  # @!attribute [rw] uri
+                  #   @return [::String]
+                  #     Uri of the document.
+                  # @!attribute [rw] title
+                  #   @return [::String]
+                  #     Title of the document.
+                  class DocumentMetadata
+                    include ::Google::Protobuf::MessageExts
+                    extend ::Google::Protobuf::MessageExts::ClassMethods
+                  end
                 end
               end
             end
@@ -549,8 +672,14 @@ module Google
                 # Adversarial query classification type.
                 ADVERSARIAL_QUERY = 1
 
-                # Non-answer-seeking query classification type.
+                # Non-answer-seeking query classification type, for chit chat.
                 NON_ANSWER_SEEKING_QUERY = 2
+
+                # Jail-breaking query classification type.
+                JAIL_BREAKING_QUERY = 3
+
+                # Non-answer-seeking query classification type, for no clear intent.
+                NON_ANSWER_SEEKING_QUERY_V2 = 4
               end
             end
 
@@ -561,12 +690,21 @@ module Google
             # @!attribute [rw] max_rephrase_steps
             #   @return [::Integer]
             #     Max rephrase steps.
-            #     The max number is 10 steps.
+            #     The max number is 5 steps.
             #     If not set or set to < 1, it will be set to 1 by default.
             class QueryRephraserSpec
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end
+          end
+
+          # @!attribute [rw] key
+          #   @return [::String]
+          # @!attribute [rw] value
+          #   @return [::String]
+          class UserLabelsEntry
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
           end
         end
 
@@ -576,8 +714,10 @@ module Google
         # @!attribute [rw] answer
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Answer]
         #     Answer resource object.
-        #     If [AnswerQueryRequest.StepSpec.max_step_count][] is greater than 1,
-        #     use {::Google::Cloud::DiscoveryEngine::V1beta::Answer#name Answer.name} to fetch
+        #     If
+        #     {::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest::QueryUnderstandingSpec::QueryRephraserSpec#max_rephrase_steps AnswerQueryRequest.QueryUnderstandingSpec.QueryRephraserSpec.max_rephrase_steps}
+        #     is greater than 1, use
+        #     {::Google::Cloud::DiscoveryEngine::V1beta::Answer#name Answer.name} to fetch
         #     answer information using
         #     {::Google::Cloud::DiscoveryEngine::V1beta::ConversationalSearchService::Client#get_answer ConversationalSearchService.GetAnswer}
         #     API.
@@ -587,6 +727,9 @@ module Google
         #     It will be only available when session field is set and valid in the
         #     {::Google::Cloud::DiscoveryEngine::V1beta::AnswerQueryRequest AnswerQueryRequest}
         #     request.
+        # @!attribute [rw] answer_query_token
+        #   @return [::String]
+        #     A global unique ID used for logging.
         class AnswerQueryResponse
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -596,7 +739,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The resource name of the Answer to get. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/engines/{engine_id}/sessions/{session_id}/answers/{answer_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/engines/{engine_id}/sessions/{session_id}/answers/{answer_id}`
         class GetAnswerRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -606,7 +749,7 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. Full resource name of parent data store. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
         # @!attribute [rw] session
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Session]
         #     Required. The session to create.
@@ -637,7 +780,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The resource name of the Session to delete. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
         class DeleteSessionRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -647,7 +790,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Required. The resource name of the Session to get. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}/sessions/{session_id}`
         class GetSessionRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -657,7 +800,7 @@ module Google
         # @!attribute [rw] parent
         #   @return [::String]
         #     Required. The data store resource name. Format:
-        #     `projects/{project_number}/locations/{location_id}/collections/{collection}/dataStores/{data_store_id}`
+        #     `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store_id}`
         # @!attribute [rw] page_size
         #   @return [::Integer]
         #     Maximum number of results to return. If unspecified, defaults

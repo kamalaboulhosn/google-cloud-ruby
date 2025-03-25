@@ -33,24 +33,24 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_os_policy_assignment
@@ -82,7 +90,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     os_policy_assignment = {}
     os_policy_assignment_id = "hello world"
 
-    create_os_policy_assignment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_os_policy_assignment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -137,7 +145,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     os_policy_assignment = {}
     update_mask = {}
 
-    update_os_policy_assignment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_os_policy_assignment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -191,7 +199,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_os_policy_assignment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_os_policy_assignment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -247,7 +255,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_os_policy_assignments_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_os_policy_assignments_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -303,7 +311,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     page_size = 42
     page_token = "hello world"
 
-    list_os_policy_assignment_revisions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_os_policy_assignment_revisions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -357,7 +365,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_os_policy_assignment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_os_policy_assignment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -411,7 +419,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_os_policy_assignment_report_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_os_policy_assignment_report_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -468,7 +476,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     filter = "hello world"
     page_token = "hello world"
 
-    list_os_policy_assignment_reports_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_os_policy_assignment_reports_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -523,7 +531,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     name = "hello world"
     view = :INVENTORY_VIEW_UNSPECIFIED
 
-    get_inventory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_inventory_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -581,7 +589,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     page_token = "hello world"
     filter = "hello world"
 
-    list_inventories_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_inventories_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -635,7 +643,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_vulnerability_report_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_vulnerability_report_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -692,7 +700,7 @@ class ::Google::Cloud::OsConfig::V1::OsConfigZonalService::Rest::ClientTest < Mi
     page_token = "hello world"
     filter = "hello world"
 
-    list_vulnerability_reports_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_vulnerability_reports_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

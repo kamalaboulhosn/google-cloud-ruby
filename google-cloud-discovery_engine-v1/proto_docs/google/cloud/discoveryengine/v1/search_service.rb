@@ -76,9 +76,17 @@ module Google
         #     unset.
         #
         #     If this field is negative, an  `INVALID_ARGUMENT`  is returned.
+        # @!attribute [rw] one_box_page_size
+        #   @return [::Integer]
+        #     The maximum number of results to return for OneBox.
+        #     This applies to each OneBox type individually.
+        #     Default number is 10.
         # @!attribute [rw] data_store_specs
         #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1::SearchRequest::DataStoreSpec>]
-        #     A list of data store specs to apply on a search call.
+        #     Specs defining dataStores to filter on in a search call and configurations
+        #     for those dataStores. This is only considered for engines with multiple
+        #     dataStores use case. For single dataStore within an engine, they should
+        #     use the specs at the top level.
         # @!attribute [rw] filter
         #   @return [::String]
         #     The filter syntax consists of an expression language for constructing a
@@ -115,9 +123,14 @@ module Google
         #     The order in which documents are returned. Documents can be ordered by
         #     a field in an {::Google::Cloud::DiscoveryEngine::V1::Document Document} object.
         #     Leave it unset if ordered by relevance. `order_by` expression is
-        #     case-sensitive. For more information on ordering, see
-        #     [Ordering](https://cloud.google.com/retail/docs/filter-and-order#order)
+        #     case-sensitive.
         #
+        #     For more information on ordering the website search results, see
+        #     [Order web search
+        #     results](https://cloud.google.com/generative-ai-app-builder/docs/order-web-search-results).
+        #     For more information on ordering the healthcare search results, see
+        #     [Order healthcare search
+        #     results](https://cloud.google.com/generative-ai-app-builder/docs/order-hc-results).
         #     If this field is unrecognizable, an `INVALID_ARGUMENT` is returned.
         # @!attribute [rw] user_info
         #   @return [::Google::Cloud::DiscoveryEngine::V1::UserInfo]
@@ -125,6 +138,13 @@ module Google
         #     Highly recommended for analytics.
         #     {::Google::Cloud::DiscoveryEngine::V1::UserInfo#user_agent UserInfo.user_agent}
         #     is used to deduce `device_type` for analytics.
+        # @!attribute [rw] language_code
+        #   @return [::String]
+        #     The BCP-47 language code, such as "en-US" or "sr-Latn". For more
+        #     information, see [Standard
+        #     fields](https://cloud.google.com/apis/design/standard_fields). This field
+        #     helps to better interpret the query. If a value isn't specified, the query
+        #     language code is automatically detected, which may not be accurate.
         # @!attribute [rw] facet_specs
         #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1::SearchRequest::FacetSpec>]
         #     Facet specifications for faceted search. If empty, no facets are returned.
@@ -135,7 +155,7 @@ module Google
         #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::BoostSpec]
         #     Boost specification to boost certain documents.
         #     For more information on boosting, see
-        #     [Boosting](https://cloud.google.com/retail/docs/boosting#boost)
+        #     [Boosting](https://cloud.google.com/generative-ai-app-builder/docs/boost-search-results)
         # @!attribute [rw] params
         #   @return [::Google::Protobuf::Map{::String => ::Google::Protobuf::Value}]
         #     Additional search parameters.
@@ -144,8 +164,7 @@ module Google
         #
         #     * `user_country_code`: string. Default empty. If set to non-empty, results
         #        are restricted or boosted based on the location provided.
-        #        Example:
-        #        user_country_code: "au"
+        #        For example, `user_country_code: "au"`
         #
         #        For available codes see [Country
         #        Codes](https://developers.google.com/custom-search/docs/json_api_reference#countryCodes)
@@ -153,8 +172,7 @@ module Google
         #     * `search_type`: double. Default empty. Enables non-webpage searching
         #        depending on the value. The only valid non-default value is 1,
         #        which enables image searching.
-        #        Example:
-        #        search_type: 1
+        #        For example, `search_type: 1`
         # @!attribute [rw] query_expansion_spec
         #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::QueryExpansionSpec]
         #     The query expansion specification that specifies the conditions under which
@@ -205,6 +223,44 @@ module Google
         #     See [Google Cloud
         #     Document](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements)
         #     for more details.
+        # @!attribute [rw] search_as_you_type_spec
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::SearchAsYouTypeSpec]
+        #     Search as you type configuration. Only supported for the
+        #     {::Google::Cloud::DiscoveryEngine::V1::IndustryVertical::MEDIA IndustryVertical.MEDIA}
+        #     vertical.
+        # @!attribute [rw] session
+        #   @return [::String]
+        #     The session resource name. Optional.
+        #
+        #     Session allows users to do multi-turn /search API calls or coordination
+        #     between /search API calls and /answer API calls.
+        #
+        #     Example #1 (multi-turn /search API calls):
+        #       1. Call /search API with the auto-session mode (see below).
+        #       2. Call /search API with the session ID generated in the first call.
+        #          Here, the previous search query gets considered in query
+        #          standing. I.e., if the first query is "How did Alphabet do in 2022?"
+        #          and the current query is "How about 2023?", the current query will
+        #          be interpreted as "How did Alphabet do in 2023?".
+        #
+        #     Example #2 (coordination between /search API calls and /answer API calls):
+        #       1. Call /search API with the auto-session mode (see below).
+        #       2. Call /answer API with the session ID generated in the first call.
+        #          Here, the answer generation happens in the context of the search
+        #          results from the first search call.
+        #
+        #     Auto-session mode: when `projects/.../sessions/-` is used, a new session
+        #     gets automatically created. Otherwise, users can use the create-session API
+        #     to create a session manually.
+        #
+        #     Multi-turn Search feature is currently at private GA stage. Please use
+        #     v1alpha or v1beta version instead before we launch this feature to public
+        #     GA. Or ask for allowlisting through Google Support team.
+        # @!attribute [rw] session_spec
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::SessionSpec]
+        #     Session specification.
+        #
+        #     Can be used only when `session` is set.
         class SearchRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -219,12 +275,19 @@ module Google
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end
 
-          # A struct to define data stores to filter on in a search call.
+          # A struct to define data stores to filter on in a search call and
+          # configurations for those data stores. Otherwise, an `INVALID_ARGUMENT`
+          # error is returned.
           # @!attribute [rw] data_store
           #   @return [::String]
           #     Required. Full resource name of
           #     {::Google::Cloud::DiscoveryEngine::V1::DataStore DataStore}, such as
           #     `projects/{project}/locations/{location}/collections/{collection_id}/dataStores/{data_store_id}`.
+          # @!attribute [rw] filter
+          #   @return [::String]
+          #     Optional. Filter specification to filter documents in the data store
+          #     specified by data_store field. For more information on filtering, see
+          #     [Filtering](https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata)
           class DataStoreSpec
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -236,9 +299,12 @@ module Google
           #     Required. The facet key specification.
           # @!attribute [rw] limit
           #   @return [::Integer]
-          #     Maximum of facet values that should be returned for this facet. If
+          #     Maximum facet values that are returned for this facet. If
           #     unspecified, defaults to 20. The maximum allowed value is 300. Values
           #     above 300 are coerced to 300.
+          #     For aggregation in healthcare search, when the [FacetKey.key] is
+          #     "healthcare_aggregation_key", the limit will be overridden to
+          #     10,000 internally, regardless of the value set here.
           #
           #     If this field is negative, an  `INVALID_ARGUMENT`  is returned.
           # @!attribute [rw] excluded_filter_keys
@@ -333,7 +399,7 @@ module Google
             #     Only supported on textual fields. Maximum is 10.
             # @!attribute [rw] contains
             #   @return [::Array<::String>]
-            #     Only get facet values that contains the given strings. For example,
+            #     Only get facet values that contain the given strings. For example,
             #     suppose "category" has three values "Action > 2022",
             #     "Action > 2021" and "Sci-Fi > 2022". If set "contains" to "2022", the
             #     "category" facet only contains "Action > 2022" and "Sci-Fi > 2022".
@@ -412,9 +478,93 @@ module Google
             #     ignored. Only one of the (condition, boost) combination or the
             #     boost_control_spec below are set. If both are set then the global boost
             #     is ignored and the more fine-grained boost_control_spec is applied.
+            # @!attribute [rw] boost_control_spec
+            #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::BoostSpec::ConditionBoostSpec::BoostControlSpec]
+            #     Complex specification for custom ranking based on customer defined
+            #     attribute value.
             class ConditionBoostSpec
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Specification for custom ranking based on customer specified attribute
+              # value. It provides more controls for customized ranking than the simple
+              # (condition, boost) combination above.
+              # @!attribute [rw] field_name
+              #   @return [::String]
+              #     The name of the field whose value will be used to determine the
+              #     boost amount.
+              # @!attribute [rw] attribute_type
+              #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::BoostSpec::ConditionBoostSpec::BoostControlSpec::AttributeType]
+              #     The attribute type to be used to determine the boost amount. The
+              #     attribute value can be derived from the field value of the specified
+              #     field_name. In the case of numerical it is straightforward i.e.
+              #     attribute_value = numerical_field_value. In the case of freshness
+              #     however, attribute_value = (time.now() - datetime_field_value).
+              # @!attribute [rw] interpolation_type
+              #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::BoostSpec::ConditionBoostSpec::BoostControlSpec::InterpolationType]
+              #     The interpolation type to be applied to connect the control points
+              #     listed below.
+              # @!attribute [rw] control_points
+              #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1::SearchRequest::BoostSpec::ConditionBoostSpec::BoostControlSpec::ControlPoint>]
+              #     The control points used to define the curve. The monotonic function
+              #     (defined through the interpolation_type above) passes through the
+              #     control points listed here.
+              class BoostControlSpec
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+
+                # The control points used to define the curve. The curve defined
+                # through these control points can only be monotonically increasing
+                # or decreasing(constant values are acceptable).
+                # @!attribute [rw] attribute_value
+                #   @return [::String]
+                #     Can be one of:
+                #     1. The numerical field value.
+                #     2. The duration spec for freshness:
+                #     The value must be formatted as an XSD `dayTimeDuration` value (a
+                #     restricted subset of an ISO 8601 duration value). The pattern for
+                #     this is: `[nD][T[nH][nM][nS]]`.
+                # @!attribute [rw] boost_amount
+                #   @return [::Float]
+                #     The value between -1 to 1 by which to boost the score if the
+                #     attribute_value evaluates to the value specified above.
+                class ControlPoint
+                  include ::Google::Protobuf::MessageExts
+                  extend ::Google::Protobuf::MessageExts::ClassMethods
+                end
+
+                # The attribute(or function) for which the custom ranking is to be
+                # applied.
+                module AttributeType
+                  # Unspecified AttributeType.
+                  ATTRIBUTE_TYPE_UNSPECIFIED = 0
+
+                  # The value of the numerical field will be used to dynamically update
+                  # the boost amount. In this case, the attribute_value (the x value)
+                  # of the control point will be the actual value of the numerical
+                  # field for which the boost_amount is specified.
+                  NUMERICAL = 1
+
+                  # For the freshness use case the attribute value will be the duration
+                  # between the current time and the date in the datetime field
+                  # specified. The value must be formatted as an XSD `dayTimeDuration`
+                  # value (a restricted subset of an ISO 8601 duration value). The
+                  # pattern for this is: `[nD][T[nH][nM][nS]]`.
+                  # For example, `5D`, `3DT12H30M`, `T24H`.
+                  FRESHNESS = 2
+                end
+
+                # The interpolation type to be applied. Default will be linear
+                # (Piecewise Linear).
+                module InterpolationType
+                  # Interpolation type is unspecified. In this case, it defaults to
+                  # Linear.
+                  INTERPOLATION_TYPE_UNSPECIFIED = 0
+
+                  # Piecewise linear interpolation will be applied.
+                  LINEAR = 1
+                end
+              end
             end
           end
 
@@ -453,8 +603,8 @@ module Google
           # The specification for query spell correction.
           # @!attribute [rw] mode
           #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::SpellCorrectionSpec::Mode]
-          #     The mode under which spell correction should take effect to
-          #     replace the original search query. Default to
+          #     The mode under which spell correction
+          #     replaces the original search query. Defaults to
           #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::SpellCorrectionSpec::Mode::AUTO Mode.AUTO}.
           class SpellCorrectionSpec
             include ::Google::Protobuf::MessageExts
@@ -467,10 +617,10 @@ module Google
               # {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::SpellCorrectionSpec::Mode::AUTO Mode.AUTO}.
               MODE_UNSPECIFIED = 0
 
-              # Search API will try to find a spell suggestion if there
-              # is any and put in the
+              # Search API tries to find a spelling suggestion. If a suggestion is
+              # found, it is put in the
               # {::Google::Cloud::DiscoveryEngine::V1::SearchResponse#corrected_query SearchResponse.corrected_query}.
-              # The spell suggestion will not be used as the search query.
+              # The spelling suggestion won't be used as the search query.
               SUGGESTION_ONLY = 1
 
               # Automatic spell correction built by the Search API. Search will
@@ -492,6 +642,17 @@ module Google
           #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::ExtractiveContentSpec]
           #     If there is no extractive_content_spec provided, there will be no
           #     extractive answer in the search response.
+          # @!attribute [rw] search_result_mode
+          #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SearchResultMode]
+          #     Specifies the search result mode. If unspecified, the
+          #     search result mode defaults to `DOCUMENTS`.
+          # @!attribute [rw] chunk_spec
+          #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::ChunkSpec]
+          #     Specifies the chunk spec to be returned from the search response.
+          #     Only available if the
+          #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec#search_result_mode SearchRequest.ContentSearchSpec.search_result_mode}
+          #     is set to
+          #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SearchResultMode::CHUNKS CHUNKS}
           class ContentSearchSpec
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -528,8 +689,9 @@ module Google
             #
             #     At most 10 results for documents mode, or 50 for chunks mode, can be
             #     used to generate a summary. The chunks mode is used when
-            #     [SearchRequest.ContentSearchSpec.search_result_mode][] is set to
-            #     [CHUNKS][SearchRequest.ContentSearchSpec.SearchResultMode.CHUNKS].
+            #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec#search_result_mode SearchRequest.ContentSearchSpec.search_result_mode}
+            #     is set to
+            #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SearchResultMode::CHUNKS CHUNKS}.
             # @!attribute [rw] include_citations
             #   @return [::Boolean]
             #     Specifies whether to include citations in the summary. The default
@@ -574,6 +736,27 @@ module Google
             #     navigational queries. If this field is set to `true`, we skip
             #     generating summaries for non-summary seeking queries and return
             #     fallback messages instead.
+            # @!attribute [rw] ignore_low_relevant_content
+            #   @return [::Boolean]
+            #     Specifies whether to filter out queries that have low relevance. The
+            #     default value is `false`.
+            #
+            #     If this field is set to `false`, all search results are used regardless
+            #     of relevance to generate answers. If set to `true`, only queries with
+            #     high relevance search results will generate answers.
+            # @!attribute [rw] ignore_jail_breaking_query
+            #   @return [::Boolean]
+            #     Optional. Specifies whether to filter out jail-breaking queries. The
+            #     default value is `false`.
+            #
+            #     Google employs search-query classification to detect jail-breaking
+            #     queries. No summary is returned if the search query is classified as a
+            #     jail-breaking query. A user might add instructions to the query to
+            #     change the tone, style, language, content of the answer, or ask the
+            #     model to act as a different entity, e.g. "Reply in the tone of a
+            #     competing company's CEO". If this field is set to `true`, we skip
+            #     generating summaries for jail-breaking queries and return fallback
+            #     messages instead.
             # @!attribute [rw] model_prompt_spec
             #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SummarySpec::ModelPromptSpec]
             #     If specified, the spec will be used to modify the prompt provided to
@@ -686,6 +869,110 @@ module Google
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
             end
+
+            # Specifies the chunk spec to be returned from the search response.
+            # Only available if the
+            # {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec#search_result_mode SearchRequest.ContentSearchSpec.search_result_mode}
+            # is set to
+            # {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SearchResultMode::CHUNKS CHUNKS}
+            # @!attribute [rw] num_previous_chunks
+            #   @return [::Integer]
+            #     The number of previous chunks to be returned of the current chunk. The
+            #     maximum allowed value is 3.
+            #     If not specified, no previous chunks will be returned.
+            # @!attribute [rw] num_next_chunks
+            #   @return [::Integer]
+            #     The number of next chunks to be returned of the current chunk. The
+            #     maximum allowed value is 3.
+            #     If not specified, no next chunks will be returned.
+            class ChunkSpec
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Specifies the search result mode. If unspecified, the
+            # search result mode defaults to `DOCUMENTS`.
+            module SearchResultMode
+              # Default value.
+              SEARCH_RESULT_MODE_UNSPECIFIED = 0
+
+              # Returns documents in the search result.
+              DOCUMENTS = 1
+
+              # Returns chunks in the search result. Only available if the
+              # [DataStore.DocumentProcessingConfig.chunking_config][] is specified.
+              CHUNKS = 2
+            end
+          end
+
+          # Specification for search as you type in search requests.
+          # @!attribute [rw] condition
+          #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchRequest::SearchAsYouTypeSpec::Condition]
+          #     The condition under which search as you type should occur.
+          #     Default to
+          #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::SearchAsYouTypeSpec::Condition::DISABLED Condition.DISABLED}.
+          class SearchAsYouTypeSpec
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Enum describing under which condition search as you type should occur.
+            module Condition
+              # Server behavior defaults to
+              # {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::SearchAsYouTypeSpec::Condition::DISABLED Condition.DISABLED}.
+              CONDITION_UNSPECIFIED = 0
+
+              # Disables Search As You Type.
+              DISABLED = 1
+
+              # Enables Search As You Type.
+              ENABLED = 2
+            end
+          end
+
+          # Session specification.
+          #
+          # Multi-turn Search feature is currently at private GA stage. Please use
+          # v1alpha or v1beta version instead before we launch this feature to public
+          # GA. Or ask for allowlisting through Google Support team.
+          # @!attribute [rw] query_id
+          #   @return [::String]
+          #     If set, the search result gets stored to the "turn" specified by this
+          #     query ID.
+          #
+          #     Example: Let's say the session looks like this:
+          #       session {
+          #         name: ".../sessions/xxx"
+          #         turns {
+          #           query { text: "What is foo?" query_id: ".../questions/yyy" }
+          #           answer: "Foo is ..."
+          #         }
+          #         turns {
+          #           query { text: "How about bar then?" query_id: ".../questions/zzz" }
+          #         }
+          #       }
+          #
+          #     The user can call /search API with a request like this:
+          #
+          #        session: ".../sessions/xxx"
+          #        session_spec { query_id: ".../questions/zzz" }
+          #
+          #     Then, the API stores the search result, associated with the last turn.
+          #     The stored search result can be used by a subsequent /answer API call
+          #     (with the session ID and the query ID specified). Also, it is possible
+          #     to call /search and /answer in parallel with the same session ID & query
+          #     ID.
+          # @!attribute [rw] search_result_persistence_count
+          #   @return [::Integer]
+          #     The number of top search results to persist. The persisted search results
+          #     can be used for the subsequent /answer api call.
+          #
+          #     This field is simliar to the `summary_result_count` field in
+          #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SummarySpec#summary_result_count SearchRequest.ContentSearchSpec.SummarySpec.summary_result_count}.
+          #
+          #     At most 10 results for documents mode, or 50 for chunks mode.
+          class SessionSpec
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
           end
 
           # @!attribute [rw] key
@@ -728,7 +1015,8 @@ module Google
         #     A unique search token. This should be included in the
         #     {::Google::Cloud::DiscoveryEngine::V1::UserEvent UserEvent} logs resulting from
         #     this search, which enables accurate attribution of search model
-        #     performance.
+        #     performance. This also helps to identify a request during the customer
+        #     support scenarios.
         # @!attribute [rw] redirect_uri
         #   @return [::String]
         #     The URI of a customer-defined redirect page. If redirect action is
@@ -757,6 +1045,13 @@ module Google
         # @!attribute [rw] query_expansion_info
         #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchResponse::QueryExpansionInfo]
         #     Query expansion information for the returned results.
+        # @!attribute [rw] session_info
+        #   @return [::Google::Cloud::DiscoveryEngine::V1::SearchResponse::SessionInfo]
+        #     Session information.
+        #
+        #     Only set if
+        #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest#session SearchRequest.session}
+        #     is provided. See its description for more details.
         class SearchResponse
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -769,7 +1064,13 @@ module Google
           # @!attribute [rw] document
           #   @return [::Google::Cloud::DiscoveryEngine::V1::Document]
           #     The document data snippet in the search response. Only fields that are
-          #     marked as retrievable are populated.
+          #     marked as `retrievable` are populated.
+          # @!attribute [rw] chunk
+          #   @return [::Google::Cloud::DiscoveryEngine::V1::Chunk]
+          #     The chunk data in the search response if the
+          #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec#search_result_mode SearchRequest.ContentSearchSpec.search_result_mode}
+          #     is set to
+          #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SearchResultMode::CHUNKS CHUNKS}.
           class SearchResult
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -778,7 +1079,7 @@ module Google
           # A facet result.
           # @!attribute [rw] key
           #   @return [::String]
-          #     The key for this facet. E.g., "colors" or "price". It matches
+          #     The key for this facet. For example, `"colors"` or `"price"`. It matches
           #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::FacetSpec::FacetKey#key SearchRequest.FacetSpec.FacetKey.key}.
           # @!attribute [rw] values
           #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1::SearchResponse::Facet::FacetValue>]
@@ -794,11 +1095,15 @@ module Google
             # @!attribute [rw] value
             #   @return [::String]
             #     Text value of a facet, such as "Black" for facet "colors".
+            #
+            #     Note: The following fields are mutually exclusive: `value`, `interval`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] interval
             #   @return [::Google::Cloud::DiscoveryEngine::V1::Interval]
             #     Interval value for a facet, such as [10, 20) for facet "price". It
             #     matches
             #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::FacetSpec::FacetKey#intervals SearchRequest.FacetSpec.FacetKey.intervals}.
+            #
+            #     Note: The following fields are mutually exclusive: `interval`, `value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] count
             #   @return [::Integer]
             #     Number of items that have this facet value.
@@ -808,7 +1113,7 @@ module Google
             end
           end
 
-          # Summary of the top N search result specified by the summary spec.
+          # Summary of the top N search results specified by the summary spec.
           # @!attribute [rw] summary_text
           #   @return [::String]
           #     The summary content.
@@ -931,14 +1236,15 @@ module Google
 
               # The adversarial query ignored case.
               #
-              # Only populated when
+              # Only used when
               # {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SummarySpec#ignore_adversarial_query SummarySpec.ignore_adversarial_query}
               # is set to `true`.
               ADVERSARIAL_QUERY_IGNORED = 1
 
               # The non-summary seeking query ignored case.
               #
-              # Only populated when
+              # Google skips the summary if the query is chit chat.
+              # Only used when
               # {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::ContentSearchSpec::SummarySpec#ignore_non_summary_seeking_query SummarySpec.ignore_non_summary_seeking_query}
               # is set to `true`.
               NON_SUMMARY_SEEKING_QUERY_IGNORED = 2
@@ -960,6 +1266,34 @@ module Google
               #
               # Google skips the summary if the LLM addon is not enabled.
               LLM_ADDON_NOT_ENABLED = 5
+
+              # The no relevant content case.
+              #
+              # Google skips the summary if there is no relevant content in the
+              # retrieved search results.
+              NO_RELEVANT_CONTENT = 6
+
+              # The jail-breaking query ignored case.
+              #
+              # For example, "Reply in the tone of a competing company's CEO".
+              # Only used when
+              # [SearchRequest.ContentSearchSpec.SummarySpec.ignore_jail_breaking_query]
+              # is set to `true`.
+              JAIL_BREAKING_QUERY_IGNORED = 7
+
+              # The customer policy violation case.
+              #
+              # Google skips the summary if there is a customer policy violation
+              # detected. The policy is defined by the customer.
+              CUSTOMER_POLICY_VIOLATION = 8
+
+              # The non-answer seeking query ignored case.
+              #
+              # Google skips the summary if the query doesn't have clear intent.
+              # Only used when
+              # [SearchRequest.ContentSearchSpec.SummarySpec.ignore_non_answer_seeking_query]
+              # is set to `true`.
+              NON_SUMMARY_SEEKING_QUERY_IGNORED_V2 = 9
             end
           end
 
@@ -975,6 +1309,26 @@ module Google
           #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest::QueryExpansionSpec#pin_unexpanded_results SearchRequest.QueryExpansionSpec.pin_unexpanded_results}
           #     is set to true.
           class QueryExpansionInfo
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Information about the session.
+          # @!attribute [rw] name
+          #   @return [::String]
+          #     Name of the session.
+          #     If the auto-session mode is used (when
+          #     {::Google::Cloud::DiscoveryEngine::V1::SearchRequest#session SearchRequest.session}
+          #     ends with "-"), this field holds the newly generated session name.
+          # @!attribute [rw] query_id
+          #   @return [::String]
+          #     Query ID that corresponds to this search API call.
+          #     One session can have multiple turns, each with a unique query ID.
+          #
+          #     By specifying the session name and this query ID in the Answer API call,
+          #     the answer generation happens in the context of the search results from
+          #     this search call.
+          class SessionInfo
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
           end

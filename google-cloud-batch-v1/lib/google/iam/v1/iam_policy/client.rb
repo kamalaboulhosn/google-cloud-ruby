@@ -29,7 +29,6 @@ module Google
         #
         # API Overview
         #
-        #
         # Manages Identity and Access Management (IAM) policies.
         #
         # Any implementation of an API that offers access control features
@@ -180,14 +179,26 @@ module Google
               universe_domain: @config.universe_domain,
               channel_args: @config.channel_args,
               interceptors: @config.interceptors,
-              channel_pool_config: @config.channel_pool
+              channel_pool_config: @config.channel_pool,
+              logger: @config.logger
             )
+
+            @iam_policy_stub.stub_logger&.info do |entry|
+              entry.set_system_name
+              entry.set_service
+              entry.message = "Created client for #{entry.service}"
+              entry.set_credentials_fields credentials
+              entry.set "customEndpoint", @config.endpoint if @config.endpoint
+              entry.set "defaultTimeout", @config.timeout if @config.timeout
+              entry.set "quotaProject", @quota_project_id if @quota_project_id
+            end
 
             @location_client = Google::Cloud::Location::Locations::Client.new do |config|
               config.credentials = credentials
               config.quota_project = @quota_project_id
               config.endpoint = @iam_policy_stub.endpoint
               config.universe_domain = @iam_policy_stub.universe_domain
+              config.logger = @iam_policy_stub.logger if config.respond_to? :logger=
             end
           end
 
@@ -197,6 +208,15 @@ module Google
           # @return [Google::Cloud::Location::Locations::Client]
           #
           attr_reader :location_client
+
+          ##
+          # The logger used for request/response debug logging.
+          #
+          # @return [Logger]
+          #
+          def logger
+            @iam_policy_stub.logger
+          end
 
           # Service calls
 
@@ -295,7 +315,6 @@ module Google
 
             @iam_policy_stub.call_rpc :set_iam_policy, request, options: options do |response, operation|
               yield response, operation if block_given?
-              return response
             end
           rescue ::GRPC::BadStatus => e
             raise ::Google::Cloud::Error.from_error(e)
@@ -387,7 +406,6 @@ module Google
 
             @iam_policy_stub.call_rpc :get_iam_policy, request, options: options do |response, operation|
               yield response, operation if block_given?
-              return response
             end
           rescue ::GRPC::BadStatus => e
             raise ::Google::Cloud::Error.from_error(e)
@@ -485,7 +503,6 @@ module Google
 
             @iam_policy_stub.call_rpc :test_iam_permissions, request, options: options do |response, operation|
               yield response, operation if block_given?
-              return response
             end
           rescue ::GRPC::BadStatus => e
             raise ::Google::Cloud::Error.from_error(e)
@@ -535,6 +552,13 @@ module Google
           #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
           #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
           #    *  (`nil`) indicating no credentials
+          #
+          #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+          #   external source for authentication to Google Cloud, you must validate it before
+          #   providing it to a Google API client library. Providing an unvalidated credential
+          #   configuration to Google APIs can compromise the security of your systems and data.
+          #   For more information, refer to [Validate credential configurations from external
+          #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
           #   @return [::Object]
           # @!attribute [rw] scope
           #   The OAuth scopes
@@ -574,6 +598,11 @@ module Google
           #   default endpoint URL. The default value of nil uses the environment
           #   universe (usually the default "googleapis.com" universe).
           #   @return [::String,nil]
+          # @!attribute [rw] logger
+          #   A custom logger to use for request/response debug logging, or the value
+          #   `:default` (the default) to construct a default logger, or `nil` to
+          #   explicitly disable logging.
+          #   @return [::Logger,:default,nil]
           #
           class Configuration
             extend ::Gapic::Config
@@ -598,6 +627,7 @@ module Google
             config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
             config_attr :quota_project, nil, ::String, nil
             config_attr :universe_domain, nil, ::String, nil
+            config_attr :logger, :default, ::Logger, nil, :default
 
             # @private
             def initialize parent_config = nil

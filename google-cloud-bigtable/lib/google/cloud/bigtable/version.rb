@@ -16,7 +16,7 @@
 module Google
   module Cloud
     module Bigtable
-      VERSION = "2.10.2".freeze
+      VERSION = "2.12.0".freeze
     end
   end
 end

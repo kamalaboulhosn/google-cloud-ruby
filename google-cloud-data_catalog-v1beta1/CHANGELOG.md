@@ -1,5 +1,58 @@
 # Changelog
 
+### 0.8.1 (2025-03-13)
+
+#### Documentation
+
+* Documented the service as deprecated ([#29326](https://github.com/googleapis/google-cloud-ruby/issues/29326)) 
+
+### 0.8.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28823](https://github.com/googleapis/google-cloud-ruby/issues/28823))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28823](https://github.com/googleapis/google-cloud-ruby/issues/28823)) 
+
+### 0.7.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.6.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.5.2 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` 
+
+### 0.5.1 (2024-08-02)
+
+#### Documentation
+
+* Mark DataplexTransferStatus::MIGRATED as deprecated ([#26551](https://github.com/googleapis/google-cloud-ruby/issues/26551)) 
+
+### 0.5.0 (2024-07-24)
+
+#### Features
+
+* add DataplexTransferStatus enum and field to TagTemplate ([#26516](https://github.com/googleapis/google-cloud-ruby/issues/26516)) 
+#### Documentation
+
+* update field comments for updated IDENTIFIER field behavior 
+
 ### 0.4.0 (2024-02-26)
 
 #### Features

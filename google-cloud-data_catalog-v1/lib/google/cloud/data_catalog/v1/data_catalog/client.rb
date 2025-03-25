@@ -28,6 +28,8 @@ module Google
           ##
           # Client for the DataCatalog service.
           #
+          # Deprecated: Please use Dataplex Catalog instead.
+          #
           # Data Catalog API service allows you to discover, understand, and manage
           # your data.
           #
@@ -48,6 +50,8 @@ module Google
             #
             # See {::Google::Cloud::DataCatalog::V1::DataCatalog::Client::Configuration}
             # for a description of the configuration fields.
+            #
+            # @deprecated This service is deprecated and may be removed in the next major version update.
             #
             # @example
             #
@@ -171,14 +175,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @data_catalog_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @iam_policy_client = Google::Iam::V1::IAMPolicy::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @data_catalog_stub.endpoint
                 config.universe_domain = @data_catalog_stub.universe_domain
+                config.logger = @data_catalog_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -195,6 +211,15 @@ module Google
             # @return [Google::Iam::V1::IAMPolicy::Client]
             #
             attr_reader :iam_policy_client
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @data_catalog_stub.logger
+            end
 
             # Service calls
 
@@ -214,6 +239,8 @@ module Google
             #
             # For more information, see [Data Catalog search syntax]
             # (https://cloud.google.com/data-catalog/docs/how-to/search-reference).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload search_catalog(request, options = nil)
             #   Pass arguments to `search_catalog` via a request object, either of type
@@ -344,7 +371,7 @@ module Google
               @data_catalog_stub.call_rpc :search_catalog, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_catalog_stub, :search_catalog, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -378,6 +405,8 @@ module Google
             # You must enable the Data Catalog API in the project identified by
             # the `parent` parameter. For more information, see [Data Catalog resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload create_entry_group(request, options = nil)
             #   Pass arguments to `create_entry_group` via a request object, either of type
@@ -468,7 +497,6 @@ module Google
 
               @data_catalog_stub.call_rpc :create_entry_group, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -476,6 +504,8 @@ module Google
 
             ##
             # Gets an entry group.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload get_entry_group(request, options = nil)
             #   Pass arguments to `get_entry_group` via a request object, either of type
@@ -556,7 +586,6 @@ module Google
 
               @data_catalog_stub.call_rpc :get_entry_group, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -569,6 +598,8 @@ module Google
             # the `entry_group.name` parameter. For more information, see [Data Catalog
             # resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload update_entry_group(request, options = nil)
             #   Pass arguments to `update_entry_group` via a request object, either of type
@@ -653,7 +684,6 @@ module Google
 
               @data_catalog_stub.call_rpc :update_entry_group, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -666,6 +696,8 @@ module Google
             # identified by the `name` parameter. For more information, see [Data Catalog
             # resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload delete_entry_group(request, options = nil)
             #   Pass arguments to `delete_entry_group` via a request object, either of type
@@ -746,7 +778,6 @@ module Google
 
               @data_catalog_stub.call_rpc :delete_entry_group, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -754,6 +785,8 @@ module Google
 
             ##
             # Lists entry groups.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload list_entry_groups(request, options = nil)
             #   Pass arguments to `list_entry_groups` via a request object, either of type
@@ -847,7 +880,7 @@ module Google
               @data_catalog_stub.call_rpc :list_entry_groups, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_catalog_stub, :list_entry_groups, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -865,6 +898,8 @@ module Google
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
             #
             # An entry group can have a maximum of 100,000 entries.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload create_entry(request, options = nil)
             #   Pass arguments to `create_entry` via a request object, either of type
@@ -954,7 +989,6 @@ module Google
 
               @data_catalog_stub.call_rpc :create_entry, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -967,6 +1001,8 @@ module Google
             # the `entry.name` parameter. For more information, see [Data Catalog
             # resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload update_entry(request, options = nil)
             #   Pass arguments to `update_entry` via a request object, either of type
@@ -1075,7 +1111,6 @@ module Google
 
               @data_catalog_stub.call_rpc :update_entry, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1092,6 +1127,8 @@ module Google
             # the `name` parameter. For more information, see [Data Catalog
             # resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload delete_entry(request, options = nil)
             #   Pass arguments to `delete_entry` via a request object, either of type
@@ -1170,7 +1207,6 @@ module Google
 
               @data_catalog_stub.call_rpc :delete_entry, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1178,6 +1214,8 @@ module Google
 
             ##
             # Gets an entry.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload get_entry(request, options = nil)
             #   Pass arguments to `get_entry` via a request object, either of type
@@ -1256,7 +1294,6 @@ module Google
 
               @data_catalog_stub.call_rpc :get_entry, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1266,6 +1303,8 @@ module Google
             # Gets an entry by its target resource name.
             #
             # The resource name comes from the source Google Cloud Platform service.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload lookup_entry(request, options = nil)
             #   Pass arguments to `lookup_entry` via a request object, either of type
@@ -1291,6 +1330,8 @@ module Google
             #
             #      * `//bigquery.googleapis.com/projects/{PROJECT_ID}/datasets/{DATASET_ID}/tables/{TABLE_ID}`
             #      * `//pubsub.googleapis.com/projects/{PROJECT_ID}/topics/{TOPIC_ID}`
+            #
+            #     Note: The following fields are mutually exclusive: `linked_resource`, `sql_resource`, `fully_qualified_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param sql_resource [::String]
             #     The SQL name of the entry. SQL names are case-sensitive.
             #
@@ -1305,6 +1346,8 @@ module Google
             #     Identifiers (`*_ID`) should comply with the
             #     [Lexical structure in Standard SQL]
             #     (https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical).
+            #
+            #     Note: The following fields are mutually exclusive: `sql_resource`, `linked_resource`, `fully_qualified_name`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param fully_qualified_name [::String]
             #     [Fully Qualified Name
             #     (FQN)](https://cloud.google.com//data-catalog/docs/fully-qualified-names)
@@ -1323,6 +1366,8 @@ module Google
             #     Example for a DPMS table:
             #
             #     `dataproc_metastore:{PROJECT_ID}.{LOCATION_ID}.{INSTANCE_ID}.{DATABASE_ID}.{TABLE_ID}`
+            #
+            #     Note: The following fields are mutually exclusive: `fully_qualified_name`, `linked_resource`, `sql_resource`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             #   @param project [::String]
             #     Project where the lookup should be performed. Required to lookup
             #     entry that is not a part of `DPMS` or `DATAPLEX` `integrated_system`
@@ -1383,7 +1428,6 @@ module Google
 
               @data_catalog_stub.call_rpc :lookup_entry, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1395,6 +1439,8 @@ module Google
             # Note: Currently, this method can list only custom entries.
             # To get a list of both custom and automatically created entries, use
             # {::Google::Cloud::DataCatalog::V1::DataCatalog::Client#search_catalog SearchCatalog}.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload list_entries(request, options = nil)
             #   Pass arguments to `list_entries` via a request object, either of type
@@ -1492,7 +1538,7 @@ module Google
               @data_catalog_stub.call_rpc :list_entries, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_catalog_stub, :list_entries, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1504,6 +1550,8 @@ module Google
             #
             # To call this method, you must have the `datacatalog.entries.updateOverview`
             # IAM permission on the corresponding project.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload modify_entry_overview(request, options = nil)
             #   Pass arguments to `modify_entry_overview` via a request object, either of type
@@ -1584,7 +1632,6 @@ module Google
 
               @data_catalog_stub.call_rpc :modify_entry_overview, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1596,6 +1643,8 @@ module Google
             #
             # To call this method, you must have the `datacatalog.entries.updateContacts`
             # IAM permission on the corresponding project.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload modify_entry_contacts(request, options = nil)
             #   Pass arguments to `modify_entry_contacts` via a request object, either of type
@@ -1676,7 +1725,6 @@ module Google
 
               @data_catalog_stub.call_rpc :modify_entry_contacts, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1689,6 +1737,8 @@ module Google
             # `parent` parameter.
             # For more information, see [Data Catalog resource project]
             # (https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload create_tag_template(request, options = nil)
             #   Pass arguments to `create_tag_template` via a request object, either of type
@@ -1776,7 +1826,6 @@ module Google
 
               @data_catalog_stub.call_rpc :create_tag_template, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1784,6 +1833,8 @@ module Google
 
             ##
             # Gets a tag template.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload get_tag_template(request, options = nil)
             #   Pass arguments to `get_tag_template` via a request object, either of type
@@ -1862,7 +1913,6 @@ module Google
 
               @data_catalog_stub.call_rpc :get_tag_template, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1878,6 +1928,8 @@ module Google
             # the `tag_template.name` parameter. For more information, see [Data Catalog
             # resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload update_tag_template(request, options = nil)
             #   Pass arguments to `update_tag_template` via a request object, either of type
@@ -1966,7 +2018,6 @@ module Google
 
               @data_catalog_stub.call_rpc :update_tag_template, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1978,6 +2029,8 @@ module Google
             # You must enable the Data Catalog API in the project identified by
             # the `name` parameter. For more information, see [Data Catalog resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload delete_tag_template(request, options = nil)
             #   Pass arguments to `delete_tag_template` via a request object, either of type
@@ -2060,7 +2113,6 @@ module Google
 
               @data_catalog_stub.call_rpc :delete_tag_template, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2072,6 +2124,8 @@ module Google
             # You must enable the Data Catalog API in the project identified by
             # the `parent` parameter. For more information, see [Data Catalog resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload create_tag_template_field(request, options = nil)
             #   Pass arguments to `create_tag_template_field` via a request object, either of type
@@ -2162,7 +2216,6 @@ module Google
 
               @data_catalog_stub.call_rpc :create_tag_template_field, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2177,6 +2230,8 @@ module Google
             # identified by the `name` parameter. For more information, see [Data Catalog
             # resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload update_tag_template_field(request, options = nil)
             #   Pass arguments to `update_tag_template_field` via a request object, either of type
@@ -2274,7 +2329,6 @@ module Google
 
               @data_catalog_stub.call_rpc :update_tag_template_field, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2286,6 +2340,8 @@ module Google
             # You must enable the Data Catalog API in the project identified by the
             # `name` parameter. For more information, see [Data Catalog resource project]
             # (https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload rename_tag_template_field(request, options = nil)
             #   Pass arguments to `rename_tag_template_field` via a request object, either of type
@@ -2367,7 +2423,6 @@ module Google
 
               @data_catalog_stub.call_rpc :rename_tag_template_field, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2377,6 +2432,8 @@ module Google
             # Renames an enum value in a tag template.
             #
             # Within a single enum field, enum values must be unique.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload rename_tag_template_field_enum_value(request, options = nil)
             #   Pass arguments to `rename_tag_template_field_enum_value` via a request object, either of type
@@ -2458,7 +2515,6 @@ module Google
 
               @data_catalog_stub.call_rpc :rename_tag_template_field_enum_value, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2471,6 +2527,8 @@ module Google
             # You must enable the Data Catalog API in the project identified by
             # the `name` parameter. For more information, see [Data Catalog resource
             # project](https://cloud.google.com/data-catalog/docs/concepts/resource-project).
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload delete_tag_template_field(request, options = nil)
             #   Pass arguments to `delete_tag_template_field` via a request object, either of type
@@ -2553,7 +2611,6 @@ module Google
 
               @data_catalog_stub.call_rpc :delete_tag_template_field, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2572,6 +2629,8 @@ module Google
             # and the [tag template]
             # (https://cloud.google.com/data-catalog/docs/reference/rest/v1/projects.locations.tagTemplates/create#path-parameters)
             # used to create the tag must be in the same organization.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload create_tag(request, options = nil)
             #   Pass arguments to `create_tag` via a request object, either of type
@@ -2658,7 +2717,6 @@ module Google
 
               @data_catalog_stub.call_rpc :create_tag, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2666,6 +2724,8 @@ module Google
 
             ##
             # Updates an existing tag.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload update_tag(request, options = nil)
             #   Pass arguments to `update_tag` via a request object, either of type
@@ -2751,7 +2811,6 @@ module Google
 
               @data_catalog_stub.call_rpc :update_tag, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2759,6 +2818,8 @@ module Google
 
             ##
             # Deletes a tag.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload delete_tag(request, options = nil)
             #   Pass arguments to `delete_tag` via a request object, either of type
@@ -2837,7 +2898,6 @@ module Google
 
               @data_catalog_stub.call_rpc :delete_tag, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2847,6 +2907,8 @@ module Google
             # Lists tags assigned to an {::Google::Cloud::DataCatalog::V1::Entry Entry}.
             # The {::Google::Cloud::DataCatalog::V1::Tag#column columns} in the response are
             # lowercased.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload list_tags(request, options = nil)
             #   Pass arguments to `list_tags` via a request object, either of type
@@ -2939,7 +3001,7 @@ module Google
               @data_catalog_stub.call_rpc :list_tags, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_catalog_stub, :list_tags, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -2959,6 +3021,8 @@ module Google
             # [google.cloud.datacatalog.v1.ReconcileTagsMetadata] and
             # a [ReconcileTagsResponse]
             # [google.cloud.datacatalog.v1.ReconcileTagsResponse] message.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload reconcile_tags(request, options = nil)
             #   Pass arguments to `reconcile_tags` via a request object, either of type
@@ -3056,7 +3120,7 @@ module Google
               @data_catalog_stub.call_rpc :reconcile_tags, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3065,6 +3129,8 @@ module Google
             ##
             # Marks an {::Google::Cloud::DataCatalog::V1::Entry Entry} as starred by
             # the current user. Starring information is private to each user.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload star_entry(request, options = nil)
             #   Pass arguments to `star_entry` via a request object, either of type
@@ -3143,7 +3209,6 @@ module Google
 
               @data_catalog_stub.call_rpc :star_entry, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3152,6 +3217,8 @@ module Google
             ##
             # Marks an {::Google::Cloud::DataCatalog::V1::Entry Entry} as NOT starred by
             # the current user. Starring information is private to each user.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload unstar_entry(request, options = nil)
             #   Pass arguments to `unstar_entry` via a request object, either of type
@@ -3230,7 +3297,6 @@ module Google
 
               @data_catalog_stub.call_rpc :unstar_entry, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3254,6 +3320,8 @@ module Google
             # - `datacatalog.tagTemplates.setIamPolicy` to set policies on tag
             #   templates.
             # - `datacatalog.entryGroups.setIamPolicy` to set policies on entry groups.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload set_iam_policy(request, options = nil)
             #   Pass arguments to `set_iam_policy` via a request object, either of type
@@ -3344,7 +3412,6 @@ module Google
 
               @data_catalog_stub.call_rpc :set_iam_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3372,6 +3439,8 @@ module Google
             # - `datacatalog.tagTemplates.getIamPolicy` to get policies on tag
             #   templates.
             # - `datacatalog.entryGroups.getIamPolicy` to get policies on entry groups.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload get_iam_policy(request, options = nil)
             #   Pass arguments to `get_iam_policy` via a request object, either of type
@@ -3454,7 +3523,6 @@ module Google
 
               @data_catalog_stub.call_rpc :get_iam_policy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3475,6 +3543,8 @@ module Google
             # external Google Cloud Platform resources ingested into Data Catalog.
             #
             # No Google IAM permissions are required to call this method.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload test_iam_permissions(request, options = nil)
             #   Pass arguments to `test_iam_permissions` via a request object, either of type
@@ -3559,7 +3629,6 @@ module Google
 
               @data_catalog_stub.call_rpc :test_iam_permissions, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3584,6 +3653,8 @@ module Google
             # and an
             # {::Google::Cloud::DataCatalog::V1::ImportEntriesResponse ImportEntriesResponse}
             # message.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload import_entries(request, options = nil)
             #   Pass arguments to `import_entries` via a request object, either of type
@@ -3675,7 +3746,283 @@ module Google
               @data_catalog_stub.call_rpc :import_entries, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Sets the configuration related to the migration to Dataplex for an
+            # organization or project.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
+            #
+            # @overload set_config(request, options = nil)
+            #   Pass arguments to `set_config` via a request object, either of type
+            #   {::Google::Cloud::DataCatalog::V1::SetConfigRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Cloud::DataCatalog::V1::SetConfigRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload set_config(name: nil, tag_template_migration: nil, catalog_ui_experience: nil)
+            #   Pass arguments to `set_config` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param name [::String]
+            #     Required. The organization or project whose config is being specified.
+            #   @param tag_template_migration [::Google::Cloud::DataCatalog::V1::TagTemplateMigration]
+            #     Opt-in status for the migration of Tag Templates to Dataplex.
+            #
+            #     Note: The following fields are mutually exclusive: `tag_template_migration`, `catalog_ui_experience`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            #   @param catalog_ui_experience [::Google::Cloud::DataCatalog::V1::CatalogUIExperience]
+            #     Opt-in status for the UI switch to Dataplex.
+            #
+            #     Note: The following fields are mutually exclusive: `catalog_ui_experience`, `tag_template_migration`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Google::Cloud::DataCatalog::V1::MigrationConfig]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Google::Cloud::DataCatalog::V1::MigrationConfig]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/cloud/data_catalog/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Cloud::DataCatalog::V1::DataCatalog::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Cloud::DataCatalog::V1::SetConfigRequest.new
+            #
+            #   # Call the set_config method.
+            #   result = client.set_config request
+            #
+            #   # The returned object is of type Google::Cloud::DataCatalog::V1::MigrationConfig.
+            #   p result
+            #
+            def set_config request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DataCatalog::V1::SetConfigRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.set_config.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Cloud::DataCatalog::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.name
+                header_params["name"] = request.name
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.set_config.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.set_config.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @data_catalog_stub.call_rpc :set_config, request, options: options do |response, operation|
+                yield response, operation if block_given?
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Retrieves the configuration related to the migration from Data Catalog to
+            # Dataplex for a specific organization, including all the projects under it
+            # which have a separate configuration set.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
+            #
+            # @overload retrieve_config(request, options = nil)
+            #   Pass arguments to `retrieve_config` via a request object, either of type
+            #   {::Google::Cloud::DataCatalog::V1::RetrieveConfigRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Cloud::DataCatalog::V1::RetrieveConfigRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload retrieve_config(name: nil)
+            #   Pass arguments to `retrieve_config` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param name [::String]
+            #     Required. The organization whose config is being retrieved.
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Google::Cloud::DataCatalog::V1::OrganizationConfig]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Google::Cloud::DataCatalog::V1::OrganizationConfig]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/cloud/data_catalog/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Cloud::DataCatalog::V1::DataCatalog::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Cloud::DataCatalog::V1::RetrieveConfigRequest.new
+            #
+            #   # Call the retrieve_config method.
+            #   result = client.retrieve_config request
+            #
+            #   # The returned object is of type Google::Cloud::DataCatalog::V1::OrganizationConfig.
+            #   p result
+            #
+            def retrieve_config request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DataCatalog::V1::RetrieveConfigRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.retrieve_config.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Cloud::DataCatalog::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.name
+                header_params["name"] = request.name
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.retrieve_config.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.retrieve_config.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @data_catalog_stub.call_rpc :retrieve_config, request, options: options do |response, operation|
+                yield response, operation if block_given?
+              end
+            rescue ::GRPC::BadStatus => e
+              raise ::Google::Cloud::Error.from_error(e)
+            end
+
+            ##
+            # Retrieves the effective configuration related to the migration from Data
+            # Catalog to Dataplex for a specific organization or project. If there is no
+            # specific configuration set for the resource, the setting is checked
+            # hierarchicahlly through the ancestors of the resource, starting from the
+            # resource itself.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
+            #
+            # @overload retrieve_effective_config(request, options = nil)
+            #   Pass arguments to `retrieve_effective_config` via a request object, either of type
+            #   {::Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest} or an equivalent Hash.
+            #
+            #   @param request [::Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest, ::Hash]
+            #     A request object representing the call parameters. Required. To specify no
+            #     parameters, or to keep all the default parameter values, pass an empty Hash.
+            #   @param options [::Gapic::CallOptions, ::Hash]
+            #     Overrides the default settings for this call, e.g, timeout, retries, etc. Optional.
+            #
+            # @overload retrieve_effective_config(name: nil)
+            #   Pass arguments to `retrieve_effective_config` via keyword arguments. Note that at
+            #   least one keyword argument is required. To specify no parameters, or to keep all
+            #   the default parameter values, pass an empty Hash as a request object (see above).
+            #
+            #   @param name [::String]
+            #     Required. The resource whose effective config is being retrieved.
+            #
+            # @yield [response, operation] Access the result along with the RPC operation
+            # @yieldparam response [::Google::Cloud::DataCatalog::V1::MigrationConfig]
+            # @yieldparam operation [::GRPC::ActiveCall::Operation]
+            #
+            # @return [::Google::Cloud::DataCatalog::V1::MigrationConfig]
+            #
+            # @raise [::Google::Cloud::Error] if the RPC is aborted.
+            #
+            # @example Basic example
+            #   require "google/cloud/data_catalog/v1"
+            #
+            #   # Create a client object. The client can be reused for multiple calls.
+            #   client = Google::Cloud::DataCatalog::V1::DataCatalog::Client.new
+            #
+            #   # Create a request. To set request fields, pass in keyword arguments.
+            #   request = Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest.new
+            #
+            #   # Call the retrieve_effective_config method.
+            #   result = client.retrieve_effective_config request
+            #
+            #   # The returned object is of type Google::Cloud::DataCatalog::V1::MigrationConfig.
+            #   p result
+            #
+            def retrieve_effective_config request, options = nil
+              raise ::ArgumentError, "request must be provided" if request.nil?
+
+              request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::DataCatalog::V1::RetrieveEffectiveConfigRequest
+
+              # Converts hash and nil to an options object
+              options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+              # Customize the options with defaults
+              metadata = @config.rpcs.retrieve_effective_config.metadata.to_h
+
+              # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+              metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                lib_name: @config.lib_name, lib_version: @config.lib_version,
+                gapic_version: ::Google::Cloud::DataCatalog::V1::VERSION
+              metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+              metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+              header_params = {}
+              if request.name
+                header_params["name"] = request.name
+              end
+
+              request_params_header = header_params.map { |k, v| "#{k}=#{v}" }.join("&")
+              metadata[:"x-goog-request-params"] ||= request_params_header
+
+              options.apply_defaults timeout:      @config.rpcs.retrieve_effective_config.timeout,
+                                     metadata:     metadata,
+                                     retry_policy: @config.rpcs.retrieve_effective_config.retry_policy
+
+              options.apply_defaults timeout:      @config.timeout,
+                                     metadata:     @config.metadata,
+                                     retry_policy: @config.retry_policy
+
+              @data_catalog_stub.call_rpc :retrieve_effective_config, request, options: options do |response, operation|
+                yield response, operation if block_given?
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -3725,6 +4072,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -3764,6 +4118,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -3788,6 +4147,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil
@@ -4004,6 +4364,21 @@ module Google
                 # @return [::Gapic::Config::Method]
                 #
                 attr_reader :import_entries
+                ##
+                # RPC-specific configuration for `set_config`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :set_config
+                ##
+                # RPC-specific configuration for `retrieve_config`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :retrieve_config
+                ##
+                # RPC-specific configuration for `retrieve_effective_config`
+                # @return [::Gapic::Config::Method]
+                #
+                attr_reader :retrieve_effective_config
 
                 # @private
                 def initialize parent_rpcs = nil
@@ -4075,6 +4450,12 @@ module Google
                   @test_iam_permissions = ::Gapic::Config::Method.new test_iam_permissions_config
                   import_entries_config = parent_rpcs.import_entries if parent_rpcs.respond_to? :import_entries
                   @import_entries = ::Gapic::Config::Method.new import_entries_config
+                  set_config_config = parent_rpcs.set_config if parent_rpcs.respond_to? :set_config
+                  @set_config = ::Gapic::Config::Method.new set_config_config
+                  retrieve_config_config = parent_rpcs.retrieve_config if parent_rpcs.respond_to? :retrieve_config
+                  @retrieve_config = ::Gapic::Config::Method.new retrieve_config_config
+                  retrieve_effective_config_config = parent_rpcs.retrieve_effective_config if parent_rpcs.respond_to? :retrieve_effective_config
+                  @retrieve_effective_config = ::Gapic::Config::Method.new retrieve_effective_config_config
 
                   yield self if block_given?
                 end

@@ -31,11 +31,15 @@ module Google
         #     `gs://bucket_name/object_name`. Object versioning is not supported.
         #     For more information, refer to [Google Cloud Storage Request
         #     URIs](https://cloud.google.com/storage/docs/reference-uris).
+        #
+        #     Note: The following fields are mutually exclusive: `uri`, `content`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] content
         #   @return [::String]
         #     Optional. Inline document content, represented as a stream of bytes.
         #     Note: As with all `bytes` fields, protobuffers use a pure binary
         #     representation, whereas JSON representations use base64.
+        #
+        #     Note: The following fields are mutually exclusive: `content`, `uri`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] mime_type
         #   @return [::String]
         #     An IANA published [media type (MIME
@@ -75,6 +79,12 @@ module Google
         # @!attribute [rw] revisions
         #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::Revision>]
         #     Placeholder. Revision history of this document.
+        # @!attribute [rw] document_layout
+        #   @return [::Google::Cloud::DocumentAI::V1::Document::DocumentLayout]
+        #     Parsed layout of the document.
+        # @!attribute [rw] chunked_document
+        #   @return [::Google::Cloud::DocumentAI::V1::Document::ChunkedDocument]
+        #     Document chunked based on chunking config.
         class Document
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -720,28 +730,42 @@ module Google
             #   @return [::Google::Type::Money]
             #     Money value. See also:
             #     https://github.com/googleapis/googleapis/blob/master/google/type/money.proto
+            #
+            #     Note: The following fields are mutually exclusive: `money_value`, `date_value`, `datetime_value`, `address_value`, `boolean_value`, `integer_value`, `float_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] date_value
             #   @return [::Google::Type::Date]
             #     Date value. Includes year, month, day. See also:
             #     https://github.com/googleapis/googleapis/blob/master/google/type/date.proto
+            #
+            #     Note: The following fields are mutually exclusive: `date_value`, `money_value`, `datetime_value`, `address_value`, `boolean_value`, `integer_value`, `float_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] datetime_value
             #   @return [::Google::Type::DateTime]
             #     DateTime value. Includes date, time, and timezone. See also:
             #     https://github.com/googleapis/googleapis/blob/master/google/type/datetime.proto
+            #
+            #     Note: The following fields are mutually exclusive: `datetime_value`, `money_value`, `date_value`, `address_value`, `boolean_value`, `integer_value`, `float_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] address_value
             #   @return [::Google::Type::PostalAddress]
             #     Postal address. See also:
             #     https://github.com/googleapis/googleapis/blob/master/google/type/postal_address.proto
+            #
+            #     Note: The following fields are mutually exclusive: `address_value`, `money_value`, `date_value`, `datetime_value`, `boolean_value`, `integer_value`, `float_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] boolean_value
             #   @return [::Boolean]
             #     Boolean value. Can be used for entities with binary values, or for
             #     checkboxes.
+            #
+            #     Note: The following fields are mutually exclusive: `boolean_value`, `money_value`, `date_value`, `datetime_value`, `address_value`, `integer_value`, `float_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] integer_value
             #   @return [::Integer]
             #     Integer value.
+            #
+            #     Note: The following fields are mutually exclusive: `integer_value`, `money_value`, `date_value`, `datetime_value`, `address_value`, `boolean_value`, `float_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] float_value
             #   @return [::Float]
             #     Float value.
+            #
+            #     Note: The following fields are mutually exclusive: `float_value`, `money_value`, `date_value`, `datetime_value`, `address_value`, `boolean_value`, `integer_value`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] text
             #   @return [::String]
             #     Optional. An optional field to store a normalized string.
@@ -976,10 +1000,14 @@ module Google
           #   @return [::String]
           #     If the change was made by a person specify the name or id of that
           #     person.
+          #
+          #     Note: The following fields are mutually exclusive: `agent`, `processor`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] processor
           #   @return [::String]
           #     If the annotation was made by processor identify the processor by its
           #     resource name.
+          #
+          #     Note: The following fields are mutually exclusive: `processor`, `agent`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] id
           #   @return [::String]
           #     Id of the revision, internally generated by doc proto storage.
@@ -1039,6 +1067,206 @@ module Google
           class TextChange
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
+
+          # Represents the parsed layout of a document as a collection of blocks that
+          # the document is divided into.
+          # @!attribute [rw] blocks
+          #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock>]
+          #     List of blocks in the document.
+          class DocumentLayout
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Represents a block. A block could be one of the various types (text,
+            # table, list) supported.
+            # @!attribute [rw] text_block
+            #   @return [::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock::LayoutTextBlock]
+            #     Block consisting of text content.
+            #
+            #     Note: The following fields are mutually exclusive: `text_block`, `table_block`, `list_block`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] table_block
+            #   @return [::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock::LayoutTableBlock]
+            #     Block consisting of table content/structure.
+            #
+            #     Note: The following fields are mutually exclusive: `table_block`, `text_block`, `list_block`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] list_block
+            #   @return [::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock::LayoutListBlock]
+            #     Block consisting of list content/structure.
+            #
+            #     Note: The following fields are mutually exclusive: `list_block`, `text_block`, `table_block`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+            # @!attribute [rw] block_id
+            #   @return [::String]
+            #     ID of the block.
+            # @!attribute [rw] page_span
+            #   @return [::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock::LayoutPageSpan]
+            #     Page span of the block.
+            class DocumentLayoutBlock
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Represents where the block starts and ends in the document.
+              # @!attribute [rw] page_start
+              #   @return [::Integer]
+              #     Page where block starts in the document.
+              # @!attribute [rw] page_end
+              #   @return [::Integer]
+              #     Page where block ends in the document.
+              class LayoutPageSpan
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a text type block.
+              # @!attribute [rw] text
+              #   @return [::String]
+              #     Text content stored in the block.
+              # @!attribute [rw] type
+              #   @return [::String]
+              #     Type of the text in the block. Available options are: `paragraph`,
+              #     `subtitle`, `heading-1`, `heading-2`, `heading-3`, `heading-4`,
+              #     `heading-5`, `header`, `footer`.
+              # @!attribute [rw] blocks
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock>]
+              #     A text block could further have child blocks.
+              #     Repeated blocks support further hierarchies and nested blocks.
+              class LayoutTextBlock
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a table type block.
+              # @!attribute [rw] header_rows
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock::LayoutTableRow>]
+              #     Header rows at the top of the table.
+              # @!attribute [rw] body_rows
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock::LayoutTableRow>]
+              #     Body rows containing main table content.
+              # @!attribute [rw] caption
+              #   @return [::String]
+              #     Table caption/title.
+              class LayoutTableBlock
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a row in a table.
+              # @!attribute [rw] cells
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock::LayoutTableCell>]
+              #     A table row is a list of table cells.
+              class LayoutTableRow
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a cell in a table row.
+              # @!attribute [rw] blocks
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock>]
+              #     A table cell is a list of blocks.
+              #     Repeated blocks support further hierarchies and nested blocks.
+              # @!attribute [rw] row_span
+              #   @return [::Integer]
+              #     How many rows this cell spans.
+              # @!attribute [rw] col_span
+              #   @return [::Integer]
+              #     How many columns this cell spans.
+              class LayoutTableCell
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents a list type block.
+              # @!attribute [rw] list_entries
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock::LayoutListEntry>]
+              #     List entries that constitute a list block.
+              # @!attribute [rw] type
+              #   @return [::String]
+              #     Type of the list_entries (if exist). Available options are `ordered`
+              #     and `unordered`.
+              class LayoutListBlock
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents an entry in the list.
+              # @!attribute [rw] blocks
+              #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::DocumentLayout::DocumentLayoutBlock>]
+              #     A list entry is a list of blocks.
+              #     Repeated blocks support further hierarchies and nested blocks.
+              class LayoutListEntry
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+            end
+          end
+
+          # Represents the chunks that the document is divided into.
+          # @!attribute [rw] chunks
+          #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::ChunkedDocument::Chunk>]
+          #     List of chunks.
+          class ChunkedDocument
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # Represents a chunk.
+            # @!attribute [rw] chunk_id
+            #   @return [::String]
+            #     ID of the chunk.
+            # @!attribute [rw] source_block_ids
+            #   @return [::Array<::String>]
+            #     Unused.
+            # @!attribute [rw] content
+            #   @return [::String]
+            #     Text content of the chunk.
+            # @!attribute [rw] page_span
+            #   @return [::Google::Cloud::DocumentAI::V1::Document::ChunkedDocument::Chunk::ChunkPageSpan]
+            #     Page span of the chunk.
+            # @!attribute [rw] page_headers
+            #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::ChunkedDocument::Chunk::ChunkPageHeader>]
+            #     Page headers associated with the chunk.
+            # @!attribute [rw] page_footers
+            #   @return [::Array<::Google::Cloud::DocumentAI::V1::Document::ChunkedDocument::Chunk::ChunkPageFooter>]
+            #     Page footers associated with the chunk.
+            class Chunk
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+
+              # Represents where the chunk starts and ends in the document.
+              # @!attribute [rw] page_start
+              #   @return [::Integer]
+              #     Page where chunk starts in the document.
+              # @!attribute [rw] page_end
+              #   @return [::Integer]
+              #     Page where chunk ends in the document.
+              class ChunkPageSpan
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents the page header associated with the chunk.
+              # @!attribute [rw] text
+              #   @return [::String]
+              #     Header in text format.
+              # @!attribute [rw] page_span
+              #   @return [::Google::Cloud::DocumentAI::V1::Document::ChunkedDocument::Chunk::ChunkPageSpan]
+              #     Page span of the header.
+              class ChunkPageHeader
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+
+              # Represents the page footer associated with the chunk.
+              # @!attribute [rw] text
+              #   @return [::String]
+              #     Footer in text format.
+              # @!attribute [rw] page_span
+              #   @return [::Google::Cloud::DocumentAI::V1::Document::ChunkedDocument::Chunk::ChunkPageSpan]
+              #     Page span of the footer.
+              class ChunkPageFooter
+                include ::Google::Protobuf::MessageExts
+                extend ::Google::Protobuf::MessageExts::ClassMethods
+              end
+            end
           end
         end
       end

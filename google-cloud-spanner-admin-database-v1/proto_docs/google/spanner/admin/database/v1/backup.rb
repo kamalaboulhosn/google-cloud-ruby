@@ -73,6 +73,24 @@ module Google
             # @!attribute [r] size_bytes
             #   @return [::Integer]
             #     Output only. Size of the backup in bytes.
+            # @!attribute [r] freeable_size_bytes
+            #   @return [::Integer]
+            #     Output only. The number of bytes that will be freed by deleting this
+            #     backup. This value will be zero if, for example, this backup is part of an
+            #     incremental backup chain and younger backups in the chain require that we
+            #     keep its data. For backups not in an incremental backup chain, this is
+            #     always the size of the backup. This value may change if backups on the same
+            #     chain get created, deleted or expired.
+            # @!attribute [r] exclusive_size_bytes
+            #   @return [::Integer]
+            #     Output only. For a backup in an incremental backup chain, this is the
+            #     storage space needed to keep the data that has changed since the previous
+            #     backup. For all other backups, this is always the size of the backup. This
+            #     value may change if backups on the same chain get deleted or expired.
+            #
+            #     This field can be used to calculate the total storage space used by a set
+            #     of backups. For example, the total space used by all backups of a database
+            #     can be computed by summing up this field.
             # @!attribute [r] state
             #   @return [::Google::Cloud::Spanner::Admin::Database::V1::Backup::State]
             #     Output only. The current state of the backup.
@@ -115,6 +133,38 @@ module Google
             #     multiple APIs: CreateBackup, UpdateBackup, CopyBackup. When updating or
             #     copying an existing backup, the expiration time specified must be
             #     less than `Backup.max_expire_time`.
+            # @!attribute [r] backup_schedules
+            #   @return [::Array<::String>]
+            #     Output only. List of backup schedule URIs that are associated with
+            #     creating this backup. This is only applicable for scheduled backups, and
+            #     is empty for on-demand backups.
+            #
+            #     To optimize for storage, whenever possible, multiple schedules are
+            #     collapsed together to create one backup. In such cases, this field captures
+            #     the list of all backup schedule URIs that are associated with creating
+            #     this backup. If collapsing is not done, then this field captures the
+            #     single backup schedule URI associated with creating this backup.
+            # @!attribute [r] incremental_backup_chain_id
+            #   @return [::String]
+            #     Output only. Populated only for backups in an incremental backup chain.
+            #     Backups share the same chain id if and only if they belong to the same
+            #     incremental backup chain. Use this field to determine which backups are
+            #     part of the same incremental backup chain. The ordering of backups in the
+            #     chain can be determined by ordering the backup `version_time`.
+            # @!attribute [r] oldest_version_time
+            #   @return [::Google::Protobuf::Timestamp]
+            #     Output only. Data deleted at a time older than this is guaranteed not to be
+            #     retained in order to support this backup. For a backup in an incremental
+            #     backup chain, this is the version time of the oldest backup that exists or
+            #     ever existed in the chain. For all other backups, this is the version time
+            #     of the backup. This field can be used to understand what data is being
+            #     retained by the backup system.
+            # @!attribute [r] instance_partitions
+            #   @return [::Array<::Google::Cloud::Spanner::Admin::Database::V1::BackupInstancePartition>]
+            #     Output only. The instance partition(s) storing the backup.
+            #
+            #     This is the same as the list of the instance partition(s) that the database
+            #     had footprint in at the backup's `version_time`.
             class Backup
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -340,6 +390,7 @@ module Google
             #       * `expire_time`  (and values are of the format YYYY-MM-DDTHH:MM:SSZ)
             #       * `version_time` (and values are of the format YYYY-MM-DDTHH:MM:SSZ)
             #       * `size_bytes`
+            #       * `backup_schedules`
             #
             #     You can combine multiple expressions by enclosing each expression in
             #     parentheses. By default, expressions are combined with AND logic, but
@@ -358,6 +409,8 @@ module Google
             #       * `expire_time < \"2018-03-28T14:50:00Z\"`
             #              - The backup `expire_time` is before 2018-03-28T14:50:00Z.
             #       * `size_bytes > 10000000000` - The backup's size is greater than 10GB
+            #       * `backup_schedules:daily`
+            #              - The backup is created from a schedule with "daily" in its name.
             # @!attribute [rw] page_size
             #   @return [::Integer]
             #     Number of backups to be returned in the response. If 0 or
@@ -639,6 +692,35 @@ module Google
                 # `kms_key_names` must contain valid Cloud KMS key(s).
                 CUSTOMER_MANAGED_ENCRYPTION = 3
               end
+            end
+
+            # The specification for full backups.
+            # A full backup stores the entire contents of the database at a given
+            # version time.
+            class FullBackupSpec
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # The specification for incremental backup chains.
+            # An incremental backup stores the delta of changes between a previous
+            # backup and the database contents at a given version time. An
+            # incremental backup chain consists of a full backup and zero or more
+            # successive incremental backups. The first backup created for an
+            # incremental backup chain is always a full backup.
+            class IncrementalBackupSpec
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
+
+            # Instance partition information for the backup.
+            # @!attribute [rw] instance_partition
+            #   @return [::String]
+            #     A unique identifier for the instance partition. Values are of the form
+            #     `projects/<project>/instances/<instance>/instancePartitions/<instance_partition_id>`
+            class BackupInstancePartition
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
             end
           end
         end

@@ -1,5 +1,24 @@
 # Release History
 
+### 1.9.0 (2025-01-29)
+
+#### Features
+
+* Provide methods to determine whether services are available with the currently installed versioned client ([#28530](https://github.com/googleapis/google-cloud-ruby/issues/28530)) 
+* Update Ruby version requirement to 3.0 
+
+### 1.8.3 (2024-08-08)
+
+#### Documentation
+
+* Formatting updates to README.md ([#26673](https://github.com/googleapis/google-cloud-ruby/issues/26673)) 
+
+### 1.8.2 (2024-06-12)
+
+#### Bug Fixes
+
+* Restored gem dependencies on the dashboard and metrics_scope versioned clients ([#26099](https://github.com/googleapis/google-cloud-ruby/issues/26099)) 
+
 ### 1.8.1 (2024-04-25)
 
 #### Documentation

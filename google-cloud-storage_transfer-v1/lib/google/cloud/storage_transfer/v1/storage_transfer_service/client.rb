@@ -173,8 +173,19 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @storage_transfer_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
             end
 
             ##
@@ -183,6 +194,15 @@ module Google
             # @return [::Google::Cloud::StorageTransfer::V1::StorageTransferService::Operations]
             #
             attr_reader :operations_client
+
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @storage_transfer_service_stub.logger
+            end
 
             # Service calls
 
@@ -274,7 +294,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :get_google_service_account, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -352,7 +371,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :create_transfer_job, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -473,7 +491,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :update_transfer_job, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -562,7 +579,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :get_transfer_job, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -588,17 +604,32 @@ module Google
             #
             #   @param filter [::String]
             #     Required. A list of query parameters specified as JSON text in the form of:
-            #     `{"projectId":"my_project_id",
-            #      "jobNames":["jobid1","jobid2",...],
-            #      "jobStatuses":["status1","status2",...]}`
             #
-            #     Since `jobNames` and `jobStatuses` support multiple values, their values
-            #     must be specified with array notation. `projectId` is required.
-            #     `jobNames` and `jobStatuses` are optional.  The valid values for
-            #     `jobStatuses` are case-insensitive:
-            #     {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::ENABLED ENABLED},
-            #     {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::DISABLED DISABLED}, and
-            #     {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::DELETED DELETED}.
+            #     ```
+            #     {
+            #       "projectId":"my_project_id",
+            #       "jobNames":["jobid1","jobid2",...],
+            #       "jobStatuses":["status1","status2",...],
+            #       "dataBackend":"QUERY_REPLICATION_CONFIGS",
+            #       "sourceBucket":"source-bucket-name",
+            #       "sinkBucket":"sink-bucket-name",
+            #     }
+            #     ```
+            #
+            #     The JSON formatting in the example is for display only; provide the
+            #     query parameters without spaces or line breaks.
+            #
+            #     * `projectId` is required.
+            #     * Since `jobNames` and `jobStatuses` support multiple values, their values
+            #       must be specified with array notation. `jobNames` and `jobStatuses` are
+            #       optional. Valid values are case-insensitive:
+            #         * {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::ENABLED ENABLED}
+            #         * {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::DISABLED DISABLED}
+            #         * {::Google::Cloud::StorageTransfer::V1::TransferJob::Status::DELETED DELETED}
+            #     * Specify `"dataBackend":"QUERY_REPLICATION_CONFIGS"` to return a list of
+            #       cross-bucket replication jobs.
+            #     * Limit the results to jobs from a particular bucket with `sourceBucket`
+            #       and/or to a particular bucket with `sinkBucket`.
             #   @param page_size [::Integer]
             #     The list page size. The max allowed value is 256.
             #   @param page_token [::String]
@@ -660,7 +691,7 @@ module Google
               @storage_transfer_service_stub.call_rpc :list_transfer_jobs, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @storage_transfer_service_stub, :list_transfer_jobs, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -746,7 +777,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :pause_transfer_operation, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -832,7 +862,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :resume_transfer_operation, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -932,7 +961,7 @@ module Google
               @storage_transfer_service_stub.call_rpc :run_transfer_job, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1022,7 +1051,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :delete_transfer_job, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1125,7 +1153,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :create_agent_pool, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1229,7 +1256,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :update_agent_pool, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1315,7 +1341,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :get_agent_pool, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1419,7 +1444,7 @@ module Google
               @storage_transfer_service_stub.call_rpc :list_agent_pools, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @storage_transfer_service_stub, :list_agent_pools, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1505,7 +1530,6 @@ module Google
 
               @storage_transfer_service_stub.call_rpc :delete_agent_pool, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1555,6 +1579,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -1594,6 +1625,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -1618,6 +1654,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

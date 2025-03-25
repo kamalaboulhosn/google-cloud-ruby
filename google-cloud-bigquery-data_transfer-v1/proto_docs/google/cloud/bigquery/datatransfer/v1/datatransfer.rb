@@ -268,6 +268,11 @@ module Google
           # associated with the user id corresponding to the authorization info.
           # Otherwise, the transfer configuration will be associated with the calling
           # user.
+          #
+          # When using a cross project service account for creating a transfer config,
+          # you must enable cross project service account usage. For more information,
+          # see [Disable attachment of service accounts to resources in other
+          # projects](https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts#disable_cross_project_service_accounts).
           # @!attribute [rw] parent
           #   @return [::String]
           #     Required. The BigQuery project id where the transfer configuration should
@@ -279,15 +284,20 @@ module Google
           #   @return [::Google::Cloud::Bigquery::DataTransfer::V1::TransferConfig]
           #     Required. Data transfer configuration to create.
           # @!attribute [rw] authorization_code
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::String]
+          #     Deprecated: Authorization code was required when
+          #     `transferConfig.dataSourceId` is 'youtube_channel' but it is no longer used
+          #     in any data sources. Use `version_info` instead.
+          #
           #     Optional OAuth2 authorization code to use with this transfer configuration.
           #     This is required only if `transferConfig.dataSourceId` is 'youtube_channel'
           #     and new credentials are needed, as indicated by `CheckValidCreds`. In order
           #     to obtain authorization_code, make a request to the following URL:
           #     <pre class="prettyprint" suppresswarning="true">
-          #     https://www.gstatic.com/bigquerydatatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
+          #     https://bigquery.cloud.google.com/datatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
           #     </pre>
-          #     * The <var>client_id</var> is the OAuth client_id of the a data source as
+          #     * The <var>client_id</var> is the OAuth client_id of the data source as
           #     returned by ListDataSources method.
           #     * <var>data_source_scopes</var> are the scopes returned by ListDataSources
           #     method.
@@ -296,14 +306,15 @@ module Google
           #     create the transfer config.
           # @!attribute [rw] version_info
           #   @return [::String]
-          #     Optional version info. This is required only if
-          #     `transferConfig.dataSourceId` is not 'youtube_channel' and new credentials
+          #     Optional version info. This parameter replaces `authorization_code` which
+          #     is no longer used in any data sources. This is required only if
+          #     `transferConfig.dataSourceId` is 'youtube_channel' *or* new credentials
           #     are needed, as indicated by `CheckValidCreds`. In order to obtain version
           #     info, make a request to the following URL:
           #     <pre class="prettyprint" suppresswarning="true">
-          #     https://www.gstatic.com/bigquerydatatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
+          #     https://bigquery.cloud.google.com/datatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
           #     </pre>
-          #     * The <var>client_id</var> is the OAuth client_id of the a data source as
+          #     * The <var>client_id</var> is the OAuth client_id of the data source as
           #     returned by ListDataSources method.
           #     * <var>data_source_scopes</var> are the scopes returned by ListDataSources
           #     method.
@@ -328,19 +339,29 @@ module Google
 
           # A request to update a transfer configuration. To update the user id of the
           # transfer configuration, authorization info needs to be provided.
+          #
+          # When using a cross project service account for updating a transfer config,
+          # you must enable cross project service account usage. For more information,
+          # see [Disable attachment of service accounts to resources in other
+          # projects](https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts#disable_cross_project_service_accounts).
           # @!attribute [rw] transfer_config
           #   @return [::Google::Cloud::Bigquery::DataTransfer::V1::TransferConfig]
           #     Required. Data transfer configuration to create.
           # @!attribute [rw] authorization_code
+          #   @deprecated This field is deprecated and may be removed in the next major version update.
           #   @return [::String]
+          #     Deprecated: Authorization code was required when
+          #     `transferConfig.dataSourceId` is 'youtube_channel' but it is no longer used
+          #     in any data sources. Use `version_info` instead.
+          #
           #     Optional OAuth2 authorization code to use with this transfer configuration.
           #     This is required only if `transferConfig.dataSourceId` is 'youtube_channel'
           #     and new credentials are needed, as indicated by `CheckValidCreds`. In order
           #     to obtain authorization_code, make a request to the following URL:
           #     <pre class="prettyprint" suppresswarning="true">
-          #     https://www.gstatic.com/bigquerydatatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
+          #     https://bigquery.cloud.google.com/datatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
           #     </pre>
-          #     * The <var>client_id</var> is the OAuth client_id of the a data source as
+          #     * The <var>client_id</var> is the OAuth client_id of the data source as
           #     returned by ListDataSources method.
           #     * <var>data_source_scopes</var> are the scopes returned by ListDataSources
           #     method.
@@ -352,14 +373,15 @@ module Google
           #     Required. Required list of fields to be updated in this request.
           # @!attribute [rw] version_info
           #   @return [::String]
-          #     Optional version info. This is required only if
-          #     `transferConfig.dataSourceId` is not 'youtube_channel' and new credentials
+          #     Optional version info. This parameter replaces `authorization_code` which
+          #     is no longer used in any data sources. This is required only if
+          #     `transferConfig.dataSourceId` is 'youtube_channel' *or* new credentials
           #     are needed, as indicated by `CheckValidCreds`. In order to obtain version
           #     info, make a request to the following URL:
           #     <pre class="prettyprint" suppresswarning="true">
-          #     https://www.gstatic.com/bigquerydatatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
+          #     https://bigquery.cloud.google.com/datatransfer/oauthz/auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=<var>client_id</var>&scope=<var>data_source_scopes</var>
           #     </pre>
-          #     * The <var>client_id</var> is the OAuth client_id of the a data source as
+          #     * The <var>client_id</var> is the OAuth client_id of the data source as
           #     returned by ListDataSources method.
           #     * <var>data_source_scopes</var> are the scopes returned by ListDataSources
           #     method.
@@ -625,12 +647,16 @@ module Google
           #     that are scheduled to be transferred by the scheduled transfer run.
           #     requested_time_range must be a past time and cannot include future time
           #     values.
+          #
+          #     Note: The following fields are mutually exclusive: `requested_time_range`, `requested_run_time`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] requested_run_time
           #   @return [::Google::Protobuf::Timestamp]
           #     A run_time timestamp for historical data files or reports
           #     that are scheduled to be transferred by the scheduled transfer run.
           #     requested_run_time must be a past time and cannot include future time
           #     values.
+          #
+          #     Note: The following fields are mutually exclusive: `requested_run_time`, `requested_time_range`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class StartManualTransferRunsRequest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

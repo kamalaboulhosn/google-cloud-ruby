@@ -31,6 +31,14 @@ class ::Google::Cloud::DiscoveryEngine::V1beta::ServingConfigService::ClientPath
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_data_store_path

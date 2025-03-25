@@ -431,47 +431,16 @@ module Google
         #     `projects/{project}/locations/{location}/endpoints/{endpoint}`
         # @!attribute [rw] model
         #   @return [::String]
-        #     Required. The name of the publisher model requested to serve the
+        #     Optional. The name of the publisher model requested to serve the
         #     prediction. Format:
         #     `projects/{project}/locations/{location}/publishers/*/models/*`
         # @!attribute [rw] instances
         #   @return [::Array<::Google::Protobuf::Value>]
-        #     Required. The instances that are the input to token counting call.
+        #     Optional. The instances that are the input to token counting call.
         #     Schema is identical to the prediction schema of the underlying model.
         # @!attribute [rw] contents
         #   @return [::Array<::Google::Cloud::AIPlatform::V1::Content>]
-        #     Required. Input content.
-        class CountTokensRequest
-          include ::Google::Protobuf::MessageExts
-          extend ::Google::Protobuf::MessageExts::ClassMethods
-        end
-
-        # Response message for [PredictionService.CountTokens][].
-        # @!attribute [rw] total_tokens
-        #   @return [::Integer]
-        #     The total number of tokens counted across all instances from the request.
-        # @!attribute [rw] total_billable_characters
-        #   @return [::Integer]
-        #     The total number of billable characters counted across all instances from
-        #     the request.
-        class CountTokensResponse
-          include ::Google::Protobuf::MessageExts
-          extend ::Google::Protobuf::MessageExts::ClassMethods
-        end
-
-        # Request message for [PredictionService.GenerateContent].
-        # @!attribute [rw] model
-        #   @return [::String]
-        #     Required. The name of the publisher model requested to serve the
-        #     prediction. Format:
-        #     `projects/{project}/locations/{location}/publishers/*/models/*`
-        # @!attribute [rw] contents
-        #   @return [::Array<::Google::Cloud::AIPlatform::V1::Content>]
-        #     Required. The content of the current conversation with the model.
-        #
-        #     For single-turn queries, this is a single instance. For multi-turn queries,
-        #     this is a repeated field that contains conversation history + latest
-        #     request.
+        #     Optional. Input content.
         # @!attribute [rw] system_instruction
         #   @return [::Google::Cloud::AIPlatform::V1::Content]
         #     Optional. The user provided system instructions for the model.
@@ -485,6 +454,82 @@ module Google
         #     A `Tool` is a piece of code that enables the system to interact with
         #     external systems to perform an action, or set of actions, outside of
         #     knowledge and scope of the model.
+        # @!attribute [rw] generation_config
+        #   @return [::Google::Cloud::AIPlatform::V1::GenerationConfig]
+        #     Optional. Generation config that the model will use to generate the
+        #     response.
+        class CountTokensRequest
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Response message for [PredictionService.CountTokens][].
+        # @!attribute [rw] total_tokens
+        #   @return [::Integer]
+        #     The total number of tokens counted across all instances from the request.
+        # @!attribute [rw] total_billable_characters
+        #   @return [::Integer]
+        #     The total number of billable characters counted across all instances from
+        #     the request.
+        # @!attribute [r] prompt_tokens_details
+        #   @return [::Array<::Google::Cloud::AIPlatform::V1::ModalityTokenCount>]
+        #     Output only. List of modalities that were processed in the request input.
+        class CountTokensResponse
+          include ::Google::Protobuf::MessageExts
+          extend ::Google::Protobuf::MessageExts::ClassMethods
+        end
+
+        # Request message for [PredictionService.GenerateContent].
+        # @!attribute [rw] model
+        #   @return [::String]
+        #     Required. The fully qualified name of the publisher model or tuned model
+        #     endpoint to use.
+        #
+        #     Publisher model format:
+        #     `projects/{project}/locations/{location}/publishers/*/models/*`
+        #
+        #     Tuned model endpoint format:
+        #     `projects/{project}/locations/{location}/endpoints/{endpoint}`
+        # @!attribute [rw] contents
+        #   @return [::Array<::Google::Cloud::AIPlatform::V1::Content>]
+        #     Required. The content of the current conversation with the model.
+        #
+        #     For single-turn queries, this is a single instance. For multi-turn queries,
+        #     this is a repeated field that contains conversation history + latest
+        #     request.
+        # @!attribute [rw] system_instruction
+        #   @return [::Google::Cloud::AIPlatform::V1::Content]
+        #     Optional. The user provided system instructions for the model.
+        #     Note: only text should be used in parts and content in each part will be in
+        #     a separate paragraph.
+        # @!attribute [rw] cached_content
+        #   @return [::String]
+        #     Optional. The name of the cached content used as context to serve the
+        #     prediction. Note: only used in explicit caching, where users can have
+        #     control over caching (e.g. what content to cache) and enjoy guaranteed cost
+        #     savings. Format:
+        #     `projects/{project}/locations/{location}/cachedContents/{cachedContent}`
+        # @!attribute [rw] tools
+        #   @return [::Array<::Google::Cloud::AIPlatform::V1::Tool>]
+        #     Optional. A list of `Tools` the model may use to generate the next
+        #     response.
+        #
+        #     A `Tool` is a piece of code that enables the system to interact with
+        #     external systems to perform an action, or set of actions, outside of
+        #     knowledge and scope of the model.
+        # @!attribute [rw] tool_config
+        #   @return [::Google::Cloud::AIPlatform::V1::ToolConfig]
+        #     Optional. Tool config. This config is shared for all tools provided in the
+        #     request.
+        # @!attribute [rw] labels
+        #   @return [::Google::Protobuf::Map{::String => ::String}]
+        #     Optional. The labels with user-defined metadata for the request. It is used
+        #     for billing and reporting only.
+        #
+        #     Label keys and values can be no longer than 63 characters
+        #     (Unicode codepoints) and can only contain lowercase letters, numeric
+        #     characters, underscores, and dashes. International characters are allowed.
+        #     Label values are optional. Label keys must start with a letter.
         # @!attribute [rw] safety_settings
         #   @return [::Array<::Google::Cloud::AIPlatform::V1::SafetySetting>]
         #     Optional. Per request settings for blocking unsafe content.
@@ -495,12 +540,31 @@ module Google
         class GenerateContentRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
+
+          # @!attribute [rw] key
+          #   @return [::String]
+          # @!attribute [rw] value
+          #   @return [::String]
+          class LabelsEntry
+            include ::Google::Protobuf::MessageExts
+            extend ::Google::Protobuf::MessageExts::ClassMethods
+          end
         end
 
         # Response message for [PredictionService.GenerateContent].
         # @!attribute [r] candidates
         #   @return [::Array<::Google::Cloud::AIPlatform::V1::Candidate>]
         #     Output only. Generated candidates.
+        # @!attribute [r] model_version
+        #   @return [::String]
+        #     Output only. The model version used to generate the response.
+        # @!attribute [r] create_time
+        #   @return [::Google::Protobuf::Timestamp]
+        #     Output only. Timestamp when the request is made to the server.
+        # @!attribute [r] response_id
+        #   @return [::String]
+        #     Output only. response_id is used to identify each response. It is the
+        #     encoding of the event_id.
         # @!attribute [r] prompt_feedback
         #   @return [::Google::Cloud::AIPlatform::V1::GenerateContentResponse::PromptFeedback]
         #     Output only. Content filter results for a prompt sent in the request.
@@ -550,12 +614,29 @@ module Google
           # Usage metadata about response(s).
           # @!attribute [rw] prompt_token_count
           #   @return [::Integer]
-          #     Number of tokens in the request.
+          #     Number of tokens in the request. When `cached_content` is set, this is
+          #     still the total effective prompt size meaning this includes the number of
+          #     tokens in the cached content.
           # @!attribute [rw] candidates_token_count
           #   @return [::Integer]
           #     Number of tokens in the response(s).
           # @!attribute [rw] total_token_count
           #   @return [::Integer]
+          #     Total token count for prompt and response candidates.
+          # @!attribute [r] cached_content_token_count
+          #   @return [::Integer]
+          #     Output only. Number of tokens in the cached part in the input (the cached
+          #     content).
+          # @!attribute [r] prompt_tokens_details
+          #   @return [::Array<::Google::Cloud::AIPlatform::V1::ModalityTokenCount>]
+          #     Output only. List of modalities that were processed in the request input.
+          # @!attribute [r] cache_tokens_details
+          #   @return [::Array<::Google::Cloud::AIPlatform::V1::ModalityTokenCount>]
+          #     Output only. List of modalities of the cached content in the request
+          #     input.
+          # @!attribute [r] candidates_tokens_details
+          #   @return [::Array<::Google::Cloud::AIPlatform::V1::ModalityTokenCount>]
+          #     Output only. List of modalities that were returned in the response.
           class UsageMetadata
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

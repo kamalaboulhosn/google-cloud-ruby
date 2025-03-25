@@ -50,6 +50,8 @@ module Google
             # See {::Google::Cloud::Dataplex::V1::DataTaxonomyService::Client::Configuration}
             # for a description of the configuration fields.
             #
+            # @deprecated This service is deprecated and may be removed in the next major version update.
+            #
             # @example
             #
             #   # Modify the configuration for all DataTaxonomyService clients
@@ -167,14 +169,26 @@ module Google
                 universe_domain: @config.universe_domain,
                 channel_args: @config.channel_args,
                 interceptors: @config.interceptors,
-                channel_pool_config: @config.channel_pool
+                channel_pool_config: @config.channel_pool,
+                logger: @config.logger
               )
+
+              @data_taxonomy_service_stub.stub_logger&.info do |entry|
+                entry.set_system_name
+                entry.set_service
+                entry.message = "Created client for #{entry.service}"
+                entry.set_credentials_fields credentials
+                entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                entry.set "defaultTimeout", @config.timeout if @config.timeout
+                entry.set "quotaProject", @quota_project_id if @quota_project_id
+              end
 
               @location_client = Google::Cloud::Location::Locations::Client.new do |config|
                 config.credentials = credentials
                 config.quota_project = @quota_project_id
                 config.endpoint = @data_taxonomy_service_stub.endpoint
                 config.universe_domain = @data_taxonomy_service_stub.universe_domain
+                config.logger = @data_taxonomy_service_stub.logger if config.respond_to? :logger=
               end
 
               @iam_policy_client = Google::Iam::V1::IAMPolicy::Client.new do |config|
@@ -182,6 +196,7 @@ module Google
                 config.quota_project = @quota_project_id
                 config.endpoint = @data_taxonomy_service_stub.endpoint
                 config.universe_domain = @data_taxonomy_service_stub.universe_domain
+                config.logger = @data_taxonomy_service_stub.logger if config.respond_to? :logger=
               end
             end
 
@@ -206,10 +221,21 @@ module Google
             #
             attr_reader :iam_policy_client
 
+            ##
+            # The logger used for request/response debug logging.
+            #
+            # @return [Logger]
+            #
+            def logger
+              @data_taxonomy_service_stub.logger
+            end
+
             # Service calls
 
             ##
             # Create a DataTaxonomy resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload create_data_taxonomy(request, options = nil)
             #   Pass arguments to `create_data_taxonomy` via a request object, either of type
@@ -227,9 +253,6 @@ module Google
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param parent [::String]
-            #     Required. The resource name of the data taxonomy location, of the form:
-            #     projects/\\{project_number}/locations/\\{location_id}
-            #     where `location_id` refers to a GCP region.
             #   @param data_taxonomy_id [::String]
             #     Required. DataTaxonomy identifier.
             #     * Must contain only lowercase letters, numbers and hyphens.
@@ -310,7 +333,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :create_data_taxonomy, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -318,6 +341,8 @@ module Google
 
             ##
             # Updates a DataTaxonomy resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload update_data_taxonomy(request, options = nil)
             #   Pass arguments to `update_data_taxonomy` via a request object, either of type
@@ -409,7 +434,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :update_data_taxonomy, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -418,6 +443,8 @@ module Google
             ##
             # Deletes a DataTaxonomy resource. All attributes within the DataTaxonomy
             # must be deleted before the DataTaxonomy can be deleted.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload delete_data_taxonomy(request, options = nil)
             #   Pass arguments to `delete_data_taxonomy` via a request object, either of type
@@ -508,7 +535,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :delete_data_taxonomy, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -516,6 +543,8 @@ module Google
 
             ##
             # Lists DataTaxonomy resources in a project and location.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload list_data_taxonomies(request, options = nil)
             #   Pass arguments to `list_data_taxonomies` via a request object, either of type
@@ -615,7 +644,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :list_data_taxonomies, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_taxonomy_service_stub, :list_data_taxonomies, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -623,6 +652,8 @@ module Google
 
             ##
             # Retrieves a DataTaxonomy resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload get_data_taxonomy(request, options = nil)
             #   Pass arguments to `get_data_taxonomy` via a request object, either of type
@@ -640,8 +671,6 @@ module Google
             #   the default parameter values, pass an empty Hash as a request object (see above).
             #
             #   @param name [::String]
-            #     Required. The resource name of the DataTaxonomy:
-            #     projects/\\{project_number}/locations/\\{location_id}/dataTaxonomies/\\{data_taxonomy_id}
             #
             # @yield [response, operation] Access the result along with the RPC operation
             # @yieldparam response [::Google::Cloud::Dataplex::V1::DataTaxonomy]
@@ -702,7 +731,6 @@ module Google
 
               @data_taxonomy_service_stub.call_rpc :get_data_taxonomy, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -710,6 +738,8 @@ module Google
 
             ##
             # Create a DataAttributeBinding resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload create_data_attribute_binding(request, options = nil)
             #   Pass arguments to `create_data_attribute_binding` via a request object, either of type
@@ -809,7 +839,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :create_data_attribute_binding, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -817,6 +847,8 @@ module Google
 
             ##
             # Updates a DataAttributeBinding resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload update_data_attribute_binding(request, options = nil)
             #   Pass arguments to `update_data_attribute_binding` via a request object, either of type
@@ -908,7 +940,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :update_data_attribute_binding, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -918,6 +950,8 @@ module Google
             # Deletes a DataAttributeBinding resource. All attributes within the
             # DataAttributeBinding must be deleted before the DataAttributeBinding can be
             # deleted.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload delete_data_attribute_binding(request, options = nil)
             #   Pass arguments to `delete_data_attribute_binding` via a request object, either of type
@@ -1010,7 +1044,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :delete_data_attribute_binding, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1018,6 +1052,8 @@ module Google
 
             ##
             # Lists DataAttributeBinding resources in a project and location.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload list_data_attribute_bindings(request, options = nil)
             #   Pass arguments to `list_data_attribute_bindings` via a request object, either of type
@@ -1120,7 +1156,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :list_data_attribute_bindings, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_taxonomy_service_stub, :list_data_attribute_bindings, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1128,6 +1164,8 @@ module Google
 
             ##
             # Retrieves a DataAttributeBinding resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload get_data_attribute_binding(request, options = nil)
             #   Pass arguments to `get_data_attribute_binding` via a request object, either of type
@@ -1207,7 +1245,6 @@ module Google
 
               @data_taxonomy_service_stub.call_rpc :get_data_attribute_binding, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1215,6 +1252,8 @@ module Google
 
             ##
             # Create a DataAttribute resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload create_data_attribute(request, options = nil)
             #   Pass arguments to `create_data_attribute` via a request object, either of type
@@ -1314,7 +1353,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :create_data_attribute, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1322,6 +1361,8 @@ module Google
 
             ##
             # Updates a DataAttribute resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload update_data_attribute(request, options = nil)
             #   Pass arguments to `update_data_attribute` via a request object, either of type
@@ -1413,7 +1454,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :update_data_attribute, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1421,6 +1462,8 @@ module Google
 
             ##
             # Deletes a Data Attribute resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload delete_data_attribute(request, options = nil)
             #   Pass arguments to `delete_data_attribute` via a request object, either of type
@@ -1511,7 +1554,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :delete_data_attribute, request, options: options do |response, operation|
                 response = ::Gapic::Operation.new response, @operations_client, options: options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1519,6 +1562,8 @@ module Google
 
             ##
             # Lists Data Attribute resources in a DataTaxonomy.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload list_data_attributes(request, options = nil)
             #   Pass arguments to `list_data_attributes` via a request object, either of type
@@ -1617,7 +1662,7 @@ module Google
               @data_taxonomy_service_stub.call_rpc :list_data_attributes, request, options: options do |response, operation|
                 response = ::Gapic::PagedEnumerable.new @data_taxonomy_service_stub, :list_data_attributes, request, response, operation, options
                 yield response, operation if block_given?
-                return response
+                throw :response, response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1625,6 +1670,8 @@ module Google
 
             ##
             # Retrieves a Data Attribute resource.
+            #
+            # @deprecated This method is deprecated and may be removed in the next major version update.
             #
             # @overload get_data_attribute(request, options = nil)
             #   Pass arguments to `get_data_attribute` via a request object, either of type
@@ -1704,7 +1751,6 @@ module Google
 
               @data_taxonomy_service_stub.call_rpc :get_data_attribute, request, options: options do |response, operation|
                 yield response, operation if block_given?
-                return response
               end
             rescue ::GRPC::BadStatus => e
               raise ::Google::Cloud::Error.from_error(e)
@@ -1754,6 +1800,13 @@ module Google
             #    *  (`GRPC::Core::Channel`) a gRPC channel with included credentials
             #    *  (`GRPC::Core::ChannelCredentials`) a gRPC credentails object
             #    *  (`nil`) indicating no credentials
+            #
+            #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+            #   external source for authentication to Google Cloud, you must validate it before
+            #   providing it to a Google API client library. Providing an unvalidated credential
+            #   configuration to Google APIs can compromise the security of your systems and data.
+            #   For more information, refer to [Validate credential configurations from external
+            #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
             #   @return [::Object]
             # @!attribute [rw] scope
             #   The OAuth scopes
@@ -1793,6 +1846,11 @@ module Google
             #   default endpoint URL. The default value of nil uses the environment
             #   universe (usually the default "googleapis.com" universe).
             #   @return [::String,nil]
+            # @!attribute [rw] logger
+            #   A custom logger to use for request/response debug logging, or the value
+            #   `:default` (the default) to construct a default logger, or `nil` to
+            #   explicitly disable logging.
+            #   @return [::Logger,:default,nil]
             #
             class Configuration
               extend ::Gapic::Config
@@ -1817,6 +1875,7 @@ module Google
               config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
               config_attr :quota_project, nil, ::String, nil
               config_attr :universe_domain, nil, ::String, nil
+              config_attr :logger, :default, ::Logger, nil, :default
 
               # @private
               def initialize parent_config = nil

@@ -35,6 +35,8 @@ module Google
 
             # Completes the specified user input with keyword suggestions.
             rpc :CompleteQuery, ::Google::Cloud::DiscoveryEngine::V1beta::CompleteQueryRequest, ::Google::Cloud::DiscoveryEngine::V1beta::CompleteQueryResponse
+            # Completes the user input with advanced keyword suggestions.
+            rpc :AdvancedCompleteQuery, ::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryRequest, ::Google::Cloud::DiscoveryEngine::V1beta::AdvancedCompleteQueryResponse
             # Imports all
             # [SuggestionDenyListEntry][google.cloud.discoveryengine.v1beta.SuggestionDenyListEntry]
             # for a DataStore.
@@ -43,6 +45,14 @@ module Google
             # [SuggestionDenyListEntry][google.cloud.discoveryengine.v1beta.SuggestionDenyListEntry]
             # for a DataStore.
             rpc :PurgeSuggestionDenyListEntries, ::Google::Cloud::DiscoveryEngine::V1beta::PurgeSuggestionDenyListEntriesRequest, ::Google::Longrunning::Operation
+            # Imports
+            # [CompletionSuggestion][google.cloud.discoveryengine.v1beta.CompletionSuggestion]s
+            # for a DataStore.
+            rpc :ImportCompletionSuggestions, ::Google::Cloud::DiscoveryEngine::V1beta::ImportCompletionSuggestionsRequest, ::Google::Longrunning::Operation
+            # Permanently deletes all
+            # [CompletionSuggestion][google.cloud.discoveryengine.v1beta.CompletionSuggestion]s
+            # for a DataStore.
+            rpc :PurgeCompletionSuggestions, ::Google::Cloud::DiscoveryEngine::V1beta::PurgeCompletionSuggestionsRequest, ::Google::Longrunning::Operation
           end
 
           Stub = Service.rpc_stub_class

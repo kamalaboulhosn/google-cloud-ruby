@@ -57,7 +57,7 @@ module Google
         #     Only fields specified in `update_mask` are updated.
         # @!attribute [rw] update_mask
         #   @return [::Google::Protobuf::FieldMask]
-        #     Required. Mask of fields to update.
+        #     Optional. Mask of fields to update.
         # @!attribute [rw] validate_only
         #   @return [::Boolean]
         #     Optional. Only validate the request, but do not perform mutations.
@@ -74,6 +74,11 @@ module Google
         #     `projects/{project}/locations/{location_id}/dataScans/{data_scan_id}`
         #     where `project` refers to a *project_id* or *project_number* and
         #     `location_id` refers to a GCP region.
+        # @!attribute [rw] force
+        #   @return [::Boolean]
+        #     Optional. If set to true, any child resources of this data scan will also
+        #     be deleted. (Otherwise, the request will only work if the data scan has no
+        #     child resources.)
         class DeleteDataScanRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -258,22 +263,25 @@ module Google
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Generate recommended DataQualityRules request.
+        # Request details for generating data quality rule recommendations.
         # @!attribute [rw] name
         #   @return [::String]
-        #     Required. The name should be either
-        #     * the name of a datascan with at least one successful completed data
-        #     profiling job, or
-        #     * the name of a successful completed data profiling datascan job.
+        #     Required. The name must be one of the following:
+        #
+        #     * The name of a data scan with at least one successful, completed data
+        #     profiling job
+        #     * The name of a successful, completed data profiling job (a data scan job
+        #     where the job type is data profiling)
         class GenerateDataQualityRulesRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
         end
 
-        # Generate recommended DataQualityRules response.
+        # Response details for data quality rule recommendations.
         # @!attribute [rw] rule
         #   @return [::Array<::Google::Cloud::Dataplex::V1::DataQualityRule>]
-        #     Generated recommended \\{@link DataQualityRule}s.
+        #     The data quality rules that Dataplex generates based on the results
+        #     of a data profiling scan.
         class GenerateDataQualityRulesResponse
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -284,15 +292,21 @@ module Google
         #
         # For example:
         #
-        # * Data Quality: generates queries based on the rules and runs against the
-        #   data to get data quality check results.
-        # * Data Profile: analyzes the data in table(s) and generates insights about
+        # * Data quality: generates queries based on the rules and runs against the
+        #   data to get data quality check results. For more information, see [Auto
+        #   data quality
+        #   overview](https://cloud.google.com/dataplex/docs/auto-data-quality-overview).
+        # * Data profile: analyzes the data in tables and generates insights about
         #   the structure, content and relationships (such as null percent,
-        #   cardinality, min/max/mean, etc).
+        #   cardinality, min/max/mean, etc). For more information, see [About data
+        #   profiling](https://cloud.google.com/dataplex/docs/data-profiling-overview).
+        # * Data discovery: scans data in Cloud Storage buckets to extract and then
+        #   catalog metadata. For more information, see [Discover and catalog Cloud
+        #   Storage data](https://cloud.google.com/bigquery/docs/automatic-discovery).
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The relative resource name of the scan, of the form:
-        #     `projects/{project}/locations/{location_id}/dataScans/{datascan_id}`,
+        #     Output only. Identifier. The relative resource name of the scan, of the
+        #     form: `projects/{project}/locations/{location_id}/dataScans/{datascan_id}`,
         #     where `project` refers to a *project_id* or *project_number* and
         #     `location_id` refers to a GCP region.
         # @!attribute [r] uid
@@ -337,16 +351,34 @@ module Google
         #     Output only. The type of DataScan.
         # @!attribute [rw] data_quality_spec
         #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec]
-        #     DataQualityScan related setting.
+        #     Settings for a data quality scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_quality_spec`, `data_profile_spec`, `data_discovery_spec`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [rw] data_profile_spec
         #   @return [::Google::Cloud::Dataplex::V1::DataProfileSpec]
-        #     DataProfileScan related setting.
+        #     Settings for a data profile scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_profile_spec`, `data_quality_spec`, `data_discovery_spec`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [rw] data_discovery_spec
+        #   @return [::Google::Cloud::Dataplex::V1::DataDiscoverySpec]
+        #     Settings for a data discovery scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_discovery_spec`, `data_quality_spec`, `data_profile_spec`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] data_quality_result
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityResult]
-        #     Output only. The result of the data quality scan.
+        #     Output only. The result of a data quality scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_quality_result`, `data_profile_result`, `data_discovery_result`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] data_profile_result
         #   @return [::Google::Cloud::Dataplex::V1::DataProfileResult]
-        #     Output only. The result of the data profile scan.
+        #     Output only. The result of a data profile scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_profile_result`, `data_quality_result`, `data_discovery_result`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [r] data_discovery_result
+        #   @return [::Google::Cloud::Dataplex::V1::DataDiscoveryResult]
+        #     Output only. The result of a data discovery scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_discovery_result`, `data_quality_result`, `data_profile_result`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class DataScan
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -372,10 +404,13 @@ module Google
           # Status of the data scan execution.
           # @!attribute [rw] latest_job_start_time
           #   @return [::Google::Protobuf::Timestamp]
-          #     The time when the latest DataScanJob started.
+          #     Optional. The time when the latest DataScanJob started.
           # @!attribute [rw] latest_job_end_time
           #   @return [::Google::Protobuf::Timestamp]
-          #     The time when the latest DataScanJob ended.
+          #     Optional. The time when the latest DataScanJob ended.
+          # @!attribute [rw] latest_job_create_time
+          #   @return [::Google::Protobuf::Timestamp]
+          #     Optional. The time when the DataScanJob execution was created.
           class ExecutionStatus
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -394,13 +429,17 @@ module Google
         # A DataScanJob represents an instance of DataScan execution.
         # @!attribute [r] name
         #   @return [::String]
-        #     Output only. The relative resource name of the DataScanJob, of the form:
+        #     Output only. Identifier. The relative resource name of the DataScanJob, of
+        #     the form:
         #     `projects/{project}/locations/{location_id}/dataScans/{datascan_id}/jobs/{job_id}`,
         #     where `project` refers to a *project_id* or *project_number* and
         #     `location_id` refers to a GCP region.
         # @!attribute [r] uid
         #   @return [::String]
         #     Output only. System generated globally unique ID for the DataScanJob.
+        # @!attribute [r] create_time
+        #   @return [::Google::Protobuf::Timestamp]
+        #     Output only. The time when the DataScanJob was created.
         # @!attribute [r] start_time
         #   @return [::Google::Protobuf::Timestamp]
         #     Output only. The time when the DataScanJob was started.
@@ -418,16 +457,34 @@ module Google
         #     Output only. The type of the parent DataScan.
         # @!attribute [r] data_quality_spec
         #   @return [::Google::Cloud::Dataplex::V1::DataQualitySpec]
-        #     Output only. DataQualityScan related setting.
+        #     Output only. Settings for a data quality scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_quality_spec`, `data_profile_spec`, `data_discovery_spec`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] data_profile_spec
         #   @return [::Google::Cloud::Dataplex::V1::DataProfileSpec]
-        #     Output only. DataProfileScan related setting.
+        #     Output only. Settings for a data profile scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_profile_spec`, `data_quality_spec`, `data_discovery_spec`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [r] data_discovery_spec
+        #   @return [::Google::Cloud::Dataplex::V1::DataDiscoverySpec]
+        #     Output only. Settings for a data discovery scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_discovery_spec`, `data_quality_spec`, `data_profile_spec`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] data_quality_result
         #   @return [::Google::Cloud::Dataplex::V1::DataQualityResult]
-        #     Output only. The result of the data quality scan.
+        #     Output only. The result of a data quality scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_quality_result`, `data_profile_result`, `data_discovery_result`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         # @!attribute [r] data_profile_result
         #   @return [::Google::Cloud::Dataplex::V1::DataProfileResult]
-        #     Output only. The result of the data profile scan.
+        #     Output only. The result of a data profile scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_profile_result`, `data_quality_result`, `data_discovery_result`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+        # @!attribute [r] data_discovery_result
+        #   @return [::Google::Cloud::Dataplex::V1::DataDiscoveryResult]
+        #     Output only. The result of a data discovery scan.
+        #
+        #     Note: The following fields are mutually exclusive: `data_discovery_result`, `data_quality_result`, `data_profile_result`. If a field in that set is populated, all other fields in the set will automatically be cleared.
         class DataScanJob
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -457,16 +514,19 @@ module Google
           end
         end
 
-        # The type of DataScan.
+        # The type of data scan.
         module DataScanType
-          # The DataScan type is unspecified.
+          # The data scan type is unspecified.
           DATA_SCAN_TYPE_UNSPECIFIED = 0
 
-          # Data Quality scan.
+          # Data quality scan.
           DATA_QUALITY = 1
 
-          # Data Profile scan.
+          # Data profile scan.
           DATA_PROFILE = 2
+
+          # Data discovery scan.
+          DATA_DISCOVERY = 3
         end
       end
     end

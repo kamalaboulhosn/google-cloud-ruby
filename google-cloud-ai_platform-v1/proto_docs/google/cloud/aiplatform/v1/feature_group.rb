@@ -25,9 +25,9 @@ module Google
         # @!attribute [rw] big_query
         #   @return [::Google::Cloud::AIPlatform::V1::FeatureGroup::BigQuery]
         #     Indicates that features for this group come from BigQuery Table/View.
-        #     By default treats the source as a sparse time series source, which is
-        #     required to have an entity_id and a feature_timestamp column in the
-        #     source.
+        #     By default treats the source as a sparse time series source. The BigQuery
+        #     source table or view must have at least one entity ID column and a column
+        #     named `feature_timestamp`.
         # @!attribute [rw] name
         #   @return [::String]
         #     Identifier. Name of the FeatureGroup. Format:
@@ -71,9 +71,43 @@ module Google
           #   @return [::Array<::String>]
           #     Optional. Columns to construct entity_id / row keys.
           #     If not provided defaults to `entity_id`.
+          # @!attribute [rw] static_data_source
+          #   @return [::Boolean]
+          #     Optional. Set if the data source is not a time-series.
+          # @!attribute [rw] time_series
+          #   @return [::Google::Cloud::AIPlatform::V1::FeatureGroup::BigQuery::TimeSeries]
+          #     Optional. If the source is a time-series source, this can be set to
+          #     control how downstream sources (ex:
+          #     {::Google::Cloud::AIPlatform::V1::FeatureView FeatureView} ) will treat
+          #     time-series sources. If not set, will treat the source as a time-series
+          #     source with `feature_timestamp` as timestamp column and no scan boundary.
+          # @!attribute [rw] dense
+          #   @return [::Boolean]
+          #     Optional. If set, all feature values will be fetched
+          #     from a single row per unique entityId including nulls.
+          #     If not set, will collapse all rows for each unique entityId into a singe
+          #     row with any non-null values if present, if no non-null values are
+          #     present will sync null.
+          #     ex: If source has schema
+          #     `(entity_id, feature_timestamp, f0, f1)` and the following rows:
+          #     `(e1, 2020-01-01T10:00:00.123Z, 10, 15)`
+          #     `(e1, 2020-02-01T10:00:00.123Z, 20, null)`
+          #     If dense is set, `(e1, 20, null)` is synced to online stores. If dense is
+          #     not set, `(e1, 20, 15)` is synced to online stores.
           class BigQuery
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
+
+            # @!attribute [rw] timestamp_column
+            #   @return [::String]
+            #     Optional. Column hosting timestamp values for a time-series source.
+            #     Will be used to determine the latest `feature_values` for each entity.
+            #     Optional. If not provided, column named `feature_timestamp` of
+            #     type `TIMESTAMP` will be used.
+            class TimeSeries
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
+            end
           end
 
           # @!attribute [rw] key

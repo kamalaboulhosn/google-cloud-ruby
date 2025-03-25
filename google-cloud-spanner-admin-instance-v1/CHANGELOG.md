@@ -1,5 +1,69 @@
 # Release History
 
+### 2.0.0 (2025-02-07)
+
+### ⚠ BREAKING CHANGES
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28826](https://github.com/googleapis/google-cloud-ruby/issues/28826))
+
+#### Bug Fixes
+
+* Fixed incorrect pagination on certain REST RPC methods ([#28826](https://github.com/googleapis/google-cloud-ruby/issues/28826)) 
+
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.0 (2025-01-08)
+
+#### Features
+
+* Added free_instance_availability, quorum_type, and storage_limit_per_processing_unit to InstanceConfig 
+* Added instance_type and free_instance_metadata to Instance 
+
+### 1.4.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.3.0 (2024-10-24)
+
+#### Features
+
+* Add support for Cloud Spanner Default Backup Schedules ([#27462](https://github.com/googleapis/google-cloud-ruby/issues/27462)) 
+
+### 1.2.0 (2024-10-15)
+
+#### Features
+
+* Support asymmetric autoscaling options 
+* The Instance resource reports the compute capacity per ReplicaSelection 
+
+### 1.1.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27012](https://github.com/googleapis/google-cloud-ruby/issues/27012)) 
+
+### 1.1.0 (2024-08-28)
+
+#### Features
+
+* add edition field to the instance proto ([#26959](https://github.com/googleapis/google-cloud-ruby/issues/26959)) 
+
+### 1.0.0 (2024-07-08)
+
+#### Features
+
+* Bump version to 1.0.0 
+
 ### 0.16.0 (2024-04-19)
 
 #### Features

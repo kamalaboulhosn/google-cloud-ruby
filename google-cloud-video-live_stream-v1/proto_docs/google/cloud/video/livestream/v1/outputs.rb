@@ -27,16 +27,24 @@ module Google
           # different output formats.
           # @!attribute [rw] key
           #   @return [::String]
-          #     A unique key for this elementary stream.
+          #     A unique key for this elementary stream. The key must be 1-63
+          #     characters in length. The key must begin and end with a letter (regardless
+          #     of case) or a number, but can contain dashes or underscores in between.
           # @!attribute [rw] video_stream
           #   @return [::Google::Cloud::Video::LiveStream::V1::VideoStream]
           #     Encoding of a video stream.
+          #
+          #     Note: The following fields are mutually exclusive: `video_stream`, `audio_stream`, `text_stream`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] audio_stream
           #   @return [::Google::Cloud::Video::LiveStream::V1::AudioStream]
           #     Encoding of an audio stream.
+          #
+          #     Note: The following fields are mutually exclusive: `audio_stream`, `video_stream`, `text_stream`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] text_stream
           #   @return [::Google::Cloud::Video::LiveStream::V1::TextStream]
           #     Encoding of a text stream. For example, closed captions or subtitles.
+          #
+          #     Note: The following fields are mutually exclusive: `text_stream`, `video_stream`, `audio_stream`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class ElementaryStream
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -45,7 +53,9 @@ module Google
           # Multiplexing settings for output stream.
           # @!attribute [rw] key
           #   @return [::String]
-          #     A unique key for this multiplexed stream.
+          #     A unique key for this multiplexed stream. The key must be 1-63
+          #     characters in length. The key must begin and end with a letter (regardless
+          #     of case) or a number, but can contain dashes or underscores in between.
           # @!attribute [rw] container
           #   @return [::String]
           #     The container format. The default is `fmp4`.
@@ -108,6 +118,12 @@ module Google
           #     errors while accessing segments which are listed in the manifest that the
           #     player has, but were already deleted from the output Google Cloud Storage
           #     bucket. Default value is `60s`.
+          #
+          #     If both segment_keep_duration and
+          #     {::Google::Cloud::Video::LiveStream::V1::RetentionConfig#retention_window_duration RetentionConfig.retention_window_duration}
+          #     are set,
+          #     {::Google::Cloud::Video::LiveStream::V1::RetentionConfig#retention_window_duration RetentionConfig.retention_window_duration}
+          #     is used and segment_keep_duration is ignored.
           # @!attribute [rw] use_timecode_as_timeline
           #   @return [::Boolean]
           #     Whether to use the timecode, as specified in timecode config, when setting:
@@ -117,6 +133,9 @@ module Google
           #
           #     If false, ignore the input timecode and use the time from system clock
           #     when the manifest is first generated. This is the default behavior.
+          # @!attribute [rw] key
+          #   @return [::String]
+          #     Optional. A unique key for this manifest.
           class Manifest
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -294,6 +313,8 @@ module Google
             #     calculated by `gopFrameCount`/`frameRate`. The calculated GOP duration
             #     must satisfy the limitations on `gopDuration` as well.
             #     Valid range is [60, 600].
+            #
+            #     Note: The following fields are mutually exclusive: `gop_frame_count`, `gop_duration`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] gop_duration
             #   @return [::Google::Protobuf::Duration]
             #     Select the GOP size based on the specified duration. The default is
@@ -304,6 +325,8 @@ module Google
             #     must be divisible by `gopDuration`. Valid range is [2s, 20s].
             #
             #     All video streams in the same channel must have the same GOP size.
+            #
+            #     Note: The following fields are mutually exclusive: `gop_duration`, `gop_frame_count`. If a field in that set is populated, all other fields in the set will automatically be cleared.
             # @!attribute [rw] vbv_size_bits
             #   @return [::Integer]
             #     Size of the Video Buffering Verifier (VBV) buffer in bits. Must be
@@ -483,9 +506,13 @@ module Google
           # @!attribute [rw] utc_offset
           #   @return [::Google::Protobuf::Duration]
           #     UTC offset. Must be whole seconds, between -18 hours and +18 hours.
+          #
+          #     Note: The following fields are mutually exclusive: `utc_offset`, `time_zone`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] time_zone
           #   @return [::Google::Type::TimeZone]
           #     Time zone e.g. "America/Los_Angeles".
+          #
+          #     Note: The following fields are mutually exclusive: `time_zone`, `utc_offset`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class TimecodeConfig
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods

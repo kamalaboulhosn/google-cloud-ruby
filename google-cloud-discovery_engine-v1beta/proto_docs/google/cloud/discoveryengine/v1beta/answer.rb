@@ -25,7 +25,7 @@ module Google
         # @!attribute [rw] name
         #   @return [::String]
         #     Immutable. Fully qualified name
-        #     `project/*/locations/global/collections/{collection}/engines/{engine}/sessions/*/answers/*`
+        #     `projects/{project}/locations/global/collections/{collection}/engines/{engine}/sessions/*/answers/*`
         # @!attribute [rw] state
         #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Answer::State]
         #     The state of the answer generation.
@@ -90,9 +90,18 @@ module Google
           # @!attribute [rw] unstructured_document_info
           #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Answer::Reference::UnstructuredDocumentInfo]
           #     Unstructured document information.
+          #
+          #     Note: The following fields are mutually exclusive: `unstructured_document_info`, `chunk_info`, `structured_document_info`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           # @!attribute [rw] chunk_info
           #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Answer::Reference::ChunkInfo]
           #     Chunk information.
+          #
+          #     Note: The following fields are mutually exclusive: `chunk_info`, `unstructured_document_info`, `structured_document_info`. If a field in that set is populated, all other fields in the set will automatically be cleared.
+          # @!attribute [rw] structured_document_info
+          #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Answer::Reference::StructuredDocumentInfo]
+          #     Structured document information.
+          #
+          #     Note: The following fields are mutually exclusive: `structured_document_info`, `unstructured_document_info`, `chunk_info`. If a field in that set is populated, all other fields in the set will automatically be cleared.
           class Reference
             include ::Google::Protobuf::MessageExts
             extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -110,6 +119,10 @@ module Google
             # @!attribute [rw] chunk_contents
             #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1beta::Answer::Reference::UnstructuredDocumentInfo::ChunkContent>]
             #     List of cited chunk contents derived from document content.
+            # @!attribute [rw] struct_data
+            #   @return [::Google::Protobuf::Struct]
+            #     The structured JSON metadata for the document.
+            #     It is populated from the struct data from the Chunk in search result.
             class UnstructuredDocumentInfo
               include ::Google::Protobuf::MessageExts
               extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -121,6 +134,13 @@ module Google
               # @!attribute [rw] page_identifier
               #   @return [::String]
               #     Page identifier.
+              # @!attribute [rw] relevance_score
+              #   @return [::Float]
+              #     The relevance of the chunk for a given query. Values range from 0.0
+              #     (completely irrelevant) to 1.0 (completely relevant).
+              #     This value is for informational purpose only. It may change for
+              #     the same query and chunk at any time due to a model retraining or
+              #     change in implementation.
               class ChunkContent
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -136,7 +156,11 @@ module Google
             #     Chunk textual content.
             # @!attribute [rw] relevance_score
             #   @return [::Float]
-            #     Relevance score.
+            #     The relevance of the chunk for a given query. Values range from 0.0
+            #     (completely irrelevant) to 1.0 (completely relevant).
+            #     This value is for informational purpose only. It may change for
+            #     the same query and chunk at any time due to a model retraining or
+            #     change in implementation.
             # @!attribute [rw] document_metadata
             #   @return [::Google::Cloud::DiscoveryEngine::V1beta::Answer::Reference::ChunkInfo::DocumentMetadata]
             #     Document metadata.
@@ -157,10 +181,26 @@ module Google
               # @!attribute [rw] page_identifier
               #   @return [::String]
               #     Page identifier.
+              # @!attribute [rw] struct_data
+              #   @return [::Google::Protobuf::Struct]
+              #     The structured JSON metadata for the document.
+              #     It is populated from the struct data from the Chunk in search result.
               class DocumentMetadata
                 include ::Google::Protobuf::MessageExts
                 extend ::Google::Protobuf::MessageExts::ClassMethods
               end
+            end
+
+            # Structured search information.
+            # @!attribute [rw] document
+            #   @return [::String]
+            #     Document resource name.
+            # @!attribute [rw] struct_data
+            #   @return [::Google::Protobuf::Struct]
+            #     Structured search data.
+            class StructuredDocumentInfo
+              include ::Google::Protobuf::MessageExts
+              extend ::Google::Protobuf::MessageExts::ClassMethods
             end
           end
 
@@ -227,6 +267,12 @@ module Google
                 #   @return [::Array<::Google::Cloud::DiscoveryEngine::V1beta::Answer::Step::Action::Observation::SearchResult::ChunkInfo>]
                 #     If citation_type is CHUNK_LEVEL_CITATION and chunk mode is on,
                 #     populate chunk info.
+                # @!attribute [rw] struct_data
+                #   @return [::Google::Protobuf::Struct]
+                #     Data representation.
+                #     The structured JSON data for the document.
+                #     It's populated from the struct data from the Document, or the
+                #     Chunk in search result.
                 class SearchResult
                   include ::Google::Protobuf::MessageExts
                   extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -252,7 +298,11 @@ module Google
                   #     Chunk textual content.
                   # @!attribute [rw] relevance_score
                   #   @return [::Float]
-                  #     Relevance score.
+                  #     The relevance of the chunk for a given query. Values range from
+                  #     0.0 (completely irrelevant) to 1.0 (completely relevant).
+                  #     This value is for informational purpose only. It may change for
+                  #     the same query and chunk at any time due to a model retraining or
+                  #     change in implementation.
                   class ChunkInfo
                     include ::Google::Protobuf::MessageExts
                     extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -304,8 +354,14 @@ module Google
                 # Adversarial query classification type.
                 ADVERSARIAL_QUERY = 1
 
-                # Non-answer-seeking query classification type.
+                # Non-answer-seeking query classification type, for chit chat.
                 NON_ANSWER_SEEKING_QUERY = 2
+
+                # Jail-breaking query classification type.
+                JAIL_BREAKING_QUERY = 3
+
+                # Non-answer-seeking query classification type, for no clear intent.
+                NON_ANSWER_SEEKING_QUERY_V2 = 4
               end
             end
           end
@@ -333,7 +389,9 @@ module Google
             # The adversarial query ignored case.
             ADVERSARIAL_QUERY_IGNORED = 1
 
-            # The non-answer seeking query ignored case.
+            # The non-answer seeking query ignored case
+            #
+            # Google skips the answer if the query is chit chat.
             NON_ANSWER_SEEKING_QUERY_IGNORED = 2
 
             # The out-of-domain query ignored case.
@@ -346,6 +404,36 @@ module Google
             # Google skips the answer if there is a potential policy violation
             # detected. This includes content that may be violent or toxic.
             POTENTIAL_POLICY_VIOLATION = 4
+
+            # The no relevant content case.
+            #
+            # Google skips the answer if there is no relevant content in the
+            # retrieved search results.
+            NO_RELEVANT_CONTENT = 5
+
+            # The jail-breaking query ignored case.
+            #
+            # For example, "Reply in the tone of a competing company's CEO".
+            # Google skips the answer if the query is classified as a jail-breaking
+            # query.
+            JAIL_BREAKING_QUERY_IGNORED = 6
+
+            # The customer policy violation case.
+            #
+            # Google skips the summary if there is a customer policy violation
+            # detected. The policy is defined by the customer.
+            CUSTOMER_POLICY_VIOLATION = 7
+
+            # The non-answer seeking query ignored case.
+            #
+            # Google skips the answer if the query doesn't have clear intent.
+            NON_ANSWER_SEEKING_QUERY_IGNORED_V2 = 8
+
+            # The low-grounded answer case.
+            #
+            # Google skips the answer if a well grounded answer was unable to be
+            # generated.
+            LOW_GROUNDED_ANSWER = 9
           end
         end
       end

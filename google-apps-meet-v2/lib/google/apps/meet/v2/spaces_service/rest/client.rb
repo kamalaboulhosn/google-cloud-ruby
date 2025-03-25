@@ -161,8 +161,28 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @spaces_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
+              end
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @spaces_service_stub.logger
               end
 
               # Service calls
@@ -241,14 +261,16 @@ module Google
 
                 @spaces_service_stub.create_space request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
               end
 
               ##
-              # Gets a space by `space_id` or `meeting_code`.
+              # Gets details about a meeting space.
+              #
+              # For an example, see [Get a meeting
+              # space](https://developers.google.com/meet/api/guides/meeting-spaces#get-meeting-space).
               #
               # @overload get_space(request, options = nil)
               #   Pass arguments to `get_space` via a request object, either of type
@@ -267,6 +289,24 @@ module Google
               #
               #   @param name [::String]
               #     Required. Resource name of the space.
+              #
+              #     Format: `spaces/{space}` or `spaces/{meetingCode}`.
+              #
+              #     `{space}` is the resource identifier for the space. It's a unique,
+              #     server-generated ID and is case sensitive. For example, `jQCFfuBOdN5z`.
+              #
+              #     `{meetingCode}` is an alias for the space. It's a typeable, unique
+              #     character string and is non-case sensitive. For example, `abc-mnop-xyz`.
+              #     The maximum length is 128 characters.
+              #
+              #     A `meetingCode` shouldn't be stored long term as it can become
+              #     dissociated from a meeting space and can be reused for different meeting
+              #     spaces in the future. Generally, a `meetingCode` expires 365 days after
+              #     last use. For more information, see [Learn about meeting codes in Google
+              #     Meet](https://support.google.com/meet/answer/10710509).
+              #
+              #     For more information, see [How Meet identifies a meeting
+              #     space](https://developers.google.com/meet/api/guides/meeting-spaces#identify-meeting-space).
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Apps::Meet::V2::Space]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -320,14 +360,16 @@ module Google
 
                 @spaces_service_stub.get_space request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
               end
 
               ##
-              # Updates a space.
+              # Updates details about a meeting space.
+              #
+              # For an example, see [Update a meeting
+              # space](https://developers.google.com/meet/api/guides/meeting-spaces#update-meeting-space).
               #
               # @overload update_space(request, options = nil)
               #   Pass arguments to `update_space` via a request object, either of type
@@ -348,9 +390,11 @@ module Google
               #     Required. Space to be updated.
               #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
               #     Optional. Field mask used to specify the fields to be updated in the space.
-              #     If update_mask isn't provided, it defaults to '*' and updates all
-              #     fields provided in the request, including deleting fields not set in the
+              #     If update_mask isn't provided(not set, set with empty paths, or only has ""
+              #     as paths), it defaults to update all fields provided with values in the
               #     request.
+              #     Using "*" as update_mask will update all fields, including deleting fields
+              #     not set in the request.
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Apps::Meet::V2::Space]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -404,7 +448,6 @@ module Google
 
                 @spaces_service_stub.update_space request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -412,6 +455,9 @@ module Google
 
               ##
               # Ends an active conference (if there's one).
+              #
+              # For an example, see [End active
+              # conference](https://developers.google.com/meet/api/guides/meeting-spaces#end-active-conference).
               #
               # @overload end_active_conference(request, options = nil)
               #   Pass arguments to `end_active_conference` via a request object, either of type
@@ -430,6 +476,14 @@ module Google
               #
               #   @param name [::String]
               #     Required. Resource name of the space.
+              #
+              #     Format: `spaces/{space}`.
+              #
+              #     `{space}` is the resource identifier for the space. It's a unique,
+              #     server-generated ID and is case sensitive. For example, `jQCFfuBOdN5z`.
+              #
+              #     For more information, see [How Meet identifies a meeting
+              #     space](https://developers.google.com/meet/api/guides/meeting-spaces#identify-meeting-space).
               # @yield [result, operation] Access the result along with the TransportOperation object
               # @yieldparam result [::Google::Protobuf::Empty]
               # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -483,7 +537,6 @@ module Google
 
                 @spaces_service_stub.end_active_conference request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -531,6 +584,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -563,6 +623,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -584,6 +649,7 @@ module Google
                 config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                 config_attr :quota_project, nil, ::String, nil
                 config_attr :universe_domain, nil, ::String, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil

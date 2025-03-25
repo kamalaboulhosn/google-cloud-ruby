@@ -1,5 +1,46 @@
 # Release History
 
+### 0.39.1 (2025-02-06)
+
+#### Documentation
+
+* Marked some fields as unused ([#28937](https://github.com/googleapis/google-cloud-ruby/issues/28937)) 
+
+### 0.39.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 0.38.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 0.37.0 (2024-09-11)
+
+#### Features
+
+* Added descriptions of entity type and property in the document schema ([#27301](https://github.com/googleapis/google-cloud-ruby/issues/27301)) 
+
+### 0.36.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27007](https://github.com/googleapis/google-cloud-ruby/issues/27007)) 
+
+### 0.36.0 (2024-08-02)
+
+#### Features
+
+* Support for Generative AI model-based processor version information 
+* Support the imageless_mode parameter to the process_document RPC 
+
 ### 0.35.0 (2024-04-25)
 
 #### Features

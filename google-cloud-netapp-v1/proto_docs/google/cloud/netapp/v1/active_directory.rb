@@ -76,7 +76,10 @@ module Google
         #     Required. Fields of the to be created active directory.
         # @!attribute [rw] active_directory_id
         #   @return [::String]
-        #     Required. ID of the active directory to create.
+        #     Required. ID of the active directory to create. Must be unique within the
+        #     parent resource. Must contain only letters, numbers and hyphen, with the
+        #     first character a letter , the last a letter or a number, and a 63
+        #     character maximum.
         class CreateActiveDirectoryRequest
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -150,6 +153,9 @@ module Google
         #   @return [::Array<::String>]
         #     Optional. Users to be added to the Built-in Backup Operator active
         #     directory group.
+        # @!attribute [rw] administrators
+        #   @return [::Array<::String>]
+        #     Optional. Users to be added to the Built-in Admininstrators group.
         # @!attribute [rw] security_operators
         #   @return [::Array<::String>]
         #     Optional. Domain users to be given the SeSecurityPrivilege.
@@ -215,6 +221,9 @@ module Google
 
             # Active Directory State is Error
             ERROR = 6
+
+            # Active Directory State is Diagnosing.
+            DIAGNOSING = 7
           end
         end
       end

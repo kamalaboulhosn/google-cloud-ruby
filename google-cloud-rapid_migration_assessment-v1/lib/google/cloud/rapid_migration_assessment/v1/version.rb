@@ -21,7 +21,7 @@ module Google
   module Cloud
     module RapidMigrationAssessment
       module V1
-        VERSION = "0.4.0"
+        VERSION = "2.0.0"
       end
     end
   end

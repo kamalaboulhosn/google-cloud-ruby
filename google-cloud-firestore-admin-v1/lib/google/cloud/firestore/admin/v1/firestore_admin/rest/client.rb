@@ -134,6 +134,12 @@ module Google
 
                     default_config.rpcs.import_documents.timeout = 60.0
 
+                    default_config.rpcs.bulk_delete_documents.timeout = 60.0
+
+                    default_config.rpcs.create_database.timeout = 120.0
+
+                    default_config.rpcs.restore_database.timeout = 120.0
+
                     default_config
                   end
                   yield @configure if block_given?
@@ -219,14 +225,26 @@ module Google
                     endpoint: @config.endpoint,
                     endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                     universe_domain: @config.universe_domain,
-                    credentials: credentials
+                    credentials: credentials,
+                    logger: @config.logger
                   )
+
+                  @firestore_admin_stub.logger(stub: true)&.info do |entry|
+                    entry.set_system_name
+                    entry.set_service
+                    entry.message = "Created client for #{entry.service}"
+                    entry.set_credentials_fields credentials
+                    entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                    entry.set "defaultTimeout", @config.timeout if @config.timeout
+                    entry.set "quotaProject", @quota_project_id if @quota_project_id
+                  end
 
                   @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                     config.credentials = credentials
                     config.quota_project = @quota_project_id
                     config.endpoint = @firestore_admin_stub.endpoint
                     config.universe_domain = @firestore_admin_stub.universe_domain
+                    config.logger = @firestore_admin_stub.logger if config.respond_to? :logger=
                   end
                 end
 
@@ -243,6 +261,15 @@ module Google
                 # @return [Google::Cloud::Location::Locations::Rest::Client]
                 #
                 attr_reader :location_client
+
+                ##
+                # The logger used for request/response debug logging.
+                #
+                # @return [Logger]
+                #
+                def logger
+                  @firestore_admin_stub.logger
+                end
 
                 # Service calls
 
@@ -334,7 +361,7 @@ module Google
                   @firestore_admin_stub.create_index request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -427,7 +454,7 @@ module Google
                   @firestore_admin_stub.list_indexes request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @firestore_admin_stub, :list_indexes, "indexes", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -507,7 +534,6 @@ module Google
 
                   @firestore_admin_stub.get_index request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -587,7 +613,6 @@ module Google
 
                   @firestore_admin_stub.delete_index request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -667,7 +692,6 @@ module Google
 
                   @firestore_admin_stub.get_field request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -772,7 +796,7 @@ module Google
                   @firestore_admin_stub.update_field request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -813,7 +837,8 @@ module Google
                 #     only supports listing fields that have been explicitly overridden. To issue
                 #     this query, call
                 #     {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::Client#list_fields FirestoreAdmin.ListFields}
-                #     with a filter that includes `indexConfig.usesAncestorConfig:false` .
+                #     with a filter that includes `indexConfig.usesAncestorConfig:false` or
+                #     `ttlConfig:*`.
                 #   @param page_size [::Integer]
                 #     The number of results to return.
                 #   @param page_token [::String]
@@ -878,7 +903,7 @@ module Google
                   @firestore_admin_stub.list_fields request, options do |result, operation|
                     result = ::Gapic::Rest::PagedEnumerable.new @firestore_admin_stub, :list_fields, "fields", request, result, options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -916,7 +941,8 @@ module Google
                 #     Required. Database to export. Should be of the form:
                 #     `projects/{project_id}/databases/{database_id}`.
                 #   @param collection_ids [::Array<::String>]
-                #     Which collection ids to export. Unspecified means all collections.
+                #     Which collection IDs to export. Unspecified means all collections. Each
+                #     collection ID in this list must be unique.
                 #   @param output_uri_prefix [::String]
                 #     The output URI. Currently only supports Google Cloud Storage URIs of the
                 #     form: `gs://BUCKET_NAME[/NAMESPACE_PATH]`, where `BUCKET_NAME` is the name
@@ -1002,7 +1028,7 @@ module Google
                   @firestore_admin_stub.export_documents request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1034,8 +1060,8 @@ module Google
                 #     Required. Database to import into. Should be of the form:
                 #     `projects/{project_id}/databases/{database_id}`.
                 #   @param collection_ids [::Array<::String>]
-                #     Which collection ids to import. Unspecified means all collections included
-                #     in the import.
+                #     Which collection IDs to import. Unspecified means all collections included
+                #     in the import. Each collection ID in this list must be unique.
                 #   @param input_uri_prefix [::String]
                 #     Location of the exported files.
                 #     This must match the output_uri_prefix of an ExportDocumentsResponse from
@@ -1110,7 +1136,118 @@ module Google
                   @firestore_admin_stub.import_documents request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
+                  end
+                rescue ::Gapic::Rest::Error => e
+                  raise ::Google::Cloud::Error.from_error(e)
+                end
+
+                ##
+                # Bulk deletes a subset of documents from Google Cloud Firestore.
+                # Documents created or updated after the underlying system starts to process
+                # the request will not be deleted. The bulk delete occurs in the background
+                # and its progress can be monitored and managed via the Operation resource
+                # that is created.
+                #
+                # For more details on bulk delete behavior, refer to:
+                # https://cloud.google.com/firestore/docs/manage-data/bulk-delete
+                #
+                # @overload bulk_delete_documents(request, options = nil)
+                #   Pass arguments to `bulk_delete_documents` via a request object, either of type
+                #   {::Google::Cloud::Firestore::Admin::V1::BulkDeleteDocumentsRequest} or an equivalent Hash.
+                #
+                #   @param request [::Google::Cloud::Firestore::Admin::V1::BulkDeleteDocumentsRequest, ::Hash]
+                #     A request object representing the call parameters. Required. To specify no
+                #     parameters, or to keep all the default parameter values, pass an empty Hash.
+                #   @param options [::Gapic::CallOptions, ::Hash]
+                #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+                #
+                # @overload bulk_delete_documents(name: nil, collection_ids: nil, namespace_ids: nil)
+                #   Pass arguments to `bulk_delete_documents` via keyword arguments. Note that at
+                #   least one keyword argument is required. To specify no parameters, or to keep all
+                #   the default parameter values, pass an empty Hash as a request object (see above).
+                #
+                #   @param name [::String]
+                #     Required. Database to operate. Should be of the form:
+                #     `projects/{project_id}/databases/{database_id}`.
+                #   @param collection_ids [::Array<::String>]
+                #     Optional. IDs of the collection groups to delete. Unspecified means all
+                #     collection groups.
+                #
+                #     Each collection group in this list must be unique.
+                #   @param namespace_ids [::Array<::String>]
+                #     Optional. Namespaces to delete.
+                #
+                #     An empty list means all namespaces. This is the recommended
+                #     usage for databases that don't use namespaces.
+                #
+                #     An empty string element represents the default namespace. This should be
+                #     used if the database has data in non-default namespaces, but doesn't want
+                #     to delete from them.
+                #
+                #     Each namespace in this list must be unique.
+                # @yield [result, operation] Access the result along with the TransportOperation object
+                # @yieldparam result [::Gapic::Operation]
+                # @yieldparam operation [::Gapic::Rest::TransportOperation]
+                #
+                # @return [::Gapic::Operation]
+                #
+                # @raise [::Google::Cloud::Error] if the REST call is aborted.
+                #
+                # @example Basic example
+                #   require "google/cloud/firestore/admin/v1"
+                #
+                #   # Create a client object. The client can be reused for multiple calls.
+                #   client = Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::Client.new
+                #
+                #   # Create a request. To set request fields, pass in keyword arguments.
+                #   request = Google::Cloud::Firestore::Admin::V1::BulkDeleteDocumentsRequest.new
+                #
+                #   # Call the bulk_delete_documents method.
+                #   result = client.bulk_delete_documents request
+                #
+                #   # The returned object is of type Gapic::Operation. You can use it to
+                #   # check the status of an operation, cancel it, or wait for results.
+                #   # Here is how to wait for a response.
+                #   result.wait_until_done! timeout: 60
+                #   if result.response?
+                #     p result.response
+                #   else
+                #     puts "No response received."
+                #   end
+                #
+                def bulk_delete_documents request, options = nil
+                  raise ::ArgumentError, "request must be provided" if request.nil?
+
+                  request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::Firestore::Admin::V1::BulkDeleteDocumentsRequest
+
+                  # Converts hash and nil to an options object
+                  options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                  # Customize the options with defaults
+                  call_metadata = @config.rpcs.bulk_delete_documents.metadata.to_h
+
+                  # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                  call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                    lib_name: @config.lib_name, lib_version: @config.lib_version,
+                    gapic_version: ::Google::Cloud::Firestore::Admin::V1::VERSION,
+                    transports_version_send: [:rest]
+
+                  call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                  call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                  options.apply_defaults timeout:      @config.rpcs.bulk_delete_documents.timeout,
+                                         metadata:     call_metadata,
+                                         retry_policy: @config.rpcs.bulk_delete_documents.retry_policy
+
+                  options.apply_defaults timeout:      @config.timeout,
+                                         metadata:     @config.metadata,
+                                         retry_policy: @config.retry_policy
+
+                  @firestore_admin_stub.bulk_delete_documents request, options do |result, operation|
+                    result = ::Gapic::Operation.new result, @operations_client, options: options
+                    yield result, operation if block_given?
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1147,7 +1284,7 @@ module Google
                 #     with first character a letter and the last a letter or a number. Must not
                 #     be UUID-like /[0-9a-f]\\{8}(-[0-9a-f]\\{4})\\{3}-[0-9a-f]\\{12}/.
                 #
-                #     "(default)" database id is also valid.
+                #     "(default)" database ID is also valid.
                 # @yield [result, operation] Access the result along with the TransportOperation object
                 # @yieldparam result [::Gapic::Operation]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1209,7 +1346,7 @@ module Google
                   @firestore_admin_stub.create_database request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1289,7 +1426,6 @@ module Google
 
                   @firestore_admin_stub.get_database request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1308,7 +1444,7 @@ module Google
                 #   @param options [::Gapic::CallOptions, ::Hash]
                 #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
                 #
-                # @overload list_databases(parent: nil)
+                # @overload list_databases(parent: nil, show_deleted: nil)
                 #   Pass arguments to `list_databases` via keyword arguments. Note that at
                 #   least one keyword argument is required. To specify no parameters, or to keep all
                 #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1316,6 +1452,8 @@ module Google
                 #   @param parent [::String]
                 #     Required. A parent name of the form
                 #     `projects/{project_id}`
+                #   @param show_deleted [::Boolean]
+                #     If true, also returns deleted resources.
                 # @yield [result, operation] Access the result along with the TransportOperation object
                 # @yieldparam result [::Google::Cloud::Firestore::Admin::V1::ListDatabasesResponse]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1369,7 +1507,6 @@ module Google
 
                   @firestore_admin_stub.list_databases request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1458,7 +1595,7 @@ module Google
                   @firestore_admin_stub.update_database request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1550,7 +1687,7 @@ module Google
                   @firestore_admin_stub.delete_database request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1631,7 +1768,6 @@ module Google
 
                   @firestore_admin_stub.get_backup request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1650,7 +1786,7 @@ module Google
                 #   @param options [::Gapic::CallOptions, ::Hash]
                 #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
                 #
-                # @overload list_backups(parent: nil)
+                # @overload list_backups(parent: nil, filter: nil)
                 #   Pass arguments to `list_backups` via keyword arguments. Note that at
                 #   least one keyword argument is required. To specify no parameters, or to keep all
                 #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1662,6 +1798,19 @@ module Google
                 #     Use `{location} = '-'` to list backups from all locations for the given
                 #     project. This allows listing backups from a single location or from all
                 #     locations.
+                #   @param filter [::String]
+                #     An expression that filters the list of returned backups.
+                #
+                #     A filter expression consists of a field name, a comparison operator, and a
+                #     value for filtering.
+                #     The value must be a string, a number, or a boolean. The comparison operator
+                #     must be one of: `<`, `>`, `<=`, `>=`, `!=`, `=`, or `:`.
+                #     Colon `:` is the contains operator. Filter rules are not case sensitive.
+                #
+                #     The following fields in the {::Google::Cloud::Firestore::Admin::V1::Backup Backup} are
+                #     eligible for filtering:
+                #
+                #       * `database_uid` (supports `=` only)
                 # @yield [result, operation] Access the result along with the TransportOperation object
                 # @yieldparam result [::Google::Cloud::Firestore::Admin::V1::ListBackupsResponse]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1715,7 +1864,6 @@ module Google
 
                   @firestore_admin_stub.list_backups request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1796,7 +1944,6 @@ module Google
 
                   @firestore_admin_stub.delete_backup request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -1807,7 +1954,7 @@ module Google
                 #
                 # The new database must be in the same cloud region or multi-region location
                 # as the existing backup. This behaves similar to
-                # [FirestoreAdmin.CreateDatabase][google.firestore.admin.v1.CreateDatabase]
+                # {::Google::Cloud::Firestore::Admin::V1::FirestoreAdmin::Rest::Client#create_database FirestoreAdmin.CreateDatabase}
                 # except instead of creating a new empty database, a new database is created
                 # with the database type, index configuration, and documents from an existing
                 # backup.
@@ -1831,7 +1978,7 @@ module Google
                 #   @param options [::Gapic::CallOptions, ::Hash]
                 #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
                 #
-                # @overload restore_database(parent: nil, database_id: nil, backup: nil)
+                # @overload restore_database(parent: nil, database_id: nil, backup: nil, encryption_config: nil)
                 #   Pass arguments to `restore_database` via keyword arguments. Note that at
                 #   least one keyword argument is required. To specify no parameters, or to keep all
                 #   the default parameter values, pass an empty Hash as a request object (see above).
@@ -1841,19 +1988,28 @@ module Google
                 #     `projects/{project_id}`.
                 #   @param database_id [::String]
                 #     Required. The ID to use for the database, which will become the final
-                #     component of the database's resource name. This database id must not be
+                #     component of the database's resource name. This database ID must not be
                 #     associated with an existing database.
                 #
                 #     This value should be 4-63 characters. Valid characters are /[a-z][0-9]-/
                 #     with first character a letter and the last a letter or a number. Must not
                 #     be UUID-like /[0-9a-f]\\{8}(-[0-9a-f]\\{4})\\{3}-[0-9a-f]\\{12}/.
                 #
-                #     "(default)" database id is also valid.
+                #     "(default)" database ID is also valid.
                 #   @param backup [::String]
                 #     Required. Backup to restore from. Must be from the same project as the
                 #     parent.
                 #
+                #     The restored database will be created in the same location as the source
+                #     backup.
+                #
                 #     Format is: `projects/{project_id}/locations/{location}/backups/{backup}`
+                #   @param encryption_config [::Google::Cloud::Firestore::Admin::V1::Database::EncryptionConfig, ::Hash]
+                #     Optional. Encryption configuration for the restored database.
+                #
+                #     If this field is not specified, the restored database will use
+                #     the same encryption configuration as the backup, namely
+                #     {::Google::Cloud::Firestore::Admin::V1::Database::EncryptionConfig#use_source_encryption use_source_encryption}.
                 # @yield [result, operation] Access the result along with the TransportOperation object
                 # @yieldparam result [::Gapic::Operation]
                 # @yieldparam operation [::Gapic::Rest::TransportOperation]
@@ -1915,7 +2071,7 @@ module Google
                   @firestore_admin_stub.restore_database request, options do |result, operation|
                     result = ::Gapic::Operation.new result, @operations_client, options: options
                     yield result, operation if block_given?
-                    return result
+                    throw :response, result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2000,7 +2156,6 @@ module Google
 
                   @firestore_admin_stub.create_backup_schedule request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2082,7 +2237,6 @@ module Google
 
                   @firestore_admin_stub.get_backup_schedule request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2163,7 +2317,6 @@ module Google
 
                   @firestore_admin_stub.list_backup_schedules request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2244,7 +2397,6 @@ module Google
 
                   @firestore_admin_stub.update_backup_schedule request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2326,7 +2478,6 @@ module Google
 
                   @firestore_admin_stub.delete_backup_schedule request, options do |result, operation|
                     yield result, operation if block_given?
-                    return result
                   end
                 rescue ::Gapic::Rest::Error => e
                   raise ::Google::Cloud::Error.from_error(e)
@@ -2374,6 +2525,13 @@ module Google
                 #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
                 #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
                 #    *  (`nil`) indicating no credentials
+                #
+                #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+                #   external source for authentication to Google Cloud, you must validate it before
+                #   providing it to a Google API client library. Providing an unvalidated credential
+                #   configuration to Google APIs can compromise the security of your systems and data.
+                #   For more information, refer to [Validate credential configurations from external
+                #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
                 #   @return [::Object]
                 # @!attribute [rw] scope
                 #   The OAuth scopes
@@ -2406,6 +2564,11 @@ module Google
                 #   default endpoint URL. The default value of nil uses the environment
                 #   universe (usually the default "googleapis.com" universe).
                 #   @return [::String,nil]
+                # @!attribute [rw] logger
+                #   A custom logger to use for request/response debug logging, or the value
+                #   `:default` (the default) to construct a default logger, or `nil` to
+                #   explicitly disable logging.
+                #   @return [::Logger,:default,nil]
                 #
                 class Configuration
                   extend ::Gapic::Config
@@ -2427,6 +2590,7 @@ module Google
                   config_attr :retry_policy,  nil, ::Hash, ::Proc, nil
                   config_attr :quota_project, nil, ::String, nil
                   config_attr :universe_domain, nil, ::String, nil
+                  config_attr :logger, :default, ::Logger, nil, :default
 
                   # @private
                   def initialize parent_config = nil
@@ -2510,6 +2674,11 @@ module Google
                     # @return [::Gapic::Config::Method]
                     #
                     attr_reader :import_documents
+                    ##
+                    # RPC-specific configuration for `bulk_delete_documents`
+                    # @return [::Gapic::Config::Method]
+                    #
+                    attr_reader :bulk_delete_documents
                     ##
                     # RPC-specific configuration for `create_database`
                     # @return [::Gapic::Config::Method]
@@ -2601,6 +2770,8 @@ module Google
                       @export_documents = ::Gapic::Config::Method.new export_documents_config
                       import_documents_config = parent_rpcs.import_documents if parent_rpcs.respond_to? :import_documents
                       @import_documents = ::Gapic::Config::Method.new import_documents_config
+                      bulk_delete_documents_config = parent_rpcs.bulk_delete_documents if parent_rpcs.respond_to? :bulk_delete_documents
+                      @bulk_delete_documents = ::Gapic::Config::Method.new bulk_delete_documents_config
                       create_database_config = parent_rpcs.create_database if parent_rpcs.respond_to? :create_database
                       @create_database = ::Gapic::Config::Method.new create_database_config
                       get_database_config = parent_rpcs.get_database if parent_rpcs.respond_to? :get_database

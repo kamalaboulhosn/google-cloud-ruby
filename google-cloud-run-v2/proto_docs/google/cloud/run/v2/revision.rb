@@ -138,7 +138,8 @@ module Google
         #     [Google Cloud Platform Launch
         #     Stages](https://cloud.google.com/terms/launch-stages). Cloud Run supports
         #     `ALPHA`, `BETA`, and `GA`.
-        #     <p>Note that this value might not be what was used
+        #
+        #     Note that this value might not be what was used
         #     as input. For example, if ALPHA was provided as input in the parent
         #     resource, but only BETA and GA-level features are were, this field will be
         #     BETA.
@@ -178,6 +179,9 @@ module Google
         #     A reference to a customer managed encryption key (CMEK) to use to encrypt
         #     this container image. For more information, go to
         #     https://cloud.google.com/run/docs/securing/using-cmek
+        # @!attribute [rw] service_mesh
+        #   @return [::Google::Cloud::Run::V2::ServiceMesh]
+        #     Enables service mesh connectivity.
         # @!attribute [rw] encryption_key_revocation_action
         #   @return [::Google::Cloud::Run::V2::EncryptionKeyRevocationAction]
         #     The action to take if the encryption key is revoked.
@@ -212,6 +216,9 @@ module Google
         # @!attribute [r] scaling_status
         #   @return [::Google::Cloud::Run::V2::RevisionScalingStatus]
         #     Output only. The current effective scaling settings for the revision.
+        # @!attribute [rw] node_selector
+        #   @return [::Google::Cloud::Run::V2::NodeSelector]
+        #     The node selector for the revision.
         # @!attribute [r] etag
         #   @return [::String]
         #     Output only. A system-generated fingerprint for this version of the

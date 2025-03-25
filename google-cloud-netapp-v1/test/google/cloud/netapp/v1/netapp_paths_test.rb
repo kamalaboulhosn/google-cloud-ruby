@@ -31,6 +31,14 @@ class ::Google::Cloud::NetApp::V1::NetApp::ClientPathsTest < Minitest::Test
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_active_directory_path
@@ -114,6 +122,18 @@ class ::Google::Cloud::NetApp::V1::NetApp::ClientPathsTest < Minitest::Test
 
       path = client.network_path project: "value0", network: "value1"
       assert_equal "projects/value0/global/networks/value1", path
+    end
+  end
+
+  def test_quota_rule_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::NetApp::V1::NetApp::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.quota_rule_path project: "value0", location: "value1", volume: "value2", quota_rule: "value3"
+      assert_equal "projects/value0/locations/value1/volumes/value2/quotaRules/value3", path
     end
   end
 

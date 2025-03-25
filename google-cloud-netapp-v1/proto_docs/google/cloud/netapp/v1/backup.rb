@@ -64,6 +64,12 @@ module Google
         #   @return [::Integer]
         #     Output only. Total size of all backups in a chain in bytes = baseline
         #     backup size + sum(incremental backup size)
+        # @!attribute [r] satisfies_pzs
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use
+        # @!attribute [r] satisfies_pzi
+        #   @return [::Boolean]
+        #     Output only. Reserved for future use
         class Backup
           include ::Google::Protobuf::MessageExts
           extend ::Google::Protobuf::MessageExts::ClassMethods
@@ -188,10 +194,9 @@ module Google
         #   @return [::String]
         #     Required. The ID to use for the backup.
         #     The ID must be unique within the specified backupVault.
-        #     This value must start with a lowercase letter followed by up to 62
-        #     lowercase letters, numbers, or hyphens, and cannot end with a hyphen.
-        #     Values that do not match this pattern will trigger an INVALID_ARGUMENT
-        #     error.
+        #     Must contain only letters, numbers and hyphen, with the first
+        #     character a letter, the last a letter or a
+        #     number, and a 63 character maximum.
         # @!attribute [rw] backup
         #   @return [::Google::Cloud::NetApp::V1::Backup]
         #     Required. A backup resource

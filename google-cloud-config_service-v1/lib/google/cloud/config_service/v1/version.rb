@@ -21,7 +21,7 @@ module Google
   module Cloud
     module ConfigService
       module V1
-        VERSION = "0.6.0"
+        VERSION = "2.0.0"
       end
     end
   end

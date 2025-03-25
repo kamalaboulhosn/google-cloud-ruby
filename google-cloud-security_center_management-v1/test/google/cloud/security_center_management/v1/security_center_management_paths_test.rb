@@ -31,6 +31,14 @@ class ::Google::Cloud::SecurityCenterManagement::V1::SecurityCenterManagement::C
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_effective_event_threat_detection_custom_module_path
@@ -120,6 +128,24 @@ class ::Google::Cloud::SecurityCenterManagement::V1::SecurityCenterManagement::C
 
       path = client.organization_location_path organization: "value0", location: "value1"
       assert_equal "organizations/value0/locations/value1", path
+    end
+  end
+
+  def test_security_center_service_path
+    grpc_channel = ::GRPC::Core::Channel.new "localhost:8888", nil, :this_channel_is_insecure
+    ::Gapic::ServiceStub.stub :new, DummyStub.new do
+      client = ::Google::Cloud::SecurityCenterManagement::V1::SecurityCenterManagement::Client.new do |config|
+        config.credentials = grpc_channel
+      end
+
+      path = client.security_center_service_path project: "value0", location: "value1", service: "value2"
+      assert_equal "projects/value0/locations/value1/securityCenterServices/value2", path
+
+      path = client.security_center_service_path folder: "value0", location: "value1", service: "value2"
+      assert_equal "folders/value0/locations/value1/securityCenterServices/value2", path
+
+      path = client.security_center_service_path organization: "value0", location: "value1", service: "value2"
+      assert_equal "organizations/value0/locations/value1/securityCenterServices/value2", path
     end
   end
 

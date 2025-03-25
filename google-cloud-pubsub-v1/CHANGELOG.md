@@ -1,5 +1,94 @@
 # Release History
 
+### 1.8.0 (2025-03-11)
+
+#### Features
+
+* deprecate `enabled` field for message transforms and add `disabled` field ([#29306](https://github.com/googleapis/google-cloud-ruby/issues/29306)) 
+
+### 1.7.1 (2025-02-05)
+
+#### Documentation
+
+* Fixed some documentation formatting ([#28914](https://github.com/googleapis/google-cloud-ruby/issues/28914)) 
+
+### 1.7.0 (2025-01-31)
+
+#### Features
+
+* Added support for message transforms to Topic and Subscription ([#28801](https://github.com/googleapis/google-cloud-ruby/issues/28801)) 
+
+### 1.6.0 (2025-01-28)
+
+#### Features
+
+* Update Ruby version requirement to 3.0 
+#### Documentation
+
+* Clarify behavior of protobuf message fields that are part of mutually-exclusive sets 
+* Include note about validating externally-provided credentials 
+
+### 1.5.0 (2025-01-15)
+
+#### Features
+
+* Add Kafka-based sources to IngestionDataSourceSettings proto and IngestionFailureEvent proto ([#28200](https://github.com/googleapis/google-cloud-ruby/issues/28200)) 
+
+### 1.4.0 (2024-12-10)
+
+#### Features
+
+* Provide opt-in debug logging 
+
+### 1.3.0 (2024-10-15)
+
+#### Features
+
+* Support for the IngestionFailureEvent type ([#27430](https://github.com/googleapis/google-cloud-ruby/issues/27430)) 
+
+### 1.2.0 (2024-09-30)
+
+#### Features
+
+* Support for Analytics Hub subscription info 
+* Support for Cloud Storage and platform logs settings in IngestionDataSourceSettings 
+
+### 1.1.2 (2024-09-11)
+
+#### Documentation
+
+* Update documentation to note new maximum 31 day subscription message retention ([#27306](https://github.com/googleapis/google-cloud-ruby/issues/27306)) 
+
+### 1.1.1 (2024-08-30)
+
+#### Documentation
+
+* Add field `experimental_features` to message `PythonSettings` ([#27011](https://github.com/googleapis/google-cloud-ruby/issues/27011)) 
+
+### 1.1.0 (2024-07-25)
+
+#### Features
+
+* Added CloudStorageConfig#max_messages ([#26456](https://github.com/googleapis/google-cloud-ruby/issues/26456)) 
+
+### 1.0.0 (2024-07-09)
+
+#### Features
+
+* Bump version to 1.0.0 
+
+### 0.25.0 (2024-06-26)
+
+#### Features
+
+* Support use_topic_schema in Cloud Storage Subscriptions ([#26139](https://github.com/googleapis/google-cloud-ruby/issues/26139)) 
+
+### 0.24.0 (2024-05-31)
+
+#### Features
+
+* Support service account email for export subscriptions ([#26009](https://github.com/googleapis/google-cloud-ruby/issues/26009)) 
+
 ### 0.23.0 (2024-04-15)
 
 #### Features

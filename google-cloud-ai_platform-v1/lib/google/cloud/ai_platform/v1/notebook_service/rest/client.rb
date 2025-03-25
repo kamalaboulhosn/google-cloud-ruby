@@ -159,8 +159,19 @@ module Google
                   endpoint: @config.endpoint,
                   endpoint_template: DEFAULT_ENDPOINT_TEMPLATE,
                   universe_domain: @config.universe_domain,
-                  credentials: credentials
+                  credentials: credentials,
+                  logger: @config.logger
                 )
+
+                @notebook_service_stub.logger(stub: true)&.info do |entry|
+                  entry.set_system_name
+                  entry.set_service
+                  entry.message = "Created client for #{entry.service}"
+                  entry.set_credentials_fields credentials
+                  entry.set "customEndpoint", @config.endpoint if @config.endpoint
+                  entry.set "defaultTimeout", @config.timeout if @config.timeout
+                  entry.set "quotaProject", @quota_project_id if @quota_project_id
+                end
 
                 @location_client = Google::Cloud::Location::Locations::Rest::Client.new do |config|
                   config.credentials = credentials
@@ -168,6 +179,7 @@ module Google
                   config.endpoint = @notebook_service_stub.endpoint
                   config.universe_domain = @notebook_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @notebook_service_stub.logger if config.respond_to? :logger=
                 end
 
                 @iam_policy_client = Google::Iam::V1::IAMPolicy::Rest::Client.new do |config|
@@ -176,6 +188,7 @@ module Google
                   config.endpoint = @notebook_service_stub.endpoint
                   config.universe_domain = @notebook_service_stub.universe_domain
                   config.bindings_override = @config.bindings_override
+                  config.logger = @notebook_service_stub.logger if config.respond_to? :logger=
                 end
               end
 
@@ -199,6 +212,15 @@ module Google
               # @return [Google::Iam::V1::IAMPolicy::Rest::Client]
               #
               attr_reader :iam_policy_client
+
+              ##
+              # The logger used for request/response debug logging.
+              #
+              # @return [Logger]
+              #
+              def logger
+                @notebook_service_stub.logger
+              end
 
               # Service calls
 
@@ -288,7 +310,7 @@ module Google
                 @notebook_service_stub.create_notebook_runtime_template request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -369,7 +391,6 @@ module Google
 
                 @notebook_service_stub.get_notebook_runtime_template request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -412,6 +433,8 @@ module Google
               #         * A key including a space must be quoted. `labels."a key"`.
               #       * `notebookRuntimeType` supports = and !=. notebookRuntimeType enum:
               #       [USER_DEFINED, ONE_CLICK].
+              #       * `machineType` supports = and !=.
+              #       * `acceleratorType` supports = and !=.
               #
               #     Some examples:
               #
@@ -419,6 +442,8 @@ module Google
               #       * `displayName="myDisplayName"`
               #       * `labels.myKey="myValue"`
               #       * `notebookRuntimeType=USER_DEFINED`
+              #       * `machineType=e2-standard-4`
+              #       * `acceleratorType=NVIDIA_TESLA_T4`
               #   @param page_size [::Integer]
               #     Optional. The standard list page size.
               #   @param page_token [::String]
@@ -497,7 +522,7 @@ module Google
                 @notebook_service_stub.list_notebook_runtime_templates request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @notebook_service_stub, :list_notebook_runtime_templates, "notebook_runtime_templates", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -586,7 +611,92 @@ module Google
                 @notebook_service_stub.delete_notebook_runtime_template request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Updates a NotebookRuntimeTemplate.
+              #
+              # @overload update_notebook_runtime_template(request, options = nil)
+              #   Pass arguments to `update_notebook_runtime_template` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::UpdateNotebookRuntimeTemplateRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::UpdateNotebookRuntimeTemplateRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload update_notebook_runtime_template(notebook_runtime_template: nil, update_mask: nil)
+              #   Pass arguments to `update_notebook_runtime_template` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param notebook_runtime_template [::Google::Cloud::AIPlatform::V1::NotebookRuntimeTemplate, ::Hash]
+              #     Required. The NotebookRuntimeTemplate to update.
+              #   @param update_mask [::Google::Protobuf::FieldMask, ::Hash]
+              #     Required. The update mask applies to the resource.
+              #     For the `FieldMask` definition, see
+              #     {::Google::Protobuf::FieldMask google.protobuf.FieldMask}. Input format:
+              #     `{paths: "${updated_filed}"}` Updatable fields:
+              #
+              #       * `encryption_spec.kms_key_name`
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::AIPlatform::V1::NotebookRuntimeTemplate]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::AIPlatform::V1::NotebookRuntimeTemplate]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::UpdateNotebookRuntimeTemplateRequest.new
+              #
+              #   # Call the update_notebook_runtime_template method.
+              #   result = client.update_notebook_runtime_template request
+              #
+              #   # The returned object is of type Google::Cloud::AIPlatform::V1::NotebookRuntimeTemplate.
+              #   p result
+              #
+              def update_notebook_runtime_template request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::UpdateNotebookRuntimeTemplateRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.update_notebook_runtime_template.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.update_notebook_runtime_template.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.update_notebook_runtime_template.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @notebook_service_stub.update_notebook_runtime_template request, options do |result, operation|
+                  yield result, operation if block_given?
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -683,7 +793,7 @@ module Google
                 @notebook_service_stub.assign_notebook_runtime request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -765,7 +875,6 @@ module Google
 
                 @notebook_service_stub.get_notebook_runtime request, options do |result, operation|
                   yield result, operation if block_given?
-                  return result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -818,6 +927,8 @@ module Google
               #       UI_RESOURCE_STATE_CREATION_FAILED].
               #       * `notebookRuntimeType` supports = and !=. notebookRuntimeType enum:
               #       [USER_DEFINED, ONE_CLICK].
+              #       * `machineType` supports = and !=.
+              #       * `acceleratorType` supports = and !=.
               #
               #     Some examples:
               #
@@ -829,6 +940,8 @@ module Google
               #       * `runtimeUser="test@google.com"`
               #       * `uiState=UI_RESOURCE_STATE_BEING_DELETED`
               #       * `notebookRuntimeType=USER_DEFINED`
+              #       * `machineType=e2-standard-4`
+              #       * `acceleratorType=NVIDIA_TESLA_T4`
               #   @param page_size [::Integer]
               #     Optional. The standard list page size.
               #   @param page_token [::String]
@@ -907,7 +1020,7 @@ module Google
                 @notebook_service_stub.list_notebook_runtimes request, options do |result, operation|
                   result = ::Gapic::Rest::PagedEnumerable.new @notebook_service_stub, :list_notebook_runtimes, "notebook_runtimes", request, result, options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -997,7 +1110,7 @@ module Google
                 @notebook_service_stub.delete_notebook_runtime request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1087,7 +1200,7 @@ module Google
                 @notebook_service_stub.upgrade_notebook_runtime request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1177,7 +1290,475 @@ module Google
                 @notebook_service_stub.start_notebook_runtime request, options do |result, operation|
                   result = ::Gapic::Operation.new result, @operations_client, options: options
                   yield result, operation if block_given?
-                  return result
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Stops a NotebookRuntime.
+              #
+              # @overload stop_notebook_runtime(request, options = nil)
+              #   Pass arguments to `stop_notebook_runtime` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::StopNotebookRuntimeRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::StopNotebookRuntimeRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload stop_notebook_runtime(name: nil)
+              #   Pass arguments to `stop_notebook_runtime` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The name of the NotebookRuntime resource to be stopped.
+              #     Instead of checking whether the name is in valid NotebookRuntime resource
+              #     name format, directly throw NotFound exception if there is no such
+              #     NotebookRuntime in spanner.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::StopNotebookRuntimeRequest.new
+              #
+              #   # Call the stop_notebook_runtime method.
+              #   result = client.stop_notebook_runtime request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def stop_notebook_runtime request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::StopNotebookRuntimeRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.stop_notebook_runtime.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.stop_notebook_runtime.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.stop_notebook_runtime.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @notebook_service_stub.stop_notebook_runtime request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Creates a NotebookExecutionJob.
+              #
+              # @overload create_notebook_execution_job(request, options = nil)
+              #   Pass arguments to `create_notebook_execution_job` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::CreateNotebookExecutionJobRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::CreateNotebookExecutionJobRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload create_notebook_execution_job(parent: nil, notebook_execution_job: nil, notebook_execution_job_id: nil)
+              #   Pass arguments to `create_notebook_execution_job` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The resource name of the Location to create the
+              #     NotebookExecutionJob. Format: `projects/{project}/locations/{location}`
+              #   @param notebook_execution_job [::Google::Cloud::AIPlatform::V1::NotebookExecutionJob, ::Hash]
+              #     Required. The NotebookExecutionJob to create.
+              #   @param notebook_execution_job_id [::String]
+              #     Optional. User specified ID for the NotebookExecutionJob.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::CreateNotebookExecutionJobRequest.new
+              #
+              #   # Call the create_notebook_execution_job method.
+              #   result = client.create_notebook_execution_job request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def create_notebook_execution_job request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::CreateNotebookExecutionJobRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.create_notebook_execution_job.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.create_notebook_execution_job.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.create_notebook_execution_job.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @notebook_service_stub.create_notebook_execution_job request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Gets a NotebookExecutionJob.
+              #
+              # @overload get_notebook_execution_job(request, options = nil)
+              #   Pass arguments to `get_notebook_execution_job` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::GetNotebookExecutionJobRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::GetNotebookExecutionJobRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload get_notebook_execution_job(name: nil, view: nil)
+              #   Pass arguments to `get_notebook_execution_job` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The name of the NotebookExecutionJob resource.
+              #   @param view [::Google::Cloud::AIPlatform::V1::NotebookExecutionJobView]
+              #     Optional. The NotebookExecutionJob view. Defaults to BASIC.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Google::Cloud::AIPlatform::V1::NotebookExecutionJob]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Google::Cloud::AIPlatform::V1::NotebookExecutionJob]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::GetNotebookExecutionJobRequest.new
+              #
+              #   # Call the get_notebook_execution_job method.
+              #   result = client.get_notebook_execution_job request
+              #
+              #   # The returned object is of type Google::Cloud::AIPlatform::V1::NotebookExecutionJob.
+              #   p result
+              #
+              def get_notebook_execution_job request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::GetNotebookExecutionJobRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.get_notebook_execution_job.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.get_notebook_execution_job.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.get_notebook_execution_job.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @notebook_service_stub.get_notebook_execution_job request, options do |result, operation|
+                  yield result, operation if block_given?
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Lists NotebookExecutionJobs in a Location.
+              #
+              # @overload list_notebook_execution_jobs(request, options = nil)
+              #   Pass arguments to `list_notebook_execution_jobs` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload list_notebook_execution_jobs(parent: nil, filter: nil, page_size: nil, page_token: nil, order_by: nil, view: nil)
+              #   Pass arguments to `list_notebook_execution_jobs` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param parent [::String]
+              #     Required. The resource name of the Location from which to list the
+              #     NotebookExecutionJobs.
+              #     Format: `projects/{project}/locations/{location}`
+              #   @param filter [::String]
+              #     Optional. An expression for filtering the results of the request. For field
+              #     names both snake_case and camelCase are supported.
+              #
+              #       * `notebookExecutionJob` supports = and !=. `notebookExecutionJob`
+              #       represents the NotebookExecutionJob ID.
+              #       * `displayName` supports = and != and regex.
+              #       * `schedule` supports = and != and regex.
+              #
+              #     Some examples:
+              #       * `notebookExecutionJob="123"`
+              #       * `notebookExecutionJob="my-execution-job"`
+              #       * `displayName="myDisplayName"` and `displayName=~"myDisplayNameRegex"`
+              #   @param page_size [::Integer]
+              #     Optional. The standard list page size.
+              #   @param page_token [::String]
+              #     Optional. The standard list page token.
+              #     Typically obtained via
+              #     {::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsResponse#next_page_token ListNotebookExecutionJobsResponse.next_page_token}
+              #     of the previous
+              #     {::Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client#list_notebook_execution_jobs NotebookService.ListNotebookExecutionJobs}
+              #     call.
+              #   @param order_by [::String]
+              #     Optional. A comma-separated list of fields to order by, sorted in ascending
+              #     order. Use "desc" after a field name for descending. Supported fields:
+              #
+              #       * `display_name`
+              #       * `create_time`
+              #       * `update_time`
+              #
+              #     Example: `display_name, create_time desc`.
+              #   @param view [::Google::Cloud::AIPlatform::V1::NotebookExecutionJobView]
+              #     Optional. The NotebookExecutionJob view. Defaults to BASIC.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AIPlatform::V1::NotebookExecutionJob>]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Rest::PagedEnumerable<::Google::Cloud::AIPlatform::V1::NotebookExecutionJob>]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsRequest.new
+              #
+              #   # Call the list_notebook_execution_jobs method.
+              #   result = client.list_notebook_execution_jobs request
+              #
+              #   # The returned object is of type Gapic::PagedEnumerable. You can iterate
+              #   # over elements, and API calls will be issued to fetch pages as needed.
+              #   result.each do |item|
+              #     # Each element is of type ::Google::Cloud::AIPlatform::V1::NotebookExecutionJob.
+              #     p item
+              #   end
+              #
+              def list_notebook_execution_jobs request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::ListNotebookExecutionJobsRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.list_notebook_execution_jobs.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.list_notebook_execution_jobs.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.list_notebook_execution_jobs.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @notebook_service_stub.list_notebook_execution_jobs request, options do |result, operation|
+                  result = ::Gapic::Rest::PagedEnumerable.new @notebook_service_stub, :list_notebook_execution_jobs, "notebook_execution_jobs", request, result, options
+                  yield result, operation if block_given?
+                  throw :response, result
+                end
+              rescue ::Gapic::Rest::Error => e
+                raise ::Google::Cloud::Error.from_error(e)
+              end
+
+              ##
+              # Deletes a NotebookExecutionJob.
+              #
+              # @overload delete_notebook_execution_job(request, options = nil)
+              #   Pass arguments to `delete_notebook_execution_job` via a request object, either of type
+              #   {::Google::Cloud::AIPlatform::V1::DeleteNotebookExecutionJobRequest} or an equivalent Hash.
+              #
+              #   @param request [::Google::Cloud::AIPlatform::V1::DeleteNotebookExecutionJobRequest, ::Hash]
+              #     A request object representing the call parameters. Required. To specify no
+              #     parameters, or to keep all the default parameter values, pass an empty Hash.
+              #   @param options [::Gapic::CallOptions, ::Hash]
+              #     Overrides the default settings for this call, e.g, timeout, retries etc. Optional.
+              #
+              # @overload delete_notebook_execution_job(name: nil)
+              #   Pass arguments to `delete_notebook_execution_job` via keyword arguments. Note that at
+              #   least one keyword argument is required. To specify no parameters, or to keep all
+              #   the default parameter values, pass an empty Hash as a request object (see above).
+              #
+              #   @param name [::String]
+              #     Required. The name of the NotebookExecutionJob resource to be deleted.
+              # @yield [result, operation] Access the result along with the TransportOperation object
+              # @yieldparam result [::Gapic::Operation]
+              # @yieldparam operation [::Gapic::Rest::TransportOperation]
+              #
+              # @return [::Gapic::Operation]
+              #
+              # @raise [::Google::Cloud::Error] if the REST call is aborted.
+              #
+              # @example Basic example
+              #   require "google/cloud/ai_platform/v1"
+              #
+              #   # Create a client object. The client can be reused for multiple calls.
+              #   client = Google::Cloud::AIPlatform::V1::NotebookService::Rest::Client.new
+              #
+              #   # Create a request. To set request fields, pass in keyword arguments.
+              #   request = Google::Cloud::AIPlatform::V1::DeleteNotebookExecutionJobRequest.new
+              #
+              #   # Call the delete_notebook_execution_job method.
+              #   result = client.delete_notebook_execution_job request
+              #
+              #   # The returned object is of type Gapic::Operation. You can use it to
+              #   # check the status of an operation, cancel it, or wait for results.
+              #   # Here is how to wait for a response.
+              #   result.wait_until_done! timeout: 60
+              #   if result.response?
+              #     p result.response
+              #   else
+              #     puts "No response received."
+              #   end
+              #
+              def delete_notebook_execution_job request, options = nil
+                raise ::ArgumentError, "request must be provided" if request.nil?
+
+                request = ::Gapic::Protobuf.coerce request, to: ::Google::Cloud::AIPlatform::V1::DeleteNotebookExecutionJobRequest
+
+                # Converts hash and nil to an options object
+                options = ::Gapic::CallOptions.new(**options.to_h) if options.respond_to? :to_h
+
+                # Customize the options with defaults
+                call_metadata = @config.rpcs.delete_notebook_execution_job.metadata.to_h
+
+                # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
+                call_metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
+                  lib_name: @config.lib_name, lib_version: @config.lib_version,
+                  gapic_version: ::Google::Cloud::AIPlatform::V1::VERSION,
+                  transports_version_send: [:rest]
+
+                call_metadata[:"x-goog-api-version"] = API_VERSION unless API_VERSION.empty?
+                call_metadata[:"x-goog-user-project"] = @quota_project_id if @quota_project_id
+
+                options.apply_defaults timeout:      @config.rpcs.delete_notebook_execution_job.timeout,
+                                       metadata:     call_metadata,
+                                       retry_policy: @config.rpcs.delete_notebook_execution_job.retry_policy
+
+                options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
+                                       retry_policy: @config.retry_policy
+
+                @notebook_service_stub.delete_notebook_execution_job request, options do |result, operation|
+                  result = ::Gapic::Operation.new result, @operations_client, options: options
+                  yield result, operation if block_given?
+                  throw :response, result
                 end
               rescue ::Gapic::Rest::Error => e
                 raise ::Google::Cloud::Error.from_error(e)
@@ -1225,6 +1806,13 @@ module Google
               #    *  (`Signet::OAuth2::Client`) A signet oauth2 client object
               #       (see the [signet docs](https://rubydoc.info/gems/signet/Signet/OAuth2/Client))
               #    *  (`nil`) indicating no credentials
+              #
+              #   Warning: If you accept a credential configuration (JSON file or Hash) from an
+              #   external source for authentication to Google Cloud, you must validate it before
+              #   providing it to a Google API client library. Providing an unvalidated credential
+              #   configuration to Google APIs can compromise the security of your systems and data.
+              #   For more information, refer to [Validate credential configurations from external
+              #   sources](https://cloud.google.com/docs/authentication/external/externally-sourced-credentials).
               #   @return [::Object]
               # @!attribute [rw] scope
               #   The OAuth scopes
@@ -1257,6 +1845,11 @@ module Google
               #   default endpoint URL. The default value of nil uses the environment
               #   universe (usually the default "googleapis.com" universe).
               #   @return [::String,nil]
+              # @!attribute [rw] logger
+              #   A custom logger to use for request/response debug logging, or the value
+              #   `:default` (the default) to construct a default logger, or `nil` to
+              #   explicitly disable logging.
+              #   @return [::Logger,:default,nil]
               #
               class Configuration
                 extend ::Gapic::Config
@@ -1285,6 +1878,7 @@ module Google
                 # by the host service.
                 # @return [::Hash{::Symbol=>::Array<::Gapic::Rest::GrpcTranscoder::HttpBinding>}]
                 config_attr :bindings_override, {}, ::Hash, nil
+                config_attr :logger, :default, ::Logger, nil, :default
 
                 # @private
                 def initialize parent_config = nil
@@ -1344,6 +1938,11 @@ module Google
                   #
                   attr_reader :delete_notebook_runtime_template
                   ##
+                  # RPC-specific configuration for `update_notebook_runtime_template`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :update_notebook_runtime_template
+                  ##
                   # RPC-specific configuration for `assign_notebook_runtime`
                   # @return [::Gapic::Config::Method]
                   #
@@ -1373,6 +1972,31 @@ module Google
                   # @return [::Gapic::Config::Method]
                   #
                   attr_reader :start_notebook_runtime
+                  ##
+                  # RPC-specific configuration for `stop_notebook_runtime`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :stop_notebook_runtime
+                  ##
+                  # RPC-specific configuration for `create_notebook_execution_job`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :create_notebook_execution_job
+                  ##
+                  # RPC-specific configuration for `get_notebook_execution_job`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :get_notebook_execution_job
+                  ##
+                  # RPC-specific configuration for `list_notebook_execution_jobs`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :list_notebook_execution_jobs
+                  ##
+                  # RPC-specific configuration for `delete_notebook_execution_job`
+                  # @return [::Gapic::Config::Method]
+                  #
+                  attr_reader :delete_notebook_execution_job
 
                   # @private
                   def initialize parent_rpcs = nil
@@ -1384,6 +2008,8 @@ module Google
                     @list_notebook_runtime_templates = ::Gapic::Config::Method.new list_notebook_runtime_templates_config
                     delete_notebook_runtime_template_config = parent_rpcs.delete_notebook_runtime_template if parent_rpcs.respond_to? :delete_notebook_runtime_template
                     @delete_notebook_runtime_template = ::Gapic::Config::Method.new delete_notebook_runtime_template_config
+                    update_notebook_runtime_template_config = parent_rpcs.update_notebook_runtime_template if parent_rpcs.respond_to? :update_notebook_runtime_template
+                    @update_notebook_runtime_template = ::Gapic::Config::Method.new update_notebook_runtime_template_config
                     assign_notebook_runtime_config = parent_rpcs.assign_notebook_runtime if parent_rpcs.respond_to? :assign_notebook_runtime
                     @assign_notebook_runtime = ::Gapic::Config::Method.new assign_notebook_runtime_config
                     get_notebook_runtime_config = parent_rpcs.get_notebook_runtime if parent_rpcs.respond_to? :get_notebook_runtime
@@ -1396,6 +2022,16 @@ module Google
                     @upgrade_notebook_runtime = ::Gapic::Config::Method.new upgrade_notebook_runtime_config
                     start_notebook_runtime_config = parent_rpcs.start_notebook_runtime if parent_rpcs.respond_to? :start_notebook_runtime
                     @start_notebook_runtime = ::Gapic::Config::Method.new start_notebook_runtime_config
+                    stop_notebook_runtime_config = parent_rpcs.stop_notebook_runtime if parent_rpcs.respond_to? :stop_notebook_runtime
+                    @stop_notebook_runtime = ::Gapic::Config::Method.new stop_notebook_runtime_config
+                    create_notebook_execution_job_config = parent_rpcs.create_notebook_execution_job if parent_rpcs.respond_to? :create_notebook_execution_job
+                    @create_notebook_execution_job = ::Gapic::Config::Method.new create_notebook_execution_job_config
+                    get_notebook_execution_job_config = parent_rpcs.get_notebook_execution_job if parent_rpcs.respond_to? :get_notebook_execution_job
+                    @get_notebook_execution_job = ::Gapic::Config::Method.new get_notebook_execution_job_config
+                    list_notebook_execution_jobs_config = parent_rpcs.list_notebook_execution_jobs if parent_rpcs.respond_to? :list_notebook_execution_jobs
+                    @list_notebook_execution_jobs = ::Gapic::Config::Method.new list_notebook_execution_jobs_config
+                    delete_notebook_execution_job_config = parent_rpcs.delete_notebook_execution_job if parent_rpcs.respond_to? :delete_notebook_execution_job
+                    @delete_notebook_execution_job = ::Gapic::Config::Method.new delete_notebook_execution_job_config
 
                     yield self if block_given?
                   end

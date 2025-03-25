@@ -33,24 +33,24 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
       @requests = []
     end
 
-    def make_get_request uri:, params: {}, options: {}
-      make_http_request :get, uri: uri, body: nil, params: params, options: options
+    def make_get_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :get, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_delete_request uri:, params: {}, options: {}
-      make_http_request :delete, uri: uri, body: nil, params: params, options: options
+    def make_delete_request uri:, params: {}, options: {}, method_name: nil
+      make_http_request :delete, uri: uri, body: nil, params: params, options: options, method_name: method_name
     end
 
-    def make_post_request uri:, body: nil, params: {}, options: {}
-      make_http_request :post, uri: uri, body: body, params: params, options: options
+    def make_post_request uri:, body: nil, params: {}, options: {}, method_name: nil
+      make_http_request :post, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_patch_request uri:, body:, params: {}, options: {}
-      make_http_request :patch, uri: uri, body: body, params: params, options: options
+    def make_patch_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :patch, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
-    def make_put_request uri:, body:, params: {}, options: {}
-      make_http_request :put, uri: uri, body: body, params: params, options: options
+    def make_put_request uri:, body:, params: {}, options: {}, method_name: nil
+      make_http_request :put, uri: uri, body: body, params: params, options: options, method_name: method_name
     end
 
     def make_http_request *args, **kwargs
@@ -68,6 +68,14 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     def universe_domain
       "example.com"
     end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
+    end
   end
 
   def test_create_lake
@@ -83,7 +91,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     lake = {}
     validate_only = true
 
-    create_lake_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_lake_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -139,7 +147,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     lake = {}
     validate_only = true
 
-    update_lake_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_lake_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -193,7 +201,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_lake_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_lake_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -251,7 +259,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_lakes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_lakes_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -305,7 +313,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_lake_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_lake_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -361,7 +369,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     page_size = 42
     page_token = "hello world"
 
-    list_lake_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_lake_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -418,7 +426,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     zone = {}
     validate_only = true
 
-    create_zone_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_zone_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -474,7 +482,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     zone = {}
     validate_only = true
 
-    update_zone_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_zone_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -528,7 +536,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_zone_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_zone_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -586,7 +594,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_zones_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_zones_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -640,7 +648,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_zone_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_zone_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -696,7 +704,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     page_size = 42
     page_token = "hello world"
 
-    list_zone_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_zone_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -753,7 +761,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     asset = {}
     validate_only = true
 
-    create_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -809,7 +817,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     asset = {}
     validate_only = true
 
-    update_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -863,7 +871,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -921,7 +929,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_assets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_assets_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -975,7 +983,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_asset_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1031,7 +1039,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     page_size = 42
     page_token = "hello world"
 
-    list_asset_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_asset_actions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1088,7 +1096,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     task = {}
     validate_only = true
 
-    create_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1144,7 +1152,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     task = {}
     validate_only = true
 
-    update_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1198,7 +1206,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1256,7 +1264,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_tasks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_tasks_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1310,7 +1318,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1366,7 +1374,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     page_size = 42
     page_token = "hello world"
 
-    list_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_jobs_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1422,7 +1430,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     labels = {}
     args = {}
 
-    run_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    run_task_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1476,7 +1484,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1530,7 +1538,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    cancel_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    cancel_job_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1587,7 +1595,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     environment = {}
     validate_only = true
 
-    create_environment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    create_environment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1643,7 +1651,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     environment = {}
     validate_only = true
 
-    update_environment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    update_environment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1697,7 +1705,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    delete_environment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    delete_environment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1755,7 +1763,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     filter = "hello world"
     order_by = "hello world"
 
-    list_environments_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_environments_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1809,7 +1817,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     # Create request parameters for a unary method.
     name = "hello world"
 
-    get_environment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    get_environment_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"
@@ -1866,7 +1874,7 @@ class ::Google::Cloud::Dataplex::V1::DataplexService::Rest::ClientTest < Minites
     page_token = "hello world"
     filter = "hello world"
 
-    list_sessions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:|
+    list_sessions_client_stub = ClientStub.new http_response do |_verb, uri:, body:, params:, options:, method_name:|
       assert options.metadata.key? :"x-goog-api-client"
       assert options.metadata[:"x-goog-api-client"].include? "rest"
       refute options.metadata[:"x-goog-api-client"].include? "grpc"

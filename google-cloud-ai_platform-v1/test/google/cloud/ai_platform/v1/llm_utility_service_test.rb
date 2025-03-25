@@ -41,9 +41,10 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::ClientTest < Minitest:
 
       @requests << @block&.call(*args, **kwargs)
 
-      yield @response, @operation if block_given?
-
-      @response
+      catch :response do
+        yield @response, @operation if block_given?
+        @response
+      end
     end
 
     def endpoint
@@ -52,6 +53,14 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::ClientTest < Minitest:
 
     def universe_domain
       "example.com"
+    end
+
+    def stub_logger
+      nil
+    end
+
+    def logger
+      nil
     end
   end
 
@@ -67,6 +76,9 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::ClientTest < Minitest:
     model = "hello world"
     instances = [{}]
     contents = [{}]
+    system_instruction = {}
+    tools = [{}]
+    generation_config = {}
 
     count_tokens_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :count_tokens, name
@@ -75,6 +87,11 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::ClientTest < Minitest:
       assert_equal "hello world", request["model"]
       assert_kind_of ::Google::Protobuf::Value, request["instances"].first
       assert_kind_of ::Google::Cloud::AIPlatform::V1::Content, request["contents"].first
+      assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Cloud::AIPlatform::V1::Content), request["system_instruction"]
+      assert request.has_system_instruction?
+      assert_kind_of ::Google::Cloud::AIPlatform::V1::Tool, request["tools"].first
+      assert_equal Gapic::Protobuf.coerce({}, to: ::Google::Cloud::AIPlatform::V1::GenerationConfig), request["generation_config"]
+      assert request.has_generation_config?
       refute_nil options
     end
 
@@ -85,31 +102,31 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::ClientTest < Minitest:
       end
 
       # Use hash object
-      client.count_tokens({ endpoint: endpoint, model: model, instances: instances, contents: contents }) do |response, operation|
+      client.count_tokens({ endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config }) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.count_tokens endpoint: endpoint, model: model, instances: instances, contents: contents do |response, operation|
+      client.count_tokens endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.count_tokens ::Google::Cloud::AIPlatform::V1::CountTokensRequest.new(endpoint: endpoint, model: model, instances: instances, contents: contents) do |response, operation|
+      client.count_tokens ::Google::Cloud::AIPlatform::V1::CountTokensRequest.new(endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.count_tokens({ endpoint: endpoint, model: model, instances: instances, contents: contents }, grpc_options) do |response, operation|
+      client.count_tokens({ endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config }, grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.count_tokens(::Google::Cloud::AIPlatform::V1::CountTokensRequest.new(endpoint: endpoint, model: model, instances: instances, contents: contents), grpc_options) do |response, operation|
+      client.count_tokens(::Google::Cloud::AIPlatform::V1::CountTokensRequest.new(endpoint: endpoint, model: model, instances: instances, contents: contents, system_instruction: system_instruction, tools: tools, generation_config: generation_config), grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
@@ -129,12 +146,16 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::ClientTest < Minitest:
     # Create request parameters for a unary method.
     endpoint = "hello world"
     instances = [{}]
+    model = "hello world"
+    contents = [{}]
 
     compute_tokens_client_stub = ClientStub.new grpc_response, grpc_operation do |name, request, options:|
       assert_equal :compute_tokens, name
       assert_kind_of ::Google::Cloud::AIPlatform::V1::ComputeTokensRequest, request
       assert_equal "hello world", request["endpoint"]
       assert_kind_of ::Google::Protobuf::Value, request["instances"].first
+      assert_equal "hello world", request["model"]
+      assert_kind_of ::Google::Cloud::AIPlatform::V1::Content, request["contents"].first
       refute_nil options
     end
 
@@ -145,31 +166,31 @@ class ::Google::Cloud::AIPlatform::V1::LlmUtilityService::ClientTest < Minitest:
       end
 
       # Use hash object
-      client.compute_tokens({ endpoint: endpoint, instances: instances }) do |response, operation|
+      client.compute_tokens({ endpoint: endpoint, instances: instances, model: model, contents: contents }) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use named arguments
-      client.compute_tokens endpoint: endpoint, instances: instances do |response, operation|
+      client.compute_tokens endpoint: endpoint, instances: instances, model: model, contents: contents do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object
-      client.compute_tokens ::Google::Cloud::AIPlatform::V1::ComputeTokensRequest.new(endpoint: endpoint, instances: instances) do |response, operation|
+      client.compute_tokens ::Google::Cloud::AIPlatform::V1::ComputeTokensRequest.new(endpoint: endpoint, instances: instances, model: model, contents: contents) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use hash object with options
-      client.compute_tokens({ endpoint: endpoint, instances: instances }, grpc_options) do |response, operation|
+      client.compute_tokens({ endpoint: endpoint, instances: instances, model: model, contents: contents }, grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
 
       # Use protobuf object with options
-      client.compute_tokens(::Google::Cloud::AIPlatform::V1::ComputeTokensRequest.new(endpoint: endpoint, instances: instances), grpc_options) do |response, operation|
+      client.compute_tokens(::Google::Cloud::AIPlatform::V1::ComputeTokensRequest.new(endpoint: endpoint, instances: instances, model: model, contents: contents), grpc_options) do |response, operation|
         assert_equal grpc_response, response
         assert_equal grpc_operation, operation
       end
